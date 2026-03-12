@@ -11,7 +11,6 @@ import {
   X,
   AlertCircle,
   Instagram,
-  Facebook,
   ChevronDown
 } from 'lucide-react';
 import { supabase } from '../supabase';
@@ -95,7 +94,26 @@ function gerarLinkGoogle(titulo, dataInicioISO, duracaoMin) {
   return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(titulo)}&dates=${fmt(inicio)}/${fmt(fim)}&details=Agendamento+confirmado+pelo+Comvaga&sf=true&output=xml`;
 }
 
-function StarChar({ size = 18, className = 'text-primary' }) {
+function FacebookIcon({ className = '', size = 16 }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+    </svg>
+  );
+}
+
+
   return (
     <span className={className} style={{ fontSize: size, lineHeight: 1 }} aria-hidden="true">
       ★
@@ -268,9 +286,6 @@ export default function Vitrine({ user, userType }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // ─────────────────────────────────────────────────────────────
-  // grupo semântico derivado do tipo de negócio
-  // ─────────────────────────────────────────────────────────────
   const businessGroup = useMemo(
     () => getBusinessGroup(negocio?.tipo_negocio),
     [negocio?.tipo_negocio]
@@ -916,7 +931,7 @@ export default function Vitrine({ user, userType }) {
                 )}
                 {facebookUrl && (
                   <a href={facebookUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary hover:text-yellow-500 text-sm font-normal transition-colors" aria-label="Facebook">
-                    <Facebook className="w-4 h-4" strokeWidth={1.5} />clique :)
+                    <FacebookIcon size={16} />clique :)
                   </a>
                 )}
               </div>
@@ -1021,7 +1036,6 @@ export default function Vitrine({ user, userType }) {
                       <div className="text-xs text-vmuted font-normal">{lista.length} {lista.length === 1 ? counterSingular : counterPlural}</div>
                     </div>
                     {lista.length ? (
-                      // ── GRID 2 COLUNAS NO MOBILE, 3 NO DESKTOP ──
                       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
                         {lista.map(s => {
                           const preco = Number(s.preco ?? 0);
