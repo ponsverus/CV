@@ -996,14 +996,15 @@ export default function Vitrine({ user, userType }) {
       </section>
 
       {/* ─── Entregas (seção dinâmica) ────────────────────────────────────── */}
-      <section className="py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+      <section className="py-12">
+        <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
           <h2 className="text-2xl sm:text-3xl font-normal mb-6">{sectionTitle}</h2>
-          {profissionais.length === 0 ? (
-            <p className="text-vmuted font-normal">Nenhum profissional cadastrado.</p>
-          ) : (
-            <div className="space-y-4">
-              {profissionais.map(p => {
+        </div>
+        {profissionais.length === 0 ? (
+          <p className="text-vmuted font-normal px-4 sm:px-6 lg:px-8">Nenhum profissional cadastrado.</p>
+        ) : (
+          <div className="space-y-px">
+            {profissionais.map(p => {
                 const lista = (entregasPorProf.get(p.id) || [])
                   .slice()
                   .sort((a, b) => {
@@ -1013,7 +1014,8 @@ export default function Vitrine({ user, userType }) {
                     return String(a.nome || '').localeCompare(String(b.nome || ''));
                   });
                 return (
-                  <div key={p.id} className="bg-vcard border border-vborder rounded-custom p-6">
+                  <div key={p.id} className="bg-vcard border-t border-b border-vborder w-full px-4 sm:px-6 lg:px-8 py-6">
+                    <div className="max-w-7xl mx-auto">
                     <div className="flex items-center justify-between mb-4">
                       <div className="font-normal text-lg">{p.nome}</div>
                       <div className="text-xs text-vmuted font-normal">{lista.length} {lista.length === 1 ? counterSingular : counterPlural}</div>
@@ -1052,12 +1054,12 @@ export default function Vitrine({ user, userType }) {
                     ) : (
                       <p className="text-vmuted font-normal">{emptyListMsg}</p>
                     )}
+                    </div>
                   </div>
                 );
               })}
-            </div>
-          )}
-        </div>
+          </div>
+        )}
       </section>
 
       {/* ─── Galeria ──────────────────────────────────────────────────────── */}
