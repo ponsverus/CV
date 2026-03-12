@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import { ptBR } from '../feedback/messages/ptBR';
+import { getBusinessGroup } from '../businessTerms';
 
 const FOLGA_MINUTOS = 5;
 
@@ -161,6 +162,7 @@ function sanitizeTel(raw) {
   return v.replace(/[^\d+]/g, '');
 }
 
+// DatePickerButton permanece dark (sempre dentro de modal dark)
 function DatePickerButton({ value, onChange, min, placeholder = 'SELECIONAR DATA', className = '' }) {
   const label = value ? formatDateBR(value) : placeholder;
   const inputRef = useRef(null);
@@ -198,6 +200,7 @@ function DatePickerButton({ value, onChange, min, placeholder = 'SELECIONAR DATA
   );
 }
 
+// Modais sempre dark — são overlays independentes do tema da vitrine
 function AlertModal({ open, onClose, title, body, buttonText }) {
   if (!open) return null;
   return (
@@ -258,6 +261,24 @@ export default function Vitrine({ user, userType }) {
 
   const vitrineMsgs = ptBR?.vitrine || {};
   const getMsg = (key, fallback) => vitrineMsgs?.[key] || fallback;
+
+  // ─────────────────────────────────────────────────────────────
+  // grupo semântico derivado do tipo de negócio
+  // 'servicos' | 'consultas' | 'aulas' | 'default'
+  // ─────────────────────────────────────────────────────────────
+  const businessGroup = useMemo(
+    () => getBusinessGroup(negocio?.tipo_negocio),
+    [negocio?.tipo_negocio]
+  );
+
+  // Textos dinâmicos (seção, botão, contadores, alertas)
+  const bizV = vitrineMsgs?.business || {};
+
+  const sectionTitle     = bizV?.section_title?.[businessGroup]  ?? 'Atendimentos';
+  const btnAgendarLabel  = bizV?.label_button?.[businessGroup]    ?? 'AGENDAR ATENDIMENTO';
+  const counterSingular  = ptBR?.dashboard?.business?.counter_singular?.[businessGroup] ?? 'atendimento';
+  const counterPlural    = ptBR?.dashboard?.business?.counter_plural?.[businessGroup]   ?? 'atendimentos';
+  const emptyListMsg     = ptBR?.dashboard?.business?.empty_list?.[businessGroup]       ?? 'Sem atendimentos para este profissional.';
 
   const [nativeAlertOpen, setNativeAlertOpen] = useState(false);
   const [nativeAlertData, setNativeAlertData] = useState({ title: '', body: '', buttonText: 'OK' });
@@ -328,7 +349,7 @@ export default function Vitrine({ user, userType }) {
 
   const [negocio, setNegocio] = useState(null);
   const [profissionais, setProfissionais] = useState([]);
-  const [servicos, setServicos] = useState([]);
+  const [entregas, setEntregas] = useState([]);
   const [avaliacoes, setAvaliacoes] = useState([]);
   const [galeriaItems, setGaleriaItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -392,7 +413,7 @@ export default function Vitrine({ user, userType }) {
       if (!negocioData) {
         setNegocio(null);
         setProfissionais([]);
-        setServicos([]);
+        setEntregas([]);
         setAvaliacoes([]);
         setGaleriaItems([]);
         return;
@@ -420,16 +441,16 @@ export default function Vitrine({ user, userType }) {
         ? `negocio_id.eq.${negocioData.id},profissional_id.in.(${profissionalIds.join(',')})`
         : `negocio_id.eq.${negocioData.id}`;
 
-      const [servicosResult, galeriaResult, avaliacoesResult] = await Promise.all([
+      const [entregasResult, galeriaResult, avaliacoesResult] = await Promise.all([
         profissionalIds.length
           ? withTimeout(
               supabase
-                .from('servicos')
+                .from('entregas')
                 .select('*')
                 .in('profissional_id', profissionalIds)
                 .eq('ativo', true),
               7000,
-              'servicos'
+              'entregas'
             )
           : Promise.resolve({ data: [], error: null }),
 
@@ -456,11 +477,11 @@ export default function Vitrine({ user, userType }) {
         )
       ]);
 
-      if (servicosResult.error) throw servicosResult.error;
+      if (entregasResult.error) throw entregasResult.error;
       if (galeriaResult.error) throw galeriaResult.error;
       if (avaliacoesResult.error) throw avaliacoesResult.error;
 
-      setServicos(servicosResult.data || []);
+      setEntregas(entregasResult.data || []);
       setGaleriaItems(galeriaResult.data || []);
 
       const base = avaliacoesResult.data || [];
@@ -502,7 +523,7 @@ export default function Vitrine({ user, userType }) {
       setError(e?.message || getMsg('load_error', 'Erro ao carregar a vitrine.'));
       setNegocio(null);
       setProfissionais([]);
-      setServicos([]);
+      setEntregas([]);
       setAvaliacoes([]);
       setGaleriaItems([]);
     } finally {
@@ -609,10 +630,10 @@ export default function Vitrine({ user, userType }) {
     setShowAgendamento(true);
   };
 
-  const servicosDoProf = useMemo(() => {
+  const entregasDoProf = useMemo(() => {
     if (!flow.profissional) return [];
-    return servicos.filter(s => s.profissional_id === flow.profissional.id);
-  }, [servicos, flow.profissional]);
+    return entregas.filter(s => s.profissional_id === flow.profissional.id);
+  }, [entregas, flow.profissional]);
 
   const [horariosAll, setHorariosAll] = useState([]);
   const [horariosHot, setHorariosHot] = useState([]);
@@ -640,8 +661,8 @@ export default function Vitrine({ user, userType }) {
     return dur + FOLGA_MINUTOS;
   }, [totalSelecionado.duracao]);
 
-  const servicosPossiveis = useMemo(() => {
-    return (servicosDoProf || [])
+  const entregasPossiveis = useMemo(() => {
+    return (entregasDoProf || [])
       .filter(s => Number(s.duracao_minutos || 0) > 0)
       .sort((a, b) => {
         const pa = Number(getPrecoFinalServico(a) ?? 0);
@@ -649,7 +670,7 @@ export default function Vitrine({ user, userType }) {
         if (pb !== pa) return pb - pa;
         return String(a.nome || '').localeCompare(String(b.nome || ''));
       });
-  }, [servicosDoProf]);
+  }, [entregasDoProf]);
 
   const getAlmocoRange = (p) => {
     const ini = p?.almoco_inicio || null;
@@ -714,7 +735,7 @@ export default function Vitrine({ user, userType }) {
         supabase.rpc('rpc_get_slots_v4', {
           p_profissional_id: flow.profissional.id,
           p_dia: flow.data,
-          p_servico_min: durServicos,
+          p_entrega_min: durServicos,
           p_folga_min: 5,
           p_margem_min: 5,
           p_modo: 'todos'
@@ -810,7 +831,9 @@ export default function Vitrine({ user, userType }) {
 
       const durServicos = Number(totalSelecionado.duracao || 0);
       if (!durServicos) {
-        alertKey('schedule_need_one_service', 'Selecione um serviço', 'Selecione pelo menos 1 serviço.', 'ENTENDI');
+        const needOneMsg = bizV?.[businessGroup]?.schedule_need_one_service;
+        if (needOneMsg) { openAlert({ title: needOneMsg.title, body: needOneMsg.body, buttonText: needOneMsg.buttonText || 'ENTENDI' }); }
+        else alertKey('schedule_need_one_service', 'Selecione um item', 'Selecione pelo menos 1 item.', 'ENTENDI');
         return;
       }
 
@@ -835,17 +858,30 @@ export default function Vitrine({ user, userType }) {
         const dur = Number(s?.duracao_minutos || 0);
         if (!dur) continue;
 
+        // Comvaga 2: data (date) + horario_inicio/horario_fim (time HH:MM)
+        // curInicioISO é um ISO string — extraímos HH:MM para horario_inicio
+        const iniDate = new Date(curInicioISO);
+        const hIni = String(iniDate.getUTCHours()).padStart(2, '0');
+        const mIni = String(iniDate.getUTCMinutes()).padStart(2, '0');
+        const horarioIni = `${hIni}:${mIni}`;
+
         let curFimISO = addMinutesToISO(curInicioISO, dur);
         const isLast = i === ordered.length - 1;
         if (isLast) curFimISO = addMinutesToISO(curFimISO, FOLGA_MINUTOS);
+
+        const fimDate = new Date(curFimISO);
+        const hFim = String(fimDate.getUTCHours()).padStart(2, '0');
+        const mFim = String(fimDate.getUTCMinutes()).padStart(2, '0');
+        const horarioFim = `${hFim}:${mFim}`;
 
         agendamentosParaInserir.push({
           negocio_id: negocio.id,
           profissional_id: flow.profissional.id,
           cliente_id: user.id,
-          servico_id: s.id,
-          inicio: curInicioISO,
-          fim: curFimISO,
+          entrega_id: s.id,
+          data: flow.data,
+          horario_inicio: horarioIni,
+          horario_fim: horarioFim,
           status: 'agendado'
         });
 
@@ -853,7 +889,9 @@ export default function Vitrine({ user, userType }) {
       }
 
       if (!agendamentosParaInserir.length) {
-        alertKey('schedule_need_valid_service', 'Selecione um serviço', 'Selecione pelo menos 1 serviço válido.', 'ENTENDI');
+        const needValidMsg = bizV?.[businessGroup]?.schedule_need_valid_service;
+        if (needValidMsg) { openAlert({ title: needValidMsg.title, body: needValidMsg.body, buttonText: needValidMsg.buttonText || 'ENTENDI' }); }
+        else alertKey('schedule_need_valid_service', 'Selecione um item', 'Selecione pelo menos 1 item válido.', 'ENTENDI');
         return;
       }
 
@@ -982,15 +1020,15 @@ export default function Vitrine({ user, userType }) {
   const instagramUrl = useMemo(() => resolveInstagram(negocio?.instagram), [negocio?.instagram]);
   const facebookUrl = useMemo(() => resolveFacebook(negocio?.facebook), [negocio?.facebook]);
 
-  const servicosPorProf = useMemo(() => {
+  const entregasPorProf = useMemo(() => {
     const map = new Map();
     for (const p of profissionais) map.set(p.id, []);
-    for (const s of servicos) {
+    for (const s of entregas) {
       if (!map.has(s.profissional_id)) map.set(s.profissional_id, []);
       map.get(s.profissional_id).push(s);
     }
     return map;
-  }, [profissionais, servicos]);
+  }, [profissionais, entregas]);
 
   const avaliacoesPorProf = useMemo(() => {
     const map = new Map();
@@ -1056,6 +1094,7 @@ export default function Vitrine({ user, userType }) {
 
   const nomeNegocioLabel = String(negocio?.nome || '').trim() || 'NEGÓCIO';
 
+  // ─── tema: lido do banco, aplicado via CSS Variables ───────────────────────
   const temaAtivo = negocio?.tema || 'dark';
 
   const renderSlotButton = (h, i, prefix) => {
@@ -1069,13 +1108,14 @@ export default function Vitrine({ user, userType }) {
         onClick={() => {
           if (!h.cabe) {
             const maxServico = Math.max(0, Number(h.maxMinutos || 0) - FOLGA_MINUTOS);
+            const bizMsgs = bizV?.[businessGroup];
             const title = getMsg('schedule_not_enough_time_title', 'Horário insuficiente');
             const body =
-              `Esse horário é insuficiente para os serviços selecionados.\n\n` +
-              `Tempo disponível: ${h.maxMinutos} MIN\n` +
-              `Seu agendamento (serviços + folga): ${h.precisaMinutos} MIN\n\n` +
-              `Cabe no máximo: ${maxServico} MIN de serviços.\n` +
-              `Tente outro horário ou ajuste os serviços.`;
+              `${bizMsgs?.schedule_not_enough_time_sad || ':( Esse horário é insuficiente para os itens selecionados.'}\n\n` +
+              `${getMsg('schedule_not_enough_time_free', 'Tempo disponível')}: ${h.maxMinutos} MIN\n` +
+              `${bizMsgs?.schedule_not_enough_time_need || 'Seu agendamento (itens + folga)'}: ${h.precisaMinutos} MIN\n\n` +
+              `${getMsg('schedule_not_enough_time_fit', 'Cabe no máximo')}: ${maxServico} MIN ${bizMsgs?.schedule_not_enough_time_services || 'de itens'}.\n` +
+              `${bizMsgs?.schedule_not_enough_time_hint || 'Escolha outro horário ou ajuste os itens.'}`;
             openAlert({ title, body, buttonText: getMsg('common_ok', 'ENTENDI') });
             return;
           }
@@ -1095,6 +1135,7 @@ export default function Vitrine({ user, userType }) {
   };
 
   return (
+    // ─── Container raiz: recebe vitrine-light quando tema === 'light' ───────
     <div className={`min-h-screen bg-vbg text-vtext${temaAtivo === 'light' ? ' vitrine-light' : ''}`}>
       <AlertModal
         open={nativeAlertOpen}
@@ -1114,6 +1155,7 @@ export default function Vitrine({ user, userType }) {
         onConfirm={() => closeConfirm(true)}
       />
 
+      {/* ─── Barra de anúncio (sempre amarela, independente do tema) ─────── */}
       <div className="bg-primary overflow-hidden relative h-10 flex items-center">
         <div className="announcement-bar-marquee flex whitespace-nowrap">
           <div className="flex animate-marquee-sync">
@@ -1154,6 +1196,7 @@ export default function Vitrine({ user, userType }) {
         `}</style>
       </div>
 
+      {/* ─── Header ──────────────────────────────────────────────────────── */}
       <header className="bg-vcard border-b border-vborder sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
@@ -1198,6 +1241,7 @@ export default function Vitrine({ user, userType }) {
         </div>
       </header>
 
+      {/* ─── Hero ────────────────────────────────────────────────────────── */}
       <section className="relative bg-gradient-to-br from-primary/20 via-vbg to-yellow-600/20 py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row items-start gap-6">
@@ -1247,7 +1291,7 @@ export default function Vitrine({ user, userType }) {
                     aria-label="Instagram"
                   >
                     <Instagram className="w-4 h-4" strokeWidth={1.5} />
-                    Instagram
+                    clique :)
                   </a>
                 )}
 
@@ -1260,7 +1304,7 @@ export default function Vitrine({ user, userType }) {
                     aria-label="Facebook"
                   >
                     <Facebook className="w-4 h-4" strokeWidth={1.5} />
-                    Facebook
+                    clique :)
                   </a>
                 )}
               </div>
@@ -1269,13 +1313,14 @@ export default function Vitrine({ user, userType }) {
         </div>
       </section>
 
+      {/* ─── Profissionais ───────────────────────────────────────────────── */}
       <section className="py-12 px-4 sm:px-6 lg:px-8 bg-vcard2">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl sm:text-3xl font-normal mb-6">Profissionais</h2>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {profissionais.map(prof => {
-              const totalServ = (servicosPorProf.get(prof.id) || []).length;
+              const totalEntregas = (entregasPorProf.get(prof.id) || []).length;
               const status = getProfStatus(prof);
               const avalInfo = avaliacoesPorProf.get(prof.id);
               const profissao = String(prof?.profissao ?? '').trim();
@@ -1331,7 +1376,7 @@ export default function Vitrine({ user, userType }) {
                         </p>
                       )}
 
-                      <p className="text-xs text-vmuted font-normal mt-2">{totalServ} serviço(s) disponíveis</p>
+                      <p className="text-xs text-vmuted font-normal mt-2">{totalEntregas} {totalEntregas === 1 ? counterSingular : counterPlural} disponíve{totalEntregas === 1 ? 'l' : 'is'}</p>
                     </div>
                   </div>
 
@@ -1345,7 +1390,7 @@ export default function Vitrine({ user, userType }) {
                     disabled={!!isProfessional}
                   >
                     <Calendar className="w-5 h-5" />
-                    Agendar
+                    {btnAgendarLabel}
                   </button>
                 </div>
               );
@@ -1354,16 +1399,17 @@ export default function Vitrine({ user, userType }) {
         </div>
       </section>
 
+      {/* ─── Entregas (seção dinâmica) ──────────────────────────────────────── */}
       <section className="py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl sm:text-3xl font-normal mb-6">Serviços</h2>
+          <h2 className="text-2xl sm:text-3xl font-normal mb-6">{sectionTitle}</h2>
 
           {profissionais.length === 0 ? (
             <p className="text-vmuted font-normal">Nenhum profissional cadastrado.</p>
           ) : (
             <div className="space-y-4">
               {profissionais.map(p => {
-                const lista = (servicosPorProf.get(p.id) || [])
+                const lista = (entregasPorProf.get(p.id) || [])
                   .slice()
                   .sort((a, b) => {
                     const pa = Number(getPrecoFinalServico(a) ?? 0);
@@ -1376,7 +1422,7 @@ export default function Vitrine({ user, userType }) {
                   <div key={p.id} className="bg-vcard border border-vborder rounded-custom p-6">
                     <div className="flex items-center justify-between mb-4">
                       <div className="font-normal text-lg">{p.nome}</div>
-                      <div className="text-xs text-vmuted font-normal">{lista.length} serviço(s)</div>
+                      <div className="text-xs text-vmuted font-normal">{lista.length} {lista.length === 1 ? counterSingular : counterPlural}</div>
                     </div>
 
                     {lista.length ? (
@@ -1416,7 +1462,7 @@ export default function Vitrine({ user, userType }) {
                         })}
                       </div>
                     ) : (
-                      <p className="text-vmuted font-normal">Sem serviços ativos para este profissional.</p>
+                      <p className="text-vmuted font-normal">{emptyListMsg}</p>
                     )}
                   </div>
                 );
@@ -1426,6 +1472,7 @@ export default function Vitrine({ user, userType }) {
         </div>
       </section>
 
+      {/* ─── Galeria ─────────────────────────────────────────────────────── */}
       {galeriaItems.length > 0 && (
         <section className="py-12 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
@@ -1452,6 +1499,7 @@ export default function Vitrine({ user, userType }) {
         </section>
       )}
 
+      {/* ─── Avaliações ──────────────────────────────────────────────────── */}
       <section className="py-12 px-4 sm:px-6 lg:px-8 bg-vcard2">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between gap-3 mb-6">
@@ -1514,6 +1562,7 @@ export default function Vitrine({ user, userType }) {
         </div>
       </section>
 
+      {/* ─── Modal Agendamento (sempre dark — overlay) ───────────────────── */}
       {showAgendamento && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-dark-100 border border-gray-800 rounded-custom max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -1575,7 +1624,7 @@ export default function Vitrine({ user, userType }) {
                     VOLTAR
                   </button>
 
-                  <h3 className="text-xl font-normal mb-2 text-white">Selecione o(s) Serviço(s)</h3>
+                  <h3 className="text-xl font-normal mb-2 text-white">Selecione {counterPlural === 'aulas' ? 'as' : counterPlural === 'consultas' ? 'as' : 'os'} {sectionTitle}</h3>
 
                   <div className="mb-4 bg-dark-200 border border-gray-800 rounded-custom p-4">
                     <div className="flex justify-between text-sm">
@@ -1600,9 +1649,9 @@ export default function Vitrine({ user, userType }) {
                     </div>
                   </div>
 
-                  {servicosPossiveis.length > 0 ? (
+                  {entregasPossiveis.length > 0 ? (
                     <div className="space-y-3">
-                      {servicosPossiveis.map(s => {
+                      {entregasPossiveis.map(s => {
                         const selected = (flow.servicosSelecionados || []).some(x => x.id === s.id);
                         const precoFinal = getPrecoFinalServico(s);
 
@@ -1637,13 +1686,15 @@ export default function Vitrine({ user, userType }) {
                       })}
                     </div>
                   ) : (
-                    <div className="text-gray-500 font-normal">Nenhum serviço disponível.</div>
+                    <div className="text-gray-500 font-normal">Nenhum {counterSingular} disponível.</div>
                   )}
 
                   <button
                     onClick={() => {
                       if (!flow.servicosSelecionados?.length) {
-                        alertKey('schedule_need_one_service', 'Selecione um serviço', 'Selecione pelo menos 1 serviço.', 'ENTENDI');
+                        const needOneMsg = bizV?.[businessGroup]?.schedule_need_one_service;
+                        if (needOneMsg) { openAlert({ title: needOneMsg.title, body: needOneMsg.body, buttonText: needOneMsg.buttonText || 'ENTENDI' }); }
+                        else alertKey('schedule_need_one_service', 'Selecione um item', 'Selecione pelo menos 1 item.', 'ENTENDI');
                         return;
                       }
                       setFlow(prev => ({ ...prev, step: 3, horario: null }));
@@ -1829,6 +1880,7 @@ export default function Vitrine({ user, userType }) {
         </div>
       )}
 
+      {/* ─── Modal Avaliar (sempre dark — overlay) ───────────────────────── */}
       {showAvaliar && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-dark-100 border border-gray-800 rounded-custom max-w-md w-full max-h-[90vh] flex flex-col">
