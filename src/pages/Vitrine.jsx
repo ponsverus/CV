@@ -403,7 +403,7 @@ export default function Vitrine({ user, userType }) {
           ? withTimeout(supabase.from('entregas').select('*').in('profissional_id', profissionalIds).eq('ativo', true), 7000, 'entregas')
           : Promise.resolve({ data: [], error: null }),
         withTimeout(supabase.from('galerias').select('id, path, ordem').eq('negocio_id', negocioData.id).order('ordem', { ascending: true }).order('created_at', { ascending: true }), 7000, 'galerias'),
-        withTimeout(supabase.from('avaliacoes').select('id, tipo, negocio_id, profissional_id, cliente_id, nota, comentario, created_at').or(avalFilter).order('created_at', { ascending: false }).limit(20), 7000, 'avaliacoes')
+        withTimeout(supabase.from('depoimentos').select('id, tipo, negocio_id, profissional_id, cliente_id, nota, comentario, created_at').or(avalFilter).order('created_at', { ascending: false }).limit(20), 7000, 'avaliacoes')
       ]);
 
       if (entregasResult.error) throw entregasResult.error;
@@ -708,7 +708,7 @@ export default function Vitrine({ user, userType }) {
     try {
       setAvaliarLoading(true);
       const payload = { cliente_id: user.id, tipo: avaliarTipo, nota: avaliarNota, comentario: avaliarTexto || null, negocio_id: avaliarTipo === 'negocio' ? negocio.id : null, profissional_id: avaliarTipo === 'profissional' ? avaliarProfissionalId : null };
-      const { error: avErr } = await withTimeout(supabase.from('avaliacoes').insert(payload), 7000, 'enviar-avaliacao');
+      const { error: avErr } = await withTimeout(supabase.from('depoimentos').insert(payload), 7000, 'enviar-avaliacao');
       if (avErr) throw avErr;
       setShowAvaliar(false);
       await loadVitrine();
