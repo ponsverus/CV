@@ -7,7 +7,6 @@ import {
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import { useFeedback } from '../feedback/useFeedback';
-import { getBusinessGroup } from '../businessTerms';
 
 const STATUS_COLOR_CLASS = {
   ABERTO: 'bg-green-500',
@@ -273,16 +272,12 @@ export default function Dashboard({ user, onLogout }) {
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const [savingDados, setSavingDados] = useState(false);
 
-  useEffect(() => { setNovoEmail(user?.email || ''); }, [user?.email]);
+  const [parceiros, setParceiros] = useState([]);
+  const [parceiroNome, setParceiroNome] = useState('');
+  const [parceiroEmail, setParceiroEmail] = useState('');
+  const [parceiroSaving, setParceiroSaving] = useState(false);
 
-  // ─────────────────────────────────────────────────────────────
-  // grupo semântico derivado do tipo de negócio
-  // 'servicos' | 'consultas' | 'aulas' | 'default'
-  // ─────────────────────────────────────────────────────────────
-  const businessGroup = useMemo(
-    () => getBusinessGroup(negocio?.tipo_negocio),
-    [negocio?.tipo_negocio]
-  );
+  useEffect(() => { setNovoEmail(user?.email || ''); }, [user?.email]);
 
   const fetchNowFromDb = async () => {
     const { data, error: rpcErr } = await supabase.rpc('now_sp');
@@ -441,6 +436,7 @@ export default function Dashboard({ user, onLogout }) {
       ]);
       if (galeriaResult.error) console.error('Erro ao carregar galeria:', galeriaResult.error);
       setGaleriaItems(galeriaResult.data || []);
+      loadParceiros(negocioData.id);
       if (profissionaisResult.error) throw profissionaisResult.error;
       const profs = profissionaisResult.data || [];
       setProfissionais(profs);
@@ -591,8 +587,7 @@ export default function Dashboard({ user, onLogout }) {
       if (!payload.duracao_minutos) throw new Error('Duracao invalida.');
       const { error: insErr } = await supabase.from('entregas').insert([payload]);
       if (insErr) throw insErr;
-      // ── alerta dinâmico ──
-      await uiAlert(`dashboard.business.${businessGroup}.service_created`, 'success');
+      await uiAlert('dashboard.service_created', 'success');
       setShowNovaEntrega(false); setEditingEntregaId(null);
       setFormEntrega({ nome: '', duracao_minutos: '', preco: '', preco_promocional: '', profissional_id: '' });
       await loadData(true);
@@ -602,8 +597,8 @@ export default function Dashboard({ user, onLogout }) {
       if (msg.includes('oferta')) await uiAlert('dashboard.service_promo_invalid', 'error');
       else if (msg.includes('invalido')) await uiAlert('dashboard.service_price_invalid', 'error');
       else if (msg.includes('Duracao')) await uiAlert('dashboard.service_duration_invalid', 'error');
-      else if (msg.includes('Selecione')) await uiAlert(`dashboard.business.${businessGroup}.service_prof_required`, 'error');
-      else await uiAlert(`dashboard.business.${businessGroup}.service_create_error`, 'error');
+      else if (msg.includes('Selecione')) await uiAlert('dashboard.service_prof_required', 'error');
+      else await uiAlert('dashboard.service_create_error', 'error');
     }
   };
 
@@ -623,8 +618,7 @@ export default function Dashboard({ user, onLogout }) {
       };
       const { error: updErr } = await supabase.from('entregas').update(payload).eq('id', editingEntregaId).eq('negocio_id', negocio.id);
       if (updErr) throw updErr;
-      // ── alerta dinâmico ──
-      await uiAlert(`dashboard.business.${businessGroup}.service_updated`, 'success');
+      await uiAlert('dashboard.service_updated', 'success');
       setShowNovaEntrega(false); setEditingEntregaId(null);
       setFormEntrega({ nome: '', duracao_minutos: '', preco: '', preco_promocional: '', profissional_id: '' });
       await loadData(true);
@@ -634,25 +628,20 @@ export default function Dashboard({ user, onLogout }) {
       if (msg.includes('oferta')) await uiAlert('dashboard.service_promo_invalid', 'error');
       else if (msg.includes('invalido')) await uiAlert('dashboard.service_price_invalid', 'error');
       else if (msg.includes('Duracao')) await uiAlert('dashboard.service_duration_invalid', 'error');
-      else if (msg.includes('Selecione')) await uiAlert(`dashboard.business.${businessGroup}.service_prof_required`, 'error');
-      else await uiAlert(`dashboard.business.${businessGroup}.service_update_error`, 'error');
+      else if (msg.includes('Selecione')) await uiAlert('dashboard.service_prof_required', 'error');
+      else await uiAlert('dashboard.service_update_error', 'error');
     }
   };
 
   const deleteEntrega = async (id) => {
-    // ── confirmação dinâmica ──
-    const ok = await uiConfirm(`dashboard.business.${businessGroup}.service_delete_confirm`, 'warning');
+    const ok = await uiConfirm('dashboard.service_delete_confirm', 'warning');
     if (!ok) return;
     try {
       const { error: delErr } = await supabase.from('entregas').delete().eq('id', id).eq('negocio_id', negocio.id);
       if (delErr) throw delErr;
-      // ── alerta dinâmico ──
-      await uiAlert(`dashboard.business.${businessGroup}.service_deleted`, 'success');
+      await uiAlert('dashboard.service_deleted', 'success');
       await loadData(true);
-    } catch (e2) {
-      console.error('deleteEntrega error:', e2);
-      await uiAlert(`dashboard.business.${businessGroup}.service_delete_error`, 'error');
-    }
+    } catch (e2) { console.error('deleteEntrega error:', e2); await uiAlert('dashboard.service_delete_error', 'error'); }
   };
 
   const createProfissional = async (e) => {
@@ -754,6 +743,67 @@ export default function Dashboard({ user, onLogout }) {
       await uiAlert('dashboard.booking_canceled', 'error');
       await loadData(true);
     } catch (e) { console.error('cancelarAgendamentoProfissional:', e); await uiAlert('dashboard.booking_cancel_error', 'error'); }
+  };
+
+  const loadParceiros = async (negocioId) => {
+    const id = negocioId || negocio?.id;
+    if (!id) return;
+    const { data } = await supabase
+      .from('parceiros_negocio')
+      .select('id, email, profissional_id, profissionais(nome)')
+      .eq('negocio_id', id)
+      .order('created_at', { ascending: true });
+    setParceiros(data || []);
+  };
+
+  const addParceiro = async () => {
+    const nome = String(parceiroNome || '').trim();
+    const email = String(parceiroEmail || '').trim();
+    if (!nome) { await uiAlert('dashboard.parceiro_nome_required', 'error'); return; }
+    if (!email || !email.includes('@')) { await uiAlert('dashboard.parceiro_email_invalid', 'error'); return; }
+    if (!negocio?.id) return;
+    try {
+      setParceiroSaving(true);
+      const { data, error } = await supabase.rpc('rpc_add_parceiro', {
+        p_negocio_id: negocio.id,
+        p_nome_raw:   nome,
+        p_email:      email,
+      });
+      if (error) throw error;
+      if (!data?.ok) {
+        if (data?.error === 'profissional_nao_encontrado') {
+          await uiAlert('dashboard.parceiro_prof_not_found', 'error');
+        } else {
+          await uiAlert('dashboard.parceiro_save_error', 'error');
+        }
+        return;
+      }
+      setParceiroNome('');
+      setParceiroEmail('');
+      await uiAlert('dashboard.parceiro_saved', 'success');
+      await loadParceiros(negocio.id);
+    } catch (e) {
+      console.error('addParceiro error:', e);
+      await uiAlert('dashboard.parceiro_save_error', 'error');
+    } finally { setParceiroSaving(false); }
+  };
+
+  const removeParceiro = async (parceiroId) => {
+    const ok = await uiConfirm('dashboard.parceiro_delete_confirm', 'warning');
+    if (!ok) return;
+    try {
+      const { error } = await supabase
+        .from('parceiros_negocio')
+        .delete()
+        .eq('id', parceiroId)
+        .eq('negocio_id', negocio.id);
+      if (error) throw error;
+      await uiAlert('dashboard.parceiro_deleted', 'success');
+      await loadParceiros(negocio.id);
+    } catch (e) {
+      console.error('removeParceiro error:', e);
+      await uiAlert('dashboard.parceiro_delete_error', 'error');
+    }
   };
 
   const salvarEmail = async () => {
@@ -859,79 +909,14 @@ export default function Dashboard({ user, onLogout }) {
     return pairs;
   }, [metricsDia]);
 
-  // ─────────────────────────────────────────────────────────────
-  // Textos dinâmicos derivados do businessGroup
-  // ─────────────────────────────────────────────────────────────
-  const tabEntregasLabel = {
-    servicos:  'SERVIÇOS',
-    consultas: 'CONSULTAS',
-    aulas:     'AULAS',
-    default:   'ATENDIMENTOS',
-  }[businessGroup] ?? 'ATENDIMENTOS';
-
-  const sectionTitle = {
-    servicos:  'Serviços',
-    consultas: 'Consultas',
-    aulas:     'Aulas',
-    default:   'Atendimentos',
-  }[businessGroup] ?? 'Atendimentos';
-
-  const btnAddLabel = {
-    servicos:  'SERVIÇO',
-    consultas: 'CONSULTA',
-    aulas:     'AULA',
-    default:   'ATENDIMENTO',
-  }[businessGroup] ?? 'ATENDIMENTO';
-
-  const modalNewLabel = {
-    servicos:  'NOVO SERVIÇO',
-    consultas: 'NOVA CONSULTA',
-    aulas:     'NOVA AULA',
-    default:   'NOVO ATENDIMENTO',
-  }[businessGroup] ?? 'NOVO ATENDIMENTO';
-
-  const modalEditLabel = {
-    servicos:  'EDITAR SERVIÇO',
-    consultas: 'EDITAR CONSULTA',
-    aulas:     'EDITAR AULA',
-    default:   'EDITAR ATENDIMENTO',
-  }[businessGroup] ?? 'EDITAR ATENDIMENTO';
-
-  const counterSingular = {
-    servicos:  'serviço',
-    consultas: 'consulta',
-    aulas:     'aula',
-    default:   'atendimento',
-  }[businessGroup] ?? 'atendimento';
-
-  const counterPlural = {
-    servicos:  'serviços',
-    consultas: 'consultas',
-    aulas:     'aulas',
-    default:   'atendimentos',
-  }[businessGroup] ?? 'atendimentos';
-
-  const emptyListMsg = {
-    servicos:  'Sem serviços para este profissional.',
-    consultas: 'Sem consultas para este profissional.',
-    aulas:     'Sem aulas para este profissional.',
-    default:   'Sem atendimentos para este profissional.',
-  }[businessGroup] ?? 'Sem atendimentos para este profissional.';
-
   const tabs = [
     { key: 'visao-geral' }, { key: 'agendamentos' }, { key: 'cancelados' },
     { key: 'historico' }, { key: 'entregas' }, { key: 'profissionais' }, { key: 'info-negocio' },
   ];
 
-  // ── tab label dinâmico para 'entregas' ──
   const TAB_LABELS = {
-    'visao-geral':   'GERAL',
-    'agendamentos':  'AGENDAMENTOS',
-    'cancelados':    'CANCELADOS',
-    'historico':     'HISTÓRICO',
-    'entregas':      tabEntregasLabel,
-    'profissionais': 'PROFISSIONAIS',
-    'info-negocio':  'INFO DO NEGÓCIO',
+    'visao-geral': 'GERAL', 'agendamentos': 'AGENDAMENTOS', 'cancelados': 'CANCELADOS',
+    'historico': 'HISTÓRICO', 'entregas': 'ENTREGAS', 'profissionais': 'PROFISSIONAIS', 'info-negocio': 'INFO DO NEGÓCIO',
   };
 
   if (loading) return (
@@ -1027,11 +1012,10 @@ export default function Dashboard({ user, onLogout }) {
             <div className="text-3xl font-normal text-white mb-1">{profissionais.length}</div>
             <div className="text-sm text-gray-400">PROFISSIONAIS</div>
           </div>
-          {/* ── card de métrica: label dinâmico ── */}
           <div className="bg-dark-100 border border-gray-800 rounded-custom p-6">
             <TrendingUp className="w-8 h-8 text-primary mb-2" />
             <div className="text-3xl font-normal text-white mb-1">{entregas.length}</div>
-            <div className="text-sm text-gray-400">{tabEntregasLabel}</div>
+            <div className="text-sm text-gray-400">ENTREGAS</div>
           </div>
         </div>
 
@@ -1329,13 +1313,12 @@ export default function Dashboard({ user, onLogout }) {
 
             {activeTab === 'entregas' && (
               <div>
-                {/* ── cabeçalho dinâmico ── */}
                 <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-normal">{sectionTitle}</h2>
+                  <h2 className="text-2xl font-normal">Entregas</h2>
                   <button
                     onClick={() => { setShowNovaEntrega(true); setEditingEntregaId(null); setFormEntrega({ nome: '', duracao_minutos: '', preco: '', preco_promocional: '', profissional_id: '' }); }}
                     className="flex items-center gap-2 px-5 py-2.5 rounded-button font-normal uppercase border bg-gradient-to-r from-primary to-yellow-600 text-black border-transparent">
-                    <Plus className="w-5 h-5" />{btnAddLabel}
+                    <Plus className="w-5 h-5" />ENTREGA
                   </button>
                 </div>
                 {profissionais.length === 0 ? (
@@ -1348,10 +1331,7 @@ export default function Dashboard({ user, onLogout }) {
                         <div key={p.id} className="bg-dark-200 border border-gray-800 rounded-custom p-6">
                           <div className="flex items-center justify-between mb-4">
                             <div className="font-normal text-lg">{p.nome}</div>
-                            {/* ── contador dinâmico ── */}
-                            <div className="text-xs text-gray-500">
-                              {lista.length} {lista.length === 1 ? counterSingular : counterPlural}
-                            </div>
+                            <div className="text-xs text-gray-500">{lista.length} entrega(s)</div>
                           </div>
                           {lista.length ? (
                             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1387,10 +1367,7 @@ export default function Dashboard({ user, onLogout }) {
                                 );
                               })}
                             </div>
-                          ) : (
-                            /* ── empty state dinâmico ── */
-                            <p className="text-gray-500">{emptyListMsg}</p>
-                          )}
+                          ) : <p className="text-gray-500">Sem entregas para este profissional.</p>}
                         </div>
                       );
                     })}
@@ -1431,10 +1408,7 @@ export default function Dashboard({ user, onLogout }) {
                             {p.anos_experiencia != null && <p className="text-xs text-gray-500 mt-1">{p.anos_experiencia} ANOS DE EXPERIÊNCIA</p>}
                           </div>
                         </div>
-                        {/* ── contador de entregas dinâmico ── */}
-                        <div className="text-sm text-gray-400 mb-3">
-                          {entregas.filter(s => s.profissional_id === p.id).length} {counterPlural}
-                        </div>
+                        <div className="text-sm text-gray-400 mb-3">{entregas.filter(s => s.profissional_id === p.id).length} entregas</div>
                         <div className="text-xs text-gray-500 mb-3">
                           <Clock className="w-4 h-4 inline mr-1" />{p.horario_inicio} - {p.horario_fim}
                           {p.almoco_inicio && p.almoco_fim && <span className="ml-2 text-yellow-300">• {p.almoco_inicio} - {p.almoco_fim}</span>}
@@ -1517,6 +1491,62 @@ export default function Dashboard({ user, onLogout }) {
                   </div>
                 </div>
                 <div className="bg-dark-200 border border-gray-800 rounded-custom p-6">
+                  <div className="text-xs text-gray-500 uppercase tracking-wide mb-4">PARCEIROS — E-MAILS DE NOTIFICAÇÃO</div>
+                  <p className="text-xs text-gray-500 mb-4">
+                    Digite o nome exato do profissional cadastrado e o e-mail que deve receber os avisos de agendamento.
+                  </p>
+                  <div className="grid sm:grid-cols-2 gap-3 mb-3">
+                    <div>
+                      <label className="block text-xs text-gray-400 mb-1">NOME DO PROFISSIONAL</label>
+                      <input
+                        type="text"
+                        value={parceiroNome}
+                        onChange={(e) => setParceiroNome(e.target.value)}
+                        className="w-full px-4 py-3 bg-dark-100 border border-gray-800 rounded-custom text-white"
+                        placeholder="Ex: João Silva"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-400 mb-1">E-MAIL DO PARCEIRO</label>
+                      <input
+                        type="email"
+                        value={parceiroEmail}
+                        onChange={(e) => setParceiroEmail(e.target.value)}
+                        className="w-full px-4 py-3 bg-dark-100 border border-gray-800 rounded-custom text-white"
+                        placeholder="parceiro@email.com"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={parceiroSaving || !parceiroNome.trim() || !parceiroEmail.trim()}
+                    onClick={addParceiro}
+                    className="mb-5 px-5 py-2 bg-primary/20 hover:bg-primary/30 border border-primary/50 text-primary rounded-button text-sm font-normal uppercase disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {parceiroSaving ? 'SALVANDO...' : '+ ADICIONAR PARCEIRO'}
+                  </button>
+                  {parceiros.length > 0 ? (
+                    <div className="space-y-2">
+                      {parceiros.map(p => (
+                        <div key={p.id} className="flex items-center justify-between bg-dark-100 border border-gray-800 rounded-custom px-4 py-3">
+                          <div>
+                            <div className="text-sm font-normal text-white">{p.profissionais?.nome || '—'}</div>
+                            <div className="text-xs text-gray-500">{p.email}</div>
+                          </div>
+                          <button
+                            onClick={() => removeParceiro(p.id)}
+                            className="text-red-400 hover:text-red-300 text-xs uppercase font-normal border border-red-500/30 rounded-button px-3 py-1"
+                          >
+                            REMOVER
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-600 text-sm">Nenhum parceiro cadastrado ainda.</p>
+                  )}
+                </div>
+                <div className="bg-dark-200 border border-gray-800 rounded-custom p-6">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-normal">GALERIA</h3>
                     <label className="inline-block">
@@ -1547,9 +1577,8 @@ export default function Dashboard({ user, onLogout }) {
       {showNovaEntrega && (
         <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
           <div className="bg-dark-100 border border-gray-800 rounded-custom max-w-md w-full p-8 max-h-[90vh] overflow-y-auto">
-            {/* ── título do modal dinâmico ── */}
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-normal">{editingEntregaId ? modalEditLabel : modalNewLabel}</h3>
+              <h3 className="text-2xl font-normal">{editingEntregaId ? 'EDITAR ENTREGA' : 'NOVA ENTREGA'}</h3>
               <button onClick={() => { setShowNovaEntrega(false); setEditingEntregaId(null); setFormEntrega({ nome: '', duracao_minutos: '', preco: '', preco_promocional: '', profissional_id: '' }); }}><X className="w-6 h-6" /></button>
             </div>
             <form onSubmit={editingEntregaId ? updateEntrega : createEntrega} className="space-y-4">
@@ -1581,9 +1610,8 @@ export default function Dashboard({ user, onLogout }) {
                 <input type="number" step="0.01" value={formEntrega.preco_promocional} onChange={(e) => setFormEntrega({ ...formEntrega, preco_promocional: e.target.value })} className="w-full px-4 py-3 bg-dark-200 border border-gray-800 rounded-custom text-white" placeholder="Apenas se houver oferta" />
                 <p className="text-[12px] text-gray-500 mt-2">O preço de oferta deve ser menor que o preço normal.</p>
               </div>
-              {/* ── botão submit dinâmico ── */}
               <button type="submit" className="w-full py-3 bg-gradient-to-r from-primary to-yellow-600 text-black rounded-button font-normal uppercase">
-                {editingEntregaId ? 'SALVAR' : `CRIAR ${btnAddLabel}`}
+                {editingEntregaId ? 'SALVAR' : 'CRIAR ENTREGA'}
               </button>
             </form>
           </div>
