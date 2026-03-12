@@ -368,7 +368,7 @@ export default function Dashboard({ user, onLogout }) {
       .select(`*, preco_final, data, horario_inicio, horario_fim,
         entregas (nome, preco, preco_promocional),
         profissionais (id, nome),
-        cliente:users!agendamentos_cliente_fk (id, nome, avatar_path, type)`)
+        cliente:users!agendamentos_cliente_id_fkey (id, nome, avatar_path, type)`)
       .eq('negocio_id', negocioId)
       .in('profissional_id', profIds)
       .eq('data', date)
@@ -447,7 +447,7 @@ export default function Dashboard({ user, onLogout }) {
               .select(`*, preco_final, data, horario_inicio, horario_fim,
                 entregas (nome, preco, preco_promocional),
                 profissionais (id, nome),
-                cliente:users!agendamentos_cliente_fk (id, nome, avatar_path, type)`)
+                cliente:users!agendamentos_cliente_id_fkey (id, nome, avatar_path, type)`)
               .eq('negocio_id', negocioData.id).in('profissional_id', ids).gte('data', dataHoje)
               .order('data', { ascending: true }).order('horario_inicio', { ascending: true }).order('id', { ascending: true })
           : Promise.resolve({ data: [], error: null })
