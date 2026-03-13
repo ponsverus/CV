@@ -1526,7 +1526,7 @@ export default function Dashboard({ user, onLogout }) {
                 </div>
 
                 <div className="bg-dark-200 border border-gray-800 rounded-custom p-6">
-                  <div className="text-xs text-white-500 uppercase tracking-wide mb-1">Parceiros</div>
+                  <div className="text-sm text-white-500 tracking-wide mb-1">Parceiros</div>
                   <p className="text-xs text-gray-500 mb-4">
                     Selecione um profissional e informe o email para receber avisos de novo agendamento.
                   </p>
