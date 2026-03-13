@@ -1526,7 +1526,7 @@ export default function Dashboard({ user, onLogout }) {
                 </div>
 
                 <div className="bg-dark-200 border border-gray-800 rounded-custom p-6">
-                  <div className="text-sm text-white-500 tracking-wide mb-1">Parceiros</div>
+                  <div className="text-sm text-white-600 tracking-wide mb-1">Parceiros</div>
                   <p className="text-xs text-gray-500 mb-4">
                     Selecione um profissional e informe o email para receber avisos de novo agendamento.
                   </p>
@@ -1551,7 +1551,7 @@ export default function Dashboard({ user, onLogout }) {
                       </InputWithChevron>
                     </div>
                     <div>
-                      <label className="block text-xs text-gray-400 mb-1">E-MAIL DO PARCEIRO</label>
+                      <label className="block text-xs text-gray-400 mb-1">EMAIL DO PARCEIRO</label>
                       <input
                         type="email"
                         value={parceiroEmail}
@@ -1587,7 +1587,7 @@ export default function Dashboard({ user, onLogout }) {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-gray-600 text-sm">Nenhum parceiro com e-mail cadastrado ainda.</p>
+                    <p className="text-gray-600 text-sm">Nenhum parceiro com email cadastrado ainda.</p>
                   )}
                 </div>
 
