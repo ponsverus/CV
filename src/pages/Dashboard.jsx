@@ -1525,11 +1525,10 @@ export default function Dashboard({ user, onLogout }) {
                   </div>
                 </div>
 
-                {/* ── PARCEIROS — e-mails de notificação ── */}
                 <div className="bg-dark-200 border border-gray-800 rounded-custom p-6">
-                  <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">PARCEIROS — E-MAILS DE NOTIFICAÇÃO</div>
+                  <div className="text-xs text-white-500 uppercase tracking-wide mb-1">Parceiros</div>
                   <p className="text-xs text-gray-500 mb-4">
-                    Selecione um profissional e informe o e-mail para receber avisos de novo agendamento.
+                    Selecione um profissional e informe o email para receber avisos de novo agendamento.
                   </p>
                   <div className="grid sm:grid-cols-2 gap-3 mb-3">
                     <div>
