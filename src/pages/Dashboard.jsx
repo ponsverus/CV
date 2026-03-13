@@ -273,6 +273,11 @@ export default function Dashboard({ user, onLogout }) {
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const [savingDados, setSavingDados] = useState(false);
 
+  // ── parceiros ──
+  const [parceiroSelected, setParceiroSelected] = useState('');
+  const [parceiroEmail, setParceiroEmail] = useState('');
+  const [parceiroSaving, setParceiroSaving] = useState(false);
+
   useEffect(() => { setNovoEmail(user?.email || ''); }, [user?.email]);
 
   // ─────────────────────────────────────────────────────────────
@@ -754,6 +759,51 @@ export default function Dashboard({ user, onLogout }) {
       await uiAlert('dashboard.booking_canceled', 'error');
       await loadData(true);
     } catch (e) { console.error('cancelarAgendamentoProfissional:', e); await uiAlert('dashboard.booking_cancel_error', 'error'); }
+  };
+
+  // ── parceiros ──
+  const saveParceiroEmail = async () => {
+    const email = String(parceiroEmail || '').trim();
+    if (!parceiroSelected) { await uiAlert('dashboard.parceiro_selecione_prof', 'error'); return; }
+    if (!email || !email.includes('@')) { await uiAlert('dashboard.parceiro_email_invalid', 'error'); return; }
+    try {
+      setParceiroSaving(true);
+      const { error } = await supabase
+        .from('profissionais')
+        .update({ email: email.toLowerCase() })
+        .eq('id', parceiroSelected)
+        .eq('negocio_id', negocio.id);
+      if (error) throw error;
+      setProfissionais(prev => prev.map(p =>
+        p.id === parceiroSelected ? { ...p, email: email.toLowerCase() } : p
+      ));
+      setParceiroSelected('');
+      setParceiroEmail('');
+      await uiAlert('dashboard.parceiro_saved', 'success');
+    } catch (e) {
+      console.error('saveParceiroEmail:', e);
+      await uiAlert('dashboard.parceiro_save_error', 'error');
+    } finally { setParceiroSaving(false); }
+  };
+
+  const removeParceiroEmail = async (profId) => {
+    const ok = await uiConfirm('dashboard.parceiro_delete_confirm', 'warning');
+    if (!ok) return;
+    try {
+      const { error } = await supabase
+        .from('profissionais')
+        .update({ email: null })
+        .eq('id', profId)
+        .eq('negocio_id', negocio.id);
+      if (error) throw error;
+      setProfissionais(prev => prev.map(p =>
+        p.id === profId ? { ...p, email: null } : p
+      ));
+      await uiAlert('dashboard.parceiro_deleted', 'success');
+    } catch (e) {
+      console.error('removeParceiroEmail:', e);
+      await uiAlert('dashboard.parceiro_delete_error', 'error');
+    }
   };
 
   const salvarEmail = async () => {
@@ -1499,6 +1549,74 @@ export default function Dashboard({ user, onLogout }) {
                     <input value={formInfo.facebook} onChange={(e) => setFormInfo(prev => ({ ...prev, facebook: e.target.value }))} className="w-full px-4 py-3 bg-dark-100 border border-gray-800 rounded-custom text-white" placeholder="facebook.com/..." />
                   </div>
                 </div>
+
+                {/* ── bloco parceiros ── */}
+                <div className="bg-dark-200 border border-gray-800 rounded-custom p-6">
+                  <div className="text-sm text-white-600 tracking-wide mb-1">Parceiros</div>
+                  <p className="text-xs text-gray-500 mb-4">
+                    Selecione um profissional e informe o email para receber avisos de novo agendamento.
+                  </p>
+                  <div className="grid sm:grid-cols-2 gap-3 mb-3">
+                    <div>
+                      <label className="block text-xs text-gray-400 mb-1">PROFISSIONAL</label>
+                      <InputWithChevron>
+                        <select
+                          value={parceiroSelected}
+                          onChange={(e) => {
+                            setParceiroSelected(e.target.value);
+                            const prof = profissionais.find(p => p.id === e.target.value);
+                            setParceiroEmail(prof?.email || '');
+                          }}
+                          className="no-native-indicator w-full px-4 py-3 pr-12 bg-dark-100 border border-gray-800 rounded-custom text-white"
+                        >
+                          <option value="">Selecionar profissional...</option>
+                          {profissionais.filter(p => p.ativo !== false).map(p => (
+                            <option key={p.id} value={p.id}>{p.nome}</option>
+                          ))}
+                        </select>
+                      </InputWithChevron>
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-400 mb-1">EMAIL DO PARCEIRO</label>
+                      <input
+                        type="email"
+                        value={parceiroEmail}
+                        onChange={(e) => setParceiroEmail(e.target.value)}
+                        className="w-full px-4 py-3 bg-dark-100 border border-gray-800 rounded-custom text-white"
+                        placeholder="parceiro@email.com"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={parceiroSaving || !parceiroSelected || !parceiroEmail.trim()}
+                    onClick={saveParceiroEmail}
+                    className="mb-5 px-5 py-2 bg-primary/20 hover:bg-primary/30 border border-primary/50 text-primary rounded-button text-sm font-normal uppercase disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {parceiroSaving ? 'SALVANDO...' : 'SALVAR E-MAIL'}
+                  </button>
+                  {profissionais.filter(p => p.email).length > 0 ? (
+                    <div className="space-y-2">
+                      {profissionais.filter(p => p.email).map(p => (
+                        <div key={p.id} className="flex items-center justify-between bg-dark-100 border border-gray-800 rounded-custom px-4 py-3">
+                          <div>
+                            <div className="text-sm font-normal text-white">{p.nome}</div>
+                            <div className="text-xs text-gray-500">{p.email}</div>
+                          </div>
+                          <button
+                            onClick={() => removeParceiroEmail(p.id)}
+                            className="text-red-400 hover:text-red-300 text-xs uppercase font-normal border border-red-500/30 rounded-button px-3 py-1"
+                          >
+                            REMOVER
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-600 text-sm">Nenhum parceiro com email cadastrado ainda.</p>
+                  )}
+                </div>
+
                 <div className="bg-dark-200 border border-gray-800 rounded-custom p-6">
                   <div className="text-xs text-gray-500 uppercase tracking-wide mb-4">DADOS DA CONTA</div>
                   <div className="grid md:grid-cols-2 gap-4">
