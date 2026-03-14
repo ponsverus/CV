@@ -191,11 +191,11 @@ export default function Vitrine({ user, userType }) {
   const businessGroup = useMemo(() => getBusinessGroup(negocio?.tipo_negocio), [negocio?.tipo_negocio]);
 
   const bizV            = vitrineMsgs?.business || {};
-  const sectionTitle    = bizV?.section_title?.[businessGroup]  ?? 'Atendimentos';
-  const btnAgendarLabel = bizV?.label_button?.[businessGroup]   ?? 'AGENDAR ATENDIMENTO';
-  const counterSingular = ptBR?.dashboard?.business?.counter_singular?.[businessGroup] ?? 'atendimento';
-  const counterPlural   = ptBR?.dashboard?.business?.counter_plural?.[businessGroup]   ?? 'atendimentos';
-  const emptyListMsg    = ptBR?.dashboard?.business?.empty_list?.[businessGroup]       ?? 'Sem atendimentos para este profissional.';
+  const sectionTitle    = bizV?.section_title?.[businessGroup]  ?? 'Serviços';
+  const btnAgendarLabel = bizV?.label_button?.[businessGroup]   ?? 'AGENDAR SERVIÇO';
+  const counterSingular = ptBR?.dashboard?.business?.counter_singular?.[businessGroup] ?? 'serviço';
+  const counterPlural   = ptBR?.dashboard?.business?.counter_plural?.[businessGroup]   ?? 'serviços';
+  const emptyListMsg    = ptBR?.dashboard?.business?.empty_list?.[businessGroup]       ?? 'Sem serviços para este profissional.';
 
   // ── sistema de alertas/confirm nativos ──
   const [nativeAlertOpen,   setNativeAlertOpen]   = useState(false);
@@ -832,15 +832,17 @@ export default function Vitrine({ user, userType }) {
                               )}
 
                               {temPromo ? (
-                                /* layout com oferta: nome ocupa linha inteira (com padding p/ etiqueta),
-                                   preços descem para baixo sem competir com a etiqueta */
-                                <>
-                                  <div className="font-normal text-sm leading-tight pr-14">{s.nome}</div>
-                                  <div className="mt-2">
-                                    <div className="text-green-400 font-normal text-base">R$ {precoFinal.toFixed(2)}</div>
-                                    <div className="text-red-400 text-xs font-normal line-through">R$ {preco.toFixed(2)}</div>
+                                /* layout com oferta:
+                                   - nome à esquerda com pt-5 para descer abaixo da etiqueta OFERTA
+                                   - preços empilhados à direita: riscado acima, verde abaixo
+                                     pt-6 para alinhar os preços abaixo da etiqueta */
+                                <div className="flex items-start justify-between gap-3">
+                                  <div className="font-normal text-sm leading-tight pt-5">{s.nome}</div>
+                                  <div className="flex flex-col items-end shrink-0 pt-6">
+                                    <div className="text-red-400 text-xs font-normal line-through leading-tight">R$ {preco.toFixed(2)}</div>
+                                    <div className="text-green-400 font-normal text-base leading-tight">R$ {precoFinal.toFixed(2)}</div>
                                   </div>
-                                </>
+                                </div>
                               ) : (
                                 /* layout normal: nome à esquerda, preço à direita */
                                 <div className="flex items-start justify-between gap-3">
