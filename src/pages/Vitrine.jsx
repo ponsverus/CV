@@ -190,7 +190,7 @@ export default function Vitrine({ user, userType }) {
 
   const businessGroup = useMemo(() => getBusinessGroup(negocio?.tipo_negocio), [negocio?.tipo_negocio]);
 
-  const bizV          = vitrineMsgs?.business || {};
+  const bizV            = vitrineMsgs?.business || {};
   const sectionTitle    = bizV?.section_title?.[businessGroup]  ?? 'Atendimentos';
   const btnAgendarLabel = bizV?.label_button?.[businessGroup]   ?? 'AGENDAR ATENDIMENTO';
   const counterSingular = ptBR?.dashboard?.business?.counter_singular?.[businessGroup] ?? 'atendimento';
@@ -252,30 +252,24 @@ export default function Vitrine({ user, userType }) {
   };
 
   // ── estado de agendamento ──
-  const [isFavorito,     setIsFavorito]     = useState(false);
-  const [calendarLink,   setCalendarLink]   = useState('');
+  const [isFavorito,   setIsFavorito]   = useState(false);
+  const [calendarLink, setCalendarLink] = useState('');
 
-  // flow.step:
-  //   0  = fechado
-  //   2  = selecionar serviços (no modal)
-  //   'booking' = BookingCalendar aberto
-  //   5  = sucesso
   const [flow, setFlow] = useState({
     step: 0,
     profissional: null,
     servicosSelecionados: [],
-    lastSlot: null,   // { inicio, label, dataISO } — preenchido ao confirmar
+    lastSlot: null,
   });
 
-  // todayISO vem do device como fallback; no fluxo real usaria serverNow.date
   const todayISO = useMemo(() => getNowSP().date, []);
 
   // ── avaliação ──
-  const [showAvaliar,         setShowAvaliar]         = useState(false);
-  const [avaliarNota,         setAvaliarNota]         = useState(5);
-  const [avaliarTexto,        setAvaliarTexto]        = useState('');
-  const [avaliarLoading,      setAvaliarLoading]      = useState(false);
-  const [avaliarTipo,         setAvaliarTipo]         = useState('negocio');
+  const [showAvaliar,           setShowAvaliar]           = useState(false);
+  const [avaliarNota,           setAvaliarNota]           = useState(5);
+  const [avaliarTexto,          setAvaliarTexto]          = useState('');
+  const [avaliarLoading,        setAvaliarLoading]        = useState(false);
+  const [avaliarTipo,           setAvaliarTipo]           = useState('negocio');
   const [avaliarProfissionalId, setAvaliarProfissionalId] = useState(null);
 
   const isProfessional = user && userType === 'professional';
@@ -447,18 +441,16 @@ export default function Vitrine({ user, userType }) {
     return dur > 0 ? dur + FOLGA_MINUTOS : 0;
   }, [totalSelecionado.duracao]);
 
-  // "entrega virtual" unificada que o BookingCalendar recebe
-  // representa a soma dos serviços selecionados
   const entregaVirtual = useMemo(() => {
     if (!flow.servicosSelecionados?.length) return null;
     const primeiroServico = flow.servicosSelecionados[0];
     return {
-      id:               primeiroServico.id,     // usado no insert — serviço principal
-      nome:             flow.servicosSelecionados.length === 1
-                          ? primeiroServico.nome
-                          : `${flow.servicosSelecionados.length} serviços`,
-      duracao_minutos:  totalSelecionado.duracao,
-      preco:            totalSelecionado.valor,
+      id:                primeiroServico.id,
+      nome:              flow.servicosSelecionados.length === 1
+                           ? primeiroServico.nome
+                           : `${flow.servicosSelecionados.length} serviços`,
+      duracao_minutos:   totalSelecionado.duracao,
+      preco:             totalSelecionado.valor,
       preco_promocional: null,
     };
   }, [flow.servicosSelecionados, totalSelecionado]);
@@ -466,8 +458,6 @@ export default function Vitrine({ user, userType }) {
   // ── callback de confirmação do BookingCalendar ────────────────────────────
 
   const handleBookingConfirm = (slot) => {
-    // slot = { inicio, fim, label, dataISO }
-    // O BookingCalendar já inseriu no banco — aqui só geramos o link do Google
     const primeiroServico = flow.servicosSelecionados?.[0];
     const link = gerarLinkGoogle(
       primeiroServico?.nome || 'Agendamento',
@@ -512,7 +502,7 @@ export default function Vitrine({ user, userType }) {
         tipo:             avaliarTipo,
         nota:             avaliarNota,
         comentario:       avaliarTexto || null,
-        negocio_id:       avaliarTipo === 'negocio'       ? negocio.id           : null,
+        negocio_id:       avaliarTipo === 'negocio'       ? negocio.id            : null,
         profissional_id:  avaliarTipo === 'profissional'  ? avaliarProfissionalId : null,
       };
       const { error: avErr } = await withTimeout(supabase.from('depoimentos').insert(payload), 7000, 'enviar-avaliacao');
@@ -527,9 +517,9 @@ export default function Vitrine({ user, userType }) {
 
   // ── memos de URL e maps ───────────────────────────────────────────────────
 
-  const logoUrl      = useMemo(() => getPublicUrl('logos',    negocio?.logo_path),  [negocio?.logo_path]);
-  const instagramUrl = useMemo(() => resolveInstagram(negocio?.instagram),          [negocio?.instagram]);
-  const facebookUrl  = useMemo(() => resolveFacebook(negocio?.facebook),            [negocio?.facebook]);
+  const logoUrl      = useMemo(() => getPublicUrl('logos',   negocio?.logo_path), [negocio?.logo_path]);
+  const instagramUrl = useMemo(() => resolveInstagram(negocio?.instagram),        [negocio?.instagram]);
+  const facebookUrl  = useMemo(() => resolveFacebook(negocio?.facebook),          [negocio?.facebook]);
 
   const getAlmocoRange = (p) => ({ ini: p?.almoco_inicio || null, fim: p?.almoco_fim || null });
 
@@ -620,13 +610,11 @@ export default function Vitrine({ user, userType }) {
   const nomeNegocioLabel = String(negocio?.nome || '').trim() || 'NEGÓCIO';
   const temaAtivo = negocio?.tema || 'dark';
 
-  const modalAberto = flow.step !== 0;
-
   // ── render ────────────────────────────────────────────────────────────────
 
   return (
     <div className={`min-h-screen bg-vbg text-vtext${temaAtivo === 'light' ? ' vitrine-light' : ''}`}>
-      <AlertModal  open={nativeAlertOpen}   onClose={closeAlert}          title={nativeAlertData.title}   body={nativeAlertData.body}   buttonText={nativeAlertData.buttonText} />
+      <AlertModal  open={nativeAlertOpen}   onClose={closeAlert}               title={nativeAlertData.title}   body={nativeAlertData.body}   buttonText={nativeAlertData.buttonText} />
       <ConfirmModal open={nativeConfirmOpen} onCancel={() => closeConfirm(false)} onConfirm={() => closeConfirm(true)} title={nativeConfirmData.title} body={nativeConfirmData.body} confirmText={nativeConfirmData.confirmText} cancelText={nativeConfirmData.cancelText} />
 
       {/* ─── Barra de anúncio ─────────────────────────────────────────────── */}
@@ -801,7 +789,7 @@ export default function Vitrine({ user, userType }) {
         </div>
       </section>
 
-      {/* ─── Entregas (seção dinâmica) ────────────────────────────────────── */}
+      {/* ─── Entregas — design C (lista 1 coluna) ────────────────────────── */}
       <section className="py-12">
         <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
           <h2 className="text-2xl sm:text-3xl font-normal mb-6">{sectionTitle}</h2>
@@ -827,7 +815,7 @@ export default function Vitrine({ user, userType }) {
                       <div className="text-xs text-vmuted font-normal">{lista.length} {lista.length === 1 ? counterSingular : counterPlural}</div>
                     </div>
                     {lista.length ? (
-                      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                      <div className="flex flex-col gap-2">
                         {lista.map(s => {
                           const preco = Number(s.preco ?? 0);
                           const promo = Number(s.preco_promocional ?? 0);
@@ -835,23 +823,34 @@ export default function Vitrine({ user, userType }) {
                           const precoFinal = getPrecoFinalServico(s);
                           return (
                             <div key={s.id} className="relative bg-vcard2 border border-vborder rounded-custom p-4">
+
+                              {/* etiqueta OFERTA — canto superior direito */}
                               {temPromo && (
-                                <div className="absolute top-2 right-2">
-                                  <span className="inline-block px-1.5 py-0.5 bg-green-500/20 border border-green-500/40 rounded-button text-[9px] text-green-400 font-normal uppercase">OFERTA</span>
-                                </div>
+                                <span className="absolute top-2 right-2 inline-block px-1.5 py-0.5 bg-green-500/20 border border-green-500/40 rounded-button text-[9px] text-green-400 font-normal uppercase">
+                                  OFERTA
+                                </span>
                               )}
-                              <div className="font-normal text-sm leading-tight pr-10">{s.nome}</div>
-                              <div className="text-xs text-vmuted font-normal mt-1 flex items-center gap-1">
+
+                              {/* linha superior: nome + preço */}
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="font-normal text-sm leading-tight pr-14">{s.nome}</div>
+                                <div className="text-right shrink-0">
+                                  {temPromo ? (
+                                    <>
+                                      <div className="text-green-400 font-normal text-base">R$ {precoFinal.toFixed(2)}</div>
+                                      <div className="text-red-400 text-xs font-normal line-through">R$ {preco.toFixed(2)}</div>
+                                    </>
+                                  ) : (
+                                    <div className="text-primary font-normal text-base">R$ {precoFinal.toFixed(2)}</div>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* linha inferior: duração */}
+                              <div className="flex items-center gap-1 mt-3 text-xs text-vmuted font-normal">
                                 <Clock className="w-3 h-3 shrink-0" />{s.duracao_minutos} MIN
                               </div>
-                              {!temPromo ? (
-                                <div className="text-primary font-normal text-base mt-2">R$ {precoFinal.toFixed(2)}</div>
-                              ) : (
-                                <div className="mt-2">
-                                  <div className="text-green-400 font-normal text-base">R$ {precoFinal.toFixed(2)}</div>
-                                  <div className="text-red-400 text-xs font-normal line-through">R$ {preco.toFixed(2)}</div>
-                                </div>
-                              )}
+
                             </div>
                           );
                         })}
@@ -932,12 +931,12 @@ export default function Vitrine({ user, userType }) {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════════════════════════
+      {/* ══════════════════════════════════════════════════════════════════
           MODAL DE AGENDAMENTO
-          step 2  = selecionar serviços
-          step 'booking' = BookingCalendar (renderizado fora do modal)
-          step 5  = sucesso
-      ═══════════════════════════════════════════════════════════════════ */}
+          step 2       = selecionar serviços
+          step 'booking' = BookingCalendar
+          step 5       = sucesso
+      ══════════════════════════════════════════════════════════════════ */}
 
       {/* ── step 2: selecionar serviços ── */}
       {flow.step === 2 && (
@@ -990,7 +989,7 @@ export default function Vitrine({ user, userType }) {
                 <div className="text-gray-500 font-normal">Nenhum {counterSingular} disponível.</div>
               )}
 
-              {/* botão continuar → abre BookingCalendar */}
+              {/* botão continuar */}
               <button
                 onClick={() => {
                   if (!flow.servicosSelecionados?.length) {
