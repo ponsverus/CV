@@ -832,16 +832,36 @@ export default function Vitrine({ user, userType }) {
                               )}
 
                               {temPromo ? (
-                                /* layout com oferta:
-                                   - nome à esquerda com pt-5 para descer abaixo da etiqueta OFERTA
-                                   - preços empilhados à direita: riscado acima, verde abaixo
-                                     pt-6 para alinhar os preços abaixo da etiqueta */
                                 <div className="flex items-start justify-between gap-3">
-                                  <div className="font-normal text-sm leading-tight pt-5">{s.nome}</div>
-                                  <div className="flex flex-col items-end shrink-0 pt-6">
-                                    <div className="text-red-400 text-xs font-normal line-through leading-tight">R$ {preco.toFixed(2)}</div>
-                                    <div className="text-green-400 font-normal text-base leading-tight">R$ {precoFinal.toFixed(2)}</div>
+                                  
+                                  {/* coluna esquerda */}
+                                  <div className="flex flex-col">
+                                    <div className="font-normal text-sm leading-tight">
+                                      {s.nome}
+                                    </div>
+
+                                    <div className="text-xs text-white/60">
+                                      {s.duracao_min} MIN
+                                    </div>
                                   </div>
+
+                                  {/* coluna direita */}
+                                  <div className="flex flex-col items-end shrink-0">
+                                    
+                                    <span className="px-1.5 py-0.5 bg-green-500/20 border border-green-500/40 rounded-button text-[9px] text-green-400 uppercase leading-tight">
+                                      OFERTA
+                                    </span>
+
+                                    <div className="text-red-400 text-xs line-through leading-tight">
+                                      R$ {preco.toFixed(2)}
+                                    </div>
+
+                                    <div className="text-green-400 text-base leading-tight">
+                                      R$ {precoFinal.toFixed(2)}
+                                    </div>
+
+                                  </div>
+
                                 </div>
                               ) : (
                                 /* layout normal: nome à esquerda, preço à direita */
