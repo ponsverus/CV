@@ -840,7 +840,7 @@ export default function Vitrine({ user, userType }) {
                                     </div>
                                   </div>
                                   {/* coluna direita: etiqueta + riscado + final */}
-                                  <div className="flex flex-col items-end shrink-0 gap-0.5">
+                                  <div className="flex flex-col items-end shrink-0 gap-2">
                                     <span className="inline-block px-1.5 py-0.5 bg-green-500/20 border border-green-500/40 rounded-button text-[9px] text-green-400 font-normal uppercase">
                                       OFERTA
                                     </span>
