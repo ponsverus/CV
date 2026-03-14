@@ -174,6 +174,61 @@ function getValorAgendamento(a) {
 const normalizeKey = (s) =>
   String(s || '').trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
+// ─── mapas de labels dinâmicos (3 grupos + fallback servicos) ─────────────────
+
+const LABEL_TAB = {
+  servicos:  'SERVIÇOS',
+  consultas: 'CONSULTAS',
+  aulas:     'AULAS',
+};
+
+const LABEL_SECTION = {
+  servicos:  'Serviços',
+  consultas: 'Consultas',
+  aulas:     'Aulas',
+};
+
+const LABEL_BTN_ADD = {
+  servicos:  'SERVIÇO',
+  consultas: 'CONSULTA',
+  aulas:     'AULA',
+};
+
+const LABEL_MODAL_NEW = {
+  servicos:  'NOVO SERVIÇO',
+  consultas: 'NOVA CONSULTA',
+  aulas:     'NOVA AULA',
+};
+
+const LABEL_MODAL_EDIT = {
+  servicos:  'EDITAR SERVIÇO',
+  consultas: 'EDITAR CONSULTA',
+  aulas:     'EDITAR AULA',
+};
+
+const LABEL_COUNTER_SINGULAR = {
+  servicos:  'serviço',
+  consultas: 'consulta',
+  aulas:     'aula',
+};
+
+const LABEL_COUNTER_PLURAL = {
+  servicos:  'serviços',
+  consultas: 'consultas',
+  aulas:     'aulas',
+};
+
+const LABEL_EMPTY_LIST = {
+  servicos:  'Sem serviços para este profissional.',
+  consultas: 'Sem consultas para este profissional.',
+  aulas:     'Sem aulas para este profissional.',
+};
+
+// helper: lê o mapa com fallback em 'servicos'
+const g = (map, group) => map[group] ?? map['servicos'];
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export default function Dashboard({ user, onLogout }) {
   const feedback = useFeedback?.();
 
@@ -260,10 +315,21 @@ export default function Dashboard({ user, onLogout }) {
 
   useEffect(() => { setNovoEmail(user?.email || ''); }, [user?.email]);
 
+  // grupo dinâmico — fallback em 'servicos' garantido pelo getBusinessGroup
   const businessGroup = useMemo(
     () => getBusinessGroup(negocio?.tipo_negocio),
     [negocio?.tipo_negocio]
   );
+
+  // labels derivados do grupo
+  const tabEntregasLabel  = g(LABEL_TAB,              businessGroup);
+  const sectionTitle      = g(LABEL_SECTION,          businessGroup);
+  const btnAddLabel       = g(LABEL_BTN_ADD,          businessGroup);
+  const modalNewLabel     = g(LABEL_MODAL_NEW,        businessGroup);
+  const modalEditLabel    = g(LABEL_MODAL_EDIT,       businessGroup);
+  const counterSingular   = g(LABEL_COUNTER_SINGULAR, businessGroup);
+  const counterPlural     = g(LABEL_COUNTER_PLURAL,   businessGroup);
+  const emptyListMsg      = g(LABEL_EMPTY_LIST,       businessGroup);
 
   const fetchNowFromDb = async () => {
     const { data, error: rpcErr } = await supabase.rpc('now_sp');
@@ -572,7 +638,6 @@ export default function Dashboard({ user, onLogout }) {
       if (!payload.duracao_minutos) throw new Error('Duracao invalida.');
       const { error: insErr } = await supabase.from('entregas').insert([payload]);
       if (insErr) throw insErr;
-
       await uiAlert(`dashboard.business.${businessGroup}.service_created`, 'success');
       setShowNovaEntrega(false); setEditingEntregaId(null);
       setFormEntrega({ nome: '', duracao_minutos: '', preco: '', preco_promocional: '', profissional_id: '' });
@@ -604,7 +669,6 @@ export default function Dashboard({ user, onLogout }) {
       };
       const { error: updErr } = await supabase.from('entregas').update(payload).eq('id', editingEntregaId).eq('negocio_id', negocio.id);
       if (updErr) throw updErr;
-
       await uiAlert(`dashboard.business.${businessGroup}.service_updated`, 'success');
       setShowNovaEntrega(false); setEditingEntregaId(null);
       setFormEntrega({ nome: '', duracao_minutos: '', preco: '', preco_promocional: '', profissional_id: '' });
@@ -626,7 +690,6 @@ export default function Dashboard({ user, onLogout }) {
     try {
       const { error: delErr } = await supabase.from('entregas').delete().eq('id', id).eq('negocio_id', negocio.id);
       if (delErr) throw delErr;
-
       await uiAlert(`dashboard.business.${businessGroup}.service_deleted`, 'success');
       await loadData(true);
     } catch (e2) {
@@ -882,62 +945,6 @@ export default function Dashboard({ user, onLogout }) {
     pairs.sort((a, b) => Number(b[1]) - Number(a[1]));
     return pairs;
   }, [metricsDia]);
-
-  const tabEntregasLabel = {
-    servicos:  'SERVIÇOS',
-    consultas: 'CONSULTAS',
-    aulas:     'AULAS',
-    default:   'ATENDIMENTOS',
-  }[businessGroup] ?? 'ATENDIMENTOS';
-
-  const sectionTitle = {
-    servicos:  'Serviços',
-    consultas: 'Consultas',
-    aulas:     'Aulas',
-    default:   'Atendimentos',
-  }[businessGroup] ?? 'Atendimentos';
-
-  const btnAddLabel = {
-    servicos:  'SERVIÇO',
-    consultas: 'CONSULTA',
-    aulas:     'AULA',
-    default:   'ATENDIMENTO',
-  }[businessGroup] ?? 'ATENDIMENTO';
-
-  const modalNewLabel = {
-    servicos:  'NOVO SERVIÇO',
-    consultas: 'NOVA CONSULTA',
-    aulas:     'NOVA AULA',
-    default:   'NOVO ATENDIMENTO',
-  }[businessGroup] ?? 'NOVO ATENDIMENTO';
-
-  const modalEditLabel = {
-    servicos:  'EDITAR SERVIÇO',
-    consultas: 'EDITAR CONSULTA',
-    aulas:     'EDITAR AULA',
-    default:   'EDITAR ATENDIMENTO',
-  }[businessGroup] ?? 'EDITAR ATENDIMENTO';
-
-  const counterSingular = {
-    servicos:  'serviço',
-    consultas: 'consulta',
-    aulas:     'aula',
-    default:   'atendimento',
-  }[businessGroup] ?? 'atendimento';
-
-  const counterPlural = {
-    servicos:  'serviços',
-    consultas: 'consultas',
-    aulas:     'aulas',
-    default:   'atendimentos',
-  }[businessGroup] ?? 'atendimentos';
-
-  const emptyListMsg = {
-    servicos:  'Sem serviços para este profissional.',
-    consultas: 'Sem consultas para este profissional.',
-    aulas:     'Sem aulas para este profissional.',
-    default:   'Sem atendimentos para este profissional.',
-  }[businessGroup] ?? 'Sem atendimentos para este profissional.';
 
   const tabs = [
     { key: 'visao-geral' }, { key: 'agendamentos' }, { key: 'cancelados' },
@@ -1196,7 +1203,7 @@ export default function Dashboard({ user, onLogout }) {
                         <div className="text-xl font-normal text-primary">{metricsLoadingPeriodo ? '...' : `R$ ${Number(metricsPeriodoData?.period?.faturamento || 0).toFixed(2)}`}</div>
                       </div>
                       <div className="bg-dark-200 border border-gray-800 rounded-custom p-4">
-                        <div className="text-xs text-gray-500 mb-1">MÉDIA POR ATENDIMENTO</div>
+                        <div className="text-xs text-gray-500 mb-1">MÉDIA POR {counterSingular.toUpperCase()}</div>
                         <div className="text-xl font-normal text-white">{metricsLoadingPeriodo ? '...' : `R$ ${Number(metricsPeriodoData?.period?.media_por_atendimento || 0).toFixed(2)}`}</div>
                       </div>
                     </div>
