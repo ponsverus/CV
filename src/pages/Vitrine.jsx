@@ -1004,7 +1004,7 @@ export default function Vitrine({ user, userType }) {
                 disabled={!flow.servicosSelecionados?.length}
                 className={`mt-4 w-full py-3 rounded-button uppercase font-normal ${flow.servicosSelecionados?.length ? 'bg-gradient-to-r from-primary to-yellow-600 text-black' : 'bg-dark-200 border border-gray-800 text-gray-500 cursor-not-allowed'}`}
               >
-                CONTINUAR — ESCOLHER DATA E HORÁRIO
+                ESCOLHER DATA E HORÁRIO
               </button>
             </div>
           </div>
