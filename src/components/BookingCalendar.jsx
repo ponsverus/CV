@@ -268,7 +268,7 @@ export default function BookingCalendar({
             <div className="font-normal text-white truncate">{entrega?.nome}</div>
             <div className="text-xs text-gray-400 mt-0.5">
               {profissional?.nome}
-              {entrega?.duracao_minutos && <span className="ml-2 text-gray-600">• {entrega.duracao_minutos} min</span>}
+              {entrega?.duracao_minutos && <span className="ml-2 text-gray-600">• {entrega.duracao_minutos} MIN</span>}
               <span className="ml-2 text-primary">• R$ {valorExibido}</span>
             </div>
           </div>
@@ -333,7 +333,7 @@ export default function BookingCalendar({
                     disabled={isDisabled}
                     onClick={() => !isDisabled && handleSelectDay(iso)}
                     className={[
-                      'h-9 w-full flex items-center justify-center text-sm font-normal transition-colors select-none rounded-full',
+                      'h-9 w-9 mx-auto flex items-center justify-center text-sm font-normal transition-colors select-none rounded-full',
                       isSelected
                         ? 'bg-primary text-black'
                         : isToday && !isDisabled
@@ -453,7 +453,15 @@ export default function BookingCalendar({
                   <span className="text-primary font-normal">{selectedSlot.hora}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">DURAÇÃO</span>
+                  <span className="text-gray-500">SERVIÇO</span>
+                  <span className="text-white">{Number(entrega?.duracao_minutos) || 0} MIN</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">FOLGA</span>
+                  <span className="text-gray-400">{FOLGA} MIN</span>
+                </div>
+                <div className="flex justify-between border-t border-gray-700 pt-2 mt-1">
+                  <span className="text-gray-500">TEMPO TOTAL</span>
                   <span className="text-white">{(Number(entrega?.duracao_minutos) || 0) + FOLGA} MIN</span>
                 </div>
                 <div className="flex justify-between">
