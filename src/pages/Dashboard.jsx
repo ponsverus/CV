@@ -90,7 +90,7 @@ function formatDateBRFromISO(dateStr) {
   if (!dateStr) return 'Selecionar';
   const [y, m, d] = String(dateStr).split('-');
   if (!y || !m || !d) return String(dateStr);
-  return `${d}/${m}/${y}`;
+  return `${d}.${m}.${y}`;
 }
 
 function getPublicUrl(bucket, path) {
