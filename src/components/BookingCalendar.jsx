@@ -298,7 +298,7 @@ export default function BookingCalendar({
               {slotsLoading && (
                 <div className="flex items-center justify-center py-8 text-gray-500">
                   <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                  <span className="text-sm">Buscando horários...</span>
+                  <span className="text-sm">BUSCANDO HORÁRIOS...</span>
                 </div>
               )}
 
@@ -350,7 +350,7 @@ export default function BookingCalendar({
 
                         {showAll && horariosExtra.length === 0 && (
                           <p className="text-center text-xs text-gray-600 mt-3">
-                            Todos os horários disponíveis já estão listados acima.
+                            Os horários livres já aparecem acima.
                           </p>
                         )}
                       </>
@@ -390,7 +390,7 @@ export default function BookingCalendar({
                   <span className="text-primary font-normal">{selectedSlot.hora}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">DURAÇÃO</span>
+                  <span className="text-gray-500">TEMPO TOTAL</span>
                   <span className="text-white">{(Number(entrega?.duracao_minutos) || 0) + FOLGA} MIN</span>
                 </div>
                 <div className="flex justify-between">
