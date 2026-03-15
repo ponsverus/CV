@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, Heart, History, LogOut, X, Save } from 'lucide-react';
+import { Calendar, History, LogOut, X, Save } from 'lucide-react';
 import { supabase } from '../supabase';
 import { useFeedback } from '../feedback/useFeedback';
 
@@ -60,6 +60,26 @@ function toHHMM_SP(ts) {
       hour12: false
     }).format(new Date(ts));
   } catch { return ''; }
+}
+
+function HeartIcon({ filled = false, className = '', size = 20 }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill={filled ? 'currentColor' : 'none'}
+      stroke="currentColor"
+      strokeWidth="1"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+    </svg>
+  );
 }
 
 function getPublicUrl(bucket, path) {
@@ -505,7 +525,7 @@ export default function ClientArea({ user, onLogout }) {
             <h3 className="text-lg font-normal text-black mb-1">NOVO AGENDAMENTO</h3>
           </Link>
           <button onClick={() => setActiveTab('favoritos')} className="bg-dark-100 border border-gray-800 rounded-custom p-6 hover:border-primary/50 transition-all text-left">
-            <Heart className="w-8 h-8 text-red-400 mb-3" />
+            <HeartIcon filled size={32} className="text-red-500 mb-3" />
             <h3 className="text-lg font-normal mb-1">{favoritos.length} FAVORITOS</h3>
           </button>
           <button onClick={() => setActiveTab('agendamentos')} className="bg-dark-100 border border-gray-800 rounded-custom p-6 hover:border-primary/50 transition-all text-left">
@@ -565,7 +585,7 @@ export default function ClientArea({ user, onLogout }) {
                             <X className="w-4 h-4 text-red-400" />
                           </button>
                           <div className="mb-3">
-                            <Heart className="w-6 h-6 text-primary fill-current mb-3" />
+                            <HeartIcon filled size={24} className="text-red-500 mb-3" />
                             <h3 className="text-lg font-normal text-white mb-1">{nomeFav}</h3>
                             <p className="text-xs text-gray-500 uppercase">{tipoNegocio}</p>
                           </div>
@@ -580,7 +600,7 @@ export default function ClientArea({ user, onLogout }) {
                   </div>
                 ) : (
                   <div className="text-center py-12">
-                    <Heart className="w-16 h-16 mx-auto mb-4 text-gray-700" />
+                    <HeartIcon filled size={64} className="text-red-500/30 mx-auto mb-4" />
                     <Link to="/" className="inline-block px-6 py-3 bg-gradient-to-r from-primary to-yellow-600 text-black rounded-button hover:shadow-lg transition-all">
                       EXPLORAR
                     </Link>
