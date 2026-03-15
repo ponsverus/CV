@@ -15,14 +15,6 @@
  *   is_heat  → zona de calor (evita buracos na agenda) — borda amarela
  *   is_raio  → janela de cancelamento reaproveitada — ícone ⚡ discreto
  *
- * Estratégia de exibição:
- *   1. Motor retorna todos os slots válidos (anticolisão, turno, almoço)
- *   2. Front gera candidatos a cada 30 min dentro do turno do profissional
- *   3. Candidato é exibido SE existe slot do motor que inicia naquele horário
- *   4. Propriedades is_heat / is_raio vêm do motor — não são alteradas
- *   5. Slots do motor fora dos múltiplos de 30 min são preservados
- *   6. Resultado: mais opções visuais, mesma segurança total do motor
- *
  * Fluxo visual (tudo na mesma tela, scroll):
  *   1. Calendário → usuário escolhe o dia
  *   2. Slots aparecem abaixo, automaticamente
@@ -60,11 +52,11 @@ function firstDow(y, m)       { return new Date(y, m - 1, 1).getDay(); }
 function isoLt(a, b)          { return String(a) < String(b); }
 function isoEq(a, b)          { return String(a) === String(b); }
 function timeToMin(t)         { if (!t) return 0; const [h, m] = String(t).split(':').map(Number); return h * 60 + (m || 0); }
-function minToTime(min)       { return `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`; }
 
 /**
  * Calcula horario_fim a partir do label (HH:MM) + duração + folga.
- * Não depende do navegador nem de conversão de timezone.
+ * Não depende do navegador nem de conversão de timezone —
+ * usa diretamente o label que o banco já entregou no fuso correto.
  */
 function calcHorarioFim(labelHHMM, duracaoMin, folga) {
   const [h, m]   = labelHHMM.split(':').map(Number);
@@ -72,36 +64,6 @@ function calcHorarioFim(labelHHMM, duracaoMin, folga) {
   const fimH     = String(Math.floor(totalMin / 60)).padStart(2, '0');
   const fimM     = String(totalMin % 60).padStart(2, '0');
   return `${fimH}:${fimM}`;
-}
-
-/**
- * Interpola candidatos de 30 em 30 min contra slots válidos do motor.
- *
- * O motor é a única fonte de verdade — um candidato só aparece se o motor
- * retornou um slot com aquele horário de início. Slots fora dos múltiplos
- * de 30 min (ex: 09:05 por margem de hoje) são preservados.
- */
-function interpolarCandidatos30min(motorSlots, profissional) {
-  if (!motorSlots?.length) return motorSlots;
-
-  const motorMap = new Map(motorSlots.map(s => [s.hora, s]));
-
-  const turnoIni = timeToMin(String(profissional?.horario_inicio || '08:00').slice(0, 5));
-  const turnoFim = timeToMin(String(profissional?.horario_fim    || '18:00').slice(0, 5));
-
-  // candidatos de 30 em 30 min dentro do turno
-  const resultado = new Map();
-  for (let min = turnoIni; min < turnoFim; min += 30) {
-    const hora = minToTime(min);
-    if (motorMap.has(hora)) resultado.set(hora, motorMap.get(hora));
-  }
-
-  // slots fora dos múltiplos de 30 min — preservados para não perder opções
-  for (const [hora, slot] of motorMap) {
-    if (!resultado.has(hora)) resultado.set(hora, slot);
-  }
-
-  return [...resultado.values()].sort((a, b) => timeToMin(a.hora) - timeToMin(b.hora));
 }
 
 const MONTH_NAMES   = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -121,25 +83,31 @@ export default function BookingCalendar({
 }) {
   const today = parseISO(todayISO);
 
+  // calendário
   const [viewYear,  setViewYear]  = useState(today?.year  ?? new Date().getFullYear());
   const [viewMonth, setViewMonth] = useState(today?.month ?? new Date().getMonth() + 1);
 
+  // seleções
   const [selectedDay,  setSelectedDay]  = useState(null);
   const [selectedSlot, setSelectedSlot] = useState(null);
 
-  const [horariosHot,  setHorariosHot]  = useState([]);
-  const [horariosAll,  setHorariosAll]  = useState([]);
+  // slots
+  const [horariosHot,  setHorariosHot]  = useState([]);   // is_heat ou is_raio
+  const [horariosAll,  setHorariosAll]  = useState([]);   // todos
   const [showAll,      setShowAll]      = useState(false);
   const [slotsLoading, setSlotsLoading] = useState(false);
   const [slotsError,   setSlotsError]   = useState(null);
 
+  // confirmação
   const [confirming,   setConfirming]   = useState(false);
   const [confirmError, setConfirmError] = useState(null);
 
+  // refs para scroll e fechar ao clicar fora
   const containerRef = useRef(null);
   const slotsRef     = useRef(null);
   const resumeRef    = useRef(null);
 
+  // fechar ao clicar fora — não fecha durante confirmação em andamento
   useEffect(() => {
     function handle(e) {
       if (confirming) return;
@@ -165,7 +133,6 @@ export default function BookingCalendar({
     try {
       const dur = Number(entrega.duracao_minutos);
 
-      // 1. Uma única chamada ao motor — retorna todos os slots válidos
       const { data, error } = await supabase.rpc('rpc_get_slots_v4', {
         p_profissional_id: profissional.id,
         p_dia:             dayISO,
@@ -176,29 +143,24 @@ export default function BookingCalendar({
       });
       if (error) throw error;
 
-      // 2. Normaliza
-      const motorSlots = (data || []).map(s => ({
-        hora:           String(s.label || '').slice(0, 5),
+      // RPC retorna: horario_inicio (timestamptz), horario_fim (timestamptz), label (HH:MM SP), is_heat, is_raio
+      const list = (data || []).map(s => ({
+        hora:           String(s.label || '').slice(0, 5), // "HH:MM" já no fuso SP
         isHeat:         !!s.is_heat,
         isRaio:         !!s.is_raio,
-        horario_inicio: s.horario_inicio || null,
-        horario_fim:    s.horario_fim    || null,
+        horario_inicio: s.horario_inicio || null,          // timestamptz (referência interna)
+        horario_fim:    s.horario_fim    || null,          // timestamptz (referência interna)
         duracaoMin:     dur,
       }));
 
-      // 3. Desduplicação — mantém maior rank (raio > heat > normal)
+      // desduplicação — mantém maior rank (raio > heat > normal)
       const rank = h => h.isRaio ? 3 : h.isHeat ? 2 : 1;
-      const uniqMotor = new Map();
-      for (const h of motorSlots) {
+      const uniq = new Map();
+      for (const h of list) {
         if (!h.hora) continue;
-        if (!uniqMotor.has(h.hora) || rank(h) > rank(uniqMotor.get(h.hora))) {
-          uniqMotor.set(h.hora, h);
-        }
+        if (!uniq.has(h.hora) || rank(h) > rank(uniq.get(h.hora))) uniq.set(h.hora, h);
       }
-      const motorFinal = [...uniqMotor.values()].sort((a, b) => timeToMin(a.hora) - timeToMin(b.hora));
-
-      // 4. Interpola candidatos de 30 em 30 min contra motor
-      const final = interpolarCandidatos30min(motorFinal, profissional);
+      const final = [...uniq.values()].sort((a, b) => timeToMin(a.hora) - timeToMin(b.hora));
       const hot   = final.filter(h => h.isHeat || h.isRaio);
 
       setHorariosAll(final);
@@ -212,7 +174,7 @@ export default function BookingCalendar({
     } finally {
       setSlotsLoading(false);
     }
-  }, [profissional?.id, profissional?.horario_inicio, profissional?.horario_fim, entrega?.duracao_minutos]);
+  }, [profissional?.id, entrega?.duracao_minutos]);
 
   // ── handlers ────────────────────────────────────────────────────────────────
 
@@ -232,6 +194,8 @@ export default function BookingCalendar({
     setConfirming(true);
     setConfirmError(null);
     try {
+      // horario_inicio vem do label da RPC — já em America/Sao_Paulo, sem conversão de timezone
+      // horario_fim calculado localmente a partir do label + duração + folga
       const horarioInicio = selectedSlot.hora;
       const horarioFim    = calcHorarioFim(selectedSlot.hora, entrega.duracao_minutos, FOLGA);
 
@@ -244,6 +208,7 @@ export default function BookingCalendar({
         horario_inicio:  horarioInicio,
         horario_fim:     horarioFim,
         status:          'agendado',
+        // preco_final omitido — o banco resolve no momento da conclusão via trigger set_agendamento_timestamps
       }]);
 
       if (error) throw error;
@@ -260,8 +225,7 @@ export default function BookingCalendar({
         || msg.includes('overlap')
         || msg.includes('sobrepos')
         || msg.includes('exclusion')
-        || msg.includes('almoco')
-        || msg.includes('conflito');
+        || msg.includes('almoco');
       if (overlap) {
         setConfirmError('Alguém acabou de reservar esse horário. Escolha outro.');
         fetchSlots(selectedDay);
@@ -273,6 +237,7 @@ export default function BookingCalendar({
     }
   };
 
+  // mês
   function prevMonth() { if (viewMonth === 1) { setViewYear(y => y - 1); setViewMonth(12); } else setViewMonth(m => m - 1); }
   function nextMonth() { if (viewMonth === 12) { setViewYear(y => y + 1); setViewMonth(1); } else setViewMonth(m => m + 1); }
 
@@ -282,6 +247,7 @@ export default function BookingCalendar({
     ? Number(entrega.preco_promocional).toFixed(2)
     : Number(entrega?.preco ?? 0).toFixed(2);
 
+  // grade do calendário
   const totalDays = daysInMonth(viewYear, viewMonth);
   const startDow  = firstDow(viewYear, viewMonth);
   const cells     = [...Array(startDow).fill(null), ...Array.from({ length: totalDays }, (_, i) => i + 1)];
@@ -319,6 +285,7 @@ export default function BookingCalendar({
 
           {/* ── calendário ── */}
           <div>
+            {/* navegação de mês */}
             <div className="flex items-center justify-between mb-4">
               <button
                 type="button"
@@ -340,12 +307,14 @@ export default function BookingCalendar({
               </button>
             </div>
 
+            {/* labels dias da semana */}
             <div className="grid grid-cols-7 mb-1">
               {WEEKDAY_SHORT.map((l, i) => (
                 <div key={i} className="text-center text-[10px] text-gray-500 uppercase py-1 select-none">{l}</div>
               ))}
             </div>
 
+            {/* grade de dias */}
             <div className="grid grid-cols-7 gap-y-1">
               {cells.map((day, i) => {
                 if (day === null) return <div key={`e-${i}`} />;
@@ -381,10 +350,11 @@ export default function BookingCalendar({
             </div>
           </div>
 
-          {/* ── horários ── */}
+          {/* ── horários (aparecem quando um dia é selecionado) ── */}
           {selectedDay && (
             <div ref={slotsRef}>
 
+              {/* loading */}
               {slotsLoading && (
                 <div className="flex items-center justify-center py-8 text-gray-500">
                   <Loader2 className="w-5 h-5 animate-spin mr-2" />
@@ -392,12 +362,14 @@ export default function BookingCalendar({
                 </div>
               )}
 
+              {/* erro / vazio */}
               {!slotsLoading && slotsError && (
                 <div className="flex items-center justify-center bg-yellow-500/10 border border-yellow-500/30 rounded-button p-3 text-yellow-300 text-sm font-normal text-center">
                   {slotsError}
                 </div>
               )}
 
+              {/* slots */}
               {!slotsLoading && !slotsError && horariosAll.length > 0 && (() => {
                 const hotHoras      = new Set(horariosHot.map(h => h.hora));
                 const horariosExtra = horariosAll.filter(h => !hotHoras.has(h.hora));
@@ -445,6 +417,7 @@ export default function BookingCalendar({
                         )}
                       </>
                     ) : (
+                      /* sem zona de calor: mostra todos direto */
                       <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
                         {horariosAll.map((h, i) => (
                           <SlotButton
@@ -462,7 +435,7 @@ export default function BookingCalendar({
             </div>
           )}
 
-          {/* ── resumo + confirmar ── */}
+          {/* ── resumo + confirmar (aparece quando slot selecionado) ── */}
           {selectedSlot && (
             <div ref={resumeRef} className="bg-dark-200 border border-gray-800 rounded-custom p-4">
               <div className="text-xs text-gray-500 uppercase tracking-wide mb-3">Resumo</div>
