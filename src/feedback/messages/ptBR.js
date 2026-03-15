@@ -451,7 +451,7 @@ export const ptBR = {
     },
     professional_lunch_blocked: {
       title: 'Horário de almoço bloqueado',
-      body: 'Existem agendamentos futuros que conflitam com o novo horário de almoço.\n\nCancele ou reagende esses atendimentos antes de fazer esta alteração.',
+      body: 'Há horários futuros que entram em conflito com o novo horário de almoço.\n\nCancele esses horários antes de salvar esta mudança.',
       variant: 'warning',
       screen: 'dark',
       buttonText: 'ENTENDI',
@@ -553,10 +553,10 @@ export const ptBR = {
     },
 
     account_email_invalid_inline: 'Email inválido. Verifique e tente novamente.',
-    account_email_update_sent_inline: 'Enviamos um link de confirmação para o novo email.',
+    account_email_update_sent_inline: 'Enviamos um link para confirmar o novo email.',
     account_email_update_error_inline: 'Falha ao trocar o email. Tente novamente.',
     account_password_too_short_inline: 'A senha precisa ter no mínimo 6 caracteres.',
-    account_password_mismatch_inline: 'As senhas não conferem. Revise e tente novamente.',
+    account_password_mismatch_inline: 'Senhas diferentes. Revise e tente de novo.',
     account_password_updated_inline: 'Senha atualizada com sucesso.',
     account_password_update_error_inline: 'Falha ao atualizar a senha. Tente novamente.',
 
