@@ -154,7 +154,6 @@ export default function ClientArea({ user, onLogout }) {
   const montarAgendamentosComMaps = async (agList) => {
     const list = agList || [];
 
-    // ── entregas (substitui servicos) ──────────────────────────────────────
     const entregaIds = uniq(list.map(a => a.entrega_id));
     const profIds    = uniq(list.map(a => a.profissional_id));
 
@@ -209,7 +208,7 @@ export default function ClientArea({ user, onLogout }) {
         data,
         hora_inicio,
         hora_fim,
-        entregas:       entrega,                                        // ← era servicos
+        entregas:       entrega,
         profissionais:  prof ? { ...prof, negocios: neg } : null,
       };
     });
@@ -604,7 +603,7 @@ export default function ClientArea({ user, onLogout }) {
                   <p className="text-sm text-gray-400 mb-2">
                     {agendamento.profissionais?.nome || '—'}
                   </p>
-                  {/* ← era agendamento.servicos?.nome */}
+
                   <p className="text-sm text-primary">
                     {agendamento.entregas?.nome || '—'}
                   </p>
@@ -626,7 +625,6 @@ export default function ClientArea({ user, onLogout }) {
                 </div>
                 <div>
                   <div className="text-xs text-gray-500 mb-1">VALOR</div>
-                  {/* ← era getPrecoFinalServico(agendamento.servicos) */}
                   <div className="text-sm text-white">
                     R$ {moneyBR(getPrecoFinalEntrega(agendamento.entregas))}
                   </div>
