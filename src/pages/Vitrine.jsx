@@ -652,7 +652,7 @@ export default function Vitrine({ user, userType }) {
                 <span className="hidden sm:inline">Depoimento</span>
               </button>
               <button onClick={toggleFavorito} disabled={!!isProfessional} className={`h-9 flex items-center gap-2 px-5 rounded-button transition-all uppercase border focus:outline-none focus:ring-0 focus:ring-offset-0 ${isProfessional ? 'bg-vcard2 border-vborder2 text-vmuted cursor-not-allowed' : isFavorito ? 'bg-red-500/20 border-red-500/50 text-red-400' : 'bg-vcard2 border-vborder text-vsub hover:text-red-400'}`}>
-                <Heart className={`w-5 h-5 ${isFavorito ? 'fill-current' : ''}`} />
+                <Heart className={`w-5 h-5 ${isFavorito ? 'fill-current' : ''}`} strokeWidth={1} />
                 <span className="hidden sm:inline">{isProfessional ? 'Somente Cliente' : (isFavorito ? 'Favoritado' : 'Favoritar')}</span>
               </button>
             </div>
