@@ -1,23 +1,6 @@
-/**
- * DatePicker.jsx
- * Calendário custom para uso no Dashboard (filtros de Histórico e Faturamento).
- *
- * Props:
- *   value     — string ISO "YYYY-MM-DD" (pode ser vazia)
- *   onChange  — (isoString: string) => void
- *   todayISO  — string ISO "YYYY-MM-DD" vindo do serverNow.date (now_sp)
- *               se não for passado, o componente não destaca o "hoje"
- *
- * O componente NÃO usa o horário do device do usuário para nada.
- * Toda referência de "hoje" vem do serverNow do banco (America/Sao_Paulo).
- */
-
 import React, { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-// ─── helpers ─────────────────────────────────────────────────────────────────
-
-/** "YYYY-MM-DD" → { year, month (1-12), day } */
 function parseISO(iso) {
   if (!iso) return null;
   const [y, m, d] = String(iso).split('-').map(Number);
@@ -25,12 +8,10 @@ function parseISO(iso) {
   return { year: y, month: m, day: d };
 }
 
-/** { year, month (1-12), day } → "YYYY-MM-DD" */
 function toISO(year, month, day) {
   return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }
 
-/** Formata "YYYY-MM-DD" → "DD.MM.YYYY" para exibição na pílula */
 function formatDisplay(iso) {
   if (!iso) return null;
   const p = parseISO(iso);
@@ -38,20 +19,16 @@ function formatDisplay(iso) {
   return `${String(p.day).padStart(2, '0')}.${String(p.month).padStart(2, '0')}.${p.year}`;
 }
 
-/** Quantos dias tem o mês */
 function daysInMonth(year, month) {
   return new Date(year, month, 0).getDate();
 }
 
-/** Dia da semana do primeiro dia do mês (0=dom … 6=sáb) */
 function firstDayOfMonth(year, month) {
   return new Date(year, month - 1, 1).getDay();
 }
 
 const MONTH_NAMES   = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const WEEKDAY_SHORT = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-
-// ─── componente ──────────────────────────────────────────────────────────────
 
 export default function DatePicker({ value, onChange, todayISO }) {
   const today    = parseISO(todayISO);
@@ -66,7 +43,6 @@ export default function DatePicker({ value, onChange, todayISO }) {
 
   const containerRef = useRef(null);
 
-  // Fecha ao clicar fora
   useEffect(() => {
     if (!open) return;
     function handle(e) {
@@ -78,7 +54,6 @@ export default function DatePicker({ value, onChange, todayISO }) {
     return () => document.removeEventListener('mousedown', handle);
   }, [open]);
 
-  // Sincroniza a visão quando o value muda externamente
   useEffect(() => {
     if (selected) {
       setViewYear(selected.year);
@@ -101,7 +76,6 @@ export default function DatePicker({ value, onChange, todayISO }) {
     setOpen(false);
   }
 
-  // Grade do calendário
   const totalDays = daysInMonth(viewYear, viewMonth);
   const startDow  = firstDayOfMonth(viewYear, viewMonth);
   const cells     = [...Array(startDow).fill(null), ...Array.from({ length: totalDays }, (_, i) => i + 1)];
@@ -111,24 +85,20 @@ export default function DatePicker({ value, onChange, todayISO }) {
   return (
     <div className="relative inline-block" ref={containerRef}>
 
-      {/* ── pílula disparadora ── */}
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
         className="flex items-center gap-2 px-3 py-1.5 bg-dark-200 border border-gray-800 rounded-full text-sm font-normal text-white hover:border-primary/50 focus:border-primary/50 focus:outline-none transition-colors"
       >
-        {/* bolinha amarela (cor primary do app) */}
         <span className="w-2 h-2 rounded-full bg-primary shrink-0" />
         <span className="text-white">
           {displayValue ?? <span className="text-gray-500">Selecionar</span>}
         </span>
       </button>
 
-      {/* ── popover calendário — mesmo design do BookingCalendar ── */}
       {open && (
         <div className="absolute right-0 mt-2 z-50 bg-dark-100 border border-gray-800 rounded-custom shadow-2xl p-5 w-[300px]">
 
-          {/* navegação de mês */}
           <div className="flex items-center justify-between mb-4">
             <button
               type="button"
@@ -151,7 +121,6 @@ export default function DatePicker({ value, onChange, todayISO }) {
             </button>
           </div>
 
-          {/* labels dias da semana */}
           <div className="grid grid-cols-7 mb-1">
             {WEEKDAY_SHORT.map((l, i) => (
               <div key={i} className="text-center text-[10px] text-gray-500 uppercase py-1 select-none">
@@ -160,7 +129,6 @@ export default function DatePicker({ value, onChange, todayISO }) {
             ))}
           </div>
 
-          {/* grade de dias */}
           <div className="grid grid-cols-7 gap-y-1">
             {cells.map((day, i) => {
               if (day === null) return <div key={`e-${i}`} />;
@@ -195,7 +163,6 @@ export default function DatePicker({ value, onChange, todayISO }) {
             })}
           </div>
 
-          {/* rodapé — botão HOJE */}
           {today && (
             <div className="mt-4">
               <button
