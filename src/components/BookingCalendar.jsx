@@ -137,7 +137,6 @@ export default function BookingCalendar({
     setConfirming(true);
     setConfirmError(null);
     try {
-      // banco calcula horario_fim com folga e retorna os valores reais inseridos
       const { data, error } = await supabase.rpc('rpc_criar_agendamento', {
         p_negocio_id:      negocioId,
         p_profissional_id: profissional.id,
@@ -148,12 +147,11 @@ export default function BookingCalendar({
 
       if (error) throw error;
 
-      // data[0] contém os valores reais que o banco inseriu
       const resultado = data?.[0];
 
       onConfirm?.({
-        inicio:  resultado?.horario_inicio ?? selectedSlot.hora,
-        fim:     resultado?.horario_fim    ?? null,
+        inicio:  resultado?.inicio  ?? selectedSlot.hora,
+        fim:     resultado?.fim     ?? null,
         label:   selectedSlot.hora,
         dataISO: selectedDay,
       });
