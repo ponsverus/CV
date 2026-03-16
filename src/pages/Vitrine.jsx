@@ -750,30 +750,46 @@ export default function Vitrine({ user, userType }) {
         </div>
       </section>
 
-      <section className="py-12">
-        <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      {/* ─────────────────────────────────────────────────────────────────
+          SERVIÇOS — fundo bg-vcard2, cards bg-vcard, título DENTRO
+          (mesmo padrão da seção de profissionais acima)
+      ───────────────────────────────────────────────────────────────── */}
+      <section className="py-12 px-4 sm:px-6 lg:px-8 bg-vcard2">
+        <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl sm:text-3xl font-normal mb-6">{sectionTitle}</h2>
-        </div>
-        {profissionais.length === 0 ? (
-          <p className="text-vmuted font-normal px-4 sm:px-6 lg:px-8">Nenhum profissional cadastrado.</p>
-        ) : (
-          <div className="space-y-px">
-            {profissionais.map(p => {
-              const lista = (entregasPorProf.get(p.id) || []).slice().sort((a, b) => { const pa = Number(getPrecoFinalServico(a) ?? 0); const pb = Number(getPrecoFinalServico(b) ?? 0); if (pb !== pa) return pb - pa; return String(a.nome || '').localeCompare(String(b.nome || '')); });
-              return (
-                <div key={p.id} className="bg-vcard border-t border-b border-vborder w-full px-4 sm:px-6 lg:px-8 py-6">
-                  <div className="max-w-7xl mx-auto">
+          {profissionais.length === 0 ? (
+            <p className="text-vmuted font-normal">{emptyListMsg}</p>
+          ) : (
+            <div className="space-y-4">
+              {profissionais.map(p => {
+                const lista = (entregasPorProf.get(p.id) || []).slice().sort((a, b) => {
+                  const pa = Number(getPrecoFinalServico(a) ?? 0);
+                  const pb = Number(getPrecoFinalServico(b) ?? 0);
+                  if (pb !== pa) return pb - pa;
+                  return String(a.nome || '').localeCompare(String(b.nome || ''));
+                });
+                return (
+                  <div key={p.id} className="bg-vcard border border-vborder rounded-custom p-6 hover:border-primary/50 transition-all">
                     <div className="flex items-center justify-between mb-4">
                       <div className="font-normal text-lg">{p.nome}</div>
                       <div className="text-xs text-vmuted font-normal">{lista.length} {lista.length === 1 ? counterSingular : counterPlural}</div>
                     </div>
-                    <ServicosCarousel lista={lista} profissional={p} selecaoProfId={selecaoProfId} servicosSelecionados={servicosSelecionados} isProfessional={isProfessional} onAgendarAgora={handleAgendarAgora} onToggleSelecao={handleToggleSelecao} emptyMsg={emptyListMsg} />
+                    <ServicosCarousel
+                      lista={lista}
+                      profissional={p}
+                      selecaoProfId={selecaoProfId}
+                      servicosSelecionados={servicosSelecionados}
+                      isProfessional={isProfessional}
+                      onAgendarAgora={handleAgendarAgora}
+                      onToggleSelecao={handleToggleSelecao}
+                      emptyMsg={emptyListMsg}
+                    />
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                );
+              })}
+            </div>
+          )}
+        </div>
       </section>
 
       {galeriaItems.length > 0 && (
@@ -823,9 +839,9 @@ export default function Vitrine({ user, userType }) {
           <div className="bg-dark-100 border border-gray-800 rounded-custom max-w-md w-full">
             <div className="p-8 text-center">
               <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4"><Calendar className="w-10 h-10 text-green-400" /></div>
-              <h3 className="text-2xl font-normal mb-2 text-white">AGENDADO!</h3>
+              <h3 className="text-2xl font-normal mb-2 text-white">AGENDADO :)</h3>
               <p className="text-gray-400 font-normal mb-1">{flow.lastSlot?.label && <span className="text-primary font-normal">{flow.lastSlot.label}</span>}{flow.lastSlot?.dataISO && <span className="text-gray-400"> — {formatDateBR(flow.lastSlot.dataISO)}</span>}</p>
-              <p className="text-gray-500 font-normal text-sm mb-6">Salve um lembrete no seu celular para não esquecer.</p>
+              <p className="text-gray-500 font-normal text-sm mb-6">Crie um lembrete no seu celular para assegurar o compromisso.</p>
               <a href={calendarLink} target="_blank" rel="noreferrer" className="block w-full py-4 bg-gradient-to-r from-primary to-yellow-600 text-black rounded-button uppercase font-normal mb-3">ADICIONAR À MINHA AGENDA</a>
               <button onClick={() => { setFlow(prev => ({ ...prev, step: 0 })); navigate('/minha-area'); }} className="w-full py-3 bg-transparent border border-red-500 text-red-500 rounded-button uppercase font-normal hover:bg-red-500/10 transition-colors">PREFIRO ESQUECER</button>
             </div>
