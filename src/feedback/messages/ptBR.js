@@ -211,14 +211,14 @@ export const ptBR = {
       },
 
       counter_singular: {
-        servicos:  'serviço',
-        consultas: 'consulta',
-        aulas:     'aula',
+        servicos:  'SERVIÇO',
+        consultas: 'CONSULTA',
+        aulas:     'AULA',
       },
       counter_plural: {
-        servicos:  'serviços',
-        consultas: 'Honsultas',
-        aulas:     'aulas',
+        servicos:  'SERVIÇOS',
+        consultas: 'CONSULTAS',
+        aulas:     'AULAS',
       },
 
       empty_list: {
