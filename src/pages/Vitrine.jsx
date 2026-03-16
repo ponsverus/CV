@@ -1031,11 +1031,11 @@ export default function Vitrine({ user, userType }) {
             </button>
           </div>
           {depoimentos.length > 0 ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 [column-fill:_balance]">
               {depoimentos.map(dep => {
                 const avatarClienteUrl = getPublicUrl('avatars', dep.users?.avatar_path);
                 return (
-                  <div key={dep.id} className="bg-vcard border border-vborder rounded-custom p-4 relative">
+                  <div key={dep.id} className="mb-4 break-inside-avoid bg-vcard border border-vborder rounded-custom p-4 relative">
                     <div className="absolute top-3 right-3">
                       {dep.profissional_id && dep.profissionais?.nome ? (
                         <span className="inline-block px-1.5 py-0.5 bg-primary/20 border border-primary/30 rounded-button text-[10px] text-primary font-normal uppercase">{dep.profissionais.nome}</span>
