@@ -560,7 +560,7 @@ export default function Vitrine({ user, userType }) {
   const handleBookingConfirm = (slot) => {
     const primeiroServico = flow.servicosSelecionados?.[0];
     const durTotal = (flow.servicosSelecionados || []).reduce((sum, s) => sum + Number(s?.duracao_minutos || 0), 0);
-    const link = gerarLinkGoogle(primeiroServico?.nome || 'Agendamento', slot.inicio, durTotal);
+    const link = gerarLinkGoogle(primeiroServico?.nome || 'Agendamento', `${slot.dataISO}T${slot.inicio}`, durTotal);
     if (window.OneSignalDeferred) { window.OneSignalDeferred.push(async function (OneSignal) { await OneSignal.sendTags({ ultima_acao: 'agendamento_realizado', servico_nome: primeiroServico?.nome || 'Serviço', data_agendamento: slot.dataISO, horario_agendamento: slot.label }); }); }
     setCalendarLink(link);
     setFlow(prev => ({ ...prev, step: 5, lastSlot: slot }));
