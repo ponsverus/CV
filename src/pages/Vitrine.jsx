@@ -182,7 +182,6 @@ function ConfirmModal({ open, onCancel, onConfirm, title, body, confirmText, can
   );
 }
 
-// ── Faixa sticky de seleção múltipla ─────────────────────────────────────────
 function SelectionBar({ itens, counterSingular, counterPlural, onConfirm, onClear }) {
   const qtd = itens.length;
   if (qtd === 0) return null;
@@ -197,8 +196,6 @@ function SelectionBar({ itens, counterSingular, counterPlural, onConfirm, onClea
       style={{ background: 'rgba(10,10,10,0.97)', borderTop: '1px solid rgba(212,160,23,0.25)' }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
-
-        {/* lado esquerdo — contagem + info */}
         <div className="flex items-center gap-3 min-w-0">
           <div
             className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-black text-xs font-normal shrink-0"
@@ -222,8 +219,6 @@ function SelectionBar({ itens, counterSingular, counterPlural, onConfirm, onClea
             <X className="w-4 h-4" />
           </button>
         </div>
-
-        {/* lado direito — botão */}
         <button
           onClick={onConfirm}
           className="shrink-0 flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary to-yellow-600 text-black rounded-full text-sm font-normal uppercase whitespace-nowrap"
@@ -232,30 +227,26 @@ function SelectionBar({ itens, counterSingular, counterPlural, onConfirm, onClea
           Escolher data
           <ChevronRight className="w-4 h-4" />
         </button>
-
       </div>
     </div>
   );
 }
 
-// ── Botões de serviço ─────────────────────────────────────────────────────────
 function ServicoButtons({ servico, profissional, selecaoProfId, servicosSelecionados, isProfessional, onAgendarAgora, onToggleSelecao }) {
   const isSelecionado  = servicosSelecionados.some(x => x.id === servico.id);
-  // modo seleção ativo = já existe pelo menos 1 item selecionado
   const modoSelecaoOn  = servicosSelecionados.length > 0;
-  // botão selecionar desabilitado se: modo ativo E profissional diferente
   const outroProfSel   = modoSelecaoOn && selecaoProfId !== null && selecaoProfId !== profissional.id;
+
+  const agendarDesabilitado = !!isProfessional || modoSelecaoOn;
 
   return (
     <div className="flex gap-2 mt-3">
-
-      {/* AGENDAR AGORA */}
       <button
-        onClick={() => !isProfessional && onAgendarAgora(profissional, [servico])}
-        disabled={!!isProfessional || (modoSelecaoOn && !isSelecionado)}
+        onClick={() => !agendarDesabilitado && onAgendarAgora(profissional, [servico])}
+        disabled={agendarDesabilitado}
         className={[
           'flex-1 py-2.5 rounded-button text-sm font-normal uppercase transition-all flex items-center justify-center gap-1.5',
-          isProfessional || (modoSelecaoOn && !isSelecionado)
+          agendarDesabilitado
             ? 'bg-vcard2 border border-vborder text-vmuted cursor-not-allowed opacity-40'
             : 'bg-gradient-to-r from-primary to-yellow-600 text-black hover:opacity-90',
         ].join(' ')}
@@ -264,7 +255,6 @@ function ServicoButtons({ servico, profissional, selecaoProfId, servicosSelecion
         Agendar agora
       </button>
 
-      {/* SELECIONAR */}
       <button
         onClick={() => !isProfessional && !outroProfSel && onToggleSelecao(profissional, servico)}
         disabled={!!isProfessional || outroProfSel}
@@ -284,12 +274,10 @@ function ServicoButtons({ servico, profissional, selecaoProfId, servicosSelecion
           : <><ShoppingBag className="w-3.5 h-3.5" /> Selecionar</>
         }
       </button>
-
     </div>
   );
 }
 
-// ── Componente principal ──────────────────────────────────────────────────────
 export default function Vitrine({ user, userType }) {
   const { slug }     = useParams();
   const navigate     = useNavigate();
@@ -308,7 +296,6 @@ export default function Vitrine({ user, userType }) {
   const businessGroup   = useMemo(() => getBusinessGroup(negocio?.tipo_negocio), [negocio?.tipo_negocio]);
   const bizV            = vitrineMsgs?.business || {};
   const sectionTitle    = bizV?.section_title?.[businessGroup]  ?? 'Serviços';
-  const btnAgendarLabel = bizV?.label_button?.[businessGroup]   ?? 'AGENDAR SERVIÇO';
   const counterSingular = ptBR?.dashboard?.business?.counter_singular?.[businessGroup] ?? 'serviço';
   const counterPlural   = ptBR?.dashboard?.business?.counter_plural?.[businessGroup]   ?? 'serviços';
   const emptyListMsg    = ptBR?.dashboard?.business?.empty_list?.[businessGroup]       ?? 'Sem serviços para este profissional.';
@@ -365,7 +352,6 @@ export default function Vitrine({ user, userType }) {
   const [isFavorito,   setIsFavorito]   = useState(false);
   const [calendarLink, setCalendarLink] = useState('');
 
-  // ── Estado de fluxo ──────────────────────────────────────────────────────
   const [flow, setFlow] = useState({
     step: 0,
     profissional: null,
@@ -373,10 +359,7 @@ export default function Vitrine({ user, userType }) {
     lastSlot: null,
   });
 
-  // ── Estado de seleção múltipla (faixa bottom) ────────────────────────────
-  // selecaoProfId: UUID do profissional cujos serviços estão sendo selecionados
-  // servicosSelecionados: array de objetos entrega
-  const [selecaoProfId,       setSelecaoProfId]       = useState(null);
+  const [selecaoProfId,        setSelecaoProfId]        = useState(null);
   const [servicosSelecionados, setServicosSelecionados] = useState([]);
 
   const todayISO = useMemo(() => getNowSP().date, []);
@@ -508,7 +491,6 @@ export default function Vitrine({ user, userType }) {
     } catch { alertKey('favorite_toggle_error', 'Erro', 'Erro ao favoritar. Tente novamente.', 'OK'); }
   };
 
-  // ── Verificação de login antes de qualquer ação de agendamento ────────────
   const requireLogin = async () => {
     if (!user) {
       const ok = await confirmKey('schedule_need_login_confirm', 'Login necessário', 'Você precisa fazer login para agendar. Deseja fazer login agora?', 'IR PARA LOGIN', 'MAIS TARDE');
@@ -522,10 +504,8 @@ export default function Vitrine({ user, userType }) {
     return true;
   };
 
-  // ── AGENDAR AGORA (1 serviço direto ao calendário) ───────────────────────
   const handleAgendarAgora = async (profissional, servicos) => {
     if (!(await requireLogin())) return;
-    // limpa qualquer seleção múltipla ativa
     setSelecaoProfId(null);
     setServicosSelecionados([]);
     setCalendarLink('');
@@ -537,13 +517,11 @@ export default function Vitrine({ user, userType }) {
     });
   };
 
-  // ── SELECIONAR (toggle multi-serviço) ────────────────────────────────────
   const handleToggleSelecao = async (profissional, servico) => {
     if (!(await requireLogin())) return;
 
     setServicosSelecionados(prev => {
       const jaTemEsseProf = selecaoProfId && selecaoProfId !== profissional.id;
-      // proteção: não mistura profissionais (já tratado no botão, mas dupla segurança)
       if (jaTemEsseProf) return prev;
 
       const existe = prev.some(x => x.id === servico.id);
@@ -558,7 +536,6 @@ export default function Vitrine({ user, userType }) {
     });
   };
 
-  // ── Confirmar seleção múltipla via faixa bottom ──────────────────────────
   const handleConfirmarSelecao = () => {
     if (!servicosSelecionados.length) return;
     const profissional = profissionais.find(p => p.id === selecaoProfId);
@@ -578,61 +555,29 @@ export default function Vitrine({ user, userType }) {
     setServicosSelecionados([]);
   };
 
-  // ── Início do agendamento via botão AGENDAR SERVIÇO no card do profissional
-  const iniciarAgendamento = async (profissional) => {
-    if (!(await requireLogin())) return;
-    setCalendarLink('');
-    setFlow({ step: 2, profissional, servicosSelecionados: [], lastSlot: null });
-  };
-
-  const entregasDoProf = useMemo(() => {
-    if (!flow.profissional) return [];
-    return entregas.filter(s => s.profissional_id === flow.profissional.id);
-  }, [entregas, flow.profissional]);
-
-  const entregasPossiveis = useMemo(() => {
-    return (entregasDoProf || [])
-      .filter(s => Number(s.duracao_minutos || 0) > 0)
-      .sort((a, b) => {
-        const pa = Number(getPrecoFinalServico(a) ?? 0);
-        const pb = Number(getPrecoFinalServico(b) ?? 0);
-        if (pb !== pa) return pb - pa;
-        return String(a.nome || '').localeCompare(String(b.nome || ''));
-      });
-  }, [entregasDoProf]);
-
-  const totalSelecionado = useMemo(() => {
-    const lista = Array.isArray(flow.servicosSelecionados) ? flow.servicosSelecionados : [];
-    const dur = lista.reduce((sum, s) => sum + Number(s?.duracao_minutos || 0), 0);
-    const val = lista.reduce((sum, s) => sum + getPrecoFinalServico(s), 0);
-    return { duracao: dur, valor: val, qtd: lista.length };
-  }, [flow.servicosSelecionados]);
-
-  const duracaoTotalComFolga = useMemo(() => {
-    const dur = Number(totalSelecionado.duracao || 0);
-    return dur > 0 ? dur + FOLGA_MINUTOS : 0;
-  }, [totalSelecionado.duracao]);
-
   const entregaVirtual = useMemo(() => {
     if (!flow.servicosSelecionados?.length) return null;
     const primeiroServico = flow.servicosSelecionados[0];
+    const durTotal = flow.servicosSelecionados.reduce((sum, s) => sum + Number(s?.duracao_minutos || 0), 0);
+    const valTotal = flow.servicosSelecionados.reduce((sum, s) => sum + getPrecoFinalServico(s), 0);
     return {
       id:                primeiroServico.id,
       nome:              flow.servicosSelecionados.length === 1
                            ? primeiroServico.nome
                            : `${flow.servicosSelecionados.length} ${counterPlural}`,
-      duracao_minutos:   totalSelecionado.duracao,
-      preco:             totalSelecionado.valor,
+      duracao_minutos:   durTotal,
+      preco:             valTotal,
       preco_promocional: null,
     };
-  }, [flow.servicosSelecionados, totalSelecionado, counterPlural]);
+  }, [flow.servicosSelecionados, counterPlural]);
 
   const handleBookingConfirm = (slot) => {
     const primeiroServico = flow.servicosSelecionados?.[0];
+    const durTotal = (flow.servicosSelecionados || []).reduce((sum, s) => sum + Number(s?.duracao_minutos || 0), 0);
     const link = gerarLinkGoogle(
       primeiroServico?.nome || 'Agendamento',
       slot.inicio,
-      totalSelecionado.duracao,
+      durTotal,
     );
 
     if (window.OneSignalDeferred) {
@@ -773,8 +718,6 @@ export default function Vitrine({ user, userType }) {
 
   const nomeNegocioLabel = String(negocio?.nome || '').trim() || 'NEGÓCIO';
   const temaAtivo = negocio?.tema || 'dark';
-
-  // padding bottom quando a faixa está ativa
   const hasSelecao = servicosSelecionados.length > 0;
 
   return (
@@ -784,7 +727,6 @@ export default function Vitrine({ user, userType }) {
       <AlertModal  open={nativeAlertOpen}   onClose={closeAlert}               title={nativeAlertData.title}   body={nativeAlertData.body}   buttonText={nativeAlertData.buttonText} />
       <ConfirmModal open={nativeConfirmOpen} onCancel={() => closeConfirm(false)} onConfirm={() => closeConfirm(true)} title={nativeConfirmData.title} body={nativeConfirmData.body} confirmText={nativeConfirmData.confirmText} cancelText={nativeConfirmData.cancelText} />
 
-      {/* ── Announcement bar ── */}
       <div className="bg-primary overflow-hidden relative h-10 flex items-center">
         <div className="announcement-bar-marquee flex whitespace-nowrap">
           <div className="flex animate-marquee-sync">
@@ -814,7 +756,6 @@ export default function Vitrine({ user, userType }) {
         `}</style>
       </div>
 
-      {/* ── Header ── */}
       <header className="bg-vcard border-b border-vborder sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
@@ -836,7 +777,6 @@ export default function Vitrine({ user, userType }) {
         </div>
       </header>
 
-      {/* ── Hero ── */}
       <section className="relative bg-gradient-to-br from-primary/20 via-vbg to-yellow-600/20 py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row items-start gap-6">
@@ -884,7 +824,6 @@ export default function Vitrine({ user, userType }) {
         </div>
       </section>
 
-      {/* ── Profissionais ── */}
       <section className="py-12 px-4 sm:px-6 lg:px-8 bg-vcard2">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl sm:text-3xl font-normal mb-6">Profissionais</h2>
@@ -898,7 +837,7 @@ export default function Vitrine({ user, userType }) {
               const avatarUrl = getPublicUrl('avatars', prof.avatar_path);
               return (
                 <div key={prof.id} className="bg-vcard border border-vborder rounded-custom p-6 hover:border-primary/50 transition-all">
-                  <div className="flex items-start gap-4 mb-4">
+                  <div className="flex items-start gap-4">
                     {avatarUrl ? (
                       <div className="w-14 h-14 rounded-custom overflow-hidden border border-vborder bg-vcard2 shrink-0">
                         <img src={avatarUrl} alt={prof.nome} className="w-full h-full object-cover" />
@@ -942,13 +881,6 @@ export default function Vitrine({ user, userType }) {
                       </p>
                     </div>
                   </div>
-                  <button
-                    onClick={() => iniciarAgendamento(prof)}
-                    disabled={!!isProfessional}
-                    className={`w-full py-3 rounded-button hover:shadow-lg transition-all flex items-center justify-center gap-2 uppercase font-normal ${isProfessional ? 'bg-vcard2 border border-vborder text-vmuted cursor-not-allowed' : 'bg-gradient-to-r from-primary to-yellow-600 text-black'}`}
-                  >
-                    <Calendar className="w-5 h-5" />{btnAgendarLabel}
-                  </button>
                 </div>
               );
             })}
@@ -956,7 +888,6 @@ export default function Vitrine({ user, userType }) {
         </div>
       </section>
 
-      {/* ── Serviços com AGENDAR AGORA + SELECIONAR ── */}
       <section className="py-12">
         <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
           <h2 className="text-2xl sm:text-3xl font-normal mb-6">{sectionTitle}</h2>
@@ -993,7 +924,6 @@ export default function Vitrine({ user, userType }) {
 
                           return (
                             <div key={s.id} className="bg-vcard2 border border-vborder rounded-custom p-4">
-
                               {temPromo ? (
                                 <>
                                   <div className="flex items-start justify-between gap-3">
@@ -1021,7 +951,6 @@ export default function Vitrine({ user, userType }) {
                                 </>
                               )}
 
-                              {/* ── Botões de ação por serviço ── */}
                               <ServicoButtons
                                 servico={s}
                                 profissional={p}
@@ -1031,7 +960,6 @@ export default function Vitrine({ user, userType }) {
                                 onAgendarAgora={handleAgendarAgora}
                                 onToggleSelecao={handleToggleSelecao}
                               />
-
                             </div>
                           );
                         })}
@@ -1047,7 +975,6 @@ export default function Vitrine({ user, userType }) {
         )}
       </section>
 
-      {/* ── Galeria ── */}
       {galeriaItems.length > 0 && (
         <section className="py-12 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
@@ -1066,7 +993,6 @@ export default function Vitrine({ user, userType }) {
         </section>
       )}
 
-      {/* ── Depoimentos ── */}
       <section className="py-12 px-4 sm:px-6 lg:px-8 bg-vcard2">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between gap-3 mb-6">
@@ -1112,7 +1038,6 @@ export default function Vitrine({ user, userType }) {
         </div>
       </section>
 
-      {/* ── Faixa de seleção múltipla (sticky bottom) ── */}
       <SelectionBar
         itens={servicosSelecionados}
         counterSingular={counterSingular}
@@ -1121,76 +1046,6 @@ export default function Vitrine({ user, userType }) {
         onClear={handleLimparSelecao}
       />
 
-      {/* ── Modal step 2: seleção de serviços via botão do card de profissional ── */}
-      {flow.step === 2 && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-dark-100 border border-gray-800 rounded-custom max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 z-30 bg-dark-100 border-b border-gray-800 p-6 flex justify-between items-center">
-              <h2 className="text-2xl font-normal text-white">AGENDAR COM {flow.profissional?.nome}</h2>
-              <button onClick={() => setFlow(prev => ({ ...prev, step: 0 }))} className="text-gray-400 hover:text-white"><X className="w-6 h-6" /></button>
-            </div>
-            <div className="p-6">
-              <h3 className="text-xl font-normal mb-2 text-white">Selecione {sectionTitle}</h3>
-
-              <div className="mb-4 bg-dark-200 border border-gray-800 rounded-custom p-4">
-                <div className="flex justify-between text-sm"><span className="text-gray-500 font-normal">SELECIONADOS:</span><span className="font-normal text-white">{totalSelecionado.qtd}</span></div>
-                <div className="flex justify-between text-sm mt-1"><span className="text-gray-500 font-normal">TEMPO ESTIMADO:</span><span className="font-normal text-gray-200">{totalSelecionado.duracao} MIN</span></div>
-                <div className="flex justify-between text-sm mt-1"><span className="text-gray-500 font-normal">FOLGA:</span><span className="font-normal text-gray-200">{totalSelecionado.duracao ? FOLGA_MINUTOS : 0} MIN</span></div>
-                <div className="flex justify-between text-sm mt-1"><span className="text-gray-500 font-normal">TEMPO TOTAL:</span><span className="font-normal text-primary">{duracaoTotalComFolga || 0} MIN</span></div>
-                <div className="flex justify-between text-sm mt-1"><span className="text-gray-500 font-normal">VALOR TOTAL:</span><span className="font-normal text-primary">R$ {totalSelecionado.valor.toFixed(2)}</span></div>
-              </div>
-
-              {entregasPossiveis.length > 0 ? (
-                <div className="space-y-3">
-                  {entregasPossiveis.map(s => {
-                    const selected   = (flow.servicosSelecionados || []).some(x => x.id === s.id);
-                    const precoFinal = getPrecoFinalServico(s);
-                    return (
-                      <button
-                        key={s.id}
-                        onClick={() => {
-                          const cur  = Array.isArray(flow.servicosSelecionados) ? [...flow.servicosSelecionados] : [];
-                          const next = selected ? cur.filter(x => x.id !== s.id) : [...cur, s];
-                          setFlow(prev => ({ ...prev, servicosSelecionados: next }));
-                        }}
-                        className={`w-full rounded-custom p-4 transition-all text-left border-2 ${selected ? 'bg-primary/10 border-primary' : 'bg-dark-200 border-gray-800 hover:border-primary/50'}`}
-                      >
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <p className="font-normal text-white">{s.nome}</p>
-                            <p className="text-sm text-gray-500 font-normal"><Clock className="w-4 h-4 inline mr-1" />{s.duracao_minutos} MIN</p>
-                          </div>
-                          <div className="text-2xl font-normal text-primary">R$ {precoFinal.toFixed(2)}</div>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="text-gray-500 font-normal">Nenhum {counterSingular} disponível.</div>
-              )}
-
-              <button
-                onClick={() => {
-                  if (!flow.servicosSelecionados?.length) {
-                    const needOneMsg = bizV?.[businessGroup]?.schedule_need_one_service;
-                    if (needOneMsg) openAlert({ title: needOneMsg.title, body: needOneMsg.body, buttonText: needOneMsg.buttonText || 'ENTENDI' });
-                    else alertKey('schedule_need_one_service', 'Selecione um item', 'Selecione pelo menos 1 item.', 'ENTENDI');
-                    return;
-                  }
-                  setFlow(prev => ({ ...prev, step: 'booking' }));
-                }}
-                disabled={!flow.servicosSelecionados?.length}
-                className={`mt-4 w-full py-3 rounded-button uppercase font-normal ${flow.servicosSelecionados?.length ? 'bg-gradient-to-r from-primary to-yellow-600 text-black' : 'bg-dark-200 border border-gray-800 text-gray-500 cursor-not-allowed'}`}
-              >
-                ESCOLHER DATA E HORÁRIO
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── BookingCalendar ── */}
       {flow.step === 'booking' && entregaVirtual && (
         <BookingCalendar
           profissional={flow.profissional}
@@ -1199,11 +1054,10 @@ export default function Vitrine({ user, userType }) {
           negocioId={negocio.id}
           clienteId={user?.id}
           onConfirm={handleBookingConfirm}
-          onClose={() => setFlow(prev => ({ ...prev, step: 2 }))}
+          onClose={() => setFlow(prev => ({ ...prev, step: 0 }))}
         />
       )}
 
-      {/* ── Confirmação final ── */}
       {flow.step === 5 && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-dark-100 border border-gray-800 rounded-custom max-w-md w-full">
@@ -1236,7 +1090,6 @@ export default function Vitrine({ user, userType }) {
         </div>
       )}
 
-      {/* ── Modal depoimento ── */}
       {showDepoimento && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-dark-100 border border-gray-800 rounded-custom max-w-md w-full max-h-[90vh] flex flex-col">
