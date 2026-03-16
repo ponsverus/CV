@@ -732,11 +732,11 @@ export default function Vitrine({ user, userType }) {
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <span className="inline-flex items-center px-3 py-1 rounded-full bg-vcard2 border border-vborder text-xs text-vsub font-normal">
-                      {horarioIni} – {horarioFim}
+                      HORÁRIO {horarioIni} – {horarioFim}
                     </span>
                     {almIni && almFim && (
                       <span className="inline-flex items-center px-3 py-1 rounded-full bg-vcard2 border border-vborder text-xs text-vsub font-normal">
-                        Almoço {String(almIni).slice(0, 5)} – {String(almFim).slice(0, 5)}
+                        PAUSA {String(almIni).slice(0, 5)} – {String(almFim).slice(0, 5)}
                       </span>
                     )}
                     <span className="inline-flex items-center px-3 py-1 rounded-full bg-vcard2 border border-vborder text-xs text-vsub font-normal">
