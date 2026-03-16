@@ -25,17 +25,8 @@ function isoLt(a, b)          { return String(a) < String(b); }
 function isoEq(a, b)          { return String(a) === String(b); }
 function timeToMin(t)         { if (!t) return 0; const [h, m] = String(t).split(':').map(Number); return h * 60 + (m || 0); }
 
-function calcHorarioFim(labelHHMM, duracaoMin, folga) {
-  const [h, m]   = labelHHMM.split(':').map(Number);
-  const totalMin = h * 60 + m + Number(duracaoMin) + Number(folga);
-  const fimH     = String(Math.floor(totalMin / 60)).padStart(2, '0');
-  const fimM     = String(totalMin % 60).padStart(2, '0');
-  return `${fimH}:${fimM}`;
-}
-
 const MONTH_NAMES   = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const WEEKDAY_SHORT = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-const FOLGA         = 5;
 
 export default function BookingCalendar({
   profissional,
@@ -94,7 +85,6 @@ export default function BookingCalendar({
         p_profissional_id: profissional.id,
         p_dia:             dayISO,
         p_entrega_min:     dur,
-        p_folga_min:       FOLGA,
         p_margem_min:      5,
         p_modo:            'todos',
       });
@@ -147,19 +137,13 @@ export default function BookingCalendar({
     setConfirming(true);
     setConfirmError(null);
     try {
-      const horarioInicio = selectedSlot.hora;
-      const horarioFim = selectedSlot.horario_fim;
-
-      const { error } = await supabase.from('agendamentos').insert([{
-        negocio_id:      negocioId,
-        profissional_id: profissional.id,
-        cliente_id:      clienteId,
-        entrega_id:      entrega.id,
-        data:            selectedDay,
-        horario_inicio:  horarioInicio,
-        horario_fim:     horarioFim,
-        status:          'agendado',
-      }]);
+      const { data: agendamentoId, error } = await supabase.rpc('rpc_criar_agendamento', {
+        p_negocio_id:      negocioId,
+        p_profissional_id: profissional.id,
+        p_entrega_id:      entrega.id,
+        p_data:            selectedDay,
+        p_horario_inicio:  selectedSlot.hora,
+      });
 
       if (error) throw error;
 
@@ -171,12 +155,12 @@ export default function BookingCalendar({
       });
     } catch (e) {
       const msg     = String(e?.message || '').toLowerCase();
-      const overlap = String(e?.code || '') === '23P01'
+      const overlap = msg.includes('conflito')
+        || msg.includes('almoco')
         || msg.includes('overlap')
         || msg.includes('sobrepos')
         || msg.includes('exclusion')
-        || msg.includes('almoco')
-        || msg.includes('conflito');
+        || String(e?.code || '') === '23P01';
       if (overlap) {
         setConfirmError('Alguém acabou de reservar esse horário. Escolha outro.');
         fetchSlots(selectedDay);
@@ -207,7 +191,6 @@ export default function BookingCalendar({
         ref={containerRef}
         className="bg-dark-100 border border-gray-800 rounded-custom w-full max-w-md max-h-[92vh] overflow-y-auto"
       >
-
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-800">
           <div className="min-w-0">
             <div className="text-xs text-gray-500 uppercase tracking-wide">Agendamento</div>
@@ -228,7 +211,6 @@ export default function BookingCalendar({
         </div>
 
         <div className="px-6 py-5 space-y-6">
-
           <div>
             <div className="flex items-center justify-between mb-4">
               <button
@@ -267,7 +249,6 @@ export default function BookingCalendar({
                 const isWorkday  = diasTrabalho.includes(dow);
                 const isSelected = selectedDay && isoEq(iso, selectedDay);
                 const isDisabled = isPast || !isWorkday;
-
                 return (
                   <button
                     key={day}
@@ -294,7 +275,6 @@ export default function BookingCalendar({
 
           {selectedDay && (
             <div ref={slotsRef}>
-
               {slotsLoading && (
                 <div className="flex items-center justify-center py-8 text-gray-500">
                   <Loader2 className="w-5 h-5 animate-spin mr-2" />
@@ -311,22 +291,15 @@ export default function BookingCalendar({
               {!slotsLoading && !slotsError && horariosAll.length > 0 && (() => {
                 const hotHoras      = new Set(horariosHot.map(h => h.hora));
                 const horariosExtra = horariosAll.filter(h => !hotHoras.has(h.hora));
-
                 return (
                   <div>
                     {horariosHot.length > 0 ? (
                       <>
                         <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-3">
                           {horariosHot.map((h, i) => (
-                            <SlotButton
-                              key={`hot-${i}`}
-                              slot={h}
-                              isSelected={selectedSlot?.hora === h.hora}
-                              onClick={handleSelectSlot}
-                            />
+                            <SlotButton key={`hot-${i}`} slot={h} isSelected={selectedSlot?.hora === h.hora} onClick={handleSelectSlot} />
                           ))}
                         </div>
-
                         <button
                           type="button"
                           onClick={() => setShowAll(v => !v)}
@@ -334,36 +307,21 @@ export default function BookingCalendar({
                         >
                           {showAll ? 'OCULTAR HORÁRIOS' : 'VER MAIS HORÁRIOS'}
                         </button>
-
                         {showAll && horariosExtra.length > 0 && (
                           <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mt-3">
                             {horariosExtra.map((h, i) => (
-                              <SlotButton
-                                key={`extra-${i}`}
-                                slot={h}
-                                isSelected={selectedSlot?.hora === h.hora}
-                                onClick={handleSelectSlot}
-                              />
+                              <SlotButton key={`extra-${i}`} slot={h} isSelected={selectedSlot?.hora === h.hora} onClick={handleSelectSlot} />
                             ))}
                           </div>
                         )}
-
                         {showAll && horariosExtra.length === 0 && (
-                          <p className="text-center text-xs text-gray-600 mt-3">
-                            Os horários livres já aparecem acima.
-                          </p>
+                          <p className="text-center text-xs text-gray-600 mt-3">Os horários livres já aparecem acima.</p>
                         )}
                       </>
                     ) : (
-                      /* sem zona de calor: mostra todos direto */
                       <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
                         {horariosAll.map((h, i) => (
-                          <SlotButton
-                            key={`all-${i}`}
-                            slot={h}
-                            isSelected={selectedSlot?.hora === h.hora}
-                            onClick={handleSelectSlot}
-                          />
+                          <SlotButton key={`all-${i}`} slot={h} isSelected={selectedSlot?.hora === h.hora} onClick={handleSelectSlot} />
                         ))}
                       </div>
                     )}
@@ -390,10 +348,6 @@ export default function BookingCalendar({
                   <span className="text-primary font-normal">{selectedSlot.hora}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">TEMPO TOTAL</span>
-                  <span className="text-white">{(Number(entrega?.duracao_minutos) || 0) + FOLGA} MIN</span>
-                </div>
-                <div className="flex justify-between">
                   <span className="text-gray-500">VALOR</span>
                   <span className="text-primary">R$ {valorExibido}</span>
                 </div>
@@ -418,7 +372,6 @@ export default function BookingCalendar({
               </button>
             </div>
           )}
-
         </div>
       </div>
     </div>
@@ -445,7 +398,7 @@ function SlotButton({ slot, isSelected, onClick }) {
         <Zap className="w-3 h-3 text-primary absolute top-1 right-1" />
       )}
       <div className="text-lg normal-case">{slot.hora}</div>
-      <div className="text-[10px] text-gray-500 normal-case">{(Number(slot.duracaoMin) || 0) + FOLGA} MIN</div>
+      <div className="text-[10px] text-gray-500 normal-case">{slot.duracaoMin} MIN</div>
     </button>
   );
 }
