@@ -57,7 +57,9 @@ export default function DatePicker({ value, onChange, todayISO }) {
 
     const rect = buttonRef.current.getBoundingClientRect();
 
+    const calendarWidth = 300;
     const calendarHeight = 360;
+
     const spaceBelow = window.innerHeight - rect.bottom;
 
     let top;
@@ -68,9 +70,15 @@ export default function DatePicker({ value, onChange, todayISO }) {
       top = rect.top - calendarHeight - 8;
     }
 
+    let left = rect.right - calendarWidth;
+
+    if (left < 16 || left + calendarWidth > window.innerWidth - 16) {
+      left = (window.innerWidth / 2) - (calendarWidth / 2);
+    }
+
     setPosition({
-      top: top,
-      left: rect.right - 300
+      top,
+      left
     });
 
   }, [open]);
