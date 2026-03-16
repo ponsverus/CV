@@ -9,6 +9,9 @@ import {
   X,
   AlertCircle,
   Instagram,
+  Check,
+  ChevronRight,
+  ShoppingBag,
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import { ptBR } from '../feedback/messages/ptBR';
@@ -78,38 +81,15 @@ function gerarLinkGoogle(titulo, dataInicioISO, duracaoMin) {
 
 function FacebookIcon({ className = '', size = 16 }) {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden="true"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
       <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
     </svg>
   );
 }
+
 function HeartIcon({ filled = false, className = '', size = 20 }) {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill={filled ? 'currentColor' : 'none'}
-      stroke="currentColor"
-      strokeWidth="1"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden="true"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
       <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
     </svg>
   );
@@ -202,23 +182,130 @@ function ConfirmModal({ open, onCancel, onConfirm, title, body, confirmText, can
   );
 }
 
+// ── Faixa sticky de seleção múltipla ─────────────────────────────────────────
+function SelectionBar({ itens, counterSingular, counterPlural, onConfirm, onClear }) {
+  const qtd = itens.length;
+  if (qtd === 0) return null;
+
+  const durTotal = itens.reduce((s, x) => s + Number(x.duracao_minutos || 0), 0);
+  const valTotal = itens.reduce((s, x) => s + getPrecoFinalServico(x), 0);
+  const label    = qtd === 1 ? counterSingular : counterPlural;
+
+  return (
+    <div
+      className="fixed bottom-0 left-0 right-0 z-[60]"
+      style={{ background: 'rgba(10,10,10,0.97)', borderTop: '1px solid rgba(212,160,23,0.25)' }}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
+
+        {/* lado esquerdo — contagem + info */}
+        <div className="flex items-center gap-3 min-w-0">
+          <div
+            className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-black text-xs font-normal shrink-0"
+            style={{ fontVariantNumeric: 'tabular-nums' }}
+          >
+            {qtd}
+          </div>
+          <div className="min-w-0">
+            <div className="text-white text-sm font-normal truncate">
+              {qtd} {label} selecionado{qtd > 1 ? 's' : ''}
+            </div>
+            <div className="text-gray-500 text-xs font-normal">
+              {durTotal} min &nbsp;·&nbsp; R$ {valTotal.toFixed(2)}
+            </div>
+          </div>
+          <button
+            onClick={onClear}
+            className="text-gray-600 hover:text-gray-400 shrink-0 ml-1"
+            title="Limpar seleção"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* lado direito — botão */}
+        <button
+          onClick={onConfirm}
+          className="shrink-0 flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary to-yellow-600 text-black rounded-full text-sm font-normal uppercase whitespace-nowrap"
+        >
+          <Calendar className="w-4 h-4" />
+          Escolher data
+          <ChevronRight className="w-4 h-4" />
+        </button>
+
+      </div>
+    </div>
+  );
+}
+
+// ── Botões de serviço ─────────────────────────────────────────────────────────
+function ServicoButtons({ servico, profissional, selecaoProfId, servicosSelecionados, isProfessional, onAgendarAgora, onToggleSelecao }) {
+  const isSelecionado  = servicosSelecionados.some(x => x.id === servico.id);
+  // modo seleção ativo = já existe pelo menos 1 item selecionado
+  const modoSelecaoOn  = servicosSelecionados.length > 0;
+  // botão selecionar desabilitado se: modo ativo E profissional diferente
+  const outroProfSel   = modoSelecaoOn && selecaoProfId !== null && selecaoProfId !== profissional.id;
+
+  return (
+    <div className="flex gap-2 mt-3">
+
+      {/* AGENDAR AGORA */}
+      <button
+        onClick={() => !isProfessional && onAgendarAgora(profissional, [servico])}
+        disabled={!!isProfessional || (modoSelecaoOn && !isSelecionado)}
+        className={[
+          'flex-1 py-2.5 rounded-button text-sm font-normal uppercase transition-all flex items-center justify-center gap-1.5',
+          isProfessional || (modoSelecaoOn && !isSelecionado)
+            ? 'bg-vcard2 border border-vborder text-vmuted cursor-not-allowed opacity-40'
+            : 'bg-gradient-to-r from-primary to-yellow-600 text-black hover:opacity-90',
+        ].join(' ')}
+      >
+        <Calendar className="w-3.5 h-3.5" />
+        Agendar agora
+      </button>
+
+      {/* SELECIONAR */}
+      <button
+        onClick={() => !isProfessional && !outroProfSel && onToggleSelecao(profissional, servico)}
+        disabled={!!isProfessional || outroProfSel}
+        className={[
+          'flex-1 py-2.5 rounded-button text-sm font-normal uppercase transition-all flex items-center justify-center gap-1.5 border',
+          isProfessional || outroProfSel
+            ? 'bg-vcard2 border-vborder text-vmuted cursor-not-allowed opacity-30'
+            : isSelecionado
+              ? 'bg-primary/15 border-primary text-primary'
+              : modoSelecaoOn
+                ? 'bg-vcard2 border-vborder2 text-vmuted'
+                : 'bg-vcard2 border-vborder text-vsub hover:border-primary hover:text-primary',
+        ].join(' ')}
+      >
+        {isSelecionado
+          ? <><Check className="w-3.5 h-3.5" /> Selecionado</>
+          : <><ShoppingBag className="w-3.5 h-3.5" /> Selecionar</>
+        }
+      </button>
+
+    </div>
+  );
+}
+
+// ── Componente principal ──────────────────────────────────────────────────────
 export default function Vitrine({ user, userType }) {
-  const { slug } = useParams();
-  const navigate = useNavigate();
+  const { slug }     = useParams();
+  const navigate     = useNavigate();
 
-  const vitrineMsgs = ptBR?.vitrine || {};
-  const getMsg = (key, fallback) => vitrineMsgs?.[key] || fallback;
+  const vitrineMsgs  = ptBR?.vitrine || {};
+  const getMsg       = (key, fallback) => vitrineMsgs?.[key] || fallback;
 
-  const [negocio,        setNegocio]        = useState(null);
-  const [profissionais,  setProfissionais]  = useState([]);
-  const [entregas,       setEntregas]       = useState([]);
-  const [depoimentos,    setDepoimentos]    = useState([]);
-  const [galeriaItems,   setGaleriaItems]   = useState([]);
-  const [loading,        setLoading]        = useState(true);
-  const [error,          setError]          = useState(null);
+  const [negocio,       setNegocio]       = useState(null);
+  const [profissionais, setProfissionais] = useState([]);
+  const [entregas,      setEntregas]      = useState([]);
+  const [depoimentos,   setDepoimentos]   = useState([]);
+  const [galeriaItems,  setGaleriaItems]  = useState([]);
+  const [loading,       setLoading]       = useState(true);
+  const [error,         setError]         = useState(null);
 
-  const businessGroup = useMemo(() => getBusinessGroup(negocio?.tipo_negocio), [negocio?.tipo_negocio]);
-
+  const businessGroup   = useMemo(() => getBusinessGroup(negocio?.tipo_negocio), [negocio?.tipo_negocio]);
   const bizV            = vitrineMsgs?.business || {};
   const sectionTitle    = bizV?.section_title?.[businessGroup]  ?? 'Serviços';
   const btnAgendarLabel = bizV?.label_button?.[businessGroup]   ?? 'AGENDAR SERVIÇO';
@@ -241,11 +328,7 @@ export default function Vitrine({ user, userType }) {
   };
 
   const openAlert = ({ title, body, buttonText }) => {
-    setNativeAlertData({
-      title: title || getMsg('generic_title', 'Aviso'),
-      body: body || '',
-      buttonText: buttonText || 'OK',
-    });
+    setNativeAlertData({ title: title || getMsg('generic_title', 'Aviso'), body: body || '', buttonText: buttonText || 'OK' });
     setNativeAlertOpen(true);
   };
 
@@ -282,12 +365,19 @@ export default function Vitrine({ user, userType }) {
   const [isFavorito,   setIsFavorito]   = useState(false);
   const [calendarLink, setCalendarLink] = useState('');
 
+  // ── Estado de fluxo ──────────────────────────────────────────────────────
   const [flow, setFlow] = useState({
     step: 0,
     profissional: null,
     servicosSelecionados: [],
     lastSlot: null,
   });
+
+  // ── Estado de seleção múltipla (faixa bottom) ────────────────────────────
+  // selecaoProfId: UUID do profissional cujos serviços estão sendo selecionados
+  // servicosSelecionados: array de objetos entrega
+  const [selecaoProfId,       setSelecaoProfId]       = useState(null);
+  const [servicosSelecionados, setServicosSelecionados] = useState([]);
 
   const todayISO = useMemo(() => getNowSP().date, []);
 
@@ -310,7 +400,6 @@ export default function Vitrine({ user, userType }) {
   const loadVitrine = async () => {
     setLoading(true);
     setError(null);
-
     const watchdog = setTimeout(() => {
       setLoading(false);
       setError(getMsg('load_timeout', 'Demorou demais para carregar. Tente novamente.'));
@@ -367,7 +456,7 @@ export default function Vitrine({ user, userType }) {
         usersMap = new Map((usersDb || []).map(u => [u.id, u]));
       }
 
-      const profMap = new Map((profs || []).map(p => [p.id, p]));
+      const profMap      = new Map((profs || []).map(p => [p.id, p]));
       const negociosNome = negocioData?.nome || null;
 
       const finalDep = base.map(a => {
@@ -419,16 +508,79 @@ export default function Vitrine({ user, userType }) {
     } catch { alertKey('favorite_toggle_error', 'Erro', 'Erro ao favoritar. Tente novamente.', 'OK'); }
   };
 
-  const iniciarAgendamento = async (profissional) => {
+  // ── Verificação de login antes de qualquer ação de agendamento ────────────
+  const requireLogin = async () => {
     if (!user) {
       const ok = await confirmKey('schedule_need_login_confirm', 'Login necessário', 'Você precisa fazer login para agendar. Deseja fazer login agora?', 'IR PARA LOGIN', 'MAIS TARDE');
       if (ok) navigate('/login');
-      return;
+      return false;
     }
     if (userType !== 'client') {
       alertKey('schedule_only_client', 'Ação restrita', 'Você está logado como PROFISSIONAL. Para agendar, entre como CLIENTE.', 'ENTENDI');
-      return;
+      return false;
     }
+    return true;
+  };
+
+  // ── AGENDAR AGORA (1 serviço direto ao calendário) ───────────────────────
+  const handleAgendarAgora = async (profissional, servicos) => {
+    if (!(await requireLogin())) return;
+    // limpa qualquer seleção múltipla ativa
+    setSelecaoProfId(null);
+    setServicosSelecionados([]);
+    setCalendarLink('');
+    setFlow({
+      step: 'booking',
+      profissional,
+      servicosSelecionados: servicos,
+      lastSlot: null,
+    });
+  };
+
+  // ── SELECIONAR (toggle multi-serviço) ────────────────────────────────────
+  const handleToggleSelecao = async (profissional, servico) => {
+    if (!(await requireLogin())) return;
+
+    setServicosSelecionados(prev => {
+      const jaTemEsseProf = selecaoProfId && selecaoProfId !== profissional.id;
+      // proteção: não mistura profissionais (já tratado no botão, mas dupla segurança)
+      if (jaTemEsseProf) return prev;
+
+      const existe = prev.some(x => x.id === servico.id);
+      const proximo = existe ? prev.filter(x => x.id !== servico.id) : [...prev, servico];
+
+      if (proximo.length === 0) {
+        setSelecaoProfId(null);
+      } else {
+        setSelecaoProfId(profissional.id);
+      }
+      return proximo;
+    });
+  };
+
+  // ── Confirmar seleção múltipla via faixa bottom ──────────────────────────
+  const handleConfirmarSelecao = () => {
+    if (!servicosSelecionados.length) return;
+    const profissional = profissionais.find(p => p.id === selecaoProfId);
+    if (!profissional) return;
+    setFlow({
+      step: 'booking',
+      profissional,
+      servicosSelecionados,
+      lastSlot: null,
+    });
+    setSelecaoProfId(null);
+    setServicosSelecionados([]);
+  };
+
+  const handleLimparSelecao = () => {
+    setSelecaoProfId(null);
+    setServicosSelecionados([]);
+  };
+
+  // ── Início do agendamento via botão AGENDAR SERVIÇO no card do profissional
+  const iniciarAgendamento = async (profissional) => {
+    if (!(await requireLogin())) return;
     setCalendarLink('');
     setFlow({ step: 2, profissional, servicosSelecionados: [], lastSlot: null });
   };
@@ -468,12 +620,12 @@ export default function Vitrine({ user, userType }) {
       id:                primeiroServico.id,
       nome:              flow.servicosSelecionados.length === 1
                            ? primeiroServico.nome
-                           : `${flow.servicosSelecionados.length} serviços`,
+                           : `${flow.servicosSelecionados.length} ${counterPlural}`,
       duracao_minutos:   totalSelecionado.duracao,
       preco:             totalSelecionado.valor,
       preco_promocional: null,
     };
-  }, [flow.servicosSelecionados, totalSelecionado]);
+  }, [flow.servicosSelecionados, totalSelecionado, counterPlural]);
 
   const handleBookingConfirm = (slot) => {
     const primeiroServico = flow.servicosSelecionados?.[0];
@@ -514,12 +666,12 @@ export default function Vitrine({ user, userType }) {
     try {
       setDepoimentoLoading(true);
       const payload = {
-        cliente_id:       user.id,
-        tipo:             depoimentoTipo,
-        nota:             depoimentoNota,
-        comentario:       depoimentoTexto || null,
-        negocio_id:       depoimentoTipo === 'negocio'       ? negocio.id                : null,
-        profissional_id:  depoimentoTipo === 'profissional'  ? depoimentoProfissionalId  : null,
+        cliente_id:      user.id,
+        tipo:            depoimentoTipo,
+        nota:            depoimentoNota,
+        comentario:      depoimentoTexto || null,
+        negocio_id:      depoimentoTipo === 'negocio'      ? negocio.id               : null,
+        profissional_id: depoimentoTipo === 'profissional' ? depoimentoProfissionalId : null,
       };
       const { error: depErr } = await withTimeout(supabase.from('depoimentos').insert(payload), 7000, 'enviar-depoimento');
       if (depErr) throw depErr;
@@ -622,11 +774,17 @@ export default function Vitrine({ user, userType }) {
   const nomeNegocioLabel = String(negocio?.nome || '').trim() || 'NEGÓCIO';
   const temaAtivo = negocio?.tema || 'dark';
 
+  // padding bottom quando a faixa está ativa
+  const hasSelecao = servicosSelecionados.length > 0;
+
   return (
-    <div className={`min-h-screen bg-vbg text-vtext${temaAtivo === 'light' ? ' vitrine-light' : ''}`}>
+    <div className={`min-h-screen bg-vbg text-vtext${temaAtivo === 'light' ? ' vitrine-light' : ''}`}
+         style={hasSelecao ? { paddingBottom: 72 } : undefined}>
+
       <AlertModal  open={nativeAlertOpen}   onClose={closeAlert}               title={nativeAlertData.title}   body={nativeAlertData.body}   buttonText={nativeAlertData.buttonText} />
       <ConfirmModal open={nativeConfirmOpen} onCancel={() => closeConfirm(false)} onConfirm={() => closeConfirm(true)} title={nativeConfirmData.title} body={nativeConfirmData.body} confirmText={nativeConfirmData.confirmText} cancelText={nativeConfirmData.cancelText} />
 
+      {/* ── Announcement bar ── */}
       <div className="bg-primary overflow-hidden relative h-10 flex items-center">
         <div className="announcement-bar-marquee flex whitespace-nowrap">
           <div className="flex animate-marquee-sync">
@@ -656,6 +814,7 @@ export default function Vitrine({ user, userType }) {
         `}</style>
       </div>
 
+      {/* ── Header ── */}
       <header className="bg-vcard border-b border-vborder sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
@@ -669,11 +828,7 @@ export default function Vitrine({ user, userType }) {
                 <span className="hidden sm:inline">Depoimento</span>
               </button>
               <button onClick={toggleFavorito} disabled={!!isProfessional} className={`h-9 flex items-center gap-2 px-5 rounded-button transition-all uppercase border focus:outline-none focus:ring-0 focus:ring-offset-0 ${isProfessional ? 'bg-vcard2 border-vborder2 text-vmuted cursor-not-allowed' : isFavorito ? 'bg-red-500/20 border-red-500/50 text-red-400' : 'bg-vcard2 border-vborder text-vsub hover:text-red-400'}`}>
-                <HeartIcon
-                  filled={isFavorito}
-                  size={20}
-                  className={isFavorito ? 'text-red-500' : 'text-vsub'}
-                />
+                <HeartIcon filled={isFavorito} size={20} className={isFavorito ? 'text-red-500' : 'text-vsub'} />
                 <span className="hidden sm:inline">{isProfessional ? 'Somente Cliente' : (isFavorito ? 'Favoritado' : 'Favoritar')}</span>
               </button>
             </div>
@@ -681,6 +836,7 @@ export default function Vitrine({ user, userType }) {
         </div>
       </header>
 
+      {/* ── Hero ── */}
       <section className="relative bg-gradient-to-br from-primary/20 via-vbg to-yellow-600/20 py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row items-start gap-6">
@@ -728,6 +884,7 @@ export default function Vitrine({ user, userType }) {
         </div>
       </section>
 
+      {/* ── Profissionais ── */}
       <section className="py-12 px-4 sm:px-6 lg:px-8 bg-vcard2">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl sm:text-3xl font-normal mb-6">Profissionais</h2>
@@ -799,6 +956,7 @@ export default function Vitrine({ user, userType }) {
         </div>
       </section>
 
+      {/* ── Serviços com AGENDAR AGORA + SELECIONAR ── */}
       <section className="py-12">
         <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
           <h2 className="text-2xl sm:text-3xl font-normal mb-6">{sectionTitle}</h2>
@@ -816,6 +974,7 @@ export default function Vitrine({ user, userType }) {
                   if (pb !== pa) return pb - pa;
                   return String(a.nome || '').localeCompare(String(b.nome || ''));
                 });
+
               return (
                 <div key={p.id} className="bg-vcard border-t border-b border-vborder w-full px-4 sm:px-6 lg:px-8 py-6">
                   <div className="max-w-7xl mx-auto">
@@ -823,20 +982,19 @@ export default function Vitrine({ user, userType }) {
                       <div className="font-normal text-lg">{p.nome}</div>
                       <div className="text-xs text-vmuted font-normal">{lista.length} {lista.length === 1 ? counterSingular : counterPlural}</div>
                     </div>
+
                     {lista.length ? (
-                      <div className="flex flex-col gap-2">
+                      <div className="flex flex-col gap-3">
                         {lista.map(s => {
-                          const preco = Number(s.preco ?? 0);
-                          const promo = Number(s.preco_promocional ?? 0);
-                          const temPromo = Number.isFinite(promo) && promo > 0 && promo < preco;
+                          const preco     = Number(s.preco ?? 0);
+                          const promo     = Number(s.preco_promocional ?? 0);
+                          const temPromo  = Number.isFinite(promo) && promo > 0 && promo < preco;
                           const precoFinal = getPrecoFinalServico(s);
+
                           return (
                             <div key={s.id} className="bg-vcard2 border border-vborder rounded-custom p-4">
 
                               {temPromo ? (
-                                /* layout com oferta:
-                                   linha 1 → nome (esq)       OFERTA (dir)
-                                   linha 2 → 🕐 30 MIN (esq)  R$ 89,90 verde (dir) */
                                 <>
                                   <div className="flex items-start justify-between gap-3">
                                     <div className="font-normal text-sm leading-tight">{s.nome}</div>
@@ -844,7 +1002,7 @@ export default function Vitrine({ user, userType }) {
                                       OFERTA
                                     </span>
                                   </div>
-                                  <div className="flex items-center justify-between gap-3 mt-3">
+                                  <div className="flex items-center justify-between gap-3 mt-2">
                                     <div className="flex items-center gap-1 text-xs text-vmuted font-normal">
                                       <Clock className="w-3 h-3 shrink-0" />{s.duracao_minutos} MIN
                                     </div>
@@ -852,17 +1010,27 @@ export default function Vitrine({ user, userType }) {
                                   </div>
                                 </>
                               ) : (
-                                /* layout normal: nome à esquerda, preço à direita, duração na base */
                                 <>
                                   <div className="flex items-start justify-between gap-3">
                                     <div className="font-normal text-sm leading-tight">{s.nome}</div>
                                     <div className="text-primary font-normal text-base shrink-0">R$ {precoFinal.toFixed(2)}</div>
                                   </div>
-                                  <div className="flex items-center gap-1 mt-3 text-xs text-vmuted font-normal">
+                                  <div className="flex items-center gap-1 mt-2 text-xs text-vmuted font-normal">
                                     <Clock className="w-3 h-3 shrink-0" />{s.duracao_minutos} MIN
                                   </div>
                                 </>
                               )}
+
+                              {/* ── Botões de ação por serviço ── */}
+                              <ServicoButtons
+                                servico={s}
+                                profissional={p}
+                                selecaoProfId={selecaoProfId}
+                                servicosSelecionados={servicosSelecionados}
+                                isProfessional={isProfessional}
+                                onAgendarAgora={handleAgendarAgora}
+                                onToggleSelecao={handleToggleSelecao}
+                              />
 
                             </div>
                           );
@@ -879,6 +1047,7 @@ export default function Vitrine({ user, userType }) {
         )}
       </section>
 
+      {/* ── Galeria ── */}
       {galeriaItems.length > 0 && (
         <section className="py-12 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
@@ -897,6 +1066,7 @@ export default function Vitrine({ user, userType }) {
         </section>
       )}
 
+      {/* ── Depoimentos ── */}
       <section className="py-12 px-4 sm:px-6 lg:px-8 bg-vcard2">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between gap-3 mb-6">
@@ -942,6 +1112,16 @@ export default function Vitrine({ user, userType }) {
         </div>
       </section>
 
+      {/* ── Faixa de seleção múltipla (sticky bottom) ── */}
+      <SelectionBar
+        itens={servicosSelecionados}
+        counterSingular={counterSingular}
+        counterPlural={counterPlural}
+        onConfirm={handleConfirmarSelecao}
+        onClear={handleLimparSelecao}
+      />
+
+      {/* ── Modal step 2: seleção de serviços via botão do card de profissional ── */}
       {flow.step === 2 && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-dark-100 border border-gray-800 rounded-custom max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -963,13 +1143,13 @@ export default function Vitrine({ user, userType }) {
               {entregasPossiveis.length > 0 ? (
                 <div className="space-y-3">
                   {entregasPossiveis.map(s => {
-                    const selected = (flow.servicosSelecionados || []).some(x => x.id === s.id);
+                    const selected   = (flow.servicosSelecionados || []).some(x => x.id === s.id);
                     const precoFinal = getPrecoFinalServico(s);
                     return (
                       <button
                         key={s.id}
                         onClick={() => {
-                          const cur = Array.isArray(flow.servicosSelecionados) ? [...flow.servicosSelecionados] : [];
+                          const cur  = Array.isArray(flow.servicosSelecionados) ? [...flow.servicosSelecionados] : [];
                           const next = selected ? cur.filter(x => x.id !== s.id) : [...cur, s];
                           setFlow(prev => ({ ...prev, servicosSelecionados: next }));
                         }}
@@ -1010,6 +1190,7 @@ export default function Vitrine({ user, userType }) {
         </div>
       )}
 
+      {/* ── BookingCalendar ── */}
       {flow.step === 'booking' && entregaVirtual && (
         <BookingCalendar
           profissional={flow.profissional}
@@ -1022,6 +1203,7 @@ export default function Vitrine({ user, userType }) {
         />
       )}
 
+      {/* ── Confirmação final ── */}
       {flow.step === 5 && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-dark-100 border border-gray-800 rounded-custom max-w-md w-full">
@@ -1031,12 +1213,8 @@ export default function Vitrine({ user, userType }) {
               </div>
               <h3 className="text-2xl font-normal mb-2 text-white">AGENDADO!</h3>
               <p className="text-gray-400 font-normal mb-1">
-                {flow.lastSlot?.label && (
-                  <span className="text-primary font-normal">{flow.lastSlot.label}</span>
-                )}
-                {flow.lastSlot?.dataISO && (
-                  <span className="text-gray-400"> — {formatDateBR(flow.lastSlot.dataISO)}</span>
-                )}
+                {flow.lastSlot?.label && <span className="text-primary font-normal">{flow.lastSlot.label}</span>}
+                {flow.lastSlot?.dataISO && <span className="text-gray-400"> — {formatDateBR(flow.lastSlot.dataISO)}</span>}
               </p>
               <p className="text-gray-500 font-normal text-sm mb-6">Salve um lembrete no seu celular para não esquecer.</p>
               <a
@@ -1058,6 +1236,7 @@ export default function Vitrine({ user, userType }) {
         </div>
       )}
 
+      {/* ── Modal depoimento ── */}
       {showDepoimento && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-dark-100 border border-gray-800 rounded-custom max-w-md w-full max-h-[90vh] flex flex-col">
@@ -1105,6 +1284,7 @@ export default function Vitrine({ user, userType }) {
           </div>
         </div>
       )}
+
     </div>
   );
 }
