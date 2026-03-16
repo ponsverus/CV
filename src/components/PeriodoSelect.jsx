@@ -35,9 +35,9 @@ export default function PeriodoSelect({ value, onChange }) {
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
-        className="flex items-center gap-2 px-3 py-1.5 bg-dark-200 border border-gray-800 rounded-full text-sm font-normal text-white hover:border-primary/50 focus:border-primary/50 focus:outline-none transition-colors min-w-[160px] justify-between"
+        className="flex items-center gap-2 px-3 py-1.5 bg-dark-200 border border-gray-800 rounded-full text-sm font-normal text-white hover:border-primary/50 focus:border-primary/50 focus:outline-none transition-colors min-w-[160px]"
       >
-        <span className="text-white">{selected.label}</span>
+        <span className="flex-1 text-center text-white">{selected.label}</span>
         <ChevronDown className={`w-3.5 h-3.5 text-gray-500 transition-transform shrink-0 ${open ? 'rotate-180' : ''}`} />
       </button>
 
