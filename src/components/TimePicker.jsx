@@ -2,13 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
-/**
- * TimePicker
- *
- * Props:
- *   value    — "HH:MM" string (formato 24h) ou ''
- *   onChange — (value: "HH:MM" | '') => void
- */
 export default function TimePicker({ value, onChange }) {
   const [open,   setOpen]   = useState(false);
   const [mode,   setMode]   = useState('h');   // 'h' | 'm'
@@ -22,7 +15,6 @@ export default function TimePicker({ value, onChange }) {
   const hourRef    = useRef(8);
   const minuteRef  = useRef(0);
 
-  // mantém refs sincronizadas para uso em handlers sem closure stale
   useEffect(() => { modeRef.current  = mode;   }, [mode]);
   useEffect(() => { hourRef.current  = hour;   }, [hour]);
   useEffect(() => { minuteRef.current = minute; }, [minute]);
@@ -30,7 +22,6 @@ export default function TimePicker({ value, onChange }) {
   const pad     = (n) => String(n).padStart(2, '0');
   const display = value ? String(value).slice(0, 5) : '—';
 
-  // redraw sempre que estado relevante muda
   useEffect(() => {
     if (open) requestAnimationFrame(draw);
   }, [open, mode, hour, minute]);
@@ -62,7 +53,6 @@ export default function TimePicker({ value, onChange }) {
     setOpen(false);
   }
 
-  // ── canvas DPR-aware ───────────────────────────────────────────────────────
   function draw() {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -82,13 +72,11 @@ export default function TimePicker({ value, onChange }) {
     const cx = SIZE / 2, cy = SIZE / 2;
     ctx.clearRect(0, 0, SIZE, SIZE);
 
-    // face
     ctx.beginPath();
     ctx.arc(cx, cy, cx - 4, 0, Math.PI * 2);
     ctx.fillStyle = '#1e1e20';
     ctx.fill();
 
-    // anéis-guia (só na fase de hora)
     if (mode === 'h') {
       [96, 63].forEach((r) => {
         ctx.beginPath();
@@ -191,11 +179,9 @@ export default function TimePicker({ value, onChange }) {
     ctx.lineCap     = 'round';
     ctx.stroke();
 
-    // ponto central
     ctx.beginPath(); ctx.arc(cx, cy, 6, 0, Math.PI * 2);
     ctx.fillStyle = '#d4a017'; ctx.fill();
 
-    // halo suave na ponta
     const g = ctx.createRadialGradient(ex, ey, 0, ex, ey, 22);
     g.addColorStop(0, 'rgba(212,160,23,0.18)');
     g.addColorStop(1, 'rgba(212,160,23,0)');
@@ -203,7 +189,6 @@ export default function TimePicker({ value, onChange }) {
     ctx.fillStyle = g; ctx.fill();
   }
 
-  // ── interação ──────────────────────────────────────────────────────────────
   function getPoint(e) {
     const canvas = canvasRef.current;
     if (!canvas) return null;
@@ -262,10 +247,8 @@ export default function TimePicker({ value, onChange }) {
     if (modeRef.current === 'm') resolveSelection(e);
   }
 
-  // ── render ─────────────────────────────────────────────────────────────────
   const portal = open && createPortal(
     <>
-      {/* overlay escuro para fechar ao clicar fora */}
       <div
         onClick={closePicker}
         style={{
@@ -275,7 +258,6 @@ export default function TimePicker({ value, onChange }) {
         }}
       />
 
-      {/* picker centralizado na viewport */}
       <div
         style={{
           position: 'fixed',
@@ -284,13 +266,12 @@ export default function TimePicker({ value, onChange }) {
           zIndex: 9999,
           background: '#1c1c1e',
           border: '1px solid #2e2e30',
-          borderRadius: 18,
+          borderRadius: 3,
           padding: '16px 16px 14px',
           width: 292,
           boxShadow: '0 20px 60px rgba(0,0,0,0.75)',
         }}
       >
-        {/* botão fechar */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}>
           <button
             type="button"
@@ -307,7 +288,6 @@ export default function TimePicker({ value, onChange }) {
           </button>
         </div>
 
-        {/* canvas */}
         <canvas
           ref={canvasRef}
           style={{
@@ -325,7 +305,6 @@ export default function TimePicker({ value, onChange }) {
           onTouchEnd={handlePointerUp}
         />
 
-        {/* botões */}
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 14 }}>
           <button
             type="button"
@@ -334,7 +313,7 @@ export default function TimePicker({ value, onChange }) {
               background: 'transparent',
               border: '1px solid #3a3a3c',
               color: '#888',
-              borderRadius: 8,
+              borderRadius: 9999,
               padding: '8px 20px',
               fontSize: 12,
               fontWeight: 500,
@@ -352,7 +331,7 @@ export default function TimePicker({ value, onChange }) {
               background: '#d4a017',
               border: 'none',
               color: '#000',
-              borderRadius: 8,
+              borderRadius: 9999,
               padding: '8px 24px',
               fontSize: 12,
               fontWeight: 600,
