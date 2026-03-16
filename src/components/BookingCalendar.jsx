@@ -19,11 +19,11 @@ function formatBR(iso) {
   return `${String(p.day).padStart(2, '0')}.${String(p.month).padStart(2, '0')}.${p.year}`;
 }
 
-function daysInMonth(y, m)    { return new Date(y, m, 0).getDate(); }
-function firstDow(y, m)       { return new Date(y, m - 1, 1).getDay(); }
-function isoLt(a, b)          { return String(a) < String(b); }
-function isoEq(a, b)          { return String(a) === String(b); }
-function timeToMin(t)         { if (!t) return 0; const [h, m] = String(t).split(':').map(Number); return h * 60 + (m || 0); }
+function daysInMonth(y, m)  { return new Date(y, m, 0).getDate(); }
+function firstDow(y, m)     { return new Date(y, m - 1, 1).getDay(); }
+function isoLt(a, b)        { return String(a) < String(b); }
+function isoEq(a, b)        { return String(a) === String(b); }
+function timeToMin(t)       { if (!t) return 0; const [h, m] = String(t).split(':').map(Number); return h * 60 + (m || 0); }
 
 const MONTH_NAMES   = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const WEEKDAY_SHORT = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
@@ -137,7 +137,8 @@ export default function BookingCalendar({
     setConfirming(true);
     setConfirmError(null);
     try {
-      const { data: agendamentoId, error } = await supabase.rpc('rpc_criar_agendamento', {
+      // banco calcula horario_fim com folga e retorna os valores reais inseridos
+      const { data, error } = await supabase.rpc('rpc_criar_agendamento', {
         p_negocio_id:      negocioId,
         p_profissional_id: profissional.id,
         p_entrega_id:      entrega.id,
@@ -147,9 +148,12 @@ export default function BookingCalendar({
 
       if (error) throw error;
 
+      // data[0] contém os valores reais que o banco inseriu
+      const resultado = data?.[0];
+
       onConfirm?.({
-        inicio:  selectedSlot.horario_inicio,
-        fim:     selectedSlot.horario_fim,
+        inicio:  resultado?.horario_inicio ?? selectedSlot.hora,
+        fim:     resultado?.horario_fim    ?? null,
         label:   selectedSlot.hora,
         dataISO: selectedDay,
       });
