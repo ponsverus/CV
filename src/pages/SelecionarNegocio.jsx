@@ -125,7 +125,7 @@ export default function SelecionarNegocio({ user, onLogout }) {
         <button
           type="button"
           onClick={() => navigate('/criar-negocio')}
-          className="w-full flex items-center justify-center gap-2 py-3 rounded-full border border-gray-800 bg-transparent text-gray-500 text-sm font-normal uppercase tracking-widest hover:border-gray-600 hover:text-gray-300 transition-all"
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-full border border-primary/40 bg-primary/10 text-primary text-sm font-normal uppercase tracking-widest hover:border-primary/70 hover:bg-primary/20 transition-all"
         >
           <Plus className="w-4 h-4" />
           CRIAR OUTRO NEGÓCIO
@@ -135,7 +135,7 @@ export default function SelecionarNegocio({ user, onLogout }) {
           <button
             type="button"
             onClick={onLogout}
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-red-400 text-sm font-normal transition-colors"
+            className="inline-flex items-center gap-2 text-red-500 hover:text-red-400 text-sm font-normal transition-colors"
           >
             <LogOut className="w-4 h-4" />
             SAIR
