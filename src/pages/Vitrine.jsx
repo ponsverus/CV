@@ -21,7 +21,7 @@ import BookingCalendar from '../components/BookingCalendar';
 
 const FOLGA_MINUTOS = 5;
 const SERVICOS_POR_PAGINA = 4;
-const DEPOIMENTOS_POR_PAGINA = 4;
+const DEPOIMENTOS_POR_PAGINA = 10;
 
 function timeToMinutes(t) {
   if (!t) return 0;
@@ -416,7 +416,14 @@ function ServicosCarousel({ lista, profissional, selecaoProfId, servicosSelecion
       </div>
 
       {totalPaginas > 1 && (
-        <div className="flex items-center justify-center gap-2 mt-4">
+        <div className="flex items-center justify-center gap-3 mt-4">
+          <button
+            onClick={() => irPara(pagina - 1)}
+            disabled={pagina === 0}
+            className="p-1.5 rounded hover:bg-vcard2 text-vsub hover:text-vtext transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
           {Array.from({ length: totalPaginas }).map((_, i) => (
             <button
               key={i}
@@ -428,6 +435,13 @@ function ServicosCarousel({ lista, profissional, selecaoProfId, servicosSelecion
               aria-label={`Página ${i + 1}`}
             />
           ))}
+          <button
+            onClick={() => irPara(pagina + 1)}
+            disabled={pagina === totalPaginas - 1}
+            className="p-1.5 rounded hover:bg-vcard2 text-vsub hover:text-vtext transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
         </div>
       )}
     </div>
