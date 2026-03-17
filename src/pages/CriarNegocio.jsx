@@ -173,7 +173,7 @@ export default function CriarNegocio({ user }) {
               type="text"
               value={formData.tipoNegocio}
               onChange={(e) => setFormData(prev => ({ ...prev, tipoNegocio: e.target.value }))}
-              placeholder="Ex: clínica, salão, academia..."
+              placeholder="Ex: clínica, estúdio, professor..."
               className={inputClass}
               required
             />
@@ -227,7 +227,7 @@ export default function CriarNegocio({ user }) {
                     type="text"
                     value={formData.numero}
                     onChange={(e) => setFormData(prev => ({ ...prev, numero: e.target.value }))}
-                    placeholder="100"
+                    placeholder="45"
                     className={inputClass}
                     required
                   />
