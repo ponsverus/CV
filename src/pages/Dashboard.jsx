@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Plus, X, Eye, Calendar,
   Users, TrendingUp, Award, LogOut, AlertCircle, Clock,
@@ -219,6 +219,7 @@ const LABEL_EMPTY_LIST = {
 const g = (map, group) => map[group] ?? map['servicos'];
 
 export default function Dashboard({ user, onLogout }) {
+  const navigate = useNavigate();
   const feedback = useFeedback?.();
 
   const uiAlert = async (key, variant = 'info') => {
@@ -445,6 +446,73 @@ export default function Dashboard({ user, onLogout }) {
     finally { setHistoricoLoadingMore(false); }
   };
 
+  const reloadNegocio = useCallback(async () => {
+    if (!user?.id) return;
+    const { data, error: err } = await supabase
+      .from(VIEWS.negocios).select('*').eq('owner_id', user.id).maybeSingle();
+    if (err || !data) return;
+    setNegocio(data);
+    setFormInfo({
+      nome: data.nome || '', descricao: data.descricao || '',
+      telefone: data.telefone || '', endereco: data.endereco || '',
+      instagram: data.instagram || '', facebook: data.facebook || '',
+      tema: data.tema || 'dark',
+    });
+  }, [user?.id]);
+
+  const reloadProfissionais = useCallback(async (negocioId) => {
+    const id = negocioId || negocio?.id;
+    if (!id) return;
+    const { data, error: err } = await supabase.rpc('get_profissionais_com_status', { p_negocio_id: id });
+    if (err) return;
+    const profs = data || [];
+    setProfissionais(profs);
+    setAgProfIds(profs.map(p => p.id));
+    return profs;
+  }, [negocio?.id]);
+
+  const reloadEntregas = useCallback(async (negocioId, profIds) => {
+    const id = negocioId || negocio?.id;
+    const ids = profIds || agProfIds;
+    if (!id || !ids?.length) return;
+    const { data, error: err } = await supabase
+      .from(VIEWS.entregas).select('*, profissionais (id, nome)')
+      .eq('negocio_id', id).in('profissional_id', ids)
+      .order('created_at', { ascending: false });
+    if (err) return;
+    setEntregas(data || []);
+  }, [negocio?.id, agProfIds]);
+
+  const reloadAgendamentos = useCallback(async (negocioId, profIds, dataHoje) => {
+    const id = negocioId || negocio?.id;
+    const ids = profIds || agProfIds;
+    const dh = dataHoje || hoje;
+    if (!id || !ids?.length || !dh) return;
+    const { data, error: err } = await supabase
+      .from(VIEWS.agendamentos)
+      .select(`*, preco_final, data, horario_inicio, horario_fim,
+        entregas (nome, preco, preco_promocional),
+        profissionais (id, nome),
+        cliente:users!agendamentos_cliente_id_fkey (id, nome, avatar_path, type)`)
+      .eq('negocio_id', id).in('profissional_id', ids).gte('data', dh)
+      .order('data', { ascending: true }).order('horario_inicio', { ascending: true }).order('id', { ascending: true });
+    if (err) return;
+    setAgendamentos((data || []).map(a => ({
+      ...a,
+      data: a?.data ?? null,
+      horario_inicio: a?.horario_inicio ?? a?.inicio ?? null,
+      horario_fim: a?.horario_fim ?? a?.fim ?? null,
+    })));
+  }, [negocio?.id, agProfIds, hoje]);
+
+  const reloadGaleria = useCallback(async (negocioId) => {
+    const id = negocioId || negocio?.id;
+    if (!id) return;
+    const { data } = await supabase.from('galerias').select('id, path, ordem').eq('negocio_id', id)
+      .order('ordem', { ascending: true }).order('created_at', { ascending: true });
+    setGaleriaItems(data || []);
+  }, [negocio?.id]);
+
   const loadData = async (dataRef) => {
     if (!user?.id) { setError('Sessao invalida. Faca login novamente.'); setLoading(false); return; }
     setLoading(true);
@@ -524,7 +592,7 @@ export default function Dashboard({ user, onLogout }) {
       const { error: dbErr } = await supabase.from('negocios').update({ logo_path: `logos/${filePath}` }).eq('id', negocio.id).eq('owner_id', user.id);
       if (dbErr) throw dbErr;
       await uiAlert('dashboard.logo_updated', 'success');
-      await loadData(true);
+      await reloadNegocio();
     } catch (e) { console.error('Erro ao atualizar logo:', e); await uiAlert('dashboard.logo_update_error', 'error'); }
     finally { setLogoUploading(false); }
   };
@@ -545,7 +613,7 @@ export default function Dashboard({ user, onLogout }) {
       const { error: updErr } = await supabase.from('negocios').update(payload).eq('id', negocio.id).eq('owner_id', user.id);
       if (updErr) throw updErr;
       await uiAlert('dashboard.business_info_updated', 'success');
-      await loadData(true);
+      await reloadNegocio();
     } catch (e) {
       console.error('Erro ao salvar info:', e);
       if (String(e?.message || '').includes('padrao')) await uiAlert('dashboard.address_format_invalid', 'error');
@@ -586,9 +654,7 @@ export default function Dashboard({ user, onLogout }) {
         if (dbErr) { console.error('insert galeria error:', dbErr); await uiAlert('dashboard.gallery_upload_error', 'error'); }
       }
       await uiAlert('dashboard.gallery_updated', 'success');
-      const { data: galeriaData } = await supabase.from('galerias').select('id, path, ordem').eq('negocio_id', negocio.id)
-        .order('ordem', { ascending: true }).order('created_at', { ascending: true });
-      setGaleriaItems(galeriaData || []);
+      await reloadGaleria();
     } catch (e) { console.error('Erro uploadGaleria:', e); await uiAlert('dashboard.gallery_update_error', 'error'); }
     finally { setGalleryUploading(false); }
   };
@@ -628,7 +694,7 @@ export default function Dashboard({ user, onLogout }) {
       await uiAlert(`dashboard.business.${businessGroup}.service_created`, 'success');
       setShowNovaEntrega(false); setEditingEntregaId(null);
       setFormEntrega({ nome: '', duracao_minutos: '', preco: '', preco_promocional: '', profissional_id: '' });
-      await loadData(true);
+      await reloadEntregas();
     } catch (e2) {
       console.error('createEntrega error:', e2);
       const msg = String(e2?.message || '');
@@ -659,7 +725,7 @@ export default function Dashboard({ user, onLogout }) {
       await uiAlert(`dashboard.business.${businessGroup}.service_updated`, 'success');
       setShowNovaEntrega(false); setEditingEntregaId(null);
       setFormEntrega({ nome: '', duracao_minutos: '', preco: '', preco_promocional: '', profissional_id: '' });
-      await loadData(true);
+      await reloadEntregas();
     } catch (e2) {
       console.error('updateEntrega error:', e2);
       const msg = String(e2?.message || '');
@@ -678,7 +744,7 @@ export default function Dashboard({ user, onLogout }) {
       const { error: delErr } = await supabase.from('entregas').delete().eq('id', id).eq('negocio_id', negocio.id);
       if (delErr) throw delErr;
       await uiAlert(`dashboard.business.${businessGroup}.service_deleted`, 'success');
-      await loadData(true);
+      await reloadEntregas();
     } catch (e2) {
       console.error('deleteEntrega error:', e2);
       await uiAlert(`dashboard.business.${businessGroup}.service_delete_error`, 'error');
@@ -705,7 +771,8 @@ export default function Dashboard({ user, onLogout }) {
       await uiAlert('dashboard.professional_created', 'success');
       setShowNovoProfissional(false); setEditingProfissional(null);
       setFormProfissional({ nome: '', profissao: '', anos_experiencia: '', horario_inicio: '08:00', horario_fim: '18:00', almoco_inicio: '', almoco_fim: '', dias_trabalho: [1, 2, 3, 4, 5, 6] });
-      await loadData(true);
+      const profs = await reloadProfissionais();
+      if (profs?.length) await reloadEntregas(negocio.id, profs.map(p => p.id));
     } catch (e2) { console.error('createProfissional error:', e2); await uiAlert('dashboard.professional_create_error', 'error'); }
   };
 
@@ -726,7 +793,7 @@ export default function Dashboard({ user, onLogout }) {
       if (updErr) throw updErr;
       await uiAlert('dashboard.professional_updated', 'success');
       setShowNovoProfissional(false); setEditingProfissional(null);
-      await loadData(true);
+      await reloadProfissionais();
     } catch (e2) {
       console.error('updateProfissional error:', e2);
       const msg = String(e2?.message || '');
@@ -751,7 +818,7 @@ export default function Dashboard({ user, onLogout }) {
         .eq('id', p.id).eq('negocio_id', negocio.id);
       if (upErr) throw upErr;
       await uiAlert(novoAtivo ? 'dashboard.professional_activated' : 'dashboard.professional_inactivated', 'success');
-      await loadData(true);
+      await reloadProfissionais();
     } catch (e) { console.error('toggleAtivoProfissional:', e); await uiAlert('dashboard.professional_toggle_error', 'error'); }
   };
 
@@ -762,7 +829,9 @@ export default function Dashboard({ user, onLogout }) {
       const { error: delErr } = await supabase.from('profissionais').delete().eq('id', p.id).eq('negocio_id', negocio.id);
       if (delErr) throw delErr;
       await uiAlert('dashboard.professional_deleted', 'success');
-      await loadData(true);
+      const profs = await reloadProfissionais();
+      if (profs?.length) await reloadEntregas(negocio.id, profs.map(p => p.id));
+      else setEntregas([]);
     } catch (e) { console.error('excluirProfissional:', e); await uiAlert('dashboard.professional_delete_error', 'error'); }
   };
 
@@ -771,7 +840,8 @@ export default function Dashboard({ user, onLogout }) {
       const { error: updErr } = await supabase.from('agendamentos').update({ status: 'concluido' }).eq('id', id).eq('negocio_id', negocio.id);
       if (updErr) throw updErr;
       await uiAlert('dashboard.booking_confirmed', 'success');
-      await loadData(true);
+      await reloadAgendamentos();
+      loadHoje(negocio.id);
     } catch (e2) { console.error('confirmarAtendimento error:', e2); await uiAlert('dashboard.booking_confirm_error', 'error'); }
   };
 
@@ -782,7 +852,8 @@ export default function Dashboard({ user, onLogout }) {
       const { error: updErr } = await supabase.from('agendamentos').update({ status: 'cancelado_profissional' }).eq('id', id).eq('negocio_id', negocio.id);
       if (updErr) throw updErr;
       await uiAlert('dashboard.booking_canceled', 'error');
-      await loadData(true);
+      await reloadAgendamentos();
+      loadHoje(negocio.id);
     } catch (e) { console.error('cancelarAgendamentoProfissional:', e); await uiAlert('dashboard.booking_cancel_error', 'error'); }
   };
 
@@ -1162,7 +1233,6 @@ export default function Dashboard({ user, onLogout }) {
                     </div>
                   )}
 
-                  {/* ── FATURAMENTO POR PERÍODO — PeriodoSelect nativo ── */}
                   <div className="mt-2 bg-dark-100 border border-gray-800 rounded-custom p-4">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
                       <div className="text-xs text-gray-500 uppercase tracking-wide">FATURAMENTO POR PERÍODO</div>
@@ -1194,7 +1264,7 @@ export default function Dashboard({ user, onLogout }) {
               <div>
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-normal">Agendamentos</h2>
-                  <button onClick={() => loadData(true)} className="px-4 py-2 bg-primary/20 hover:bg-primary/30 border border-primary/50 text-primary rounded-button text-sm font-normal uppercase">ATUALIZAR</button>
+                  <button onClick={() => reloadAgendamentos()} className="px-4 py-2 bg-primary/20 hover:bg-primary/30 border border-primary/50 text-primary rounded-button text-sm font-normal uppercase">ATUALIZAR</button>
                 </div>
                 {agendamentosAgrupadosPorProfissional.length > 0 ? (
                   <div className="space-y-8">
@@ -1504,7 +1574,6 @@ export default function Dashboard({ user, onLogout }) {
                   </div>
                 </div>
 
-                {/* ── PARCEIROS — ProfissionalSelect nativo ── */}
                 <div className="bg-dark-200 border border-gray-800 rounded-custom p-6">
                   <div className="text-sm text-white-600 tracking-wide mb-1">Parceiros</div>
                   <p className="text-sm text-gray-600 mb-4">
@@ -1605,6 +1674,17 @@ export default function Dashboard({ user, onLogout }) {
                     </div>
                   ) : <div className="text-gray-500">Nenhuma imagem ainda.</div>}
                 </div>
+
+                <div className="pt-2 pb-4">
+                  <button
+                    type="button"
+                    onClick={() => navigate('/criar-negocio')}
+                    className="w-full py-4 rounded-full border border-gray-700 bg-dark-200 text-gray-400 text-sm font-normal uppercase tracking-widest hover:border-primary/50 hover:text-primary transition-all"
+                  >
+                    + CRIAR OUTRO NEGÓCIO
+                  </button>
+                </div>
+
               </div>
             )}
 
@@ -1612,7 +1692,6 @@ export default function Dashboard({ user, onLogout }) {
         </div>
       </div>
 
-      {/* ── MODAL NOVA / EDITAR ENTREGA — ProfissionalSelect nativo ── */}
       {showNovaEntrega && (
         <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
           <div className="bg-dark-100 border border-gray-800 rounded-custom max-w-md w-full p-8 max-h-[90vh] overflow-y-auto">
@@ -1656,7 +1735,6 @@ export default function Dashboard({ user, onLogout }) {
         </div>
       )}
 
-      {/* ── MODAL NOVO / EDITAR PROFISSIONAL — TimePicker nativo ── */}
       {showNovoProfissional && (
         <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
           <div className="bg-dark-100 border border-gray-800 rounded-custom max-w-md w-full p-8 max-h-[90vh] overflow-y-auto">
@@ -1677,8 +1755,6 @@ export default function Dashboard({ user, onLogout }) {
                 <label className="block text-sm mb-2">Anos de experiência</label>
                 <input type="number" value={formProfissional.anos_experiencia} onChange={(e) => setFormProfissional({ ...formProfissional, anos_experiencia: e.target.value })} className="w-full px-4 py-3 bg-dark-200 border border-gray-800 rounded-custom text-white" />
               </div>
-
-              {/* Horário de trabalho — TimePicker nativo */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm mb-2">Das</label>
@@ -1697,8 +1773,6 @@ export default function Dashboard({ user, onLogout }) {
                   />
                 </div>
               </div>
-
-              {/* Horário de almoço — TimePicker nativo */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm mb-2">Almoço (Início)</label>
@@ -1717,7 +1791,6 @@ export default function Dashboard({ user, onLogout }) {
                   />
                 </div>
               </div>
-
               <div>
                 <label className="block text-sm mb-2">Dias de trabalho</label>
                 <div className="grid grid-cols-5 sm:grid-cols-7 gap-2">
