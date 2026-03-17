@@ -277,69 +277,142 @@ function ServicoButtons({ servico, profissional, selecaoProfId, servicosSelecion
   );
 }
 
+function ServicoCard({ s, profissional, selecaoProfId, servicosSelecionados, isProfessional, onAgendarAgora, onToggleSelecao }) {
+  const preco      = Number(s.preco ?? 0);
+  const promo      = Number(s.preco_promocional ?? 0);
+  const temPromo   = Number.isFinite(promo) && promo > 0 && promo < preco;
+  const precoFinal = getPrecoFinalServico(s);
+  return (
+    <div className="bg-vcard2 border border-vborder rounded-custom p-4">
+      {temPromo ? (
+        <>
+          <div className="flex items-start justify-between gap-3">
+            <div className="font-normal text-sm leading-tight">{s.nome}</div>
+            <span className="inline-block px-1.5 py-0.5 bg-green-500/20 border border-green-500/40 rounded-button text-[9px] text-green-400 font-normal uppercase shrink-0">OFERTA</span>
+          </div>
+          <div className="flex items-center justify-between gap-3 mt-2">
+            <div className="flex items-center gap-1 text-xs text-vmuted font-normal">
+              <Clock className="w-3 h-3 shrink-0" />{s.duracao_minutos} MIN
+            </div>
+            <div className="text-green-400 font-normal text-base shrink-0">R$ {precoFinal.toFixed(2)}</div>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="flex items-start justify-between gap-3">
+            <div className="font-normal text-sm leading-tight">{s.nome}</div>
+            <div className="text-primary font-normal text-base shrink-0">R$ {precoFinal.toFixed(2)}</div>
+          </div>
+          <div className="flex items-center gap-1 mt-2 text-xs text-vmuted font-normal">
+            <Clock className="w-3 h-3 shrink-0" />{s.duracao_minutos} MIN
+          </div>
+        </>
+      )}
+      <ServicoButtons
+        servico={s}
+        profissional={profissional}
+        selecaoProfId={selecaoProfId}
+        servicosSelecionados={servicosSelecionados}
+        isProfessional={isProfessional}
+        onAgendarAgora={onAgendarAgora}
+        onToggleSelecao={onToggleSelecao}
+      />
+    </div>
+  );
+}
+
 function ServicosCarousel({ lista, profissional, selecaoProfId, servicosSelecionados, isProfessional, onAgendarAgora, onToggleSelecao, emptyMsg }) {
-  const [pagina, setPagina] = useState(0);
-  const touchStartX = useRef(null);
+  const [pagina, setPagina]     = useState(0);
+  const [animDir, setAnimDir]   = useState(null);
+  const [exibindo, setExibindo] = useState(0);
+  const [animando, setAnimando] = useState(false);
+  const touchStartX             = useRef(null);
   const totalPaginas = Math.ceil(lista.length / SERVICOS_POR_PAGINA);
-  const paginaAtual  = Math.min(pagina, Math.max(0, totalPaginas - 1));
-  const itensPagina  = lista.slice(paginaAtual * SERVICOS_POR_PAGINA, paginaAtual * SERVICOS_POR_PAGINA + SERVICOS_POR_PAGINA);
-  useEffect(() => { setPagina(0); }, [profissional.id]);
-  const irPara = (idx) => setPagina(Math.max(0, Math.min(idx, totalPaginas - 1)));
+
+  useEffect(() => {
+    setPagina(0);
+    setExibindo(0);
+    setAnimDir(null);
+    setAnimando(false);
+  }, [profissional.id]);
+
+  const irPara = (idx) => {
+    const alvo = Math.max(0, Math.min(idx, totalPaginas - 1));
+    if (alvo === pagina || animando) return;
+    const dir = alvo > pagina ? 'left' : 'right';
+    setAnimDir(dir);
+    setAnimando(true);
+    setPagina(alvo);
+    setTimeout(() => {
+      setExibindo(alvo);
+      setAnimDir(null);
+      setAnimando(false);
+    }, 320);
+  };
+
   const onTouchStart = (e) => { touchStartX.current = e.touches[0].clientX; };
   const onTouchEnd   = (e) => {
     if (touchStartX.current === null) return;
     const diff = touchStartX.current - e.changedTouches[0].clientX;
-    if (Math.abs(diff) > 40) irPara(paginaAtual + (diff > 0 ? 1 : -1));
+    if (Math.abs(diff) > 40) irPara(pagina + (diff > 0 ? 1 : -1));
     touchStartX.current = null;
   };
+
   if (!lista.length) return <p className="text-vmuted font-normal">{emptyMsg}</p>;
+
+  const paginaAnterior = exibindo;
+  const paginaAlvo     = pagina;
+  const itensAntigos = lista.slice(paginaAnterior * SERVICOS_POR_PAGINA, paginaAnterior * SERVICOS_POR_PAGINA + SERVICOS_POR_PAGINA);
+  const itensNovos   = lista.slice(paginaAlvo    * SERVICOS_POR_PAGINA, paginaAlvo    * SERVICOS_POR_PAGINA + SERVICOS_POR_PAGINA);
+
+  const itensMostrados = animando ? itensAntigos : itensNovos;
+
+  const translateSaindo = animDir === 'left' ? '-100%' : animDir === 'right' ? '100%' : '0%';
+  const translateEntrando = animDir === 'left' ? '100%' : animDir === 'right' ? '-100%' : '0%';
+
   return (
     <div onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-      <div className="flex flex-col gap-3">
-        {itensPagina.map(s => {
-          const preco      = Number(s.preco ?? 0);
-          const promo      = Number(s.preco_promocional ?? 0);
-          const temPromo   = Number.isFinite(promo) && promo > 0 && promo < preco;
-          const precoFinal = getPrecoFinalServico(s);
-          return (
-            <div key={s.id} className="bg-vcard2 border border-vborder rounded-custom p-4">
-              {temPromo ? (
-                <>
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="font-normal text-sm leading-tight">{s.nome}</div>
-                    <span className="inline-block px-1.5 py-0.5 bg-green-500/20 border border-green-500/40 rounded-button text-[9px] text-green-400 font-normal uppercase shrink-0">OFERTA</span>
-                  </div>
-                  <div className="flex items-center justify-between gap-3 mt-2">
-                    <div className="flex items-center gap-1 text-xs text-vmuted font-normal">
-                      <Clock className="w-3 h-3 shrink-0" />{s.duracao_minutos} MIN
-                    </div>
-                    <div className="text-green-400 font-normal text-base shrink-0">R$ {precoFinal.toFixed(2)}</div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="font-normal text-sm leading-tight">{s.nome}</div>
-                    <div className="text-primary font-normal text-base shrink-0">R$ {precoFinal.toFixed(2)}</div>
-                  </div>
-                  <div className="flex items-center gap-1 mt-2 text-xs text-vmuted font-normal">
-                    <Clock className="w-3 h-3 shrink-0" />{s.duracao_minutos} MIN
-                  </div>
-                </>
-              )}
-              <ServicoButtons
-                servico={s}
-                profissional={profissional}
-                selecaoProfId={selecaoProfId}
-                servicosSelecionados={servicosSelecionados}
-                isProfessional={isProfessional}
-                onAgendarAgora={onAgendarAgora}
-                onToggleSelecao={onToggleSelecao}
+      <div style={{ overflow: 'hidden', position: 'relative' }}>
+        {animando && (
+          <div
+            style={{
+              position: 'absolute',
+              top: 0, left: 0, right: 0,
+              transform: `translateX(${translateSaindo})`,
+              transition: 'transform 320ms cubic-bezier(0.4, 0, 0.2, 1)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px',
+            }}
+          >
+            {itensAntigos.map(s => (
+              <ServicoCard
+                key={s.id} s={s} profissional={profissional}
+                selecaoProfId={selecaoProfId} servicosSelecionados={servicosSelecionados}
+                isProfessional={isProfessional} onAgendarAgora={onAgendarAgora} onToggleSelecao={onToggleSelecao}
               />
-            </div>
-          );
-        })}
+            ))}
+          </div>
+        )}
+        <div
+          style={{
+            transform: animando ? `translateX(${translateEntrando})` : 'translateX(0%)',
+            transition: animando ? 'transform 320ms cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px',
+          }}
+        >
+          {(animando ? itensNovos : itensMostrados).map(s => (
+            <ServicoCard
+              key={s.id} s={s} profissional={profissional}
+              selecaoProfId={selecaoProfId} servicosSelecionados={servicosSelecionados}
+              isProfessional={isProfessional} onAgendarAgora={onAgendarAgora} onToggleSelecao={onToggleSelecao}
+            />
+          ))}
+        </div>
       </div>
+
       {totalPaginas > 1 && (
         <div className="flex items-center justify-center gap-2 mt-4">
           {Array.from({ length: totalPaginas }).map((_, i) => (
@@ -347,8 +420,8 @@ function ServicosCarousel({ lista, profissional, selecaoProfId, servicosSelecion
               key={i}
               onClick={() => irPara(i)}
               className={[
-                'rounded-full transition-all',
-                i === paginaAtual ? 'w-4 h-2 bg-primary' : 'w-2 h-2 bg-gray-700 hover:bg-gray-500',
+                'rounded-full transition-all duration-300',
+                i === pagina ? 'w-4 h-2 bg-primary' : 'w-2 h-2 bg-gray-700 hover:bg-gray-500',
               ].join(' ')}
               aria-label={`Página ${i + 1}`}
             />
