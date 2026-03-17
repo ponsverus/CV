@@ -1542,7 +1542,7 @@ export default function Dashboard({ user, onLogout }) {
                     onClick={saveParceiroEmail}
                     className="mb-5 px-5 py-2 bg-primary/20 hover:bg-primary/30 border border-primary/50 text-primary rounded-button text-sm font-normal uppercase disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {parceiroSaving ? 'SALVANDO...' : 'SALVAR E-MAIL'}
+                    {parceiroSaving ? 'SALVANDO...' : 'SALVAR EMAIL'}
                   </button>
                   {profissionais.filter(p => p.email).length > 0 ? (
                     <div className="space-y-2">
