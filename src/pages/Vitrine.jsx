@@ -21,7 +21,7 @@ import BookingCalendar from '../components/BookingCalendar';
 
 const FOLGA_MINUTOS = 5;
 const SERVICOS_POR_PAGINA = 4;
-const DEPOIMENTOS_POR_PAGINA = 10;
+const DEPOIMENTOS_POR_PAGINA = 4;
 
 function timeToMinutes(t) {
   if (!t) return 0;
