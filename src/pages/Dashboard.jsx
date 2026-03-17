@@ -1656,7 +1656,7 @@ export default function Dashboard({ user, onLogout }) {
                   <button
                     type="button"
                     onClick={() => navigate('/criar-negocio')}
-                    className="w-full py-4 rounded-full border border-gray-700 bg-dark-200 text-gray-400 text-sm font-normal uppercase tracking-widest hover:border-primary/50 hover:text-primary transition-all"
+                    className="w-full py-4 rounded-full border border-primary/40 bg-primary/10 text-primary text-sm font-normal uppercase tracking-widest hover:border-primary/70 hover:bg-primary/20 transition-all"
                   >
                     + CRIAR OUTRO NEGÓCIO
                   </button>
