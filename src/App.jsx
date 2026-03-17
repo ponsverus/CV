@@ -12,6 +12,8 @@ import SignupProfessional from './pages/SignupProfessional';
 import Dashboard from './pages/Dashboard';
 import Vitrine from './pages/Vitrine';
 import ClientArea from './pages/ClientArea';
+import CriarNegocio from './pages/CriarNegocio';
+import SelecionarNegocio from './pages/SelecionarNegocio';
 
 const PROFILE_TABLE = 'users';
 const isValidType = (t) => t === 'client' || t === 'professional';
@@ -453,6 +455,44 @@ export default function App() {
                 user={isLoggedIn ? user : null}
                 userType={isLoggedIn ? userType : null}
               />
+            }
+          />
+
+          <Route
+            path="/criar-negocio"
+            element={
+              isLoggedIn ? (
+                typeLoading ? (
+                  <FullScreenLoading text="CARREGANDO..." />
+                ) : userType === 'professional' ? (
+                  <CriarNegocio user={user} />
+                ) : userType ? (
+                  <Navigate to="/minha-area" />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
+
+          <Route
+            path="/selecionar-negocio"
+            element={
+              isLoggedIn ? (
+                typeLoading ? (
+                  <FullScreenLoading text="CARREGANDO..." />
+                ) : userType === 'professional' ? (
+                  <SelecionarNegocio user={user} onLogout={handleLogout} />
+                ) : userType ? (
+                  <Navigate to="/minha-area" />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              ) : (
+                <Navigate to="/login" />
+              )
             }
           />
 
