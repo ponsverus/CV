@@ -1440,22 +1440,18 @@ export default function Dashboard({ user, onLogout }) {
                                 return (
                                   <div key={s.id} className="bg-dark-100 border border-gray-800 rounded-custom p-5">
                                     <div className="flex justify-between items-start mb-3">
-                                      <div>
-                                        <h3 className="text-lg font-normal">{s.nome}</h3>
-                                        <p className="text-xs text-gray-500">{p.nome}</p>
-                                      </div>
-                                      <div className="text-right">
-                                        {promo != null && promo > 0 && promo < preco ? (
-                                          <div className="leading-tight">
-                                            <div className="text-sm font-normal text-red-400 line-through">R$ {preco.toFixed(2)}</div>
-                                            <div className="text-2xl font-normal text-green-400">R$ {promo.toFixed(2)}</div>
-                                          </div>
-                                        ) : (
-                                          <div className="text-2xl font-normal text-primary">R$ {preco.toFixed(2)}</div>
-                                        )}
-                                      </div>
+                                      {promo != null && promo > 0 && promo < preco ? (
+                                        <div>
+                                          <div className="text-xl font-normal text-green-400">R$ {promo.toFixed(2)}</div>
+                                          <div className="text-xs font-normal text-red-400 line-through">R$ {preco.toFixed(2)}</div>
+                                        </div>
+                                      ) : (
+                                        <div className="text-xl font-normal text-primary">R$ {preco.toFixed(2)}</div>
+                                      )}
+                                      <span className="text-xs text-gray-500">{s.duracao_minutos} MIN</span>
                                     </div>
-                                    <p className="text-sm text-gray-400 mb-4">{s.duracao_minutos} MIN</p>
+                                    <h3 className="text-sm font-normal text-white mb-0.5">{s.nome}</h3>
+                                    <p className="text-xs text-gray-500 mb-4">{p.nome}</p>
                                     <div className="flex gap-2">
                                       <button
                                         onClick={() => { setEditingEntregaId(s.id); setFormEntrega({ nome: s.nome || '', duracao_minutos: String(s.duracao_minutos ?? ''), preco: String(s.preco ?? ''), preco_promocional: String(s.preco_promocional ?? ''), profissional_id: s.profissional_id || '' }); setShowNovaEntrega(true); }}
