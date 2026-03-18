@@ -447,10 +447,7 @@ export default function ClientArea({ user, onLogout }) {
                 <div className="flex-1 min-w-0">
                   <h3 className="text-lg font-normal text-white mb-1">{ag.profissionais?.negocios?.nome || '—'}</h3>
                   <p className="text-sm text-gray-400 mb-2">PROF: {ag.profissionais?.nome || '—'}</p>
-                  <p className="text-xs truncate mb-3">
-                    <span className="text-gray-500">SERV: </span>
-                    <span className="text-primary">{a.entregas?.nome || '—'}</span>
-                </p>
+                  <p className="text-sm text-primary">{ag.entregas?.nome || '—'}</p>
                 </div>
                 <div className={`shrink-0 inline-flex px-3 py-1 rounded-button text-xs border ${getStatusColor(ag.status)}`}>
                   {getStatusText(ag.status)}
