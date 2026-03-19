@@ -10,6 +10,11 @@ export function getFeedbackState() {
 }
 
 export function setFeedbackState(next) {
+  const pendingResolve = state?.payload?.__resolve;
+  if (typeof pendingResolve === 'function' && next?.payload?.__resolve !== pendingResolve) {
+    pendingResolve(undefined);
+  }
+
   state = next;
   listeners.forEach((fn) => fn(state));
 }
