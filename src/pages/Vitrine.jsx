@@ -843,8 +843,8 @@ export default function Vitrine({ user, userType }) {
                 <div className="flex items-center gap-2"><StarChar size={18} className="text-primary" /><span className="text-xl font-normal text-primary">{mediaDepoimentos}</span></div>
                 {negocio.endereco && (<div className="flex items-center gap-2 text-vsub text-sm"><MapPin className="w-4 h-4" strokeWidth={1.5} /><span className="font-normal">{negocio.endereco}</span></div>)}
                 {negocio.telefone && (<a href={`tel:${sanitizeTel(negocio.telefone) || negocio.telefone}`} className="flex items-center gap-2 text-primary hover:text-yellow-500 text-sm font-normal transition-colors"><Phone className="w-4 h-4" strokeWidth={1.5} />{negocio.telefone}</a>)}
-                {instagramUrl && (<a href={instagramUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary hover:text-yellow-500 text-sm font-normal transition-colors" aria-label="Instagram"><Instagram className="w-4 h-4" strokeWidth={1.5} />Instagram</a>)}
-                {facebookUrl && (<a href={facebookUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary hover:text-yellow-500 text-sm font-normal transition-colors" aria-label="Facebook"><FacebookIcon className="w-4 h-4" />Facebook</a>)}
+                {instagramUrl && (<a href={instagramUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary hover:text-yellow-500 text-sm font-normal transition-colors" aria-label="Instagram"><Instagram className="w-4 h-4" strokeWidth={1.5} /></a>)}
+                {facebookUrl && (<a href={facebookUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary hover:text-yellow-500 text-sm font-normal transition-colors" aria-label="Facebook"><FacebookIcon className="w-4 h-4" /></a>)}
               </div>
             </div>
           </div>
