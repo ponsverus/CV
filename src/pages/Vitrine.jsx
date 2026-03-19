@@ -605,7 +605,7 @@ export default function Vitrine({ user, userType }) {
       if (negocioError) throw negocioError;
       if (!negocioData) { setNegocio(null); setProfissionais([]); setEntregas([]); setDepoimentos([]); setGaleriaItems([]); return; }
       setNegocio(negocioData);
-      const { data: profissionaisData, error: profErr } = await withTimeout(supabase.from('profissionais').select('*').eq('negocio_id', negocioData.id), 7000, 'profissionais');
+      const { data: profissionaisData, error: profErr } = await withTimeout(supabase.from('profissionais').select('*').eq('negocio_id', negocioData.id).eq('ativo', true), 7000, 'profissionais');
       if (profErr) throw profErr;
       const profs = profissionaisData || [];
       setProfissionais(profs);
