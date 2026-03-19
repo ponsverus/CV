@@ -26,40 +26,6 @@ export const ptBR = {
     },
   },
 
-  booking: {
-    canceled: {
-      title: 'Agendamento cancelado',
-      body: 'Seu agendamento foi cancelado.',
-      variant: 'danger',
-      screen: 'dark',
-      buttonText: 'OK',
-    },
-    confirmed: {
-      title: 'Agendamento confirmado',
-      body: 'Seu agendamento foi confirmado com sucesso.',
-      variant: 'success',
-      screen: 'light',
-      buttonText: 'OK',
-    },
-  },
-
-  common: {
-    saved: {
-      title: 'Salvo',
-      body: 'Dados salvos com sucesso',
-      variant: 'success',
-      screen: 'light',
-      buttonText: 'OK',
-    },
-    error: {
-      title: 'Erro',
-      body: 'Ocorreu um erro. Tente novamente.',
-      variant: 'danger',
-      screen: 'dark',
-      buttonText: 'OK',
-    },
-  },
-
   dashboard: {
     logo_updated: {
       title: 'Logo atualizada',
@@ -552,14 +518,6 @@ export const ptBR = {
       buttonText: 'OK',
     },
 
-    account_email_invalid_inline: 'Email inválido. Verifique e tente novamente.',
-    account_email_update_sent_inline: 'Enviamos um link para confirmar o novo email.',
-    account_email_update_error_inline: 'Falha ao trocar o email. Tente novamente.',
-    account_password_too_short_inline: 'A senha precisa ter no mínimo 6 caracteres.',
-    account_password_mismatch_inline: 'Senhas diferentes. Revise e tente de novo.',
-    account_password_updated_inline: 'Senha atualizada com sucesso.',
-    account_password_update_error_inline: 'Falha ao atualizar a senha. Tente novamente.',
-
     parceiro_selecione_prof: {
       title: 'Selecione um profissional',
       body: 'Escolha um profissional antes de salvar o e-mail.',
@@ -971,13 +929,6 @@ export const ptBR = {
       screen: 'dark',
       buttonText: 'OK',
     },
-    address_neighborhood_required: {
-      title: 'Endereço incompleto',
-      body: 'Informe o BAIRRO.',
-      variant: 'danger',
-      screen: 'dark',
-      buttonText: 'OK',
-    },
     address_city_required: {
       title: 'Endereço incompleto',
       body: 'Informe a CIDADE.',
@@ -999,24 +950,14 @@ export const ptBR = {
       screen: 'dark',
       buttonText: 'ENTENDI',
     },
-    created_but_login_failed: {
-      title: 'Conta criada',
+    confirm_email_needed: {
+      title: 'Confirme seu email',
       body:
-        'Sua conta foi criada, mas houve um erro ao iniciar. Tente novamente.\n\n' +
-        'Faça login manualmente.\n\n' +
-        'Se persistir, clique em SUPORTE na faixa amarela.',
-      variant: 'warning',
-      screen: 'dark',
-      buttonText: 'ENTENDI',
-    },
-    login_failed: {
-      title: 'Falha ao acessar',
-      body:
-        'Houve erro ao entrar agora. Tente novamente.\n\n' +
-        'Tente novamente em instantes.\n\n' +
-        'Se persistir, clique em SUPORTE na faixa amarela.',
-      variant: 'warning',
-      screen: 'dark',
+        'Sua conta foi criada. Confirme seu email para ativar o acesso.\n\n' +
+        'Verifique a caixa de entrada e o spam.\n\n' +
+        'Depois disso, faça login normalmente.',
+      variant: 'success',
+      screen: 'light',
       buttonText: 'ENTENDI',
     },
     profile_not_created: {
@@ -1107,61 +1048,6 @@ export const ptBR = {
       body: 'Você está logado como PROFISSIONAL. Para agendar, entre como CLIENTE.',
       buttonText: 'ENTENDI',
     },
-    schedule_must_be_client: {
-      title: 'Acesso restrito',
-      body: 'Você precisa estar logado como CLIENTE para agendar.',
-      buttonText: 'ENTENDI',
-    },
-    schedule_invalid_business: {
-      title: 'Negócio inválido',
-      body: 'Negócio inválido. Recarregue a vitrine.',
-      buttonText: 'ENTENDI',
-    },
-    schedule_incomplete_data: {
-      title: 'Dados incompletos',
-      body: 'Dados incompletos. Refaça o agendamento.',
-      buttonText: 'ENTENDI',
-    },
-    schedule_closed_day: {
-      title: 'Profissional fechado',
-      body: 'Esse profissional está FECHADO nesse dia. Escolha outra data.',
-      buttonText: 'ENTENDI',
-    },
-    schedule_lunch_slot: {
-      title: 'Horário indisponível',
-      body: 'Este horário é de ALMOÇO do profissional. Escolha outro.',
-      buttonText: 'ENTENDI',
-    },
-    schedule_need_one_service: {
-      title: 'Selecione um item',
-      body: 'Selecione pelo menos 1 item.',
-      buttonText: 'ENTENDI',
-    },
-    schedule_need_valid_service: {
-      title: 'Selecione um item',
-      body: 'Selecione pelo menos 1 item válido.',
-      buttonText: 'ENTENDI',
-    },
-    schedule_overlap_taken: {
-      title: 'Horário ocupado',
-      body: 'Ops :( Alguém acabou de reservar esse horário. Escolha outro.',
-      buttonText: 'ENTENDI',
-    },
-    schedule_confirmed: {
-      title: 'Uhuul',
-      body: 'Agendamento confirmado :)',
-      buttonText: 'OK',
-    },
-    schedule_pick_date: {
-      title: 'Selecione uma data',
-      body: 'Selecione uma data.',
-      buttonText: 'ENTENDI',
-    },
-    schedule_not_enough_time_title: 'Horário insuficiente',
-    schedule_not_enough_time_free: 'Tempo disponível até o próximo compromisso',
-    schedule_not_enough_time_fit: 'Para esse horário, cabe no máximo',
-    schedule_create_error_title: 'Erro ao agendar',
-    schedule_create_error_body: 'Erro ao criar agendamento:',
 
     business: {
 
@@ -1175,57 +1061,6 @@ export const ptBR = {
         servicos:  'Serviços',
         consultas: 'Consultas',
         aulas:     'Aulas',
-      },
-
-      servicos: {
-        schedule_need_one_service: {
-          title: 'Selecione um serviço',
-          body: 'Selecione pelo menos 1 serviço.',
-          buttonText: 'ENTENDI',
-        },
-        schedule_need_valid_service: {
-          title: 'Selecione um serviço',
-          body: 'Selecione pelo menos 1 serviço válido.',
-          buttonText: 'ENTENDI',
-        },
-        schedule_not_enough_time_sad: ':( Esse horário é insuficiente para os serviços selecionados.',
-        schedule_not_enough_time_need: 'Seu agendamento (serviços + folga)',
-        schedule_not_enough_time_services: 'de serviços',
-        schedule_not_enough_time_hint: 'Escolha outro horário ou ajuste os serviços.',
-      },
-
-      consultas: {
-        schedule_need_one_service: {
-          title: 'Selecione uma consulta',
-          body: 'Selecione pelo menos 1 consulta.',
-          buttonText: 'ENTENDI',
-        },
-        schedule_need_valid_service: {
-          title: 'Selecione uma consulta',
-          body: 'Selecione pelo menos 1 consulta válida.',
-          buttonText: 'ENTENDI',
-        },
-        schedule_not_enough_time_sad: ':( Esse horário é insuficiente para as consultas selecionadas.',
-        schedule_not_enough_time_need: 'Seu agendamento (consultas + folga)',
-        schedule_not_enough_time_services: 'de consultas',
-        schedule_not_enough_time_hint: 'Escolha outro horário ou ajuste as consultas.',
-      },
-
-      aulas: {
-        schedule_need_one_service: {
-          title: 'Selecione uma aula',
-          body: 'Selecione pelo menos 1 aula.',
-          buttonText: 'ENTENDI',
-        },
-        schedule_need_valid_service: {
-          title: 'Selecione uma aula',
-          body: 'Selecione pelo menos 1 aula válida.',
-          buttonText: 'ENTENDI',
-        },
-        schedule_not_enough_time_sad: ':( Esse horário é insuficiente para as aulas selecionadas.',
-        schedule_not_enough_time_need: 'Seu agendamento (aulas + folga)',
-        schedule_not_enough_time_services: 'de aulas',
-        schedule_not_enough_time_hint: 'Escolha outro horário ou ajuste as aulas.',
       },
     },
 
