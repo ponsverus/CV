@@ -111,7 +111,8 @@ export default function TimePicker({ value, onChange }) {
       ctx.fillText(String(n), x, y);
     });
 
-    const pm = [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 0];
+    // CORREÇÃO: 00 no topo (alinha com 12), 13 na posição do 1, etc.
+    const pm = [0, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
     pm.forEach((n, i) => {
       const a = ang(i, 12);
       const x = cx + 63 * Math.cos(a);
@@ -157,7 +158,8 @@ export default function TimePicker({ value, onChange }) {
 
   function drawHand(ctx, cx, cy) {
     const am = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-    const pm = [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 0];
+    // CORREÇÃO: mesma ordem do drawHours para o ponteiro apontar certo
+    const pm = [0, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
     let a, R;
 
     if (mode === 'h') {
@@ -212,7 +214,8 @@ export default function TimePicker({ value, onChange }) {
 
     if (modeRef.current === 'h') {
       const am = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-      const pm = [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 0];
+      // CORREÇÃO: mesma ordem para o clique resolver o horário certo
+      const pm = [0, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
       const h  = dist < 79 ? pm[idx12] : am[idx12];
       setHour(h); hourRef.current = h;
     } else {
