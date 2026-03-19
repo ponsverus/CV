@@ -1317,10 +1317,7 @@ export default function Dashboard({ user, onLogout }) {
                                   </div>
                                 </div>
                                 <p className="text-xs text-gray-500 truncate mb-0.5">PROF: {a.profissionais?.nome || '—'}</p>
-                                <p className="text-xs truncate mb-3">
-                                  <span className="text-gray-500">SERV: </span>
-                                  <span className="text-primary">{a.entregas?.nome || '—'}</span>
-                                </p>
+                                <p className="text-xs text-primary truncate mb-3">{a.entregas?.nome || '—'}</p>
                                 <div className="grid grid-cols-3 gap-4 mb-4">
                                   <div><div className="text-xs text-gray-500">DATA</div><div className="text-sm">{formatDateBRFromISO(getAgDate(a))}</div></div>
                                   <div><div className="text-xs text-gray-500">HORÁRIO</div><div className="text-sm">{getAgInicio(a)}</div></div>
@@ -1361,10 +1358,7 @@ export default function Dashboard({ user, onLogout }) {
                             <div className="px-3 py-1 rounded-button text-xs bg-red-500/20 border border-red-500/50 text-red-400 shrink-0">CANCELADO</div>
                           </div>
                           <p className="text-xs text-gray-500 truncate mb-0.5">PROF: {a.profissionais?.nome || '—'}</p>
-                          <p className="text-xs truncate mb-3">
-                            <span className="text-gray-500">SERV: </span>
-                            <span className="text-primary">{a.entregas?.nome || '—'}</span>
-                          </p>
+                          <p className="text-xs text-primary truncate mb-3">{a.entregas?.nome || '—'}</p>
                           <div className="grid grid-cols-3 gap-4 text-sm">
                             <div><div className="text-xs text-gray-500">DATA</div><div className="text-white">{formatDateBRFromISO(getAgDate(a))}</div></div>
                             <div><div className="text-xs text-gray-500">HORÁRIO</div><div className="text-white">{getAgInicio(a)}</div></div>
@@ -1400,10 +1394,7 @@ export default function Dashboard({ user, onLogout }) {
                             </div>
                           </div>
                           <p className="text-xs text-gray-500 truncate mb-0.5">PROF: {a.profissionais?.nome || '—'}</p>
-                          <p className="text-xs truncate mb-3">
-                            <span className="text-gray-500">SERV: </span>
-                            <span className="text-primary">{a.entregas?.nome || '—'}</span>
-                          </p>
+                          <p className="text-xs text-primary truncate mb-3">{a.entregas?.nome || '—'}</p>
                           <div className="grid grid-cols-3 gap-4 mb-4">
                             <div><div className="text-xs text-gray-500">DATA</div><div className="text-sm">{formatDateBRFromISO(getAgDate(a))}</div></div>
                             <div><div className="text-xs text-gray-500">HORÁRIO</div><div className="text-sm">{getAgInicio(a)}</div></div>
