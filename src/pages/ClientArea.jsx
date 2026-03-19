@@ -453,7 +453,7 @@ export default function ClientArea({ user, onLogout }) {
                   {getStatusText(ag.status)}
                 </div>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-4">
+              <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-4">
                 <div>
                   <div className="text-xs text-gray-500 mb-1">DATA</div>
                   <div className="text-sm text-white">{formatDateBRFromISO(ag.data)}</div>
