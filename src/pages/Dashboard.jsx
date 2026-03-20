@@ -1577,13 +1577,19 @@ export default function Dashboard({ user, onLogout }) {
                     <label className="block text-sm mb-2">Sobre</label>
                     <textarea value={formInfo.descricao} onChange={(e) => setFormInfo(prev => ({ ...prev, descricao: e.target.value }))} rows={3} className="w-full px-4 py-3 bg-dark-100 border border-gray-800 rounded-custom text-white resize-none" placeholder="Sobre o negócio..." />
                   </div>
-                  <div className="bg-dark-200 border border-gray-800 rounded-custom p-5">
-                    <label className="block text-sm mb-2">Instagram</label>
-                    <input value={formInfo.instagram} onChange={(e) => setFormInfo(prev => ({ ...prev, instagram: e.target.value }))} className="w-full px-4 py-3 bg-dark-100 border border-gray-800 rounded-custom text-white" placeholder="@seuinstagram" />
-                  </div>
-                  <div className="bg-dark-200 border border-gray-800 rounded-custom p-5">
-                    <label className="block text-sm mb-2">Facebook</label>
-                    <input value={formInfo.facebook} onChange={(e) => setFormInfo(prev => ({ ...prev, facebook: e.target.value }))} className="w-full px-4 py-3 bg-dark-100 border border-gray-800 rounded-custom text-white" placeholder="facebook.com/..." />
+                  <div className="bg-dark-200 border border-gray-800 rounded-custom p-5 md:col-span-2">
+                    <h4 className="text-sm font-normal text-white mb-1">Redes Sociais</h4>
+                    <p className="text-xs text-gray-500 mb-4">Seus links aparecem na vitrine pública. Deixe em branco caso não queira exibir.</p>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm mb-2">Instagram</label>
+                        <input value={formInfo.instagram} onChange={(e) => setFormInfo(prev => ({ ...prev, instagram: e.target.value }))} className="w-full px-4 py-3 bg-dark-100 border border-gray-800 rounded-custom text-white" placeholder="@seuinstagram" />
+                      </div>
+                      <div>
+                        <label className="block text-sm mb-2">Facebook</label>
+                        <input value={formInfo.facebook} onChange={(e) => setFormInfo(prev => ({ ...prev, facebook: e.target.value }))} className="w-full px-4 py-3 bg-dark-100 border border-gray-800 rounded-custom text-white" placeholder="facebook.com/..." />
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -1643,7 +1649,7 @@ export default function Dashboard({ user, onLogout }) {
                 </div>
 
                 <div className="bg-dark-200 border border-gray-800 rounded-custom p-6">
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center justify-between mb-1">
                     <h3 className="text-lg font-normal">GALERIA</h3>
                     {/* Desktop: botão fica no header alinhado ao título */}
                     <label className="hidden sm:inline-block">
@@ -1653,13 +1659,14 @@ export default function Dashboard({ user, onLogout }) {
                       </span>
                     </label>
                   </div>
+                  <p className="text-xs text-gray-500 mb-4">Exiba fotos do seu espaço e dos seus serviços. Essas imagens aparecem na sua vitrine pública para os clientes que estão te descobrindo.</p>
                   {galeriaItems.length > 0 ? (
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                       {galeriaItems.map((item) => (
                         <div key={item.id || item.path} className="relative bg-dark-100 border border-gray-800 rounded-custom overflow-hidden">
                           <img src={getPublicUrl('galerias', item.path)} alt="Galeria" className="w-full h-28 object-cover" />
                           {/* Mobile: centralizado | Desktop: canto superior esquerdo */}
-                          <button onClick={() => removerImagemGaleria(item)} className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 sm:left-2 sm:top-2 sm:translate-x-0 sm:translate-y-0 px-3 py-1 rounded-full bg-black/60 border border-gray-700 hover:border-red-400 text-[12px] text-red-200 font-normal uppercase">REMOVER</button>
+                          <button onClick={() => removerImagemGaleria(item)} className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 sm:left-2 sm:top-2 sm:inset-auto px-3 py-1 rounded-full bg-black/60 border border-gray-700 hover:border-red-400 text-[12px] text-red-200 font-normal uppercase">REMOVER</button>
                         </div>
                       ))}
                     </div>
