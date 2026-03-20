@@ -33,8 +33,6 @@ const VIEWS = {
   agendamentos: 'agendamentos',
 };
 
-// FIX 1: parseFloat + toFixed(2) evita imprecisão de ponto flutuante
-// Ex: Number("60") pode gerar 59.999... em alguns contextos; toFixed(2) garante arredondamento correto
 const toNumberOrNull = (v) => {
   if (v === '' || v == null) return null;
   const n = parseFloat(Number(v).toFixed(2));
@@ -272,7 +270,7 @@ export default function Dashboard({ user, onLogout }) {
 
   const [showNovaEntrega, setShowNovaEntrega] = useState(false);
   const [showNovoProfissional, setShowNovoProfissional] = useState(false);
-  // FIX 2: estado para prevenir duplo clique no formulário de entrega
+
   const [submittingEntrega, setSubmittingEntrega] = useState(false);
 
   const [editingEntregaId, setEditingEntregaId] = useState(null);
@@ -1579,7 +1577,6 @@ export default function Dashboard({ user, onLogout }) {
                   </div>
                 </div>
 
-                {/* ── REDES SOCIAIS ── */}
                 <div className="bg-dark-200 border border-gray-800 rounded-custom p-6">
                   <div className="text-sm font-normal text-white tracking-wide mb-1">REDES SOCIAIS</div>
                   <p className="text-sm text-gray-500 mb-4">Seus links aparecem na vitrine pública. Deixe em branco para ocultar.</p>
@@ -1595,13 +1592,12 @@ export default function Dashboard({ user, onLogout }) {
                   </div>
                 </div>
 
-                {/* ── GALERIA ── */}
                 <div className="bg-dark-200 border border-gray-800 rounded-custom p-6">
                   <div className="flex items-center justify-between mb-1">
                     <h3 className="text-lg font-normal">GALERIA</h3>
-                    <label className="inline-block">
+                    <label className="hidden sm:inline-block">
                       <input type="file" accept="image/png,image/jpeg,image/webp" multiple className="hidden" onChange={(e) => uploadGaleria(e.target.files)} disabled={galleryUploading} />
-                      <span className={`inline-flex items-center gap-2 rounded-button font-normal border cursor-pointer transition-all uppercase ${galleryUploading ? 'bg-gray-900 border-gray-800 text-gray-600 cursor-not-allowed' : 'bg-primary/20 hover:bg-primary/30 border-primary/50 text-primary'} px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm`}>
+                      <span className={`inline-flex items-center gap-2 rounded-button font-normal border cursor-pointer transition-all uppercase ${galleryUploading ? 'bg-gray-900 border-gray-800 text-gray-600 cursor-not-allowed' : 'bg-primary/20 hover:bg-primary/30 border-primary/50 text-primary'} px-4 py-2 text-sm`}>
                         <Plus className="w-4 h-4" />{galleryUploading ? 'ENVIANDO...' : 'ADICIONAR'}
                       </span>
                     </label>
@@ -1617,6 +1613,12 @@ export default function Dashboard({ user, onLogout }) {
                       ))}
                     </div>
                   ) : <div className="text-gray-500">Nenhuma imagem ainda.</div>}
+                  <label className="sm:hidden mt-4 block">
+                    <input type="file" accept="image/png,image/jpeg,image/webp" multiple className="hidden" onChange={(e) => uploadGaleria(e.target.files)} disabled={galleryUploading} />
+                    <span className={`w-full inline-flex items-center justify-center gap-2 rounded-button font-normal border cursor-pointer transition-all uppercase ${galleryUploading ? 'bg-gray-900 border-gray-800 text-gray-600 cursor-not-allowed' : 'bg-primary/20 hover:bg-primary/30 border-primary/50 text-primary'} px-4 py-3 text-sm`}>
+                      <Plus className="w-4 h-4" />{galleryUploading ? 'ENVIANDO...' : 'ADICIONAR FOTOS'}
+                    </span>
+                  </label>
                 </div>
 
                 <div className="bg-dark-200 border border-gray-800 rounded-custom p-6">
