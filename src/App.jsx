@@ -100,6 +100,8 @@ function RecoveryWatcher({ onChange }) {
   const loc = useLocation();
 
   useEffect(() => {
+    // Só seta true quando detecta recovery — nunca cancela
+    // Sair do recovery é responsabilidade do handleLogout
     if (isPasswordRecoveryUrl()) onChange(true);
   }, [loc.pathname, loc.search, loc.hash, onChange]);
 
@@ -113,7 +115,7 @@ export default function App() {
   const [booting, setBooting] = useState(true);
   const [typeLoading, setTypeLoading] = useState(false);
   const [fatalError, setFatalError] = useState(null);
-  const [inRecovery, setInRecovery] = useState(() => isPasswordRecoveryUrl());
+  const [inRecovery, setInRecovery] = useState(false);
 
   const aliveRef = useRef(true);
   const loadedUserRef = useRef(null);
@@ -181,11 +183,17 @@ export default function App() {
 
     aliveRef.current = true;
 
-    async function bootAuth() {
+    // Padrão recomendado Supabase v2: usar exclusivamente onAuthStateChange
+    // para o carregamento inicial (INITIAL_SESSION) e recovery (PASSWORD_RECOVERY).
+    // Elimina getSession direto no boot — que processava o token de recovery
+    // como login normal antes do evento PASSWORD_RECOVERY chegar.
+    const { data: { subscription } } =
+      supabase.auth.onAuthStateChange(async (event, session) => {
 
-      try {
+        if (!aliveRef.current) return;
 
-        if (isPasswordRecoveryUrl()) {
+        // Recovery — mostra formulário de nova senha, não processa como login
+        if (event === 'PASSWORD_RECOVERY') {
           safeSet(() => {
             setInRecovery(true);
             setBooting(false);
@@ -193,60 +201,37 @@ export default function App() {
           return;
         }
 
-        const { data: { session } } = await supabase.auth.getSession();
+        // Sessão inicial ao carregar o app
+        if (event === 'INITIAL_SESSION') {
+          const sessionUser = session?.user || null;
 
-        if (!aliveRef.current) return;
+          if (!sessionUser) {
+            safeSet(() => {
+              setUser(null);
+              setUserType(null);
+              setBooting(false);
+            });
+            return;
+          }
 
-        const sessionUser = session?.user || null;
+          setUser(sessionUser);
 
-        if (!sessionUser) {
+          if (loadedUserRef.current !== sessionUser.id) {
+            await loadType(sessionUser);
+          }
 
-          setUser(null);
-          setUserType(null);
-          setBooting(false);
-
+          safeSet(() => setBooting(false));
           return;
         }
 
-        setUser(sessionUser);
-
-        if (loadedUserRef.current !== sessionUser.id) {
-          await loadType(sessionUser);
-        }
-
-        safeSet(() => setBooting(false));
-
-      } catch (err) {
-
-        console.error('Auth boot error', err);
-        safeSet(() => setBooting(false));
-
-      }
-
-    }
-
-    bootAuth();
-
-    const { data: { subscription } } =
-      supabase.auth.onAuthStateChange(async (event, session) => {
-
-        if (!aliveRef.current) return;
-
-        if (event === 'PASSWORD_RECOVERY') {
-          safeSet(() => setInRecovery(true));
-          return;
-        }
-
+        // Demais eventos (SIGNED_IN após login manual, TOKEN_REFRESHED, etc.)
         const sessionUser = session?.user || null;
 
         if (!sessionUser) {
-
           loadedUserRef.current = null;
-
           setUser(null);
           setUserType(null);
           setFatalError(null);
-
           return;
         }
 
