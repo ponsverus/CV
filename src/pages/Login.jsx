@@ -236,7 +236,7 @@ export default function Login({ onLogin }) {
                     SALVANDO...
                   </span>
                 ) : (
-                  'Salvar nova senha'
+                  'SAVLVAR NOVA SENHA'
                 )}
               </button>
             </form>
