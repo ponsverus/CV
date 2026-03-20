@@ -921,8 +921,6 @@ export default function Dashboard({ user, onLogout }) {
   };
 
   const removeParceiroEmail = async (profId) => {
-    const ok = await uiConfirm('dashboard.parceiro_delete_confirm', 'warning');
-    if (!ok) return;
     try {
       const { error } = await supabase
         .from('profissionais')
@@ -1665,7 +1663,7 @@ export default function Dashboard({ user, onLogout }) {
                 </div>
 
                 <div className="bg-dark-200 border border-gray-800 rounded-custom p-6">
-                  <div className="text-xs text-gray-500 uppercase tracking-wide mb-4">CREDENCIAIS</div>
+                  <div className="text-xs text-gray-500 uppercase tracking-wide mb-4">DADOS DA CONTA</div>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm mb-2">EMAIL</label>
