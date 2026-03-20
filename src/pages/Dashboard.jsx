@@ -26,12 +26,6 @@ const SUPORTE_HREF = `https://wa.me/${SUPORTE_PHONE_E164}?text=${encodeURICompon
 
 const AG_PAGE_SIZE = 15;
 
-const VIEWS = {
-  negocios: 'negocios',
-  profissionais: 'profissionais',
-  entregas: 'entregas',
-  agendamentos: 'agendamentos',
-};
 
 // FIX 1: parseFloat + toFixed(2) evita imprecisão de ponto flutuante
 // Ex: Number("60") pode gerar 59.999... em alguns contextos; toFixed(2) garante arredondamento correto
@@ -109,23 +103,6 @@ function getPublicUrl(bucket, path) {
   }
 }
 
-function ClienteAvatar({ cliente, size = 'w-9 h-9' }) {
-  const avatarUrl = getPublicUrl('avatars', cliente?.avatar_path);
-  if (avatarUrl) {
-    return (
-      <img
-        src={avatarUrl}
-        alt={cliente?.nome || ''}
-        className={`${size} rounded-full object-cover border border-gray-700 shrink-0`}
-      />
-    );
-  }
-  return (
-    <div className={`${size} rounded-full bg-gradient-to-br from-primary to-yellow-600 flex items-center justify-center text-black text-sm font-normal shrink-0`}>
-      {(cliente?.nome || '?')[0]}
-    </div>
-  );
-}
 
 function TemaToggle({ value, onChange, loading }) {
   const isLight = value === 'light';
@@ -253,7 +230,8 @@ export default function Dashboard({ user, onLogout }) {
   const [serverNow, setServerNow] = useState(() => ({ ts: null, dow: 0, date: '', source: 'db', minutes: 0 }));
   const [hoje, setHoje] = useState(() => '');
 
-  const [agProfIds, setAgProfIds] = useState([]);
+  const agProfIds = useMemo(() => profissionais.map(p => p.id), [profissionais]);
+
   const [historicoAgendamentos, setHistoricoAgendamentos] = useState([]);
   const [historicoPage, setHistoricoPage] = useState(0);
   const [historicoHasMore, setHistoricoHasMore] = useState(false);
@@ -405,7 +383,6 @@ export default function Dashboard({ user, onLogout }) {
   useEffect(() => {
     if (!negocio?.id || !hoje) return;
     loadHoje(negocio.id);
-    loadDia(negocio.id, faturamentoData || hoje);
   }, [negocio?.id, hoje]);
 
   useEffect(() => {
@@ -418,19 +395,12 @@ export default function Dashboard({ user, onLogout }) {
     loadPeriodo(negocio.id, hoje, faturamentoPeriodo);
   }, [negocio?.id, hoje, faturamentoPeriodo]);
 
-  useEffect(() => {
-    if (!agProfIds?.length || !historicoData) return;
-    setHistoricoPage(0);
-    setHistoricoHasMore(false);
-    setHistoricoAgendamentos([]);
-    fetchHistoricoPage({ negocioId: negocio?.id, profIds: agProfIds, date: historicoData, page: 0, append: false });
-  }, [historicoData, agProfIds]);
 
-  const fetchHistoricoPage = async ({ negocioId, profIds, date, page, append }) => {
+  const fetchHistoricoPage = useCallback(async ({ negocioId, profIds, date, page, append }) => {
     const from = page * AG_PAGE_SIZE;
     const to = from + AG_PAGE_SIZE - 1;
     const { data, error: qErr } = await supabase
-      .from(VIEWS.agendamentos)
+      .from('agendamentos')
       .select(`*, preco_final, data, horario_inicio, horario_fim,
         entregas (nome, preco, preco_promocional),
         profissionais (id, nome),
@@ -454,7 +424,15 @@ export default function Dashboard({ user, onLogout }) {
       return next.filter(a => (seen.has(a.id) ? false : (seen.add(a.id), true)));
     });
     setHistoricoHasMore(rows.length === AG_PAGE_SIZE);
-  };
+  }, []);
+
+  useEffect(() => {
+    if (!agProfIds?.length || !historicoData) return;
+    setHistoricoPage(0);
+    setHistoricoHasMore(false);
+    setHistoricoAgendamentos([]);
+    fetchHistoricoPage({ negocioId: negocio?.id, profIds: agProfIds, date: historicoData, page: 0, append: false });
+  }, [historicoData, agProfIds, fetchHistoricoPage]);
 
   const loadMoreHistorico = async () => {
     if (historicoLoadingMore || !historicoHasMore || !negocio?.id || !agProfIds?.length) return;
@@ -470,7 +448,7 @@ export default function Dashboard({ user, onLogout }) {
   const reloadNegocio = useCallback(async () => {
     if (!negocio?.id) return;
     const { data, error: err } = await supabase
-      .from(VIEWS.negocios).select('*').eq('id', negocio.id).eq('owner_id', user.id).maybeSingle();
+      .from('negocios').select('*').eq('id', negocio.id).eq('owner_id', user.id).maybeSingle();
     if (err || !data) return;
     setNegocio(data);
     setFormInfo({
@@ -488,7 +466,6 @@ export default function Dashboard({ user, onLogout }) {
     if (err) return;
     const profs = data || [];
     setProfissionais(profs);
-    setAgProfIds(profs.map(p => p.id));
     return profs;
   }, [negocio?.id]);
 
@@ -497,7 +474,7 @@ export default function Dashboard({ user, onLogout }) {
     const ids = profIds || agProfIds;
     if (!id || !ids?.length) return;
     const { data, error: err } = await supabase
-      .from(VIEWS.entregas).select('*, profissionais (id, nome)')
+      .from('entregas').select('*, profissionais (id, nome)')
       .eq('negocio_id', id).in('profissional_id', ids)
       .order('created_at', { ascending: false });
     if (err) return;
@@ -510,7 +487,7 @@ export default function Dashboard({ user, onLogout }) {
     const dh = dataHoje || hoje;
     if (!id || !ids?.length || !dh) return;
     const { data, error: err } = await supabase
-      .from(VIEWS.agendamentos)
+      .from('agendamentos')
       .select(`*, preco_final, data, horario_inicio, horario_fim,
         entregas (nome, preco, preco_promocional),
         profissionais (id, nome),
@@ -544,7 +521,7 @@ export default function Dashboard({ user, onLogout }) {
     }
     try {
       const negocioIdFromState = location?.state?.negocioId || null;
-      let negocioQuery = supabase.from(VIEWS.negocios).select('*').eq('owner_id', user.id);
+      let negocioQuery = supabase.from('negocios').select('*').eq('owner_id', user.id);
       if (negocioIdFromState) {
         negocioQuery = negocioQuery.eq('id', negocioIdFromState);
       }
@@ -579,14 +556,13 @@ export default function Dashboard({ user, onLogout }) {
       setProfissionais(profs);
       if (profs.length === 0) { setEntregas([]); setAgendamentos([]); setLoading(false); return; }
       const ids = profs.map(p => p.id);
-      setAgProfIds(ids);
       const dataHoje = (typeof dataRef === 'string' && dataRef) ? dataRef : String(serverNow?.date || hoje || '');
       const [entregasResult, agendamentosResult] = await Promise.all([
-        supabase.from(VIEWS.entregas).select('*, profissionais (id, nome)')
+        supabase.from('entregas').select('*, profissionais (id, nome)')
           .eq('negocio_id', negocioData.id).in('profissional_id', ids)
           .order('created_at', { ascending: false }),
         dataHoje
-          ? supabase.from(VIEWS.agendamentos)
+          ? supabase.from('agendamentos')
               .select(`*, preco_final, data, horario_inicio, horario_fim,
                 entregas (nome, preco, preco_promocional),
                 profissionais (id, nome),
@@ -1077,9 +1053,6 @@ export default function Dashboard({ user, onLogout }) {
     </div>
   );
 
-  const metricsLoadingHoje = metricsHojeLoading;
-  const metricsLoadingDia = metricsDiaLoading;
-  const metricsLoadingPeriodo = metricsPeriodoLoading;
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -1135,7 +1108,7 @@ export default function Dashboard({ user, onLogout }) {
               <span className="text-sm text-gray-500">FATURAMENTO HOJE</span>
             </div>
             <div className="text-3xl font-normal text-white mb-1">
-              {metricsLoadingHoje ? <span className="text-gray-500 text-xl">...</span> : <>R$ {Number(metricsHoje?.today?.faturamento || 0).toFixed(2)}</>}
+              {metricsHojeLoading ? <span className="text-gray-500 text-xl">...</span> : <>R$ {Number(metricsHoje?.today?.faturamento || 0).toFixed(2)}</>}
             </div>
           </div>
           <div className="bg-dark-100 border border-gray-800 rounded-custom p-6">
@@ -1238,7 +1211,7 @@ export default function Dashboard({ user, onLogout }) {
                     <DatePicker value={faturamentoData} onChange={(iso) => setFaturamentoData(iso)} todayISO={hoje} />
                   </div>
                   <div className="text-3xl font-normal text-white mb-2">
-                    {metricsLoadingDia ? <span className="text-gray-500 text-xl">...</span> : <>R$ {Number(metricsDia?.selected_day?.faturamento || 0).toFixed(2)}</>}
+                    {metricsDiaLoading ? <span className="text-gray-500 text-xl">...</span> : <>R$ {Number(metricsDia?.selected_day?.faturamento || 0).toFixed(2)}</>}
                   </div>
                   <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
                     <div className="bg-dark-100 border border-gray-800 rounded-custom p-4">
@@ -1283,11 +1256,11 @@ export default function Dashboard({ user, onLogout }) {
                       </div>
                       <div className="bg-dark-200 border border-gray-800 rounded-custom p-4">
                         <div className="text-xs text-gray-500 mb-1">FATURAMENTO</div>
-                        <div className="text-xl font-normal text-primary">{metricsLoadingPeriodo ? '...' : `R$ ${Number(metricsPeriodoData?.period?.faturamento || 0).toFixed(2)}`}</div>
+                        <div className="text-xl font-normal text-primary">{metricsPeriodoLoading ? '...' : `R$ ${Number(metricsPeriodoData?.period?.faturamento || 0).toFixed(2)}`}</div>
                       </div>
                       <div className="bg-dark-200 border border-gray-800 rounded-custom p-4">
                         <div className="text-xs text-gray-500 mb-1">MÉDIA POR {counterSingular.toUpperCase()}</div>
-                        <div className="text-xl font-normal text-white">{metricsLoadingPeriodo ? '...' : `R$ ${Number(metricsPeriodoData?.period?.media_por_atendimento || 0).toFixed(2)}`}</div>
+                        <div className="text-xl font-normal text-white">{metricsPeriodoLoading ? '...' : `R$ ${Number(metricsPeriodoData?.period?.media_por_atendimento || 0).toFixed(2)}`}</div>
                       </div>
                     </div>
                   </div>
