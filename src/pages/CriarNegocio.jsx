@@ -196,7 +196,7 @@ export default function CriarNegocio({ user }) {
               type="tel"
               value={formData.telefone}
               onChange={(e) => setFormData(prev => ({ ...prev, telefone: e.target.value }))}
-              placeholder="(31) 90000-0000"
+              placeholder="(31) 90000 - 0000"
               className={inputClass}
               required
             />
