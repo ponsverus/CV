@@ -1577,19 +1577,13 @@ export default function Dashboard({ user, onLogout }) {
                     <label className="block text-sm mb-2">Sobre</label>
                     <textarea value={formInfo.descricao} onChange={(e) => setFormInfo(prev => ({ ...prev, descricao: e.target.value }))} rows={3} className="w-full px-4 py-3 bg-dark-100 border border-gray-800 rounded-custom text-white resize-none" placeholder="Sobre o negócio..." />
                   </div>
-                  <div className="bg-dark-200 border border-gray-800 rounded-custom p-5 md:col-span-2">
-                    <h4 className="text-sm font-normal text-white mb-1">Redes Sociais</h4>
-                    <p className="text-xs text-gray-500 mb-4">Seus links aparecem na vitrine pública. Deixe em branco caso não queira exibir.</p>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm mb-2">Instagram</label>
-                        <input value={formInfo.instagram} onChange={(e) => setFormInfo(prev => ({ ...prev, instagram: e.target.value }))} className="w-full px-4 py-3 bg-dark-100 border border-gray-800 rounded-custom text-white" placeholder="@seuinstagram" />
-                      </div>
-                      <div>
-                        <label className="block text-sm mb-2">Facebook</label>
-                        <input value={formInfo.facebook} onChange={(e) => setFormInfo(prev => ({ ...prev, facebook: e.target.value }))} className="w-full px-4 py-3 bg-dark-100 border border-gray-800 rounded-custom text-white" placeholder="facebook.com/..." />
-                      </div>
-                    </div>
+                  <div className="bg-dark-200 border border-gray-800 rounded-custom p-5">
+                    <label className="block text-sm mb-2">Instagram</label>
+                    <input value={formInfo.instagram} onChange={(e) => setFormInfo(prev => ({ ...prev, instagram: e.target.value }))} className="w-full px-4 py-3 bg-dark-100 border border-gray-800 rounded-custom text-white" placeholder="@seuinstagram" />
+                  </div>
+                  <div className="bg-dark-200 border border-gray-800 rounded-custom p-5">
+                    <label className="block text-sm mb-2">Facebook</label>
+                    <input value={formInfo.facebook} onChange={(e) => setFormInfo(prev => ({ ...prev, facebook: e.target.value }))} className="w-full px-4 py-3 bg-dark-100 border border-gray-800 rounded-custom text-white" placeholder="facebook.com/..." />
                   </div>
                 </div>
 
@@ -1649,31 +1643,32 @@ export default function Dashboard({ user, onLogout }) {
                 </div>
 
                 <div className="bg-dark-200 border border-gray-800 rounded-custom p-6">
-                  <h3 className="text-lg font-normal mb-1">GALERIA</h3>
-                  <p className="text-sm text-gray-500 mb-4">Adicione fotos do seu espaço e dos seus serviços. Elas serão exibidas na sua vitrine pública para os clientes que estão te avaliando.</p>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-normal">GALERIA</h3>
+                    <label className="inline-block">
+                      <input type="file" accept="image/png,image/jpeg,image/webp" multiple className="hidden" onChange={(e) => uploadGaleria(e.target.files)} disabled={galleryUploading} />
+                      <span className={`inline-flex items-center gap-2 rounded-button font-normal border cursor-pointer transition-all uppercase ${galleryUploading ? 'bg-gray-900 border-gray-800 text-gray-600 cursor-not-allowed' : 'bg-primary/20 hover:bg-primary/30 border-primary/50 text-primary'} px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm`}>
+                        <Plus className="w-4 h-4" />{galleryUploading ? 'ENVIANDO...' : 'ADICIONAR'}
+                      </span>
+                    </label>
+                  </div>
                   {galeriaItems.length > 0 ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                       {galeriaItems.map((item) => (
                         <div key={item.id || item.path} className="relative bg-dark-100 border border-gray-800 rounded-custom overflow-hidden">
                           <img src={getPublicUrl('galerias', item.path)} alt="Galeria" className="w-full h-28 object-cover" />
-                          <button onClick={() => removerImagemGaleria(item)} className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 sm:left-2 sm:top-2 sm:inset-auto px-3 py-1 rounded-full bg-black/60 border border-gray-700 hover:border-red-400 text-[12px] text-red-200 font-normal uppercase">REMOVER</button>
+                          <button onClick={() => removerImagemGaleria(item)} className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 sm:left-2 sm:top-2 sm:right-auto sm:transform-none px-3 py-1 rounded-full bg-black/60 border border-gray-700 hover:border-red-400 text-[12px] text-red-200 font-normal uppercase">REMOVER</button>
                         </div>
                       ))}
                     </div>
-                  ) : <div className="text-gray-500 mb-4">Nenhuma imagem ainda.</div>}
-                  <label className="block w-full">
-                    <input type="file" accept="image/png,image/jpeg,image/webp" multiple className="hidden" onChange={(e) => uploadGaleria(e.target.files)} disabled={galleryUploading} />
-                    <span className={`inline-flex items-center justify-center gap-2 w-full rounded-button font-normal border cursor-pointer transition-all uppercase ${galleryUploading ? 'bg-gray-900 border-gray-800 text-gray-600 cursor-not-allowed' : 'bg-primary/20 hover:bg-primary/30 border-primary/50 text-primary'} px-4 py-2.5 text-sm`}>
-                      <Plus className="w-4 h-4" />{galleryUploading ? 'ENVIANDO...' : 'ADICIONAR IMAGENS'}
-                    </span>
-                  </label>
+                  ) : <div className="text-gray-500">Nenhuma imagem ainda.</div>}
                 </div>
 
                 <div className="pt-2 pb-4">
                   <button
                     type="button"
                     onClick={() => navigate('/criar-negocio')}
-                    className="w-full py-4 rounded-full border border-primary/40 bg-primary/10 text-primary text-sm font-normal uppercase tracking-widest hover:border-primary/70 hover:bg-primary/20 transition-all"
+                    className="w-full py-4 rounded-full border border-primary/40 bg-primary/10 text-primary text-sm font-normal uppercase tracking-normal hover:border-primary/70 hover:bg-primary/20 transition-all"
                   >
                     + CRIAR OUTRO NEGÓCIO
                   </button>
