@@ -27,7 +27,6 @@ export default function CriarNegocio({ user }) {
     telefone: '',
     rua: '',
     numero: '',
-    bairro: '',
     cidade: '',
     estado: '',
   });
@@ -230,16 +229,6 @@ export default function CriarNegocio({ user }) {
                     placeholder="200"
                     className={inputClass}
                     required
-                  />
-                </div>
-                <div>
-                  <label className={labelSmClass}>Bairro (opcional)</label>
-                  <input
-                    type="text"
-                    value={formData.bairro}
-                    onChange={(e) => setFormData(prev => ({ ...prev, bairro: e.target.value }))}
-                    placeholder="Centro"
-                    className={inputClass}
                   />
                 </div>
                 <div>
