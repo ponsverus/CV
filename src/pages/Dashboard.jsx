@@ -1101,7 +1101,7 @@ export default function Dashboard({ user, onLogout }) {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 items-start">
           <div className="bg-gradient-to-br from-green-500/20 to-emerald-600/20 border border-green-500/30 rounded-custom p-6">
             <div className="mb-2 flex items-center gap-2">
               <span style={{ fontFamily: 'Roboto Condensed, sans-serif' }} className="text-green-400 font-normal text-3xl leading-none">$</span>
@@ -1168,7 +1168,7 @@ export default function Dashboard({ user, onLogout }) {
 
             {activeTab === 'visao-geral' && (
               <div className="space-y-6">
-                <div className="grid md:grid-cols-3 gap-4">
+                <div className="grid md:grid-cols-3 gap-4 items-start">
                   <div className="bg-dark-200 border border-gray-800 rounded-custom p-5">
                     <div className="text-xs text-gray-500 mb-2">CANCELAMENTOS HOJE</div>
                     <div className="text-3xl font-normal text-white">{Number(metricsHoje?.today?.cancelados || 0)}</div>
@@ -1192,7 +1192,7 @@ export default function Dashboard({ user, onLogout }) {
                 </div>
 
                 {faturamentoPorProfissionalHoje.length > 0 && (
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 items-start">
                     {faturamentoPorProfissionalHoje.map(([nome, valor]) => (
                       <div key={String(nome)} className="bg-dark-200 border border-gray-800 rounded-custom p-5">
                         <div className="text-xs text-gray-500 mb-1">PROFISSIONAL</div>
@@ -1213,7 +1213,7 @@ export default function Dashboard({ user, onLogout }) {
                   <div className="text-3xl font-normal text-white mb-2">
                     {metricsDiaLoading ? <span className="text-gray-500 text-xl">...</span> : <>R$ {Number(metricsDia?.selected_day?.faturamento || 0).toFixed(2)}</>}
                   </div>
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4 items-start">
                     <div className="bg-dark-100 border border-gray-800 rounded-custom p-4">
                       <div className="text-xs text-gray-500 mb-1">CONCLUÍDOS</div>
                       <div className="text-xl font-normal text-green-400">{Number(metricsDia?.selected_day?.concluidos || 0)}</div>
@@ -1234,7 +1234,7 @@ export default function Dashboard({ user, onLogout }) {
                     </div>
                   </div>
                   {faturamentoPorProfissionalFiltro.length > 0 && (
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4 items-start">
                       {faturamentoPorProfissionalFiltro.map(([nome, valor]) => (
                         <div key={String(nome)} className="bg-dark-100 border border-gray-800 rounded-custom p-4">
                           <div className="text-xs text-gray-500 mb-1">PROFISSIONAL</div>
@@ -1249,7 +1249,7 @@ export default function Dashboard({ user, onLogout }) {
                       <div className="text-xs text-gray-500 uppercase tracking-wide">FATURAMENTO POR PERÍODO</div>
                       <PeriodoSelect value={faturamentoPeriodo} onChange={setFaturamentoPeriodo} />
                     </div>
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 items-start">
                       <div className="bg-dark-200 border border-gray-800 rounded-custom p-4">
                         <div className="text-xs text-gray-500 mb-1">CONCLUÍDOS</div>
                         <div className="text-xl font-normal text-green-400">{Number(metricsPeriodoData?.period?.concluidos || 0)}</div>
@@ -1420,7 +1420,7 @@ export default function Dashboard({ user, onLogout }) {
                             <div className="text-xs text-gray-500">{lista.length} {lista.length === 1 ? counterSingular : counterPlural}</div>
                           </div>
                           {lista.length ? (
-                            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
                               {lista.map(s => {
                                 const preco = Number(s.preco ?? 0);
                                 const promo = (s.preco_promocional == null) ? null : Number(s.preco_promocional);
@@ -1470,7 +1470,7 @@ export default function Dashboard({ user, onLogout }) {
                     <Plus className="w-5 h-5" />ADICIONAR
                   </button>
                 </div>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
                   {profissionais.map(p => {
                     const ativo = (p.ativo === undefined) ? true : !!p.ativo;
                     const label = normalizeKey(p.status_label);
