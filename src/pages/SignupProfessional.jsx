@@ -277,7 +277,7 @@ export default function SignupProfessional({ onLogin }) {
                 type="tel"
                 value={formData.telefone}
                 onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
-                placeholder="(11) 99999 - 9999"
+                placeholder="(11) 90000 - 0000"
                 className={inputClass}
                 required
               />
@@ -297,7 +297,7 @@ export default function SignupProfessional({ onLogin }) {
           </div>
 
           <div>
-            <label className={labelClass}>URL Única (não pode repetir) *</label>
+            <label className={labelClass}>URL Única *</label>
             <div className="flex items-center gap-2">
               <span className="text-gray-600 text-sm whitespace-nowrap">comvaga.app/v/</span>
               <input
