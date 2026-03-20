@@ -861,8 +861,8 @@ export default function Dashboard({ user, onLogout }) {
     const ok = await uiConfirm('dashboard.booking_cancel_confirm', 'warning');
     if (!ok) return;
     try {
-      const { error: updErr } = await supabase.from('agendamentos').update({ status: 'cancelado_profissional' }).eq('id', id).eq('negocio_id', negocio.id);
-      if (updErr) throw updErr;
+      const { error } = await supabase.rpc('cancelar_agendamento_profissional', { p_agendamento_id: id });
+      if (error) throw error;
       await uiAlert('dashboard.booking_canceled', 'error');
       await reloadAgendamentos();
       loadHoje(negocio.id);
@@ -1565,6 +1565,7 @@ export default function Dashboard({ user, onLogout }) {
                 <div className="bg-dark-200 border border-gray-800 rounded-custom p-6">
                   <div className="flex items-center justify-between mb-1">
                     <div className="text-sm font-normal text-white tracking-wide">GALERIA</div>
+
                     <label className="hidden sm:inline-block">
                       <input type="file" accept="image/png,image/jpeg,image/webp" multiple className="hidden" onChange={(e) => uploadGaleria(e.target.files)} disabled={galleryUploading} />
                       <span className={`inline-flex items-center gap-2 rounded-button font-normal border cursor-pointer transition-all uppercase ${galleryUploading ? 'bg-gray-900 border-gray-800 text-gray-600 cursor-not-allowed' : 'bg-primary/20 hover:bg-primary/30 border-primary/50 text-primary'} px-4 py-2 text-sm`}>
@@ -1583,6 +1584,7 @@ export default function Dashboard({ user, onLogout }) {
                       ))}
                     </div>
                   ) : <div className="text-gray-500">Nenhuma imagem ainda.</div>}
+
                   <label className="sm:hidden mt-4 block">
                     <input type="file" accept="image/png,image/jpeg,image/webp" multiple className="hidden" onChange={(e) => uploadGaleria(e.target.files)} disabled={galleryUploading} />
                     <span className={`w-full inline-flex items-center justify-center gap-2 rounded-button font-normal border cursor-pointer transition-all uppercase ${galleryUploading ? 'bg-gray-900 border-gray-800 text-gray-600 cursor-not-allowed' : 'bg-primary/20 hover:bg-primary/30 border-primary/50 text-primary'} px-4 py-3 text-sm`}>
