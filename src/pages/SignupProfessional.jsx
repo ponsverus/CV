@@ -394,7 +394,7 @@ export default function SignupProfessional({ onLogin }) {
                   />
                 </div>
 
-                <div className="sm:col-span-2">
+                <div>
                   <label className={labelSmClass}>Estado *</label>
                   <input
                     type="text"
