@@ -1645,9 +1645,10 @@ export default function Dashboard({ user, onLogout }) {
                 <div className="bg-dark-200 border border-gray-800 rounded-custom p-6">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-normal">GALERIA</h3>
-                    <label className="inline-block">
+                    {/* Desktop: botão fica no header alinhado ao título */}
+                    <label className="hidden sm:inline-block">
                       <input type="file" accept="image/png,image/jpeg,image/webp" multiple className="hidden" onChange={(e) => uploadGaleria(e.target.files)} disabled={galleryUploading} />
-                      <span className={`inline-flex items-center gap-2 rounded-button font-normal border cursor-pointer transition-all uppercase ${galleryUploading ? 'bg-gray-900 border-gray-800 text-gray-600 cursor-not-allowed' : 'bg-primary/20 hover:bg-primary/30 border-primary/50 text-primary'} px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm`}>
+                      <span className={`inline-flex items-center gap-2 rounded-button font-normal border cursor-pointer transition-all uppercase ${galleryUploading ? 'bg-gray-900 border-gray-800 text-gray-600 cursor-not-allowed' : 'bg-primary/20 hover:bg-primary/30 border-primary/50 text-primary'} px-4 py-2 text-sm`}>
                         <Plus className="w-4 h-4" />{galleryUploading ? 'ENVIANDO...' : 'ADICIONAR'}
                       </span>
                     </label>
@@ -1657,18 +1658,26 @@ export default function Dashboard({ user, onLogout }) {
                       {galeriaItems.map((item) => (
                         <div key={item.id || item.path} className="relative bg-dark-100 border border-gray-800 rounded-custom overflow-hidden">
                           <img src={getPublicUrl('galerias', item.path)} alt="Galeria" className="w-full h-28 object-cover" />
-                          <button onClick={() => removerImagemGaleria(item)} className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 sm:left-2 sm:top-2 sm:right-auto sm:transform-none px-3 py-1 rounded-full bg-black/60 border border-gray-700 hover:border-red-400 text-[12px] text-red-200 font-normal uppercase">REMOVER</button>
+                          {/* Mobile: centralizado | Desktop: canto superior esquerdo */}
+                          <button onClick={() => removerImagemGaleria(item)} className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 sm:left-2 sm:top-2 sm:translate-x-0 sm:translate-y-0 px-3 py-1 rounded-full bg-black/60 border border-gray-700 hover:border-red-400 text-[12px] text-red-200 font-normal uppercase">REMOVER</button>
                         </div>
                       ))}
                     </div>
                   ) : <div className="text-gray-500">Nenhuma imagem ainda.</div>}
+                  {/* Mobile: botão no rodapé, largura total */}
+                  <label className="sm:hidden mt-4 block">
+                    <input type="file" accept="image/png,image/jpeg,image/webp" multiple className="hidden" onChange={(e) => uploadGaleria(e.target.files)} disabled={galleryUploading} />
+                    <span className={`flex items-center justify-center gap-2 w-full rounded-button font-normal border cursor-pointer transition-all uppercase ${galleryUploading ? 'bg-gray-900 border-gray-800 text-gray-600 cursor-not-allowed' : 'bg-primary/20 hover:bg-primary/30 border-primary/50 text-primary'} px-4 py-2 text-sm`}>
+                      <Plus className="w-4 h-4" />{galleryUploading ? 'ENVIANDO...' : 'ADICIONAR'}
+                    </span>
+                  </label>
                 </div>
 
                 <div className="pt-2 pb-4">
                   <button
                     type="button"
                     onClick={() => navigate('/criar-negocio')}
-                    className="w-full py-4 rounded-full border border-primary/40 bg-primary/10 text-primary text-sm font-normal uppercase tracking-normal hover:border-primary/70 hover:bg-primary/20 transition-all"
+                    className="w-full py-4 rounded-full border border-primary/40 bg-primary/10 text-primary text-sm font-normal uppercase tracking-widest hover:border-primary/70 hover:bg-primary/20 transition-all"
                   >
                     + CRIAR OUTRO NEGÓCIO
                   </button>
