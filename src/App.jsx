@@ -355,11 +355,11 @@ export default function App() {
             path="/login"
             element={
               inRecovery ? (
-                <Login onLogin={handleLogin} />
+                <Login onLogin={handleLogin} inRecovery={true} />
               ) : isLoggedIn && userType ? (
                 <Navigate to={userType === 'professional' ? '/dashboard' : '/minha-area'} />
               ) : (
-                <Login onLogin={handleLogin} />
+                <Login onLogin={handleLogin} inRecovery={false} />
               )
             }
           />
