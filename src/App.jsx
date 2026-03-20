@@ -100,8 +100,6 @@ function RecoveryWatcher({ onChange }) {
   const loc = useLocation();
 
   useEffect(() => {
-    // Só seta true quando detecta recovery — nunca cancela
-    // Sair do recovery é responsabilidade do handleLogout
     if (isPasswordRecoveryUrl()) onChange(true);
   }, [loc.pathname, loc.search, loc.hash, onChange]);
 
@@ -183,16 +181,11 @@ export default function App() {
 
     aliveRef.current = true;
 
-    // Padrão recomendado Supabase v2: usar exclusivamente onAuthStateChange
-    // para o carregamento inicial (INITIAL_SESSION) e recovery (PASSWORD_RECOVERY).
-    // Elimina getSession direto no boot — que processava o token de recovery
-    // como login normal antes do evento PASSWORD_RECOVERY chegar.
     const { data: { subscription } } =
       supabase.auth.onAuthStateChange(async (event, session) => {
 
         if (!aliveRef.current) return;
 
-        // Recovery — mostra formulário de nova senha, não processa como login
         if (event === 'PASSWORD_RECOVERY') {
           safeSet(() => {
             setInRecovery(true);
@@ -201,7 +194,6 @@ export default function App() {
           return;
         }
 
-        // Sessão inicial ao carregar o app
         if (event === 'INITIAL_SESSION') {
           const sessionUser = session?.user || null;
 
@@ -224,7 +216,6 @@ export default function App() {
           return;
         }
 
-        // Demais eventos (SIGNED_IN após login manual, TOKEN_REFRESHED, etc.)
         const sessionUser = session?.user || null;
 
         if (!sessionUser) {
