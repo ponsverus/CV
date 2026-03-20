@@ -125,7 +125,7 @@ export default function SelecionarNegocio({ user, onLogout }) {
         <button
           type="button"
           onClick={() => navigate('/criar-negocio')}
-          className="w-full flex items-center justify-center gap-2 py-3 rounded-full border border-primary/40 bg-primary/10 text-primary text-sm font-normal uppercase tracking-widest hover:border-primary/70 hover:bg-primary/20 transition-all"
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-full border border-primary/40 bg-primary/10 text-primary text-sm font-normal uppercase tracking-normal hover:border-primary/70 hover:bg-primary/20 transition-all"
         >
           <Plus className="w-4 h-4" />
           CRIAR OUTRO NEGÓCIO
