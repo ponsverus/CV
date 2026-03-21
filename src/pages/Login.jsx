@@ -34,7 +34,7 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
 
   const [resetLoading, setResetLoading] = useState(false);
 
-  const { showMessage } = useFeedback?.() || {};
+  const { showMessage } = useFeedback();
 
   useEffect(() => {
     if (inRecoveryProp) {
@@ -97,7 +97,7 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
       onLogin(authUser, dbType);
       navigate(dbType === 'professional' ? '/dashboard' : '/minha-area');
     } catch (err) {
-      showMessage?.('login.auth_error');
+      showMessage('login.auth_error', { msg: err?.message || '' });
       console.error('Login error:', err);
     } finally {
       setLoading(false);
@@ -112,7 +112,7 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
     try {
       const email = String(formData.email || '').trim();
       if (!email) {
-        showMessage?.('login.reset_email_required');
+        showMessage('login.reset_email_required');
         return;
       }
 
@@ -122,9 +122,9 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
 
       if (resetErr) throw resetErr;
 
-      showMessage?.('login.reset_sent');
+      showMessage('login.reset_sent');
     } catch (e) {
-      showMessage?.('login.reset_error');
+      showMessage('login.reset_error', { msg: e?.message || '' });
     } finally {
       setResetLoading(false);
     }
@@ -138,23 +138,23 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
 
     try {
       if (newPassword.length < 6) {
-        showMessage?.('login.recovery_password_too_short');
+        showMessage('login.recovery_password_too_short');
         return;
       }
       if (newPassword !== newPassword2) {
-        showMessage?.('login.recovery_password_mismatch');
+        showMessage('login.recovery_password_mismatch');
         return;
       }
 
       const { error: upErr } = await supabase.auth.updateUser({ password: newPassword });
       if (upErr) throw upErr;
 
-      showMessage?.('login.recovery_password_updated');
+      showMessage('login.recovery_password_updated');
 
       await supabase.auth.signOut();
       navigate('/login');
     } catch (e2) {
-      showMessage?.('login.recovery_password_update_error');
+      showMessage('login.recovery_password_update_error', { msg: e2?.message || '' });
     } finally {
       setRecoveryLoading(false);
     }
