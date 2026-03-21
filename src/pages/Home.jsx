@@ -113,11 +113,7 @@ export default function Home({ user, userType, onLogout }) {
     };
   }, [searchTerm, showMessage]);
 
-  const handleLogoutClick = async () => {
-    try {
-      await onLogout?.();
-    } finally {}
-  };
+  const handleLogoutClick = () => onLogout?.();
 
   return (
     <div className="min-h-screen bg-black text-white relative">
