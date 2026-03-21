@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, History, LogOut, X, Save } from 'lucide-react';
 import { supabase } from '../supabase';
@@ -57,15 +57,14 @@ function getPublicUrl(bucket, path) {
 }
 
 export default function ClientArea({ user, onLogout }) {
-  const feedback = useFeedback?.();
+  const feedback = useFeedback();
 
   const uiAlert = async (key, variant = 'info', params = {}) => {
     if (feedback?.showMessage) { feedback.showMessage(key, { variant, ...params }); return; }
   };
 
   const uiConfirm = async (key, variant = 'warning') => {
-    if (feedback?.confirm) return !!(await feedback.confirm(key, { variant }));
-    return window.confirm('Confirmar?');
+    return !!(await feedback.confirm(key, { variant }));
   };
 
   const [activeTab,       setActiveTab]       = useState('agendamentos');
@@ -98,16 +97,16 @@ export default function ClientArea({ user, onLogout }) {
       hora_inicio: a.horario_inicio ? String(a.horario_inicio).slice(0, 5) : '',
       hora_fim:    a.horario_fim    ? String(a.horario_fim).slice(0, 5)    : '',
       entregas: {
-        nome:             a.entrega_nome,
-        preco:            a.entrega_preco,
+        nome:              a.entrega_nome,
+        preco:             a.entrega_preco,
         preco_promocional: a.entrega_promo,
       },
       profissionais: {
         nome:    a.profissional_nome,
         negocios: {
-          nome:      a.negocio_nome,
-          slug:      a.negocio_slug,
-          logo_path: a.negocio_logo_path,
+          nome:         a.negocio_nome,
+          slug:         a.negocio_slug,
+          logo_path:    a.negocio_logo_path,
           tipo_negocio: a.negocio_tipo,
         },
       },
@@ -139,7 +138,7 @@ export default function ClientArea({ user, onLogout }) {
     setAvatarPath(data?.avatar_path || null);
   };
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     if (!user?.id) return;
     setLoadError('');
     setLoading(true);
@@ -160,7 +159,7 @@ export default function ClientArea({ user, onLogout }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id]);
 
   useEffect(() => {
     if (user?.id) loadData();
