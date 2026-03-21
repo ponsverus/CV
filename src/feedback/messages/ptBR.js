@@ -675,6 +675,8 @@ export const ptBR = {
       body: 'Tem certeza que deseja cancelar este agendamento?',
       variant: 'warning',
       screen: 'dark',
+      confirmText: 'CONFIRMAR',
+      cancelText: 'VOLTAR',
       buttonText: 'CONFIRMAR',
     },
     booking_canceled: {
