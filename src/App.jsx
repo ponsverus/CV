@@ -71,18 +71,14 @@ async function getUserTypeRobust(authUser) {
     try {
       const t = await fetchTypeFromDb(authUser.id);
       if (t) return t;
-
       if (i < delays.length - 1) await sleep(delays[i]);
-
     } catch (e) {
       lastErr = e;
-
       if (i < delays.length - 1) await sleep(delays[i]);
     }
   }
 
   if (lastErr) throw lastErr;
-
   return null;
 }
 
@@ -107,7 +103,6 @@ function RecoveryWatcher({ onChange }) {
 }
 
 export default function App() {
-
   const [user, setUser] = useState(null);
   const [userType, setUserType] = useState(null);
   const [booting, setBooting] = useState(true);
@@ -125,7 +120,6 @@ export default function App() {
   }, []);
 
   const loadType = useCallback(async (sessionUser) => {
-
     if (!sessionUser?.id) return null;
 
     safeSet(() => {
@@ -134,56 +128,41 @@ export default function App() {
     });
 
     try {
-
       const type = await getUserTypeRobust(sessionUser);
 
       if (!type) {
-
         await supabase.auth.signOut();
-
         safeSet(() => {
           setUser(null);
           setUserType(null);
           loadedUserRef.current = null;
           setFatalError('Perfil não encontrado. Por favor, conclua seu cadastro.');
         });
-
         return null;
       }
 
       loadedUserRef.current = sessionUser.id;
-
       safeSet(() => {
         setUserType(type);
         setFatalError(null);
       });
-
       return type;
-
     } catch (e) {
-
       safeSet(() => {
         setUserType(null);
         setFatalError(e?.message || 'Falha ao carregar perfil.');
       });
-
       return null;
-
     } finally {
-
       safeSet(() => setTypeLoading(false));
-
     }
-
   }, [safeSet]);
 
   useEffect(() => {
-
     aliveRef.current = true;
 
     const { data: { subscription } } =
       supabase.auth.onAuthStateChange(async (event, session) => {
-
         if (!aliveRef.current) return;
 
         if (event === 'PASSWORD_RECOVERY') {
@@ -231,87 +210,62 @@ export default function App() {
         if (loadedUserRef.current !== sessionUser.id) {
           await loadType(sessionUser);
         }
-
       });
 
     return () => {
-
       aliveRef.current = false;
-
       subscription?.unsubscribe();
-
     };
-
   }, [loadType]);
 
   const handleLogin = useCallback((userData, type) => {
-
     loadedUserRef.current = userData?.id || null;
-
     setUser(userData || null);
     setUserType(isValidType(type) ? type : null);
     setFatalError(null);
-
   }, []);
 
   const handleLogout = useCallback(async () => {
-
     loadedUserRef.current = null;
-
     try {
-
       await supabase.auth.signOut();
-
     } finally {
-
       setInRecovery(false);
       setUser(null);
       setUserType(null);
       setFatalError(null);
       setTypeLoading(false);
-
     }
-
   }, []);
 
   const handleRetry = useCallback(async () => {
-
     safeSet(() => {
       setFatalError(null);
       setBooting(true);
     });
 
     try {
-
       const { data: { session } } = await supabase.auth.getSession();
 
       if (!session?.user) {
-
         safeSet(() => {
           setUser(null);
           setUserType(null);
           setBooting(false);
         });
-
         return;
       }
 
       safeSet(() => setUser(session.user));
-
       await loadType(session.user);
-
       safeSet(() => setBooting(false));
-
     } catch {
-
       safeSet(() => {
         setUser(null);
         setUserType(null);
         setBooting(false);
       });
-
     }
-
   }, [safeSet, loadType]);
 
   if (booting) return <FullScreenLoading />;
@@ -323,14 +277,12 @@ export default function App() {
     return <FullScreenLoading text="CARREGANDO PERFIL..." />;
 
   return (
-    <FeedbackProvider>
-      <Router>
-
+    <Router>
+      <FeedbackProvider>
         <RecoveryWatcher onChange={setInRecovery} />
         <ScrollToTopOnRouteChange />
 
         <Routes>
-
           <Route
             path="/"
             element={
@@ -467,10 +419,8 @@ export default function App() {
               )
             }
           />
-
         </Routes>
-
-      </Router>
-    </FeedbackProvider>
+      </FeedbackProvider>
+    </Router>
   );
 }
