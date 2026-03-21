@@ -282,6 +282,9 @@ export default function Dashboard({ user, onLogout }) {
   const [parceiroEmail, setParceiroEmail] = useState('');
   const [parceiroSaving, setParceiroSaving] = useState(false);
 
+  const [notifAgendamentos, setNotifAgendamentos] = useState(0);
+  const [notifCancelados, setNotifCancelados]     = useState(0);
+
   useEffect(() => { setNovoEmail(user?.email || ''); }, [user?.email]);
 
   const businessGroup = useMemo(
@@ -320,7 +323,22 @@ export default function Dashboard({ user, onLogout }) {
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'agendamentos', filter: `negocio_id=eq.${negocio.id}` },
-        () => {
+        (payload) => {
+          const ev   = payload?.eventType;
+          const novo = payload?.new;
+
+          if (ev === 'INSERT') {
+            setNotifAgendamentos(prev => prev + 1);
+          }
+
+          if (ev === 'UPDATE') {
+            const status = String(novo?.status || '').toLowerCase();
+            const canceladoPorCliente = status.includes('cancelado') && !status.includes('profissional');
+            if (canceladoPorCliente) {
+              setNotifCancelados(prev => prev + 1);
+            }
+          }
+
           reloadAgendamentos();
           loadHoje(negocio.id);
         }
@@ -1139,12 +1157,28 @@ export default function Dashboard({ user, onLogout }) {
 
         <div className="bg-dark-100 border border-gray-800 rounded-custom overflow-hidden">
           <div className="flex overflow-x-auto border-b border-gray-800">
-            {tabs.map(tab => (
-              <button key={tab} onClick={() => setActiveTab(tab)}
-                className={`flex-shrink-0 px-6 py-4 text-sm transition-all uppercase font-normal ${activeTab === tab ? 'bg-primary/20 text-primary border-b-2 border-primary' : 'text-gray-400 hover:text-white'}`}>
-                {TAB_LABELS[tab]}
-              </button>
-            ))}
+            {tabs.map(tab => {
+              const notif =
+                tab === 'agendamentos' ? notifAgendamentos :
+                tab === 'cancelados'   ? notifCancelados   : 0;
+              return (
+                <button
+                  key={tab}
+                  onClick={() => {
+                    setActiveTab(tab);
+                    if (tab === 'agendamentos') setNotifAgendamentos(0);
+                    if (tab === 'cancelados')   setNotifCancelados(0);
+                  }}
+                  className={`relative flex-shrink-0 px-6 py-4 text-sm transition-all uppercase font-normal ${activeTab === tab ? 'bg-primary/20 text-primary border-b-2 border-primary' : 'text-gray-400 hover:text-white'}`}>
+                  {TAB_LABELS[tab]}
+                  {notif > 0 && (
+                    <span className="absolute top-2 right-2 min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-black text-[10px] font-bold flex items-center justify-center leading-none">
+                      {notif > 99 ? '99+' : notif}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
 
           <div className="p-6">
