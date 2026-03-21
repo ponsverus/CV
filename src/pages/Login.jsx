@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, Award, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../supabase';
@@ -34,7 +34,7 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
 
   const [resetLoading, setResetLoading] = useState(false);
 
-  const { showMessage } = useFeedback();
+  const { showMessage } = useFeedback?.() || {};
 
   useEffect(() => {
     if (inRecoveryProp) {
@@ -75,12 +75,7 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
       const authUser = authData?.user;
       if (!authUser?.id) throw new Error('Falha ao autenticar.');
 
-      let dbType = await fetchProfileType(authUser.id);
-
-      if (!dbType) {
-        await new Promise((r) => setTimeout(r, 250));
-        dbType = await fetchProfileType(authUser.id);
-      }
+      const dbType = await fetchProfileType(authUser.id);
 
       if (!dbType) {
         await supabase.auth.signOut();
@@ -102,7 +97,7 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
       onLogin(authUser, dbType);
       navigate(dbType === 'professional' ? '/dashboard' : '/minha-area');
     } catch (err) {
-      showMessage('login.auth_error');
+      showMessage?.('login.auth_error');
       console.error('Login error:', err);
     } finally {
       setLoading(false);
@@ -117,7 +112,7 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
     try {
       const email = String(formData.email || '').trim();
       if (!email) {
-        showMessage('login.reset_email_required');
+        showMessage?.('login.reset_email_required');
         return;
       }
 
@@ -127,9 +122,9 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
 
       if (resetErr) throw resetErr;
 
-      showMessage('login.reset_sent');
+      showMessage?.('login.reset_sent');
     } catch (e) {
-      showMessage('login.reset_error');
+      showMessage?.('login.reset_error');
     } finally {
       setResetLoading(false);
     }
@@ -143,32 +138,33 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
 
     try {
       if (newPassword.length < 6) {
-        showMessage('login.recovery_password_too_short');
+        showMessage?.('login.recovery_password_too_short');
         return;
       }
       if (newPassword !== newPassword2) {
-        showMessage('login.recovery_password_mismatch');
+        showMessage?.('login.recovery_password_mismatch');
         return;
       }
 
       const { error: upErr } = await supabase.auth.updateUser({ password: newPassword });
       if (upErr) throw upErr;
 
-      showMessage('login.recovery_password_updated');
+      showMessage?.('login.recovery_password_updated');
 
       await supabase.auth.signOut();
-      window.location.href = '/login';
+      navigate('/login');
     } catch (e2) {
-      showMessage('login.recovery_password_update_error');
+      showMessage?.('login.recovery_password_update_error');
     } finally {
       setRecoveryLoading(false);
     }
   };
 
-  const title = useMemo(() => {
-    if (isRecovery) return 'Definir nova senha';
-    return step === 1 ? 'Bem-vindo de volta' : `Entrar como ${userType === 'client' ? 'Cliente' : 'Profissional'}`;
-  }, [isRecovery, step, userType]);
+  const title = isRecovery
+    ? 'Definir nova senha'
+    : step === 1
+      ? 'Bem-vindo de volta'
+      : `Entrar como ${userType === 'client' ? 'Cliente' : 'Profissional'}`;
 
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center p-4 relative overflow-hidden">
@@ -246,10 +242,7 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
               {step === 1 ? (
                 <div className="grid grid-cols-2 gap-5">
                   <button
-                    onClick={() => {
-                      setUserType('client');
-                      setStep(2);
-                    }}
+                    onClick={() => { setUserType('client'); setStep(2); }}
                     className="group relative bg-dark-100/40 border border-gray-800/50 rounded-custom p-8 hover:border-blue-500/50 hover:bg-dark-100/60 transition-all overflow-hidden backdrop-blur-sm"
                   >
                     <div className="absolute inset-0 bg-blue-500/0 group-hover:bg-blue-500/5 transition-all"></div>
@@ -261,10 +254,7 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
                   </button>
 
                   <button
-                    onClick={() => {
-                      setUserType('professional');
-                      setStep(2);
-                    }}
+                    onClick={() => { setUserType('professional'); setStep(2); }}
                     className="group relative bg-dark-100/40 border border-gray-800/50 rounded-custom p-8 hover:border-primary/50 hover:bg-dark-100/60 transition-all overflow-hidden backdrop-blur-sm"
                   >
                     <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/5 transition-all"></div>
