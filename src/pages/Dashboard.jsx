@@ -40,7 +40,7 @@ function timeToMinutes(t) {
   return (h * 60) + (m || 0);
 }
 
-const getAgDate  = (a) => String(a?.data ?? '');
+const getAgDate   = (a) => String(a?.data ?? '');
 const getAgInicio = (a) => String(a?.horario_inicio ?? '').slice(0, 5);
 
 const normalizeStatus = (s) =>
@@ -146,14 +146,14 @@ export default function Dashboard({ user, onLogout }) {
   // ------------------------------
 
   const [activeTab, setActiveTab] = useState('agendamentos');
-  const [negocio, setNegocio]           = useState(null);
+  const [negocio, setNegocio]             = useState(null);
   const [profissionais, setProfissionais] = useState([]);
-  const [entregas, setEntregas]         = useState([]);
-  const [agendamentos, setAgendamentos] = useState([]);
-  const [loading, setLoading]           = useState(true);
-  const [error, setError]               = useState(null);
-  const [serverNow, setServerNow]       = useState(() => ({ ts: null, dow: 0, date: '', source: 'db', minutes: 0 }));
-  const [hoje, setHoje]                 = useState(() => '');
+  const [entregas, setEntregas]           = useState([]);
+  const [agendamentos, setAgendamentos]   = useState([]);
+  const [loading, setLoading]             = useState(true);
+  const [error, setError]                 = useState(null);
+  const [serverNow, setServerNow]         = useState(() => ({ ts: null, dow: 0, date: '', source: 'db', minutes: 0 }));
+  const [hoje, setHoje]                   = useState(() => '');
 
   const agProfIds = useMemo(() => profissionais.map(p => p.id), [profissionais]);
 
@@ -168,30 +168,30 @@ export default function Dashboard({ user, onLogout }) {
   const [metricsHoje, setMetricsHoje]               = useState(null);
   const [metricsDia, setMetricsDia]                 = useState(null);
   const [metricsPeriodoData, setMetricsPeriodoData] = useState(null);
-  const [metricsHojeLoading, setMetricsHojeLoading]     = useState(false);
-  const [metricsDiaLoading, setMetricsDiaLoading]       = useState(false);
+  const [metricsHojeLoading, setMetricsHojeLoading]       = useState(false);
+  const [metricsDiaLoading, setMetricsDiaLoading]         = useState(false);
   const [metricsPeriodoLoading, setMetricsPeriodoLoading] = useState(false);
 
-  const [showNovaEntrega, setShowNovaEntrega]         = useState(false);
+  const [showNovaEntrega, setShowNovaEntrega]           = useState(false);
   const [showNovoProfissional, setShowNovoProfissional] = useState(false);
-  const [submittingEntrega, setSubmittingEntrega]     = useState(false);
-  const [editingEntregaId, setEditingEntregaId]       = useState(null);
-  const [editingProfissional, setEditingProfissional] = useState(null);
-  const [logoUploading, setLogoUploading]             = useState(false);
+  const [submittingEntrega, setSubmittingEntrega]       = useState(false);
+  const [editingEntregaId, setEditingEntregaId]         = useState(null);
+  const [editingProfissional, setEditingProfissional]   = useState(null);
+  const [logoUploading, setLogoUploading]               = useState(false);
 
   const [formEntrega, setFormEntrega] = useState({ nome: '', duracao_minutos: '', preco: '', preco_promocional: '', profissional_id: '' });
   const [formProfissional, setFormProfissional] = useState({ nome: '', profissao: '', anos_experiencia: '', horario_inicio: '08:00', horario_fim: '18:00', almoco_inicio: '', almoco_fim: '', dias_trabalho: [1, 2, 3, 4, 5, 6] });
 
-  const [infoSaving, setInfoSaving]           = useState(false);
+  const [infoSaving, setInfoSaving]             = useState(false);
   const [galleryUploading, setGalleryUploading] = useState(false);
-  const [galeriaItems, setGaleriaItems]       = useState([]);
+  const [galeriaItems, setGaleriaItems]         = useState([]);
   const [formInfo, setFormInfo] = useState({ nome: '', descricao: '', telefone: '', endereco: '', instagram: '', facebook: '', tema: 'dark' });
-  const [temaSaving, setTemaSaving]           = useState(false);
+  const [temaSaving, setTemaSaving]             = useState(false);
 
-  const [novoEmail, setNovoEmail]         = useState(user?.email || '');
-  const [novaSenha, setNovaSenha]         = useState('');
+  const [novoEmail, setNovoEmail]           = useState(user?.email || '');
+  const [novaSenha, setNovaSenha]           = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
-  const [savingDados, setSavingDados]     = useState(false);
+  const [savingDados, setSavingDados]       = useState(false);
 
   const [notifAgendamentos, setNotifAgendamentos] = useState(0);
   const [notifCancelados, setNotifCancelados]     = useState(0);
@@ -213,8 +213,7 @@ export default function Dashboard({ user, onLogout }) {
     if (rpcErr) throw rpcErr;
     const payload = data?.[0] ?? data;
     if (!payload || !payload.date) throw new Error('now_sp vazio');
-    setServerNow(payload);
-    setHoje(String(payload.date));
+    setServerNow(payload); setHoje(String(payload.date));
     return String(payload.date);
   };
 
@@ -262,10 +261,7 @@ export default function Dashboard({ user, onLogout }) {
   const fetchHistoricoPage = useCallback(async ({ negocioId, profIds, date, page, append }) => {
     const from = page * AG_PAGE_SIZE; const to = from + AG_PAGE_SIZE - 1;
     const { data, error: qErr } = await supabase.from('agendamentos')
-      .select(`*, preco_final, data, horario_inicio, horario_fim,
-        entregas (nome, preco, preco_promocional),
-        profissionais (id, nome),
-        cliente:users!agendamentos_cliente_id_fkey (id, nome, avatar_path, type)`)
+      .select(`*, preco_final, data, horario_inicio, horario_fim, entregas (nome, preco, preco_promocional), profissionais (id, nome), cliente:users!agendamentos_cliente_id_fkey (id, nome, avatar_path, type)`)
       .eq('negocio_id', negocioId).in('profissional_id', profIds).eq('data', date)
       .order('horario_inicio', { ascending: true }).order('id', { ascending: true }).range(from, to);
     if (qErr) throw qErr;
@@ -309,10 +305,7 @@ export default function Dashboard({ user, onLogout }) {
   const reloadAgendamentos = useCallback(async (negocioId, profIds, dataHoje) => {
     const id = negocioId || negocio?.id; const ids = profIds || agProfIds; const dh = dataHoje || hoje; if (!id || !ids?.length || !dh) return;
     const { data, error: err } = await supabase.from('agendamentos')
-      .select(`*, preco_final, data, horario_inicio, horario_fim,
-        entregas (nome, preco, preco_promocional),
-        profissionais (id, nome),
-        cliente:users!agendamentos_cliente_id_fkey (id, nome, avatar_path, type)`)
+      .select(`*, preco_final, data, horario_inicio, horario_fim, entregas (nome, preco, preco_promocional), profissionais (id, nome), cliente:users!agendamentos_cliente_id_fkey (id, nome, avatar_path, type)`)
       .eq('negocio_id', id).in('profissional_id', ids).gte('data', dh)
       .order('data', { ascending: true }).order('horario_inicio', { ascending: true }).order('id', { ascending: true });
     if (err) return;
@@ -360,10 +353,7 @@ export default function Dashboard({ user, onLogout }) {
         supabase.from('entregas').select('*, profissionais (id, nome)').eq('negocio_id', negocioData.id).in('profissional_id', ids).order('created_at', { ascending: false }),
         dataHoje
           ? supabase.from('agendamentos')
-              .select(`*, preco_final, data, horario_inicio, horario_fim,
-                entregas (nome, preco, preco_promocional),
-                profissionais (id, nome),
-                cliente:users!agendamentos_cliente_id_fkey (id, nome, avatar_path, type)`)
+              .select(`*, preco_final, data, horario_inicio, horario_fim, entregas (nome, preco, preco_promocional), profissionais (id, nome), cliente:users!agendamentos_cliente_id_fkey (id, nome, avatar_path, type)`)
               .eq('negocio_id', negocioData.id).in('profissional_id', ids).gte('data', dataHoje)
               .order('data', { ascending: true }).order('horario_inicio', { ascending: true }).order('id', { ascending: true })
           : Promise.resolve({ data: [], error: null })
@@ -561,15 +551,22 @@ export default function Dashboard({ user, onLogout }) {
     }
   };
 
-  const toggleAtivoProfissional = async (p) => {
+  // Inativar/ativar agora usa somente status
+  const toggleStatusProfissional = async (p) => {
     if (!await checarPermissao(p.id)) return;
     try {
-      if (p.ativo === undefined) { await uiAlert('dashboard.professional_missing_active_column', 'error'); return; }
-      const novoAtivo = !p.ativo; let motivo = null;
-      if (!novoAtivo) { const r = await uiPrompt('dashboard.professional_inactivate_reason', { variant: 'warning' }); if (r === null) return; motivo = r || null; }
-      const { error: upErr } = await supabase.from('profissionais').update({ ativo: novoAtivo, motivo_inativo: novoAtivo ? null : motivo }).eq('id', p.id).eq('negocio_id', negocio.id);
+      const novoStatus = p.status === 'ativo' ? 'inativo' : 'ativo';
+      let motivo = null;
+      if (novoStatus === 'inativo') {
+        const r = await uiPrompt('dashboard.professional_inactivate_reason', { variant: 'warning' });
+        if (r === null) return;
+        motivo = r || null;
+      }
+      const { error: upErr } = await supabase.from('profissionais')
+        .update({ status: novoStatus, motivo_inativo: novoStatus === 'ativo' ? null : motivo })
+        .eq('id', p.id).eq('negocio_id', negocio.id);
       if (upErr) throw upErr;
-      await uiAlert(novoAtivo ? 'dashboard.professional_activated' : 'dashboard.professional_inactivated', 'success');
+      await uiAlert(novoStatus === 'ativo' ? 'dashboard.professional_activated' : 'dashboard.professional_inactivated', 'success');
       await reloadProfissionais();
     } catch (e) { await uiAlert('dashboard.professional_toggle_error', 'error'); }
   };
@@ -589,7 +586,7 @@ export default function Dashboard({ user, onLogout }) {
   const aprovarParceiro = async (prof) => {
     if (parceiroProfissional) return uiAlert('dashboard.parceiro_acao_proibida', 'warning');
     try {
-      const { error } = await supabase.from('profissionais').update({ status: 'ativo', ativo: true }).eq('id', prof.id).eq('negocio_id', negocio.id);
+      const { error } = await supabase.from('profissionais').update({ status: 'ativo' }).eq('id', prof.id).eq('negocio_id', negocio.id);
       if (error) throw error;
       await uiAlert('dashboard.professional_approved', 'success'); await reloadProfissionais();
     } catch (e) { await uiAlert('dashboard.partner_approve_error', 'error'); }
@@ -601,8 +598,7 @@ export default function Dashboard({ user, onLogout }) {
       const { error: updErr } = await supabase.from('agendamentos').update({ status: 'concluido' }).eq('id', a.id).eq('negocio_id', negocio.id);
       if (updErr) throw updErr;
       await uiAlert('dashboard.booking_confirmed', 'success');
-      await reloadAgendamentos();
-      loadHoje(negocio.id);
+      await reloadAgendamentos(); loadHoje(negocio.id);
     } catch (e2) { await uiAlert('dashboard.booking_confirm_error', 'error'); }
   };
 
@@ -613,8 +609,7 @@ export default function Dashboard({ user, onLogout }) {
       const { error } = await supabase.rpc('cancelar_agendamento_profissional', { p_agendamento_id: a.id });
       if (error) throw error;
       await uiAlert('dashboard.booking_canceled', 'error');
-      await reloadAgendamentos();
-      loadHoje(negocio.id);
+      await reloadAgendamentos(); loadHoje(negocio.id);
     } catch (e) { await uiAlert('dashboard.booking_cancel_error', 'error'); }
   };
 
@@ -633,9 +628,9 @@ export default function Dashboard({ user, onLogout }) {
     catch (e) { await uiAlert('dashboard.account_password_update_error', 'error'); } finally { setSavingDados(false); }
   };
 
-  const agendamentosHoje  = useMemo(() => agendamentos.filter(a => sameDay(getAgDate(a), hoje)), [agendamentos, hoje]);
-  const hojeValidos       = useMemo(() => agendamentosHoje.filter(a => !isCancelStatus(a.status)), [agendamentosHoje]);
-  const hojeCancelados    = useMemo(() => agendamentosHoje.filter(a => isCancelStatus(a.status)), [agendamentosHoje]);
+  const agendamentosHoje = useMemo(() => agendamentos.filter(a => sameDay(getAgDate(a), hoje)), [agendamentos, hoje]);
+  const hojeValidos      = useMemo(() => agendamentosHoje.filter(a => !isCancelStatus(a.status)), [agendamentosHoje]);
+  const hojeCancelados   = useMemo(() => agendamentosHoje.filter(a => isCancelStatus(a.status)), [agendamentosHoje]);
 
   const proximoAgendamento = useMemo(() => {
     const nowMin = Number(serverNow?.minutes || 0);
@@ -655,7 +650,7 @@ export default function Dashboard({ user, onLogout }) {
     const map = new Map(); for (const p of profissionais) map.set(p.id, []); for (const s of entregas) { if (!map.has(s.profissional_id)) map.set(s.profissional_id, []); map.get(s.profissional_id).push(s); } return map;
   }, [profissionais, entregas]);
 
-  const faturamentoPorProfissionalHoje = useMemo(() => { const arr = metricsHoje?.today?.por_profissional || []; if (!Array.isArray(arr)) return []; return arr.map(x => { if (!x) return null; const nome = String(x.nome ?? '').trim(); const valor = Number(x.faturamento ?? x.valor ?? 0); if (!nome) return null; return [nome, Number.isFinite(valor) ? valor : 0]; }).filter(Boolean).sort((a, b) => Number(b[1]) - Number(a[1])); }, [metricsHoje]);
+  const faturamentoPorProfissionalHoje   = useMemo(() => { const arr = metricsHoje?.today?.por_profissional || []; if (!Array.isArray(arr)) return []; return arr.map(x => { if (!x) return null; const nome = String(x.nome ?? '').trim(); const valor = Number(x.faturamento ?? x.valor ?? 0); if (!nome) return null; return [nome, Number.isFinite(valor) ? valor : 0]; }).filter(Boolean).sort((a, b) => Number(b[1]) - Number(a[1])); }, [metricsHoje]);
   const faturamentoPorProfissionalFiltro = useMemo(() => { const arr = metricsDia?.selected_day?.por_profissional || []; if (!Array.isArray(arr)) return []; return arr.map(x => { if (!x) return null; const nome = String(x.nome ?? '').trim(); const valor = Number(x.faturamento ?? x.valor ?? 0); if (!nome) return null; return [nome, Number.isFinite(valor) ? valor : 0]; }).filter(Boolean).sort((a, b) => Number(b[1]) - Number(a[1])); }, [metricsDia]);
 
   const tabs = parceiroProfissional
@@ -728,13 +723,8 @@ export default function Dashboard({ user, onLogout }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 items-start">
           <div className="bg-gradient-to-br from-green-500/20 to-emerald-600/20 border border-green-500/30 rounded-custom p-6">
-            <div className="mb-2 flex items-center gap-2">
-              <span style={{ fontFamily: 'Roboto Condensed, sans-serif' }} className="text-green-400 font-normal text-3xl leading-none">$</span>
-              <span className="text-sm text-gray-500">FATURAMENTO HOJE</span>
-            </div>
-            <div className="text-3xl font-normal text-white mb-1">
-              {metricsHojeLoading ? <span className="text-gray-500 text-xl">...</span> : <>R$ {Number(metricsHoje?.today?.faturamento || 0).toFixed(2)}</>}
-            </div>
+            <div className="mb-2 flex items-center gap-2"><span style={{ fontFamily: 'Roboto Condensed, sans-serif' }} className="text-green-400 font-normal text-3xl leading-none">$</span><span className="text-sm text-gray-500">FATURAMENTO HOJE</span></div>
+            <div className="text-3xl font-normal text-white mb-1">{metricsHojeLoading ? <span className="text-gray-500 text-xl">...</span> : <>R$ {Number(metricsHoje?.today?.faturamento || 0).toFixed(2)}</>}</div>
           </div>
           <div className="bg-dark-100 border border-gray-800 rounded-custom p-6"><Calendar className="w-8 h-8 text-blue-400 mb-2" /><div className="text-3xl font-normal text-white mb-1">{hojeValidos.length}</div><div className="text-sm text-gray-400">AGENDAMENTOS HOJE</div></div>
           <div className="bg-dark-100 border border-gray-800 rounded-custom p-6"><Users className="w-8 h-8 text-purple-400 mb-2" /><div className="text-3xl font-normal text-white mb-1">{profissionais.length}</div><div className="text-sm text-gray-400">PROFISSIONAIS</div></div>
@@ -791,16 +781,9 @@ export default function Dashboard({ user, onLogout }) {
                   <div className="bg-dark-200 border border-gray-800 rounded-custom p-5"><div className="text-xs text-gray-500 mb-2">CONCLUÍDOS HOJE</div><div className="text-3xl font-normal text-white">{Number(metricsHoje?.today?.concluidos || 0)}</div><div className="text-xs text-gray-300 mt-1">TICKET MÉDIO: <span className="text-primary">R$ {Number(metricsHoje?.today?.ticket_medio || 0).toFixed(2)}</span></div></div>
                   <div className="bg-dark-200 border border-gray-800 rounded-custom p-5"><div className="text-xs text-gray-500 mb-2">PRÓXIMO AGENDAMENTO</div>{proximoAgendamento ? (<><div className="text-3xl font-normal text-primary">{getAgInicio(proximoAgendamento)}</div><div className="text-sm text-gray-300 mt-1">{proximoAgendamento.cliente?.nome || '—'} • {proximoAgendamento.profissionais?.nome}</div><div className="text-xs text-gray-500 mt-1">{proximoAgendamento.entregas?.nome}</div></>) : <div className="text-sm text-gray-500">:(</div>}</div>
                 </div>
-                {faturamentoPorProfissionalHoje.length > 0 && (
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 items-start">
-                    {faturamentoPorProfissionalHoje.map(([nome, valor]) => (<div key={String(nome)} className="bg-dark-200 border border-gray-800 rounded-custom p-5"><div className="text-xs text-gray-500 mb-1">PROFISSIONAL</div><div className="font-normal text-white">{String(nome || '—')}</div><div className="text-primary font-normal mt-1">R$ {Number(valor || 0).toFixed(2)}</div></div>))}
-                  </div>
-                )}
+                {faturamentoPorProfissionalHoje.length > 0 && (<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 items-start">{faturamentoPorProfissionalHoje.map(([nome, valor]) => (<div key={String(nome)} className="bg-dark-200 border border-gray-800 rounded-custom p-5"><div className="text-xs text-gray-500 mb-1">PROFISSIONAL</div><div className="font-normal text-white">{String(nome || '—')}</div><div className="text-primary font-normal mt-1">R$ {Number(valor || 0).toFixed(2)}</div></div>))}</div>)}
                 <div className="bg-dark-200 border border-gray-800 rounded-custom p-5">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-                    <h3 className="text-lg font-normal flex items-center gap-2 uppercase"><span style={{ fontFamily: 'Roboto Condensed, sans-serif' }} className="font-normal text-2xl">$</span>FATURAMENTO</h3>
-                    <DatePicker value={faturamentoData} onChange={(iso) => setFaturamentoData(iso)} todayISO={hoje} />
-                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4"><h3 className="text-lg font-normal flex items-center gap-2 uppercase"><span style={{ fontFamily: 'Roboto Condensed, sans-serif' }} className="font-normal text-2xl">$</span>FATURAMENTO</h3><DatePicker value={faturamentoData} onChange={(iso) => setFaturamentoData(iso)} todayISO={hoje} /></div>
                   <div className="text-3xl font-normal text-white mb-2">{metricsDiaLoading ? <span className="text-gray-500 text-xl">...</span> : <>R$ {Number(metricsDia?.selected_day?.faturamento || 0).toFixed(2)}</>}</div>
                   <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4 items-start">
                     <div className="bg-dark-100 border border-gray-800 rounded-custom p-4"><div className="text-xs text-gray-500 mb-1">CONCLUÍDOS</div><div className="text-xl font-normal text-green-400">{Number(metricsDia?.selected_day?.concluidos || 0)}</div></div>
@@ -808,11 +791,7 @@ export default function Dashboard({ user, onLogout }) {
                     <div className="bg-dark-100 border border-gray-800 rounded-custom p-4"><div className="text-xs text-gray-500 mb-1">FECHAMENTO</div><div className="text-xl font-normal text-white">{Number(metricsDia?.selected_day?.taxa_conversao || 0).toFixed(1)}%</div><div className="text-xs text-gray-500 mt-1">sobre {Number(metricsDia?.selected_day?.total || 0)} agendamento(s)</div></div>
                     <div className="bg-dark-100 border border-gray-800 rounded-custom p-4"><div className="text-xs text-gray-500 mb-1">TICKET MÉDIO</div><div className="text-xl font-normal text-primary">R$ {Number(metricsDia?.selected_day?.ticket_medio || 0).toFixed(2)}</div></div>
                   </div>
-                  {faturamentoPorProfissionalFiltro.length > 0 && (
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4 items-start">
-                      {faturamentoPorProfissionalFiltro.map(([nome, valor]) => (<div key={String(nome)} className="bg-dark-100 border border-gray-800 rounded-custom p-4"><div className="text-xs text-gray-500 mb-1">PROFISSIONAL</div><div className="font-normal text-white">{String(nome || '—')}</div><div className="text-primary font-normal mt-1">R$ {Number(valor || 0).toFixed(2)}</div></div>))}
-                    </div>
-                  )}
+                  {faturamentoPorProfissionalFiltro.length > 0 && (<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4 items-start">{faturamentoPorProfissionalFiltro.map(([nome, valor]) => (<div key={String(nome)} className="bg-dark-100 border border-gray-800 rounded-custom p-4"><div className="text-xs text-gray-500 mb-1">PROFISSIONAL</div><div className="font-normal text-white">{String(nome || '—')}</div><div className="text-primary font-normal mt-1">R$ {Number(valor || 0).toFixed(2)}</div></div>))}</div>)}
                   <div className="mt-2 bg-dark-100 border border-gray-800 rounded-custom p-4">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3"><div className="text-xs text-gray-500 uppercase tracking-wide">FATURAMENTO POR PERÍODO</div><PeriodoSelect value={faturamentoPeriodo} onChange={setFaturamentoPeriodo} /></div>
                     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 items-start">
@@ -866,23 +845,11 @@ export default function Dashboard({ user, onLogout }) {
                                 {!isDone && !isCancel && (
                                   isHoje ? (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                      <button
-                                        onClick={() => confirmarAtendimento(a)}
-                                        className="w-full py-2 bg-green-500/20 hover:bg-green-500/30 border border-green-500/50 text-green-400 rounded-button text-sm font-normal uppercase">
-                                        CONFIRMAR ATENDIMENTO
-                                      </button>
-                                      <button
-                                        onClick={() => cancelarAgendamento(a)}
-                                        className="w-full py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 text-red-300 rounded-button text-sm font-normal uppercase">
-                                        CANCELAR
-                                      </button>
+                                      <button onClick={() => confirmarAtendimento(a)} className="w-full py-2 bg-green-500/20 hover:bg-green-500/30 border border-green-500/50 text-green-400 rounded-button text-sm font-normal uppercase">CONFIRMAR ATENDIMENTO</button>
+                                      <button onClick={() => cancelarAgendamento(a)} className="w-full py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 text-red-300 rounded-button text-sm font-normal uppercase">CANCELAR</button>
                                     </div>
                                   ) : (
-                                    <button
-                                      onClick={() => cancelarAgendamento(a)}
-                                      className="w-full py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 text-red-300 rounded-button text-sm font-normal uppercase">
-                                      CANCELAR
-                                    </button>
+                                    <button onClick={() => cancelarAgendamento(a)} className="w-full py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 text-red-300 rounded-button text-sm font-normal uppercase">CANCELAR</button>
                                   )
                                 )}
                               </div>
@@ -964,49 +931,33 @@ export default function Dashboard({ user, onLogout }) {
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-normal">{sectionTitle}</h2>
                   <button
-                    onClick={() => {
-                      const profId = parceiroProfissional ? parceiroProfissional.id : '';
-                      setShowNovaEntrega(true); setEditingEntregaId(null);
-                      setFormEntrega({ nome: '', duracao_minutos: '', preco: '', preco_promocional: '', profissional_id: profId });
-                    }}
+                    onClick={() => { const profId = parceiroProfissional ? parceiroProfissional.id : ''; setShowNovaEntrega(true); setEditingEntregaId(null); setFormEntrega({ nome: '', duracao_minutos: '', preco: '', preco_promocional: '', profissional_id: profId }); }}
                     className="flex items-center gap-2 px-5 py-2.5 rounded-button font-normal uppercase border bg-gradient-to-r from-primary to-yellow-600 text-black border-transparent">
                     <Plus className="w-5 h-5" />{btnAddLabel}
                   </button>
                 </div>
-                {profissionais.length === 0 ? (
-                  <div className="text-gray-500">Nenhum profissional cadastrado.</div>
-                ) : (
+                {profissionais.length === 0 ? <div className="text-gray-500">Nenhum profissional cadastrado.</div> : (
                   <div className="space-y-4">
                     {profissionais.map(p => {
                       const lista = (entregasPorProf.get(p.id) || []).slice().sort((a, b) => Number(b.preco || 0) - Number(a.preco || 0));
                       return (
                         <div key={p.id} className="bg-dark-200 border border-gray-800 rounded-custom p-6">
-                          <div className="flex items-center justify-between mb-4">
-                            <div className="font-normal text-lg">{p.nome}</div>
-                            <div className="text-xs text-gray-500">{lista.length} {lista.length === 1 ? counterSingular : counterPlural}</div>
-                          </div>
+                          <div className="flex items-center justify-between mb-4"><div className="font-normal text-lg">{p.nome}</div><div className="text-xs text-gray-500">{lista.length} {lista.length === 1 ? counterSingular : counterPlural}</div></div>
                           {lista.length ? (
                             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
                               {lista.map(s => {
-                                const preco = Number(s.preco ?? 0);
-                                const promo = s.preco_promocional == null ? null : Number(s.preco_promocional);
+                                const preco = Number(s.preco ?? 0); const promo = s.preco_promocional == null ? null : Number(s.preco_promocional);
                                 return (
                                   <div key={s.id} className="bg-dark-100 border border-gray-800 rounded-custom p-5">
                                     <div className="flex justify-between items-start mb-3">
-                                      {promo != null && promo > 0 && promo < preco
-                                        ? (<div><div className="text-xl font-normal text-green-400">R$ {promo.toFixed(2)}</div><div className="text-xs font-normal text-red-400 line-through">R$ {preco.toFixed(2)}</div></div>)
-                                        : (<div className="text-xl font-normal text-primary">R$ {preco.toFixed(2)}</div>)}
+                                      {promo != null && promo > 0 && promo < preco ? (<div><div className="text-xl font-normal text-green-400">R$ {promo.toFixed(2)}</div><div className="text-xs font-normal text-red-400 line-through">R$ {preco.toFixed(2)}</div></div>) : (<div className="text-xl font-normal text-primary">R$ {preco.toFixed(2)}</div>)}
                                       <span className="text-xs text-gray-500">{s.duracao_minutos} MIN</span>
                                     </div>
                                     <h3 className="text-sm font-normal text-white mb-0.5">{s.nome}</h3>
                                     <p className="text-xs text-gray-500 mb-4">{p.nome}</p>
                                     <div className="flex gap-2">
-                                      <button
-                                        onClick={() => { setEditingEntregaId(s.id); setFormEntrega({ nome: s.nome || '', duracao_minutos: String(s.duracao_minutos ?? ''), preco: String(s.preco ?? ''), preco_promocional: String(s.preco_promocional ?? ''), profissional_id: s.profissional_id || '' }); setShowNovaEntrega(true); }}
-                                        className="flex-1 py-2 bg-blue-500/20 border border-blue-500/50 text-blue-400 rounded-button text-sm font-normal uppercase">EDITAR</button>
-                                      <button
-                                        onClick={() => deleteEntrega(s)}
-                                        className="flex-1 py-2 bg-red-500/20 border border-red-500/50 text-red-400 rounded-button text-sm font-normal uppercase">EXCLUIR</button>
+                                      <button onClick={() => { setEditingEntregaId(s.id); setFormEntrega({ nome: s.nome || '', duracao_minutos: String(s.duracao_minutos ?? ''), preco: String(s.preco ?? ''), preco_promocional: String(s.preco_promocional ?? ''), profissional_id: s.profissional_id || '' }); setShowNovaEntrega(true); }} className="flex-1 py-2 bg-blue-500/20 border border-blue-500/50 text-blue-400 rounded-button text-sm font-normal uppercase">EDITAR</button>
+                                      <button onClick={() => deleteEntrega(s)} className="flex-1 py-2 bg-red-500/20 border border-red-500/50 text-red-400 rounded-button text-sm font-normal uppercase">EXCLUIR</button>
                                     </div>
                                   </div>
                                 );
@@ -1026,8 +977,7 @@ export default function Dashboard({ user, onLogout }) {
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-normal">Profissionais</h2>
                   {!parceiroProfissional && (
-                    <button
-                      onClick={() => { setShowNovoProfissional(true); setEditingProfissional(null); setFormProfissional({ nome: '', profissao: '', anos_experiencia: '', horario_inicio: '08:00', horario_fim: '18:00', almoco_inicio: '', almoco_fim: '', dias_trabalho: [1, 2, 3, 4, 5, 6] }); }}
+                    <button onClick={() => { setShowNovoProfissional(true); setEditingProfissional(null); setFormProfissional({ nome: '', profissao: '', anos_experiencia: '', horario_inicio: '08:00', horario_fim: '18:00', almoco_inicio: '', almoco_fim: '', dias_trabalho: [1, 2, 3, 4, 5, 6] }); }}
                       className="flex items-center gap-2 px-5 py-2.5 rounded-button font-normal uppercase border bg-gradient-to-r from-primary to-yellow-600 text-black border-transparent">
                       <Plus className="w-5 h-5" />ADICIONAR
                     </button>
@@ -1035,10 +985,9 @@ export default function Dashboard({ user, onLogout }) {
                 </div>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
                   {profissionais.map(p => {
-                    const profStatus = p.status || (p.ativo ? 'ativo' : 'inativo');
-                    const isPendente = profStatus === 'pendente';
-                    const isInativo  = profStatus === 'inativo';
-                    const isAtivo    = profStatus === 'ativo';
+                    const isPendente = p.status === 'pendente';
+                    const isInativo  = p.status === 'inativo';
+                    const isAtivo    = p.status === 'ativo';
                     const label      = normalizeKey(p.status_label);
                     const dotClass   = STATUS_COLOR_CLASS[label] || 'bg-gray-500';
                     const isEuMesmo  = parceiroProfissional?.id === p.id;
@@ -1078,14 +1027,13 @@ export default function Dashboard({ user, onLogout }) {
                             {isInativo && p.motivo_inativo && (<div className="text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-custom p-2 mb-3">INATIVO {p.motivo_inativo ? `• ${p.motivo_inativo}` : ''}</div>)}
                             {!parceiroProfissional && (
                               <div className="flex gap-2 mb-3">
-                                <button onClick={() => toggleAtivoProfissional(p)} className={`flex-1 py-2 rounded-button text-sm border font-normal uppercase ${isAtivo ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-300' : 'bg-green-500/10 border-green-500/30 text-green-300'}`}>
+                                <button onClick={() => toggleStatusProfissional(p)} className={`flex-1 py-2 rounded-button text-sm border font-normal uppercase ${isAtivo ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-300' : 'bg-green-500/10 border-green-500/30 text-green-300'}`}>
                                   {isAtivo ? 'INATIVAR' : 'ATIVAR'}
                                 </button>
                                 <button onClick={() => excluirProfissional(p)} className="flex-1 py-2 bg-red-500/10 border border-red-500/30 text-red-300 rounded-button text-sm font-normal uppercase">EXCLUIR</button>
                               </div>
                             )}
-                            <button
-                              onClick={() => { setEditingProfissional(p); setFormProfissional({ nome: p.nome || '', profissao: p.profissao || '', anos_experiencia: String(p.anos_experiencia ?? ''), horario_inicio: p.horario_inicio || '08:00', horario_fim: p.horario_fim || '18:00', almoco_inicio: p.almoco_inicio || '', almoco_fim: p.almoco_fim || '', dias_trabalho: Array.isArray(p.dias_trabalho) && p.dias_trabalho.length ? p.dias_trabalho : [1, 2, 3, 4, 5, 6] }); setShowNovoProfissional(true); }}
+                            <button onClick={() => { setEditingProfissional(p); setFormProfissional({ nome: p.nome || '', profissao: p.profissao || '', anos_experiencia: String(p.anos_experiencia ?? ''), horario_inicio: p.horario_inicio || '08:00', horario_fim: p.horario_fim || '18:00', almoco_inicio: p.almoco_inicio || '', almoco_fim: p.almoco_fim || '', dias_trabalho: Array.isArray(p.dias_trabalho) && p.dias_trabalho.length ? p.dias_trabalho : [1, 2, 3, 4, 5, 6] }); setShowNovoProfissional(true); }}
                               className="w-full py-2 bg-blue-500/20 border border-blue-500/50 text-blue-400 rounded-button text-sm font-normal uppercase">EDITAR</button>
                           </>
                         )}
