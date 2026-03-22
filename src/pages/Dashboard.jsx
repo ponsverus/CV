@@ -134,7 +134,6 @@ export default function Dashboard({ user, onLogout }) {
   const uiConfirm = async (key, variant = 'warning') => { if (feedback?.confirm) return !!(await feedback.confirm(key, { variant })); return false; };
   const uiPrompt  = async (key, opts = {}) => { if (feedback?.prompt) return await feedback.prompt(key, opts); return null; };
 
-  // ---------- PARCEIRO ----------
   const [parceiroProfissional, setParceiroProfissional] = useState(null);
 
   const checarPermissao = useCallback(async (profissionalId) => {
@@ -143,7 +142,6 @@ export default function Dashboard({ user, onLogout }) {
     await uiAlert('dashboard.parceiro_acao_proibida', 'warning');
     return false;
   }, [parceiroProfissional]);
-  // ------------------------------
 
   const [activeTab, setActiveTab] = useState('agendamentos');
   const [negocio, setNegocio]             = useState(null);
@@ -551,7 +549,6 @@ export default function Dashboard({ user, onLogout }) {
     }
   };
 
-  // Inativar/ativar agora usa somente status
   const toggleStatusProfissional = async (p) => {
     if (!await checarPermissao(p.id)) return;
     try {
