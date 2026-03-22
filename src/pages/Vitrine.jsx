@@ -914,7 +914,7 @@ export default function Vitrine({ user, userType }) {
                 {negocio.endereco && (<div className="flex items-center gap-2 text-vsub text-sm"><MapPin className="w-4 h-4" strokeWidth={1.5} /><span className="font-normal">{negocio.endereco}</span></div>)}
                 {negocio.telefone && (<a href={`tel:${sanitizeTel(negocio.telefone) || negocio.telefone}`} className="flex items-center gap-2 text-primary hover:text-yellow-500 text-sm font-normal transition-colors"><Phone className="w-4 h-4" strokeWidth={1.5} />{negocio.telefone}</a>)}
                 {instagramUrl && (
-  
+                  <a
                     href={instagramUrl}
                     target="_blank"
                     rel="noreferrer"
@@ -925,7 +925,7 @@ export default function Vitrine({ user, userType }) {
                   </a>
                 )}  
                 {facebookUrl && (
-  
+                  <a
                     href={facebookUrl}
                     target="_blank"
                     rel="noreferrer"
