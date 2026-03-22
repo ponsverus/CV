@@ -16,6 +16,7 @@ import ClientArea from './pages/ClientArea';
 import CriarNegocio from './pages/CriarNegocio';
 import SelecionarNegocio from './pages/SelecionarNegocio';
 import ParceiroCadastro from './pages/ParceiroCadastro';
+import ParceiroLogin from './pages/ParceiroLogin';
 
 const PROFILE_TABLE = 'users';
 const isValidType = (t) => t === 'client' || t === 'professional';
@@ -104,15 +105,17 @@ function RecoveryWatcher({ onChange }) {
 }
 
 export default function App() {
-  const [user, setUser] = useState(null);
-  const [userType, setUserType] = useState(null);
-  const [booting, setBooting] = useState(true);
+  const [user,        setUser]        = useState(null);
+  const [userType,    setUserType]    = useState(null);
+  const [booting,     setBooting]     = useState(true);
   const [typeLoading, setTypeLoading] = useState(false);
-  const [fatalError, setFatalError] = useState(null);
-  const [inRecovery, setInRecovery] = useState(false);
+  const [fatalError,  setFatalError]  = useState(null);
+  const [inRecovery,  setInRecovery]  = useState(false);
 
-  const aliveRef = useRef(true);
-  const loadedUserRef = useRef(null);
+  const aliveRef        = useRef(true);
+  const loadedUserRef   = useRef(null);
+
+  const suppressAuthRef = useRef(false);
 
   const isLoggedIn = !!user;
 
@@ -165,6 +168,8 @@ export default function App() {
     const { data: { subscription } } =
       supabase.auth.onAuthStateChange(async (event, session) => {
         if (!aliveRef.current) return;
+
+        if (suppressAuthRef.current) return;
 
         if (event === 'PASSWORD_RECOVERY') {
           safeSet(() => {
@@ -313,7 +318,16 @@ export default function App() {
             element={
               isLoggedIn && userType
                 ? <Navigate to={userType === 'professional' ? '/dashboard' : '/minha-area'} />
-                : <ParceiroCadastro onLogin={handleLogin} />
+                : <ParceiroCadastro suppressAuthRef={suppressAuthRef} />
+            }
+          />
+
+          <Route
+            path="/parceiro/login"
+            element={
+              isLoggedIn && userType
+                ? <Navigate to={userType === 'professional' ? '/dashboard' : '/minha-area'} />
+                : <ParceiroLogin onLogin={handleLogin} suppressAuthRef={suppressAuthRef} />
             }
           />
 
