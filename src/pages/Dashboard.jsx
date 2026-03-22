@@ -531,13 +531,15 @@ export default function Dashboard({ user, onLogout }) {
     }
     try {
       const negocioIdFromState = location?.state?.negocioId || null;
-      let negocioQuery = supabase.from('negocios').select('*').eq('owner_id', user.id);
-      if (negocioIdFromState) {
-        negocioQuery = negocioQuery.eq('id', negocioIdFromState);
-      }
+
+      let negocioQuery = negocioIdFromState
+        ? supabase.from('negocios').select('*').eq('id', negocioIdFromState)
+        : supabase.from('negocios').select('*').eq('owner_id', user.id);
+
       const negocioResult = await negocioQuery.order('created_at', { ascending: true });
       if (negocioResult.error) throw negocioResult.error;
       const negociosList = negocioResult.data || [];
+
       if (negociosList.length === 0) {
         setNegocio(null); setProfissionais([]); setEntregas([]); setAgendamentos([]);
         setError('Nenhum negocio cadastrado.'); setLoading(false); return;
