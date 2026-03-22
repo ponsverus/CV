@@ -15,6 +15,7 @@ import Vitrine from './pages/Vitrine';
 import ClientArea from './pages/ClientArea';
 import CriarNegocio from './pages/CriarNegocio';
 import SelecionarNegocio from './pages/SelecionarNegocio';
+import ParceiroCadastro from './pages/ParceiroCadastro';
 
 const PROFILE_TABLE = 'users';
 const isValidType = (t) => t === 'client' || t === 'professional';
@@ -304,6 +305,15 @@ export default function App() {
               ) : (
                 <Login onLogin={handleLogin} inRecovery={false} />
               )
+            }
+          />
+
+          <Route
+            path="/parceiro"
+            element={
+              isLoggedIn && userType
+                ? <Navigate to={userType === 'professional' ? '/dashboard' : '/minha-area'} />
+                : <ParceiroCadastro onLogin={handleLogin} />
             }
           />
 
