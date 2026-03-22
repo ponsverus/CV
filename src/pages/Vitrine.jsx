@@ -207,37 +207,18 @@ function SelectionBar({ itens, counterSingular, counterPlural, onConfirm, onClea
   const textSub  = isLight ? 'text-gray-500'           : 'text-gray-500';
   const clearBtn = isLight ? 'text-gray-400 hover:text-gray-600' : 'text-gray-600 hover:text-gray-400';
   return (
-    <div
-      className="fixed bottom-0 left-0 right-0 z-[60]"
-      style={{ background: bg, borderTop: `1px solid ${border}` }}
-    >
+    <div className="fixed bottom-0 left-0 right-0 z-[60]" style={{ background: bg, borderTop: `1px solid ${border}` }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3 min-w-0">
-          <div
-            className="w-8 h-8 rounded-full bg-vprimary flex items-center justify-center text-vprimary-text text-xs font-normal shrink-0"
-            style={{ fontVariantNumeric: 'tabular-nums' }}
-          >
-            {qtd}
-          </div>
+          <div className="w-8 h-8 rounded-full bg-vprimary flex items-center justify-center text-vprimary-text text-xs font-normal shrink-0" style={{ fontVariantNumeric: 'tabular-nums' }}>{qtd}</div>
           <div className="min-w-0">
-            <div className={`text-sm font-normal truncate ${textMain}`}>
-              {qtd} {label} selecionado{qtd > 1 ? 's' : ''}
-            </div>
-            <div className={`text-xs font-normal ${textSub}`}>
-              {durTotal} min &nbsp;·&nbsp; R$ {valTotal.toFixed(2)}
-            </div>
+            <div className={`text-sm font-normal truncate ${textMain}`}>{qtd} {label} selecionado{qtd > 1 ? 's' : ''}</div>
+            <div className={`text-xs font-normal ${textSub}`}>{durTotal} min &nbsp;·&nbsp; R$ {valTotal.toFixed(2)}</div>
           </div>
-          <button onClick={onClear} className={`shrink-0 ml-1 ${clearBtn}`} title="Limpar seleção">
-            <X className="w-4 h-4" />
-          </button>
+          <button onClick={onClear} className={`shrink-0 ml-1 ${clearBtn}`} title="Limpar seleção"><X className="w-4 h-4" /></button>
         </div>
-        <button
-          onClick={onConfirm}
-          className="shrink-0 flex items-center gap-2 px-5 py-2.5 bg-vprimary text-vprimary-text rounded-full text-sm font-normal uppercase whitespace-nowrap transition-opacity hover:opacity-80"
-        >
-          <Calendar className="w-4 h-4" />
-          Escolher data
-          <ChevronRight className="w-4 h-4" />
+        <button onClick={onConfirm} className="shrink-0 flex items-center gap-2 px-5 py-2.5 bg-vprimary text-vprimary-text rounded-full text-sm font-normal uppercase whitespace-nowrap transition-opacity hover:opacity-80">
+          <Calendar className="w-4 h-4" />Escolher data<ChevronRight className="w-4 h-4" />
         </button>
       </div>
     </div>
@@ -255,44 +236,26 @@ function ServicoButtons({ servico, profissional, selecaoProfId, servicosSelecion
   if (isProfessional || outroProfSel) {
     selecionarClass = 'bg-vcard2 border-vborder text-vmuted cursor-not-allowed opacity-30';
   } else if (isSelecionado) {
-    selecionarClass = isLight
-      ? 'bg-gray-900/10 border-gray-900 text-gray-900'
-      : 'bg-primary/15 border-primary text-primary';
+    selecionarClass = isLight ? 'bg-gray-900/10 border-gray-900 text-gray-900' : 'bg-primary/15 border-primary text-primary';
   } else if (modoSelecaoOn) {
-    selecionarClass = isLight
-      ? 'bg-white border-gray-300 text-gray-700 hover:border-gray-900 hover:text-gray-900'
-      : 'bg-vcard2 border-vborder text-white hover:border-primary hover:text-primary';
+    selecionarClass = isLight ? 'bg-white border-gray-300 text-gray-700 hover:border-gray-900 hover:text-gray-900' : 'bg-vcard2 border-vborder text-white hover:border-primary hover:text-primary';
   } else {
-    selecionarClass = isLight
-      ? 'bg-white border-gray-300 text-gray-600 hover:border-gray-900 hover:text-gray-900'
-      : 'bg-vcard2 border-vborder text-vsub hover:border-primary hover:text-primary';
+    selecionarClass = isLight ? 'bg-white border-gray-300 text-gray-600 hover:border-gray-900 hover:text-gray-900' : 'bg-vcard2 border-vborder text-vsub hover:border-primary hover:text-primary';
   }
 
   const agendarClass = agendarDesabilitado
     ? 'bg-vcard2 border border-vborder text-vmuted cursor-not-allowed opacity-40'
-    : isLight
-      ? 'bg-gray-900 text-white hover:bg-gray-700'
-      : 'bg-gradient-to-r from-primary to-yellow-600 text-black hover:opacity-90';
+    : isLight ? 'bg-gray-900 text-white hover:bg-gray-700' : 'bg-gradient-to-r from-primary to-yellow-600 text-black hover:opacity-90';
 
   return (
     <div className="flex gap-2 mt-3">
-      <button
-        onClick={() => !agendarDesabilitado && onAgendarAgora(profissional, [servico])}
-        disabled={agendarDesabilitado}
-        className={`flex-1 py-2.5 rounded-button text-sm font-normal uppercase transition-all flex items-center justify-center gap-1.5 ${agendarClass}`}
-      >
-        <Calendar className="w-3.5 h-3.5" />
-        Agendar agora
+      <button onClick={() => !agendarDesabilitado && onAgendarAgora(profissional, [servico])} disabled={agendarDesabilitado}
+        className={`flex-1 py-2.5 rounded-button text-sm font-normal uppercase transition-all flex items-center justify-center gap-1.5 ${agendarClass}`}>
+        <Calendar className="w-3.5 h-3.5" />Agendar agora
       </button>
-      <button
-        onClick={() => !selecionarDesabilitado && onToggleSelecao(profissional, servico)}
-        disabled={selecionarDesabilitado}
-        className={`flex-1 py-2.5 rounded-button text-sm font-normal uppercase transition-all flex items-center justify-center gap-1.5 border ${selecionarClass}`}
-      >
-        {isSelecionado
-          ? <><Check className="w-3.5 h-3.5" /> Selecionado</>
-          : <><ShoppingBag className="w-3.5 h-3.5" /> Selecionar</>
-        }
+      <button onClick={() => !selecionarDesabilitado && onToggleSelecao(profissional, servico)} disabled={selecionarDesabilitado}
+        className={`flex-1 py-2.5 rounded-button text-sm font-normal uppercase transition-all flex items-center justify-center gap-1.5 border ${selecionarClass}`}>
+        {isSelecionado ? <><Check className="w-3.5 h-3.5" />Selecionado</> : <><ShoppingBag className="w-3.5 h-3.5" />Selecionar</>}
       </button>
     </div>
   );
@@ -309,26 +272,13 @@ function ServicoCard({ s, profissional, selecaoProfId, servicosSelecionados, isP
         <>
           <div className="flex items-start justify-between gap-3">
             <div className="font-normal text-sm leading-tight">{s.nome}</div>
-            <span
-              className="inline-block px-1.5 py-0.5 rounded-button text-[9px] font-normal uppercase shrink-0"
-              style={{
-                background: 'var(--voferta-bg)',
-                border: '1px solid var(--voferta-border)',
-                color: 'var(--voferta-text)',
-              }}
-            >OFERTA</span>
+            <span className="inline-block px-1.5 py-0.5 rounded-button text-[9px] font-normal uppercase shrink-0" style={{ background: 'var(--voferta-bg)', border: '1px solid var(--voferta-border)', color: 'var(--voferta-text)' }}>OFERTA</span>
           </div>
           <div className="flex items-center justify-between gap-3 mt-2">
-            <div className="flex items-center gap-1 text-xs text-vmuted font-normal">
-              <Clock className="w-3 h-3 shrink-0" />{s.duracao_minutos} MIN
-            </div>
+            <div className="flex items-center gap-1 text-xs text-vmuted font-normal"><Clock className="w-3 h-3 shrink-0" />{s.duracao_minutos} MIN</div>
             <div className="flex items-center gap-2 shrink-0">
-              <span className="text-xs line-through" style={{ color: 'var(--verror-text)' }}>
-                R$ {preco.toFixed(2)}
-              </span>
-              <span className="font-normal text-base" style={{ color: 'var(--vpromo-text)' }}>
-                R$ {precoFinal.toFixed(2)}
-              </span>
+              <span className="text-xs line-through" style={{ color: 'var(--verror-text)' }}>R$ {preco.toFixed(2)}</span>
+              <span className="font-normal text-base" style={{ color: 'var(--vpromo-text)' }}>R$ {precoFinal.toFixed(2)}</span>
             </div>
           </div>
         </>
@@ -338,21 +288,10 @@ function ServicoCard({ s, profissional, selecaoProfId, servicosSelecionados, isP
             <div className="font-normal text-sm leading-tight">{s.nome}</div>
             <div className="text-vprimary font-normal text-base shrink-0">R$ {precoFinal.toFixed(2)}</div>
           </div>
-          <div className="flex items-center gap-1 mt-2 text-xs text-vmuted font-normal">
-            <Clock className="w-3 h-3 shrink-0" />{s.duracao_minutos} MIN
-          </div>
+          <div className="flex items-center gap-1 mt-2 text-xs text-vmuted font-normal"><Clock className="w-3 h-3 shrink-0" />{s.duracao_minutos} MIN</div>
         </>
       )}
-      <ServicoButtons
-        servico={s}
-        profissional={profissional}
-        selecaoProfId={selecaoProfId}
-        servicosSelecionados={servicosSelecionados}
-        isProfessional={isProfessional}
-        onAgendarAgora={onAgendarAgora}
-        onToggleSelecao={onToggleSelecao}
-        isLight={isLight}
-      />
+      <ServicoButtons servico={s} profissional={profissional} selecaoProfId={selecaoProfId} servicosSelecionados={servicosSelecionados} isProfessional={isProfessional} onAgendarAgora={onAgendarAgora} onToggleSelecao={onToggleSelecao} isLight={isLight} />
     </div>
   );
 }
@@ -365,25 +304,14 @@ function ServicosCarousel({ lista, profissional, selecaoProfId, servicosSelecion
   const touchStartX             = useRef(null);
   const totalPaginas = Math.ceil(lista.length / SERVICOS_POR_PAGINA);
 
-  useEffect(() => {
-    setPagina(0);
-    setExibindo(0);
-    setAnimDir(null);
-    setAnimando(false);
-  }, [profissional.id]);
+  useEffect(() => { setPagina(0); setExibindo(0); setAnimDir(null); setAnimando(false); }, [profissional.id]);
 
   const irPara = (idx) => {
     const alvo = Math.max(0, Math.min(idx, totalPaginas - 1));
     if (alvo === pagina || animando) return;
     const dir = alvo > pagina ? 'left' : 'right';
-    setAnimDir(dir);
-    setAnimando(true);
-    setPagina(alvo);
-    setTimeout(() => {
-      setExibindo(alvo);
-      setAnimDir(null);
-      setAnimando(false);
-    }, 320);
+    setAnimDir(dir); setAnimando(true); setPagina(alvo);
+    setTimeout(() => { setExibindo(alvo); setAnimDir(null); setAnimando(false); }, 320);
   };
 
   const onTouchStart = (e) => { touchStartX.current = e.touches[0].clientX; };
@@ -403,7 +331,6 @@ function ServicosCarousel({ lista, profissional, selecaoProfId, servicosSelecion
   const itensMostrados = animando ? itensAntigos : itensNovos;
   const translateSaindo   = animDir === 'left' ? '-100%' : animDir === 'right' ? '100%' : '0%';
   const translateEntrando = animDir === 'left' ? '100%'  : animDir === 'right' ? '-100%' : '0%';
-
   const dotInactive = isLight ? 'bg-gray-300 hover:bg-gray-400' : 'bg-gray-700 hover:bg-gray-500';
   const navBtnCl    = isLight ? 'hover:bg-gray-100 text-gray-500 hover:text-gray-800' : 'hover:bg-vcard2 text-vsub hover:text-vtext';
 
@@ -412,29 +339,18 @@ function ServicosCarousel({ lista, profissional, selecaoProfId, servicosSelecion
       <div style={{ overflow: 'hidden', position: 'relative' }}>
         {animando && (
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, transform: `translateX(${translateSaindo})`, transition: 'transform 320ms cubic-bezier(0.4, 0, 0.2, 1)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {itensAntigos.map(s => (
-              <ServicoCard key={s.id} s={s} profissional={profissional} selecaoProfId={selecaoProfId} servicosSelecionados={servicosSelecionados} isProfessional={isProfessional} onAgendarAgora={onAgendarAgora} onToggleSelecao={onToggleSelecao} isLight={isLight} />
-            ))}
+            {itensAntigos.map(s => (<ServicoCard key={s.id} s={s} profissional={profissional} selecaoProfId={selecaoProfId} servicosSelecionados={servicosSelecionados} isProfessional={isProfessional} onAgendarAgora={onAgendarAgora} onToggleSelecao={onToggleSelecao} isLight={isLight} />))}
           </div>
         )}
         <div style={{ transform: animando ? `translateX(${translateEntrando})` : 'translateX(0%)', transition: animando ? 'transform 320ms cubic-bezier(0.4, 0, 0.2, 1)' : 'none', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {(animando ? itensNovos : itensMostrados).map(s => (
-            <ServicoCard key={s.id} s={s} profissional={profissional} selecaoProfId={selecaoProfId} servicosSelecionados={servicosSelecionados} isProfessional={isProfessional} onAgendarAgora={onAgendarAgora} onToggleSelecao={onToggleSelecao} isLight={isLight} />
-          ))}
+          {(animando ? itensNovos : itensMostrados).map(s => (<ServicoCard key={s.id} s={s} profissional={profissional} selecaoProfId={selecaoProfId} servicosSelecionados={servicosSelecionados} isProfessional={isProfessional} onAgendarAgora={onAgendarAgora} onToggleSelecao={onToggleSelecao} isLight={isLight} />))}
         </div>
       </div>
-
       {totalPaginas > 1 && (
         <div className="flex items-center justify-center gap-3 mt-4">
-          <button onClick={() => irPara(pagina - 1)} disabled={pagina === 0} className={`p-1.5 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${navBtnCl}`}>
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-          {Array.from({ length: totalPaginas }).map((_, i) => (
-            <button key={i} onClick={() => irPara(i)} className={['rounded-full transition-all duration-300', i === pagina ? 'w-4 h-2 bg-vprimary' : `w-2 h-2 ${dotInactive}`].join(' ')} aria-label={`Página ${i + 1}`} />
-          ))}
-          <button onClick={() => irPara(pagina + 1)} disabled={pagina === totalPaginas - 1} className={`p-1.5 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${navBtnCl}`}>
-            <ChevronRight className="w-4 h-4" />
-          </button>
+          <button onClick={() => irPara(pagina - 1)} disabled={pagina === 0} className={`p-1.5 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${navBtnCl}`}><ChevronLeft className="w-4 h-4" /></button>
+          {Array.from({ length: totalPaginas }).map((_, i) => (<button key={i} onClick={() => irPara(i)} className={['rounded-full transition-all duration-300', i === pagina ? 'w-4 h-2 bg-vprimary' : `w-2 h-2 ${dotInactive}`].join(' ')} aria-label={`Página ${i + 1}`} />))}
+          <button onClick={() => irPara(pagina + 1)} disabled={pagina === totalPaginas - 1} className={`p-1.5 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${navBtnCl}`}><ChevronRight className="w-4 h-4" /></button>
         </div>
       )}
     </div>
@@ -449,9 +365,7 @@ function DepoimentosPaginados({ depoimentos, nomeNegocioLabel, isLight }) {
   const navBtnCl  = isLight ? 'hover:bg-gray-100 text-gray-500 hover:text-gray-800' : 'hover:bg-vcard2 text-vsub hover:text-vtext';
   const dotInact  = isLight ? 'bg-gray-300 hover:bg-gray-400' : 'bg-gray-700 hover:bg-gray-500';
   const comentCl  = isLight ? 'text-gray-600' : 'text-vsub';
-
   if (!depoimentos.length) return <p className="text-vmuted font-normal">Nenhum depoimento ainda</p>;
-
   return (
     <div>
       <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 [column-fill:_balance]">
@@ -482,15 +396,9 @@ function DepoimentosPaginados({ depoimentos, nomeNegocioLabel, isLight }) {
       </div>
       {totalPaginas > 1 && (
         <div className="flex items-center justify-center gap-3 mt-6">
-          <button onClick={() => setPagina(p => Math.max(0, p - 1))} disabled={pagina === 0} className={`p-1.5 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${navBtnCl}`}>
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-          {Array.from({ length: totalPaginas }).map((_, i) => (
-            <button key={i} onClick={() => setPagina(i)} className={['rounded-full transition-all duration-300', i === pagina ? 'w-4 h-2 bg-vprimary' : `w-2 h-2 ${dotInact}`].join(' ')} aria-label={`Página ${i + 1}`} />
-          ))}
-          <button onClick={() => setPagina(p => Math.min(totalPaginas - 1, p + 1))} disabled={pagina === totalPaginas - 1} className={`p-1.5 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${navBtnCl}`}>
-            <ChevronRight className="w-4 h-4" />
-          </button>
+          <button onClick={() => setPagina(p => Math.max(0, p - 1))} disabled={pagina === 0} className={`p-1.5 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${navBtnCl}`}><ChevronLeft className="w-4 h-4" /></button>
+          {Array.from({ length: totalPaginas }).map((_, i) => (<button key={i} onClick={() => setPagina(i)} className={['rounded-full transition-all duration-300', i === pagina ? 'w-4 h-2 bg-vprimary' : `w-2 h-2 ${dotInact}`].join(' ')} aria-label={`Página ${i + 1}`} />))}
+          <button onClick={() => setPagina(p => Math.min(totalPaginas - 1, p + 1))} disabled={pagina === totalPaginas - 1} className={`p-1.5 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${navBtnCl}`}><ChevronRight className="w-4 h-4" /></button>
         </div>
       )}
     </div>
@@ -533,10 +441,7 @@ export default function Vitrine({ user, userType }) {
 
   const alertKey = (key, fallbackTitle, fallbackBody, fallbackBtn = 'OK') => {
     const m = vitrineMsgs?.[key];
-    if (m && typeof m === 'object') {
-      openAlert({ title: m.title || fallbackTitle || getMsg('generic_title', 'Aviso'), body: m.body || fallbackBody || '', buttonText: m.buttonText || fallbackBtn || 'OK' });
-      return;
-    }
+    if (m && typeof m === 'object') { openAlert({ title: m.title || fallbackTitle || getMsg('generic_title', 'Aviso'), body: m.body || fallbackBody || '', buttonText: m.buttonText || fallbackBtn || 'OK' }); return; }
     openAlert({ title: fallbackTitle || getMsg('generic_title', 'Aviso'), body: fallbackBody || '', buttonText: fallbackBtn || 'OK' });
   };
 
@@ -586,10 +491,7 @@ export default function Vitrine({ user, userType }) {
   }, [user?.id, userType, negocio?.id]);
 
   const loadDepoimentos = async (negocioId) => {
-    const { data, error: rpcErr } = await withTimeout(
-      supabase.rpc('get_depoimentos_vitrine', { p_negocio_id: negocioId }),
-      7000, 'depoimentos'
-    );
+    const { data, error: rpcErr } = await withTimeout(supabase.rpc('get_depoimentos_vitrine', { p_negocio_id: negocioId }), 7000, 'depoimentos');
     if (rpcErr) throw rpcErr;
     return (data || []).map(d => ({
       ...d,
@@ -602,19 +504,13 @@ export default function Vitrine({ user, userType }) {
     setLoading(true); setError(null);
     const watchdog = setTimeout(() => { setLoading(false); setError(getMsg('load_timeout', 'Demorou demais para carregar. Tente novamente.')); }, 12000);
     try {
-      const { data: negocioData, error: negocioError } = await withTimeout(
-        supabase.from('negocios').select('*').eq('slug', slug).maybeSingle(),
-        7000, 'negocio'
-      );
+      const { data: negocioData, error: negocioError } = await withTimeout(supabase.from('negocios').select('*').eq('slug', slug).maybeSingle(), 7000, 'negocio');
       if (negocioError) throw negocioError;
-      if (!negocioData) {
-        setNegocio(null); setProfissionais([]); setEntregas([]); setDepoimentos([]); setGaleriaItems([]);
-        return;
-      }
+      if (!negocioData) { setNegocio(null); setProfissionais([]); setEntregas([]); setDepoimentos([]); setGaleriaItems([]); return; }
       setNegocio(negocioData);
 
       const { data: profissionaisData, error: profErr } = await withTimeout(
-        supabase.from('profissionais').select('*').eq('negocio_id', negocioData.id).eq('ativo', true),
+        supabase.from('profissionais').select('*').eq('negocio_id', negocioData.id).eq('status', 'ativo'),
         7000, 'profissionais'
       );
       if (profErr) throw profErr;
@@ -627,11 +523,7 @@ export default function Vitrine({ user, userType }) {
         profissionalIds.length
           ? withTimeout(supabase.from('entregas').select('*').in('profissional_id', profissionalIds).eq('ativo', true), 7000, 'entregas')
           : Promise.resolve({ data: [], error: null }),
-        withTimeout(
-          supabase.from('galerias').select('id, path, ordem').eq('negocio_id', negocioData.id)
-            .order('ordem', { ascending: true }).order('created_at', { ascending: true }),
-          7000, 'galerias'
-        ),
+        withTimeout(supabase.from('galerias').select('id, path, ordem').eq('negocio_id', negocioData.id).order('ordem', { ascending: true }).order('created_at', { ascending: true }), 7000, 'galerias'),
         loadDepoimentos(negocioData.id),
       ]);
 
@@ -653,10 +545,7 @@ export default function Vitrine({ user, userType }) {
   const checkFavorito = async () => {
     if (!user || userType !== 'client' || !negocio?.id) { setIsFavorito(false); return; }
     try {
-      const { data, error: favErr } = await withTimeout(
-        supabase.from('favoritos').select('id').eq('cliente_id', user.id).eq('tipo', 'negocio').eq('negocio_id', negocio.id).maybeSingle(),
-        6000, 'favorito'
-      );
+      const { data, error: favErr } = await withTimeout(supabase.from('favoritos').select('id').eq('cliente_id', user.id).eq('tipo', 'negocio').eq('negocio_id', negocio.id).maybeSingle(), 6000, 'favorito');
       if (favErr) throw favErr;
       setIsFavorito(!!data);
     } catch { setIsFavorito(false); }
@@ -723,13 +612,7 @@ export default function Vitrine({ user, userType }) {
     const primeiroServico = flow.servicosSelecionados[0];
     const durTotal = flow.servicosSelecionados.reduce((sum, s) => sum + Number(s?.duracao_minutos || 0), 0);
     const valTotal = flow.servicosSelecionados.reduce((sum, s) => sum + getPrecoFinalServico(s), 0);
-    return {
-      id: primeiroServico.id,
-      nome: flow.servicosSelecionados.length === 1 ? primeiroServico.nome : `${flow.servicosSelecionados.length} ${counterPlural}`,
-      duracao_minutos: durTotal,
-      preco: valTotal,
-      preco_promocional: null,
-    };
+    return { id: primeiroServico.id, nome: flow.servicosSelecionados.length === 1 ? primeiroServico.nome : `${flow.servicosSelecionados.length} ${counterPlural}`, duracao_minutos: durTotal, preco: valTotal, preco_promocional: null };
   }, [flow.servicosSelecionados, counterPlural]);
 
   const handleBookingConfirm = (slot) => {
@@ -760,14 +643,7 @@ export default function Vitrine({ user, userType }) {
     if (!negocio?.id) { alertKey('review_invalid_business', 'Negócio inválido', 'Negócio inválido.', 'ENTENDI'); return; }
     try {
       setDepoimentoLoading(true);
-      const payload = {
-        cliente_id:      user.id,
-        tipo:            depoimentoTipo,
-        nota:            depoimentoNota,
-        comentario:      depoimentoTexto || null,
-        negocio_id:      depoimentoTipo === 'negocio'      ? negocio.id               : null,
-        profissional_id: depoimentoTipo === 'profissional' ? depoimentoProfissionalId  : null,
-      };
+      const payload = { cliente_id: user.id, tipo: depoimentoTipo, nota: depoimentoNota, comentario: depoimentoTexto || null, negocio_id: depoimentoTipo === 'negocio' ? negocio.id : null, profissional_id: depoimentoTipo === 'profissional' ? depoimentoProfissionalId : null };
       const { error: depErr } = await withTimeout(supabase.from('depoimentos').insert(payload), 7000, 'enviar-depoimento');
       if (depErr) throw depErr;
       setShowDepoimento(false);
@@ -775,19 +651,14 @@ export default function Vitrine({ user, userType }) {
       setDepoimentos(deps);
       alertKey('review_sent', 'Depoimento registrado', 'Seu depoimento foi entregue com sucesso!', 'OK');
     } catch (e) {
-      openAlert({
-        title:      getMsg('review_send_error_title', 'Erro ao enviar depoimento'),
-        body:       `${getMsg('review_send_error_body', 'Erro ao enviar depoimento:')} ${e?.message || ''}`,
-        buttonText: getMsg('common_ok', 'ENTENDI'),
-      });
+      openAlert({ title: getMsg('review_send_error_title', 'Erro ao enviar depoimento'), body: `${getMsg('review_send_error_body', 'Erro ao enviar depoimento:')} ${e?.message || ''}`, buttonText: getMsg('common_ok', 'ENTENDI') });
     } finally { setDepoimentoLoading(false); }
   };
 
   const logoUrl      = useMemo(() => getPublicUrl('logos',   negocio?.logo_path), [negocio?.logo_path]);
   const instagramUrl = useMemo(() => resolveInstagram(negocio?.instagram),        [negocio?.instagram]);
   const facebookUrl  = useMemo(() => resolveFacebook(negocio?.facebook),          [negocio?.facebook]);
-
-  const nowSP = useMemo(() => getNowSP(), []);
+  const nowSP        = useMemo(() => getNowSP(), []);
 
   const getAlmocoRange = (p) => ({ ini: p?.almoco_inicio || null, fim: p?.almoco_fim || null });
 
@@ -801,8 +672,7 @@ export default function Vitrine({ user, userType }) {
   };
 
   const getProfStatus = (p) => {
-    const ativo = (p?.ativo === undefined) ? true : !!p.ativo;
-    if (!ativo) return { label: 'FECHADO', color: 'bg-red-500' };
+    if (p?.status !== 'ativo') return { label: 'FECHADO', color: 'bg-red-500' };
     const ini = timeToMinutes(p?.horario_inicio || '08:00');
     const fim = timeToMinutes(p?.horario_fim    || '18:00');
     const dias = normalizeDiasTrabalho(p?.dias_trabalho);
@@ -818,21 +688,13 @@ export default function Vitrine({ user, userType }) {
   const entregasPorProf = useMemo(() => {
     const map = new Map();
     for (const p of profissionais) map.set(p.id, []);
-    for (const s of entregas) {
-      if (!map.has(s.profissional_id)) map.set(s.profissional_id, []);
-      map.get(s.profissional_id).push(s);
-    }
+    for (const s of entregas) { if (!map.has(s.profissional_id)) map.set(s.profissional_id, []); map.get(s.profissional_id).push(s); }
     return map;
   }, [profissionais, entregas]);
 
   const depoimentosPorProf = useMemo(() => {
     const map = new Map();
-    for (const dep of depoimentos) {
-      if (dep.profissional_id) {
-        if (!map.has(dep.profissional_id)) map.set(dep.profissional_id, []);
-        map.get(dep.profissional_id).push(dep);
-      }
-    }
+    for (const dep of depoimentos) { if (dep.profissional_id) { if (!map.has(dep.profissional_id)) map.set(dep.profissional_id, []); map.get(dep.profissional_id).push(dep); } }
     const medias = new Map();
     for (const [profId, deps] of map.entries()) {
       const media = deps.length > 0 ? (deps.reduce((sum, d) => sum + d.nota, 0) / deps.length).toFixed(1) : null;
@@ -846,67 +708,44 @@ export default function Vitrine({ user, userType }) {
   if (!negocio) return (<div className="min-h-screen bg-black flex items-center justify-center p-4"><div className="text-center"><h1 className="text-3xl font-normal text-white mb-4">Negócio inexistente.</h1><Link to="/" className="text-primary hover:text-yellow-500 font-normal">Voltar para Home</Link></div></div>);
 
   const depoimentosNegocio = depoimentos.filter(d => d.tipo === 'negocio');
-  const mediaDepoimentos = depoimentosNegocio.length > 0
-    ? (depoimentosNegocio.reduce((sum, d) => sum + d.nota, 0) / depoimentosNegocio.length).toFixed(1)
-    : '0.0';
-
+  const mediaDepoimentos = depoimentosNegocio.length > 0 ? (depoimentosNegocio.reduce((sum, d) => sum + d.nota, 0) / depoimentosNegocio.length).toFixed(1) : '0.0';
   const nomeNegocioLabel = String(negocio?.nome || '').trim() || 'NEGÓCIO';
   const temaAtivo = negocio?.tema || 'dark';
   const isLight   = temaAtivo === 'light';
   const hasSelecao = servicosSelecionados.length > 0;
 
   const headerVoltar    = isLight ? 'text-gray-600 hover:text-gray-900' : 'text-vsub hover:text-primary';
-  const depoimentoBtn   = isLight
-    ? (isProfessional ? 'border-gray-200 text-gray-400 cursor-not-allowed bg-gray-50' : 'border-gray-300 text-gray-600 hover:border-gray-900 bg-white')
-    : (isProfessional ? 'border-vborder2 text-vmuted cursor-not-allowed bg-vcard2' : 'border-vborder text-vsub hover:border-primary bg-vcard2');
-  const favoritoBtn     = isLight
-    ? (isProfessional ? 'bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed' : isFavorito ? 'bg-red-50 border-red-300 text-red-500' : 'bg-white border-gray-300 text-gray-600 hover:text-red-500')
-    : (isProfessional ? 'bg-vcard2 border-vborder2 text-vmuted cursor-not-allowed' : isFavorito ? 'bg-red-500/20 border-red-500/50 text-red-400' : 'bg-vcard2 border-vborder text-vsub hover:text-red-400');
-  const socialIconCl    = isLight
-    ? 'border-gray-300 bg-gray-100 text-gray-600 hover:bg-gray-200 hover:border-gray-500'
-    : 'border-white/20 bg-white/7 text-white/80 hover:bg-white/15 hover:border-white/35';
-  const heroBg          = isLight
-    ? 'bg-gradient-to-br from-gray-100 via-white to-gray-50'
-    : 'bg-gradient-to-br from-primary/20 via-vbg to-yellow-600/20';
+  const depoimentoBtn   = isLight ? (isProfessional ? 'border-gray-200 text-gray-400 cursor-not-allowed bg-gray-50' : 'border-gray-300 text-gray-600 hover:border-gray-900 bg-white') : (isProfessional ? 'border-vborder2 text-vmuted cursor-not-allowed bg-vcard2' : 'border-vborder text-vsub hover:border-primary bg-vcard2');
+  const favoritoBtn     = isLight ? (isProfessional ? 'bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed' : isFavorito ? 'bg-red-50 border-red-300 text-red-500' : 'bg-white border-gray-300 text-gray-600 hover:text-red-500') : (isProfessional ? 'bg-vcard2 border-vborder2 text-vmuted cursor-not-allowed' : isFavorito ? 'bg-red-500/20 border-red-500/50 text-red-400' : 'bg-vcard2 border-vborder text-vsub hover:text-red-400');
+  const socialIconCl    = isLight ? 'border-gray-300 bg-gray-100 text-gray-600 hover:bg-gray-200 hover:border-gray-500' : 'border-white/20 bg-white/7 text-white/80 hover:bg-white/15 hover:border-white/35';
+  const heroBg          = isLight ? 'bg-gradient-to-br from-gray-100 via-white to-gray-50' : 'bg-gradient-to-br from-primary/20 via-vbg to-yellow-600/20';
   const telClass        = isLight ? 'text-gray-900 hover:text-gray-600' : 'text-primary hover:text-yellow-500';
-  const addrClass       = isLight ? 'text-gray-600'                     : 'text-vsub';
-  const mediaColor      = isLight ? 'text-gray-900'                     : 'text-primary';
+  const addrClass       = isLight ? 'text-gray-600' : 'text-vsub';
+  const mediaColor      = isLight ? 'text-gray-900' : 'text-primary';
   const profissaoTag    = isLight ? 'bg-gray-100 border-gray-300 text-gray-700' : 'bg-primary/20 border-primary/30 text-primary';
-  const almocoBadge     = isLight ? 'text-amber-700'                    : 'text-yellow-400';
-  const depBtn          = isLight
-    ? (isProfessional ? 'bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed' : 'bg-gray-100 hover:bg-gray-200 border-gray-300 text-gray-700')
-    : (isProfessional ? 'bg-vcard border-vborder2 text-vmuted cursor-not-allowed'      : 'bg-primary/20 hover:bg-primary/30 border-primary/50 text-primary');
-  const depoModalBg     = isLight ? 'bg-white border-gray-200'         : 'bg-dark-100 border-gray-800';
-  const depoModalTitle  = isLight ? 'text-gray-900'                    : 'text-white';
-  const depoModalClose  = isLight ? 'text-gray-400 hover:text-gray-700': 'text-gray-400 hover:text-white';
-  const depoModalLabel  = isLight ? 'text-gray-600'                    : 'text-gray-300';
-  const depoNegBtn      = (t) => t === 'negocio'
-    ? (isLight ? 'bg-blue-50 border-blue-400 text-blue-700' : 'bg-blue-500/20 border-blue-500/50 text-blue-400')
-    : (isLight ? 'bg-gray-50 border-gray-300 text-gray-600 hover:border-gray-500' : 'bg-dark-200 border-gray-800 text-gray-400');
-  const depoProfBtn     = (t) => t === 'profissional'
-    ? (isLight ? 'bg-gray-900 border-gray-900 text-white' : 'bg-primary/20 border-primary/50 text-primary')
-    : (isLight ? 'bg-gray-50 border-gray-300 text-gray-600 hover:border-gray-500' : 'bg-dark-200 border-gray-800 text-gray-400');
-  const depoProfItem    = (sel) => sel
-    ? (isLight ? 'bg-gray-900 border-gray-900 text-white' : 'bg-primary/20 border-primary/50 text-primary')
-    : (isLight ? 'bg-gray-50 border-gray-200 text-gray-600 hover:border-gray-500' : 'bg-dark-200 border-gray-800 text-gray-400 hover:border-primary/30');
-  const depoNotaBtn     = (n) => depoimentoNota >= n
-    ? (isLight ? 'bg-gray-900 border-gray-900 text-white' : 'bg-primary/20 border-primary/50 text-primary')
-    : (isLight ? 'bg-gray-50 border-gray-300 text-gray-400' : 'bg-dark-200 border-gray-800 text-gray-500');
-  const depoTextarea    = isLight
-    ? 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-gray-900'
-    : 'bg-dark-200 border-gray-800 text-white placeholder-gray-500 focus:border-primary';
+  const almocoBadge     = isLight ? 'text-amber-700' : 'text-yellow-400';
+  const depBtn          = isLight ? (isProfessional ? 'bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed' : 'bg-gray-100 hover:bg-gray-200 border-gray-300 text-gray-700') : (isProfessional ? 'bg-vcard border-vborder2 text-vmuted cursor-not-allowed' : 'bg-primary/20 hover:bg-primary/30 border-primary/50 text-primary');
+  const depoModalBg     = isLight ? 'bg-white border-gray-200' : 'bg-dark-100 border-gray-800';
+  const depoModalTitle  = isLight ? 'text-gray-900' : 'text-white';
+  const depoModalClose  = isLight ? 'text-gray-400 hover:text-gray-700' : 'text-gray-400 hover:text-white';
+  const depoModalLabel  = isLight ? 'text-gray-600' : 'text-gray-300';
+  const depoNegBtn      = (t) => t === 'negocio' ? (isLight ? 'bg-blue-50 border-blue-400 text-blue-700' : 'bg-blue-500/20 border-blue-500/50 text-blue-400') : (isLight ? 'bg-gray-50 border-gray-300 text-gray-600 hover:border-gray-500' : 'bg-dark-200 border-gray-800 text-gray-400');
+  const depoProfBtn     = (t) => t === 'profissional' ? (isLight ? 'bg-gray-900 border-gray-900 text-white' : 'bg-primary/20 border-primary/50 text-primary') : (isLight ? 'bg-gray-50 border-gray-300 text-gray-600 hover:border-gray-500' : 'bg-dark-200 border-gray-800 text-gray-400');
+  const depoProfItem    = (sel) => sel ? (isLight ? 'bg-gray-900 border-gray-900 text-white' : 'bg-primary/20 border-primary/50 text-primary') : (isLight ? 'bg-gray-50 border-gray-200 text-gray-600 hover:border-gray-500' : 'bg-dark-200 border-gray-800 text-gray-400 hover:border-primary/30');
+  const depoNotaBtn     = (n) => depoimentoNota >= n ? (isLight ? 'bg-gray-900 border-gray-900 text-white' : 'bg-primary/20 border-primary/50 text-primary') : (isLight ? 'bg-gray-50 border-gray-300 text-gray-400' : 'bg-dark-200 border-gray-800 text-gray-500');
+  const depoTextarea    = isLight ? 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-gray-900' : 'bg-dark-200 border-gray-800 text-white placeholder-gray-500 focus:border-primary';
   const depoSendBtn     = isLight ? 'bg-gray-900 text-white hover:bg-gray-700' : 'bg-gradient-to-r from-primary to-yellow-600 text-black';
   const depoHintCl      = isLight ? 'text-gray-400' : 'text-gray-500';
-  const confirmadoBg    = isLight ? 'bg-white border-gray-200'  : 'bg-dark-100 border-gray-800';
-  const confirmadoTitle = isLight ? 'text-gray-900'              : 'text-white';
-  const confirmadoSub   = isLight ? 'text-gray-500'              : 'text-gray-500';
-  const confirmadoHora  = isLight ? 'text-gray-900 font-bold'    : 'text-primary';
-  const confirmadoData  = isLight ? 'text-gray-600'              : 'text-gray-400';
+  const confirmadoBg    = isLight ? 'bg-white border-gray-200' : 'bg-dark-100 border-gray-800';
+  const confirmadoTitle = isLight ? 'text-gray-900' : 'text-white';
+  const confirmadoSub   = isLight ? 'text-gray-500' : 'text-gray-500';
+  const confirmadoHora  = isLight ? 'text-gray-900 font-bold' : 'text-primary';
+  const confirmadoData  = isLight ? 'text-gray-600' : 'text-gray-400';
   const confirmadoAgBtn = isLight ? 'bg-gray-900 text-white hover:bg-gray-700' : 'bg-gradient-to-r from-primary to-yellow-600 text-black';
 
   return (
     <div className={`min-h-screen bg-vbg text-vtext${isLight ? ' vitrine-light' : ''}`} style={hasSelecao ? { paddingBottom: 72 } : undefined}>
-      <AlertModal  open={nativeAlertOpen}   onClose={closeAlert}                title={nativeAlertData.title}   body={nativeAlertData.body}   buttonText={nativeAlertData.buttonText} isLight={isLight} />
+      <AlertModal  open={nativeAlertOpen}   onClose={closeAlert} title={nativeAlertData.title} body={nativeAlertData.body} buttonText={nativeAlertData.buttonText} isLight={isLight} />
       <ConfirmModal open={nativeConfirmOpen} onCancel={() => closeConfirm(false)} onConfirm={() => closeConfirm(true)} title={nativeConfirmData.title} body={nativeConfirmData.body} confirmText={nativeConfirmData.confirmText} cancelText={nativeConfirmData.cancelText} isLight={isLight} />
 
       <div className="bg-primary overflow-hidden relative h-10 flex items-center">
@@ -922,9 +761,7 @@ export default function Vitrine({ user, userType }) {
       <header className="bg-vcard border-b border-vborder sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <button onClick={() => navigate(-1)} className={`flex items-center gap-2 transition-colors uppercase ${headerVoltar}`}>
-              <ArrowLeft className="w-5 h-5" /><span className="hidden sm:inline">Voltar</span>
-            </button>
+            <button onClick={() => navigate(-1)} className={`flex items-center gap-2 transition-colors uppercase ${headerVoltar}`}><ArrowLeft className="w-5 h-5" /><span className="hidden sm:inline">Voltar</span></button>
             <div className="flex items-center gap-2">
               <button onClick={abrirDepoimento} disabled={!!isProfessional} className={`flex items-center gap-2 h-9 px-5 rounded-button transition-all border uppercase focus:outline-none focus:ring-0 ${depoimentoBtn}`}>
                 <StarChar size={18} className="text-primary" /><span className="hidden sm:inline">Depoimento</span>
@@ -949,34 +786,13 @@ export default function Vitrine({ user, userType }) {
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-normal mb-3">{negocio.nome}</h1>
               <p className="text-base sm:text-lg text-vsub mb-4 font-normal">{negocio.descricao}</p>
               <div className="flex flex-wrap items-center gap-4 sm:gap-6">
-                <div className="flex items-center gap-2">
-                  <StarChar size={18} className="text-primary" />
-                  <span className={`text-xl font-normal ${mediaColor}`}>{mediaDepoimentos}</span>
-                </div>
-                {negocio.endereco && (
-                  <div className={`flex items-center gap-2 text-sm ${addrClass}`}>
-                    <MapPin className="w-4 h-4" strokeWidth={1.5} /><span className="font-normal">{negocio.endereco}</span>
-                  </div>
-                )}
-                {negocio.telefone && (
-                  <a href={`tel:${sanitizeTel(negocio.telefone) || negocio.telefone}`} className={`flex items-center gap-2 text-sm font-normal transition-colors ${telClass}`}>
-                    <Phone className="w-4 h-4" strokeWidth={1.5} />{negocio.telefone}
-                  </a>
-                )}
+                <div className="flex items-center gap-2"><StarChar size={18} className="text-primary" /><span className={`text-xl font-normal ${mediaColor}`}>{mediaDepoimentos}</span></div>
+                {negocio.endereco && (<div className={`flex items-center gap-2 text-sm ${addrClass}`}><MapPin className="w-4 h-4" strokeWidth={1.5} /><span className="font-normal">{negocio.endereco}</span></div>)}
+                {negocio.telefone && (<a href={`tel:${sanitizeTel(negocio.telefone) || negocio.telefone}`} className={`flex items-center gap-2 text-sm font-normal transition-colors ${telClass}`}><Phone className="w-4 h-4" strokeWidth={1.5} />{negocio.telefone}</a>)}
                 {(instagramUrl || facebookUrl) && (
                   <div className="flex items-center gap-2">
-                    {instagramUrl && (
-                      <a href={instagramUrl} target="_blank" rel="noreferrer" aria-label="Instagram"
-                        className={`flex items-center justify-center w-9 h-9 rounded-full border transition-all ${socialIconCl}`}>
-                        <Instagram className="w-[18px] h-[18px]" strokeWidth={1.5} />
-                      </a>
-                    )}
-                    {facebookUrl && (
-                      <a href={facebookUrl} target="_blank" rel="noreferrer" aria-label="Facebook"
-                        className={`flex items-center justify-center w-9 h-9 rounded-full border transition-all ${socialIconCl}`}>
-                        <FacebookIcon size={18} />
-                      </a>
-                    )}
+                    {instagramUrl && (<a href={instagramUrl} target="_blank" rel="noreferrer" aria-label="Instagram" className={`flex items-center justify-center w-9 h-9 rounded-full border transition-all ${socialIconCl}`}><Instagram className="w-[18px] h-[18px]" strokeWidth={1.5} /></a>)}
+                    {facebookUrl  && (<a href={facebookUrl}  target="_blank" rel="noreferrer" aria-label="Facebook"  className={`flex items-center justify-center w-9 h-9 rounded-full border transition-all ${socialIconCl}`}><FacebookIcon size={18} /></a>)}
                   </div>
                 )}
               </div>
@@ -1014,28 +830,14 @@ export default function Vitrine({ user, userType }) {
                         <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${status.color}`} />
                         <span className="text-xs text-vsub font-normal uppercase">{status.label}</span>
                       </div>
-                      {depInfo?.media && (
-                        <div className="flex items-center gap-2 mb-1">
-                          <StarChar size={16} className="text-primary" />
-                          <span className={`text-lg font-normal ${mediaColor}`}>{depInfo.media}</span>
-                          <span className="text-xs text-vmuted">({depInfo.count})</span>
-                        </div>
-                      )}
+                      {depInfo?.media && (<div className="flex items-center gap-2 mb-1"><StarChar size={16} className="text-primary" /><span className={`text-lg font-normal ${mediaColor}`}>{depInfo.media}</span><span className="text-xs text-vmuted">({depInfo.count})</span></div>)}
                       {prof.anos_experiencia != null && (<p className="text-sm text-vmuted font-normal">{prof.anos_experiencia} ano(s) de experiência</p>)}
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-vcard2 border border-vborder text-xs text-vsub font-normal">
-                      <Clock className="w-3 h-3 shrink-0" />{horarioIni} – {horarioFim}
-                    </span>
-                    {almIni && almFim && (
-                      <span className="inline-flex items-center px-3 py-1 rounded-full bg-vcard2 border border-vborder text-xs text-vsub font-normal">
-                        <span className={`ml-1 ${almocoBadge}`}> • {String(almIni).slice(0, 5)} – {String(almFim).slice(0, 5)}</span>
-                      </span>
-                    )}
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-vcard2 border border-vborder text-xs text-vsub font-normal">
-                      {totalEntregas} {totalEntregas === 1 ? counterSingular : counterPlural}
-                    </span>
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-vcard2 border border-vborder text-xs text-vsub font-normal"><Clock className="w-3 h-3 shrink-0" />{horarioIni} – {horarioFim}</span>
+                    {almIni && almFim && (<span className="inline-flex items-center px-3 py-1 rounded-full bg-vcard2 border border-vborder text-xs text-vsub font-normal"><span className={`ml-1 ${almocoBadge}`}> • {String(almIni).slice(0, 5)} – {String(almFim).slice(0, 5)}</span></span>)}
+                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-vcard2 border border-vborder text-xs text-vsub font-normal">{totalEntregas} {totalEntregas === 1 ? counterSingular : counterPlural}</span>
                   </div>
                 </div>
               );
@@ -1053,8 +855,7 @@ export default function Vitrine({ user, userType }) {
             <div className="space-y-4">
               {profissionais.map(p => {
                 const lista = (entregasPorProf.get(p.id) || []).slice().sort((a, b) => {
-                  const pa = Number(getPrecoFinalServico(a) ?? 0);
-                  const pb = Number(getPrecoFinalServico(b) ?? 0);
+                  const pa = Number(getPrecoFinalServico(a) ?? 0); const pb = Number(getPrecoFinalServico(b) ?? 0);
                   if (pb !== pa) return pb - pa;
                   return String(a.nome || '').localeCompare(String(b.nome || ''));
                 });
@@ -1064,17 +865,7 @@ export default function Vitrine({ user, userType }) {
                       <div className="font-normal text-lg">{p.nome}</div>
                       <div className="text-xs text-vmuted font-normal">{lista.length} {lista.length === 1 ? counterSingular : counterPlural}</div>
                     </div>
-                    <ServicosCarousel
-                      lista={lista}
-                      profissional={p}
-                      selecaoProfId={selecaoProfId}
-                      servicosSelecionados={servicosSelecionados}
-                      isProfessional={isProfessional}
-                      onAgendarAgora={handleAgendarAgora}
-                      onToggleSelecao={handleToggleSelecao}
-                      emptyMsg={emptyListMsg}
-                      isLight={isLight}
-                    />
+                    <ServicosCarousel lista={lista} profissional={p} selecaoProfId={selecaoProfId} servicosSelecionados={servicosSelecionados} isProfessional={isProfessional} onAgendarAgora={handleAgendarAgora} onToggleSelecao={handleToggleSelecao} emptyMsg={emptyListMsg} isLight={isLight} />
                   </div>
                 );
               })}
@@ -1090,11 +881,7 @@ export default function Vitrine({ user, userType }) {
               {galeriaItems.map((item) => {
                 const url = getPublicUrl('galerias', item.path);
                 if (!url) return null;
-                return (
-                  <div key={item.id} className="mb-3 w-full break-inside-avoid overflow-hidden rounded-custom border border-vborder bg-vcard">
-                    <img src={url} alt="Galeria" className="w-full h-auto object-contain bg-vbg" loading="lazy" />
-                  </div>
-                );
+                return (<div key={item.id} className="mb-3 w-full break-inside-avoid overflow-hidden rounded-custom border border-vborder bg-vcard"><img src={url} alt="Galeria" className="w-full h-auto object-contain bg-vbg" loading="lazy" /></div>);
               })}
             </div>
           </div>
@@ -1114,40 +901,22 @@ export default function Vitrine({ user, userType }) {
       <SelectionBar itens={servicosSelecionados} counterSingular={counterSingular} counterPlural={counterPlural} onConfirm={handleConfirmarSelecao} onClear={handleLimparSelecao} isLight={isLight} />
 
       {flow.step === 'booking' && entregaVirtual && (
-        <BookingCalendar
-          profissional={flow.profissional}
-          entrega={entregaVirtual}
-          todayISO={todayISO}
-          negocioId={negocio.id}
-          clienteId={user?.id}
-          onConfirm={handleBookingConfirm}
-          onClose={() => setFlow(prev => ({ ...prev, step: 'idle' }))}
-          temaAtivo={temaAtivo}
-        />
+        <BookingCalendar profissional={flow.profissional} entrega={entregaVirtual} todayISO={todayISO} negocioId={negocio.id} clienteId={user?.id} onConfirm={handleBookingConfirm} onClose={() => setFlow(prev => ({ ...prev, step: 'idle' }))} temaAtivo={temaAtivo} />
       )}
 
       {flow.step === 'confirmado' && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className={`border rounded-custom max-w-md w-full ${confirmadoBg}`}>
             <div className="p-8 text-center">
-              <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Calendar className="w-10 h-10 text-green-500" />
-              </div>
+              <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4"><Calendar className="w-10 h-10 text-green-500" /></div>
               <h3 className={`text-2xl font-normal mb-2 ${confirmadoTitle}`}>AGENDADO :)</h3>
               <p className="font-normal mb-1">
                 {flow.lastSlot?.label && <span className={`font-normal ${confirmadoHora}`}>{flow.lastSlot.label}</span>}
                 {flow.lastSlot?.dataISO && <span className={confirmadoData}> — {formatDateBR(flow.lastSlot.dataISO)}</span>}
               </p>
               <p className={`font-normal text-sm mb-6 ${confirmadoSub}`}>Crie um lembrete no seu celular para assegurar o compromisso.</p>
-              <a href={calendarLink} target="_blank" rel="noreferrer" className={`block w-full py-4 rounded-button uppercase font-normal mb-3 transition-colors ${confirmadoAgBtn}`}>
-                ADICIONAR À MINHA AGENDA
-              </a>
-              <button
-                onClick={() => { setFlow(prev => ({ ...prev, step: 'idle' })); navigate('/minha-area'); }}
-                className="w-full py-3 bg-transparent border border-red-500 text-red-500 rounded-button uppercase font-normal hover:bg-red-500/10 transition-colors"
-              >
-                PREFIRO ESQUECER
-              </button>
+              <a href={calendarLink} target="_blank" rel="noreferrer" className={`block w-full py-4 rounded-button uppercase font-normal mb-3 transition-colors ${confirmadoAgBtn}`}>ADICIONAR À MINHA AGENDA</a>
+              <button onClick={() => { setFlow(prev => ({ ...prev, step: 'idle' })); navigate('/minha-area'); }} className="w-full py-3 bg-transparent border border-red-500 text-red-500 rounded-button uppercase font-normal hover:bg-red-500/10 transition-colors">PREFIRO ESQUECER</button>
             </div>
           </div>
         </div>
@@ -1172,19 +941,13 @@ export default function Vitrine({ user, userType }) {
                 <div className="mb-4">
                   <div className={`text-sm font-normal mb-2 ${depoModalLabel}`}>Qual profissional?</div>
                   <div className="space-y-2 max-h-40 overflow-y-auto">
-                    {profissionais.map(prof => (
-                      <button key={prof.id} onClick={() => setDepoimentoProfissionalId(prof.id)} className={`w-full text-left px-4 py-3 rounded-custom border transition-all font-normal ${depoProfItem(depoimentoProfissionalId === prof.id)}`}>{prof.nome}</button>
-                    ))}
+                    {profissionais.map(prof => (<button key={prof.id} onClick={() => setDepoimentoProfissionalId(prof.id)} className={`w-full text-left px-4 py-3 rounded-custom border transition-all font-normal ${depoProfItem(depoimentoProfissionalId === prof.id)}`}>{prof.nome}</button>))}
                   </div>
                 </div>
               )}
               <div className="mb-4">
                 <div className={`text-sm font-normal mb-2 ${depoModalLabel}`}>Nota</div>
-                <div className="flex gap-2">
-                  {[1, 2, 3, 4, 5].map(n => (
-                    <button key={n} onClick={() => setDepoimentoNota(n)} className={`w-12 h-8 rounded-button border transition-all font-normal ${depoNotaBtn(n)}`}>{n}</button>
-                  ))}
-                </div>
+                <div className="flex gap-2">{[1, 2, 3, 4, 5].map(n => (<button key={n} onClick={() => setDepoimentoNota(n)} className={`w-12 h-8 rounded-button border transition-all font-normal ${depoNotaBtn(n)}`}>{n}</button>))}</div>
               </div>
               <div className="mb-5">
                 <div className={`text-sm font-normal mb-2 ${depoModalLabel}`}>Comentário é opcional</div>
@@ -1193,9 +956,7 @@ export default function Vitrine({ user, userType }) {
               <button onClick={enviarDepoimento} disabled={depoimentoLoading || (depoimentoTipo === 'profissional' && !depoimentoProfissionalId)} className={`w-full py-3 rounded-button disabled:opacity-60 uppercase font-normal transition-colors ${depoSendBtn}`}>
                 {depoimentoLoading ? 'ENVIANDO...' : 'ENVIAR DEPOIMENTO'}
               </button>
-              <p className={`text-xs mt-3 font-normal ${depoHintCl}`}>
-                {depoimentoTipo === 'profissional' && !depoimentoProfissionalId ? 'Selecione um profissional para continuar' : 'Somente clientes logados podem deixar depoimentos.'}
-              </p>
+              <p className={`text-xs mt-3 font-normal ${depoHintCl}`}>{depoimentoTipo === 'profissional' && !depoimentoProfissionalId ? 'Selecione um profissional para continuar' : 'Somente clientes logados podem deixar depoimentos.'}</p>
             </div>
           </div>
         </div>
