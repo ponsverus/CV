@@ -217,45 +217,87 @@ export default function Dashboard({ user, onLogout }) {
 
   useEffect(() => { if (!user?.id) return; fetchNowFromDb().then(d => loadData(d)); }, [user?.id]);
 
+  // PONTO 7: notificações realtime filtradas por profissional quando parceiro
   useEffect(() => {
     if (!negocio?.id || !agProfIds?.length || !hoje) return;
     const channel = supabase.channel(`agendamentos:${negocio.id}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'agendamentos', filter: `negocio_id=eq.${negocio.id}` }, (payload) => {
-        const ev = payload?.eventType; const novo = payload?.new;
-        if (ev === 'INSERT') setNotifAgendamentos(prev => prev + 1);
-        if (ev === 'UPDATE') { const st = String(novo?.status || '').toLowerCase(); if (st.includes('cancelado') && !st.includes('profissional')) setNotifCancelados(prev => prev + 1); }
-        reloadAgendamentos(); loadHoje(negocio.id);
+        const ev = payload?.eventType;
+        const novo = payload?.new;
+        const profIdEvento = novo?.profissional_id;
+        const meuId = parceiroProfissional?.id || null;
+        const meResponde = !meuId || profIdEvento === meuId;
+        if (ev === 'INSERT' && meResponde) setNotifAgendamentos(prev => prev + 1);
+        if (ev === 'UPDATE' && meResponde) {
+          const st = String(novo?.status || '').toLowerCase();
+          if (st.includes('cancelado') && !st.includes('profissional')) setNotifCancelados(prev => prev + 1);
+        }
+        reloadAgendamentos();
+        loadHoje(negocio.id);
       }).subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [negocio?.id, agProfIds, hoje]);
+  }, [negocio?.id, agProfIds, hoje, parceiroProfissional?.id]);
 
   useEffect(() => {
     setHistoricoData(prev => prev ? prev : hoje);
     setFaturamentoData(prev => prev ? prev : hoje);
   }, [hoje]);
 
+  // PONTO 2: métricas passam p_profissional_id quando parceiro
   const loadHoje = async (negocioId) => {
     const id = negocioId || negocio?.id; if (!id) return;
-    try { setMetricsHojeLoading(true); const { data, error } = await supabase.rpc('get_dashboard_today', { p_negocio_id: id }); if (error) throw error; setMetricsHoje(data); }
-    catch (e) { console.error('loadHoje error:', e); setMetricsHoje(null); } finally { setMetricsHojeLoading(false); }
+    const profId = parceiroProfissional?.id ?? null;
+    try {
+      setMetricsHojeLoading(true);
+      const params = { p_negocio_id: id };
+      if (profId) params.p_profissional_id = profId;
+      const { data, error } = await supabase.rpc('get_dashboard_today', params);
+      if (error) throw error;
+      setMetricsHoje(data);
+    } catch (e) { console.error('loadHoje error:', e); setMetricsHoje(null); }
+    finally { setMetricsHojeLoading(false); }
   };
 
+  // PONTO 3
   const loadDia = async (negocioId, dateISO) => {
-    const id = negocioId || negocio?.id; const date = String(dateISO || faturamentoData || hoje || ''); if (!id || !date) return;
-    try { setMetricsDiaLoading(true); const { data, error } = await supabase.rpc('get_dashboard_day', { p_negocio_id: id, p_date: date }); if (error) throw error; setMetricsDia(data); }
-    catch (e) { console.error('loadDia error:', e); setMetricsDia(null); } finally { setMetricsDiaLoading(false); }
+    const id = negocioId || negocio?.id;
+    const date = String(dateISO || faturamentoData || hoje || '');
+    if (!id || !date) return;
+    const profId = parceiroProfissional?.id ?? null;
+    try {
+      setMetricsDiaLoading(true);
+      const params = { p_negocio_id: id, p_date: date };
+      if (profId) params.p_profissional_id = profId;
+      const { data, error } = await supabase.rpc('get_dashboard_day', params);
+      if (error) throw error;
+      setMetricsDia(data);
+    } catch (e) { console.error('loadDia error:', e); setMetricsDia(null); }
+    finally { setMetricsDiaLoading(false); }
   };
 
+  // PONTO 4
   const loadPeriodo = async (negocioId, refDateISO, periodo) => {
-    const id = negocioId || negocio?.id; const refDate = String(refDateISO || hoje || ''); const per = String(periodo || faturamentoPeriodo || '7d'); if (!id || !refDate) return;
-    try { setMetricsPeriodoLoading(true); const { data, error } = await supabase.rpc('get_dashboard_period', { p_negocio_id: id, p_ref_date: refDate, p_periodo: per }); if (error) throw error; setMetricsPeriodoData(data); }
-    catch (e) { console.error('loadPeriodo error:', e); setMetricsPeriodoData(null); } finally { setMetricsPeriodoLoading(false); }
+    const id = negocioId || negocio?.id;
+    const refDate = String(refDateISO || hoje || '');
+    const per = String(periodo || faturamentoPeriodo || '7d');
+    if (!id || !refDate) return;
+    const profId = parceiroProfissional?.id ?? null;
+    try {
+      setMetricsPeriodoLoading(true);
+      const params = { p_negocio_id: id, p_ref_date: refDate, p_periodo: per };
+      if (profId) params.p_profissional_id = profId;
+      const { data, error } = await supabase.rpc('get_dashboard_period', params);
+      if (error) throw error;
+      setMetricsPeriodoData(data);
+    } catch (e) { console.error('loadPeriodo error:', e); setMetricsPeriodoData(null); }
+    finally { setMetricsPeriodoLoading(false); }
   };
 
-  useEffect(() => { if (!negocio?.id || !hoje) return; loadHoje(negocio.id); }, [negocio?.id, hoje]);
-  useEffect(() => { if (!negocio?.id || !faturamentoData) return; loadDia(negocio.id, faturamentoData); }, [negocio?.id, faturamentoData]);
-  useEffect(() => { if (!negocio?.id || !hoje) return; loadPeriodo(negocio.id, hoje, faturamentoPeriodo); }, [negocio?.id, hoje, faturamentoPeriodo]);
+  useEffect(() => { if (!negocio?.id || !hoje) return; loadHoje(negocio.id); }, [negocio?.id, hoje, parceiroProfissional?.id]);
+  useEffect(() => { if (!negocio?.id || !faturamentoData) return; loadDia(negocio.id, faturamentoData); }, [negocio?.id, faturamentoData, parceiroProfissional?.id]);
+  useEffect(() => { if (!negocio?.id || !hoje) return; loadPeriodo(negocio.id, hoje, faturamentoPeriodo); }, [negocio?.id, hoje, faturamentoPeriodo, parceiroProfissional?.id]);
 
+  // PONTO 6: histórico filtrado por profissional quando parceiro
   const fetchHistoricoPage = useCallback(async ({ negocioId, profIds, date, page, append }) => {
     const from = page * AG_PAGE_SIZE; const to = from + AG_PAGE_SIZE - 1;
     const { data, error: qErr } = await supabase.from('agendamentos')
@@ -270,13 +312,16 @@ export default function Dashboard({ user, onLogout }) {
 
   useEffect(() => {
     if (!agProfIds?.length || !historicoData) return;
+    // parceiro vê só o histórico dele
+    const ids = parceiroProfissional ? [parceiroProfissional.id] : agProfIds;
     setHistoricoPage(0); setHistoricoHasMore(false); setHistoricoAgendamentos([]);
-    fetchHistoricoPage({ negocioId: negocio?.id, profIds: agProfIds, date: historicoData, page: 0, append: false });
-  }, [historicoData, agProfIds, fetchHistoricoPage]);
+    fetchHistoricoPage({ negocioId: negocio?.id, profIds: ids, date: historicoData, page: 0, append: false });
+  }, [historicoData, agProfIds, parceiroProfissional?.id, fetchHistoricoPage]);
 
   const loadMoreHistorico = async () => {
     if (historicoLoadingMore || !historicoHasMore || !negocio?.id || !agProfIds?.length) return;
-    try { setHistoricoLoadingMore(true); const nextPage = historicoPage + 1; await fetchHistoricoPage({ negocioId: negocio.id, profIds: agProfIds, date: historicoData, page: nextPage, append: true }); setHistoricoPage(nextPage); }
+    const ids = parceiroProfissional ? [parceiroProfissional.id] : agProfIds;
+    try { setHistoricoLoadingMore(true); const nextPage = historicoPage + 1; await fetchHistoricoPage({ negocioId: negocio.id, profIds: ids, date: historicoData, page: nextPage, append: true }); setHistoricoPage(nextPage); }
     catch (e) { console.error('loadMoreHistorico error:', e); } finally { setHistoricoLoadingMore(false); }
   };
 
@@ -342,9 +387,9 @@ export default function Dashboard({ user, onLogout }) {
       if (profissionaisResult.error) throw profissionaisResult.error;
       const profs = profissionaisResult.data || [];
       setProfissionais(profs);
+      // PONTO 1: souDono garante que dono nunca é tratado como parceiro
       const souDono = negocioData.owner_id === user.id;
       const meuProfissional = souDono ? null : (profs.find(p => p.user_id === user.id) || null);
-      setParceiroProfissional(meuProfissional);
       setParceiroProfissional(meuProfissional);
       if (profs.length === 0) { setEntregas([]); setAgendamentos([]); setLoading(false); return; }
       const ids = profs.map(p => p.id);
@@ -627,9 +672,15 @@ export default function Dashboard({ user, onLogout }) {
     catch (e) { await uiAlert('dashboard.account_password_update_error', 'error'); } finally { setSavingDados(false); }
   };
 
-  const agendamentosHoje = useMemo(() => agendamentos.filter(a => sameDay(getAgDate(a), hoje)), [agendamentos, hoje]);
-  const hojeValidos      = useMemo(() => agendamentosHoje.filter(a => !isCancelStatus(a.status)), [agendamentosHoje]);
-  const hojeCancelados   = useMemo(() => agendamentosHoje.filter(a => isCancelStatus(a.status)), [agendamentosHoje]);
+  // PONTO 5: contadores fixos filtrados por profissional quando parceiro
+  const agendamentosHoje = useMemo(() => {
+    const base = agendamentos.filter(a => sameDay(getAgDate(a), hoje));
+    if (!parceiroProfissional) return base;
+    return base.filter(a => a.profissional_id === parceiroProfissional.id);
+  }, [agendamentos, hoje, parceiroProfissional?.id]);
+
+  const hojeValidos    = useMemo(() => agendamentosHoje.filter(a => !isCancelStatus(a.status)), [agendamentosHoje]);
+  const hojeCancelados = useMemo(() => agendamentosHoje.filter(a => isCancelStatus(a.status)), [agendamentosHoje]);
 
   const proximoAgendamento = useMemo(() => {
     const nowMin = Number(serverNow?.minutes || 0);
@@ -637,13 +688,16 @@ export default function Dashboard({ user, onLogout }) {
   }, [hojeValidos, serverNow?.minutes]);
 
   const agendamentosAgrupadosPorProfissional = useMemo(() => {
+    const fonte = parceiroProfissional
+      ? agendamentos.filter(a => a.profissional_id === parceiroProfissional.id)
+      : agendamentos;
     const map = new Map();
-    for (const a of agendamentos) { const pid = a.profissional_id || a.profissionais?.id || 'sem-prof'; const nome = a.profissionais?.nome || 'PROFISSIONAL'; if (!map.has(pid)) map.set(pid, { pid, nome, itens: [] }); map.get(pid).itens.push(a); }
+    for (const a of fonte) { const pid = a.profissional_id || a.profissionais?.id || 'sem-prof'; const nome = a.profissionais?.nome || 'PROFISSIONAL'; if (!map.has(pid)) map.set(pid, { pid, nome, itens: [] }); map.get(pid).itens.push(a); }
     const grupos = Array.from(map.values()).map(gr => ({ ...gr, itens: gr.itens.slice().sort((a, b) => { const d = String(getAgDate(a) || '').localeCompare(String(getAgDate(b) || '')); if (d !== 0) return d; const h = String(getAgInicio(a) || '').localeCompare(String(getAgInicio(b) || '')); if (h !== 0) return h; return String(a.id || '').localeCompare(String(b.id || '')); }) }));
     const ordem = new Map((profissionais || []).map((p, idx) => [p.id, idx]));
     grupos.sort((a, b) => (ordem.get(a.pid) ?? 9999) - (ordem.get(b.pid) ?? 9999));
     return grupos;
-  }, [agendamentos, profissionais]);
+  }, [agendamentos, profissionais, parceiroProfissional?.id]);
 
   const entregasPorProf = useMemo(() => {
     const map = new Map(); for (const p of profissionais) map.set(p.id, []); for (const s of entregas) { if (!map.has(s.profissional_id)) map.set(s.profissional_id, []); map.get(s.profissional_id).push(s); } return map;
