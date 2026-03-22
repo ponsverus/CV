@@ -217,7 +217,6 @@ export default function Dashboard({ user, onLogout }) {
 
   useEffect(() => { if (!user?.id) return; fetchNowFromDb().then(d => loadData(d)); }, [user?.id]);
 
-  // PONTO 7: notificações realtime filtradas por profissional quando parceiro
   useEffect(() => {
     if (!negocio?.id || !agProfIds?.length || !hoje) return;
     const channel = supabase.channel(`agendamentos:${negocio.id}`)
@@ -233,7 +232,7 @@ export default function Dashboard({ user, onLogout }) {
           if (st.includes('cancelado') && !st.includes('profissional')) setNotifCancelados(prev => prev + 1);
         }
         reloadAgendamentos();
-        loadHoje(negocio.id);
+        loadHoje(negocio.id, parceiroProfissional?.id ?? null);
       }).subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [negocio?.id, agProfIds, hoje, parceiroProfissional?.id]);
@@ -243,10 +242,9 @@ export default function Dashboard({ user, onLogout }) {
     setFaturamentoData(prev => prev ? prev : hoje);
   }, [hoje]);
 
-  // PONTO 2: métricas passam p_profissional_id quando parceiro
-  const loadHoje = async (negocioId) => {
+  // Recebem profId como parâmetro explícito para evitar race condition com setState
+  const loadHoje = async (negocioId, profId = null) => {
     const id = negocioId || negocio?.id; if (!id) return;
-    const profId = parceiroProfissional?.id ?? null;
     try {
       setMetricsHojeLoading(true);
       const params = { p_negocio_id: id };
@@ -258,12 +256,10 @@ export default function Dashboard({ user, onLogout }) {
     finally { setMetricsHojeLoading(false); }
   };
 
-  // PONTO 3
-  const loadDia = async (negocioId, dateISO) => {
+  const loadDia = async (negocioId, dateISO, profId = null) => {
     const id = negocioId || negocio?.id;
     const date = String(dateISO || faturamentoData || hoje || '');
     if (!id || !date) return;
-    const profId = parceiroProfissional?.id ?? null;
     try {
       setMetricsDiaLoading(true);
       const params = { p_negocio_id: id, p_date: date };
@@ -275,13 +271,11 @@ export default function Dashboard({ user, onLogout }) {
     finally { setMetricsDiaLoading(false); }
   };
 
-  // PONTO 4
-  const loadPeriodo = async (negocioId, refDateISO, periodo) => {
+  const loadPeriodo = async (negocioId, refDateISO, periodo, profId = null) => {
     const id = negocioId || negocio?.id;
     const refDate = String(refDateISO || hoje || '');
     const per = String(periodo || faturamentoPeriodo || '7d');
     if (!id || !refDate) return;
-    const profId = parceiroProfissional?.id ?? null;
     try {
       setMetricsPeriodoLoading(true);
       const params = { p_negocio_id: id, p_ref_date: refDate, p_periodo: per };
@@ -293,11 +287,11 @@ export default function Dashboard({ user, onLogout }) {
     finally { setMetricsPeriodoLoading(false); }
   };
 
-  useEffect(() => { if (!negocio?.id || !hoje) return; loadHoje(negocio.id); }, [negocio?.id, hoje, parceiroProfissional?.id]);
-  useEffect(() => { if (!negocio?.id || !faturamentoData) return; loadDia(negocio.id, faturamentoData); }, [negocio?.id, faturamentoData, parceiroProfissional?.id]);
-  useEffect(() => { if (!negocio?.id || !hoje) return; loadPeriodo(negocio.id, hoje, faturamentoPeriodo); }, [negocio?.id, hoje, faturamentoPeriodo, parceiroProfissional?.id]);
+  // useEffects reativos usam parceiroProfissional?.id do state (para mudanças pós-carregamento)
+  useEffect(() => { if (!negocio?.id || !hoje) return; loadHoje(negocio.id, parceiroProfissional?.id ?? null); }, [negocio?.id, hoje, parceiroProfissional?.id]);
+  useEffect(() => { if (!negocio?.id || !faturamentoData) return; loadDia(negocio.id, faturamentoData, parceiroProfissional?.id ?? null); }, [negocio?.id, faturamentoData, parceiroProfissional?.id]);
+  useEffect(() => { if (!negocio?.id || !hoje) return; loadPeriodo(negocio.id, hoje, faturamentoPeriodo, parceiroProfissional?.id ?? null); }, [negocio?.id, hoje, faturamentoPeriodo, parceiroProfissional?.id]);
 
-  // PONTO 6: histórico filtrado por profissional quando parceiro
   const fetchHistoricoPage = useCallback(async ({ negocioId, profIds, date, page, append }) => {
     const from = page * AG_PAGE_SIZE; const to = from + AG_PAGE_SIZE - 1;
     const { data, error: qErr } = await supabase.from('agendamentos')
@@ -312,7 +306,6 @@ export default function Dashboard({ user, onLogout }) {
 
   useEffect(() => {
     if (!agProfIds?.length || !historicoData) return;
-    // parceiro vê só o histórico dele
     const ids = parceiroProfissional ? [parceiroProfissional.id] : agProfIds;
     setHistoricoPage(0); setHistoricoHasMore(false); setHistoricoAgendamentos([]);
     fetchHistoricoPage({ negocioId: negocio?.id, profIds: ids, date: historicoData, page: 0, append: false });
@@ -387,10 +380,12 @@ export default function Dashboard({ user, onLogout }) {
       if (profissionaisResult.error) throw profissionaisResult.error;
       const profs = profissionaisResult.data || [];
       setProfissionais(profs);
-      // PONTO 1: souDono garante que dono nunca é tratado como parceiro
+      // souDono garante que dono nunca é tratado como parceiro
       const souDono = negocioData.owner_id === user.id;
       const meuProfissional = souDono ? null : (profs.find(p => p.user_id === user.id) || null);
       setParceiroProfissional(meuProfissional);
+      // profId calculado localmente — não depende do setState assíncrono
+      const profId = meuProfissional?.id ?? null;
       if (profs.length === 0) { setEntregas([]); setAgendamentos([]); setLoading(false); return; }
       const ids = profs.map(p => p.id);
       const dataHoje = (typeof dataRef === 'string' && dataRef) ? dataRef : String(serverNow?.date || hoje || '');
@@ -407,9 +402,15 @@ export default function Dashboard({ user, onLogout }) {
       setEntregas(entregasResult.data || []);
       if (agendamentosResult.error) throw agendamentosResult.error;
       setAgendamentos((agendamentosResult.data || []).map(a => ({ ...a, data: a?.data ?? null, horario_inicio: a?.horario_inicio ?? null, horario_fim: a?.horario_fim ?? null })));
+      // Métricas chamadas com profId local — garante valor correto independente de setState
+      if (dataHoje) {
+        loadHoje(negocioData.id, profId);
+        loadDia(negocioData.id, dataHoje, profId);
+        loadPeriodo(negocioData.id, dataHoje, faturamentoPeriodo, profId);
+      }
     } catch (e) { console.error('Erro ao carregar:', e); setError(e?.message || 'Erro inesperado.'); }
     finally { setLoading(false); }
-  }, [user?.id, location?.state?.negocioId, serverNow, hoje]);
+  }, [user?.id, location?.state?.negocioId, serverNow, hoje, faturamentoPeriodo]);
 
   const uploadLogoNegocio = async (file) => {
     if (!file || !user?.id) return;
@@ -642,7 +643,7 @@ export default function Dashboard({ user, onLogout }) {
       const { error: updErr } = await supabase.from('agendamentos').update({ status: 'concluido' }).eq('id', a.id).eq('negocio_id', negocio.id);
       if (updErr) throw updErr;
       await uiAlert('dashboard.booking_confirmed', 'success');
-      await reloadAgendamentos(); loadHoje(negocio.id);
+      await reloadAgendamentos(); loadHoje(negocio.id, parceiroProfissional?.id ?? null);
     } catch (e2) { await uiAlert('dashboard.booking_confirm_error', 'error'); }
   };
 
@@ -653,7 +654,7 @@ export default function Dashboard({ user, onLogout }) {
       const { error } = await supabase.rpc('cancelar_agendamento_profissional', { p_agendamento_id: a.id });
       if (error) throw error;
       await uiAlert('dashboard.booking_canceled', 'error');
-      await reloadAgendamentos(); loadHoje(negocio.id);
+      await reloadAgendamentos(); loadHoje(negocio.id, parceiroProfissional?.id ?? null);
     } catch (e) { await uiAlert('dashboard.booking_cancel_error', 'error'); }
   };
 
@@ -672,7 +673,6 @@ export default function Dashboard({ user, onLogout }) {
     catch (e) { await uiAlert('dashboard.account_password_update_error', 'error'); } finally { setSavingDados(false); }
   };
 
-  // PONTO 5: contadores fixos filtrados por profissional quando parceiro
   const agendamentosHoje = useMemo(() => {
     const base = agendamentos.filter(a => sameDay(getAgDate(a), hoje));
     if (!parceiroProfissional) return base;
@@ -834,7 +834,8 @@ export default function Dashboard({ user, onLogout }) {
                   <div className="bg-dark-200 border border-gray-800 rounded-custom p-5"><div className="text-xs text-gray-500 mb-2">CONCLUÍDOS HOJE</div><div className="text-3xl font-normal text-white">{Number(metricsHoje?.today?.concluidos || 0)}</div><div className="text-xs text-gray-300 mt-1">TICKET MÉDIO: <span className="text-primary">R$ {Number(metricsHoje?.today?.ticket_medio || 0).toFixed(2)}</span></div></div>
                   <div className="bg-dark-200 border border-gray-800 rounded-custom p-5"><div className="text-xs text-gray-500 mb-2">PRÓXIMO AGENDAMENTO</div>{proximoAgendamento ? (<><div className="text-3xl font-normal text-primary">{getAgInicio(proximoAgendamento)}</div><div className="text-sm text-gray-300 mt-1">{proximoAgendamento.cliente?.nome || '—'} • {proximoAgendamento.profissionais?.nome}</div><div className="text-xs text-gray-500 mt-1">{proximoAgendamento.entregas?.nome}</div></>) : <div className="text-sm text-gray-500">:(</div>}</div>
                 </div>
-                {faturamentoPorProfissionalHoje.length > 0 && (<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 items-start">{faturamentoPorProfissionalHoje.map(([nome, valor]) => (<div key={String(nome)} className="bg-dark-200 border border-gray-800 rounded-custom p-5"><div className="text-xs text-gray-500 mb-1">PROFISSIONAL</div><div className="font-normal text-white">{String(nome || '—')}</div><div className="text-primary font-normal mt-1">R$ {Number(valor || 0).toFixed(2)}</div></div>))}</div>)}
+                {/* Faturamento por profissional: somente admin */}
+                {!parceiroProfissional && faturamentoPorProfissionalHoje.length > 0 && (<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 items-start">{faturamentoPorProfissionalHoje.map(([nome, valor]) => (<div key={String(nome)} className="bg-dark-200 border border-gray-800 rounded-custom p-5"><div className="text-xs text-gray-500 mb-1">PROFISSIONAL</div><div className="font-normal text-white">{String(nome || '—')}</div><div className="text-primary font-normal mt-1">R$ {Number(valor || 0).toFixed(2)}</div></div>))}</div>)}
                 <div className="bg-dark-200 border border-gray-800 rounded-custom p-5">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4"><h3 className="text-lg font-normal flex items-center gap-2 uppercase"><span style={{ fontFamily: 'Roboto Condensed, sans-serif' }} className="font-normal text-2xl">$</span>FATURAMENTO</h3><DatePicker value={faturamentoData} onChange={(iso) => setFaturamentoData(iso)} todayISO={hoje} /></div>
                   <div className="text-3xl font-normal text-white mb-2">{metricsDiaLoading ? <span className="text-gray-500 text-xl">...</span> : <>R$ {Number(metricsDia?.selected_day?.faturamento || 0).toFixed(2)}</>}</div>
@@ -844,7 +845,8 @@ export default function Dashboard({ user, onLogout }) {
                     <div className="bg-dark-100 border border-gray-800 rounded-custom p-4"><div className="text-xs text-gray-500 mb-1">FECHAMENTO</div><div className="text-xl font-normal text-white">{Number(metricsDia?.selected_day?.taxa_conversao || 0).toFixed(1)}%</div><div className="text-xs text-gray-500 mt-1">sobre {Number(metricsDia?.selected_day?.total || 0)} agendamento(s)</div></div>
                     <div className="bg-dark-100 border border-gray-800 rounded-custom p-4"><div className="text-xs text-gray-500 mb-1">TICKET MÉDIO</div><div className="text-xl font-normal text-primary">R$ {Number(metricsDia?.selected_day?.ticket_medio || 0).toFixed(2)}</div></div>
                   </div>
-                  {faturamentoPorProfissionalFiltro.length > 0 && (<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4 items-start">{faturamentoPorProfissionalFiltro.map(([nome, valor]) => (<div key={String(nome)} className="bg-dark-100 border border-gray-800 rounded-custom p-4"><div className="text-xs text-gray-500 mb-1">PROFISSIONAL</div><div className="font-normal text-white">{String(nome || '—')}</div><div className="text-primary font-normal mt-1">R$ {Number(valor || 0).toFixed(2)}</div></div>))}</div>)}
+                  {/* Faturamento por profissional no filtro: somente admin */}
+                  {!parceiroProfissional && faturamentoPorProfissionalFiltro.length > 0 && (<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4 items-start">{faturamentoPorProfissionalFiltro.map(([nome, valor]) => (<div key={String(nome)} className="bg-dark-100 border border-gray-800 rounded-custom p-4"><div className="text-xs text-gray-500 mb-1">PROFISSIONAL</div><div className="font-normal text-white">{String(nome || '—')}</div><div className="text-primary font-normal mt-1">R$ {Number(valor || 0).toFixed(2)}</div></div>))}</div>)}
                   <div className="mt-2 bg-dark-100 border border-gray-800 rounded-custom p-4">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3"><div className="text-xs text-gray-500 uppercase tracking-wide">FATURAMENTO POR PERÍODO</div><PeriodoSelect value={faturamentoPeriodo} onChange={setFaturamentoPeriodo} /></div>
                     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 items-start">
@@ -1009,7 +1011,13 @@ export default function Dashboard({ user, onLogout }) {
                                     <h3 className="text-sm font-normal text-white mb-0.5">{s.nome}</h3>
                                     <p className="text-xs text-gray-500 mb-4">{p.nome}</p>
                                     <div className="flex gap-2">
-                                      <button onClick={() => { setEditingEntregaId(s.id); setFormEntrega({ nome: s.nome || '', duracao_minutos: String(s.duracao_minutos ?? ''), preco: String(s.preco ?? ''), preco_promocional: String(s.preco_promocional ?? ''), profissional_id: s.profissional_id || '' }); setShowNovaEntrega(true); }} className="flex-1 py-2 bg-blue-500/20 border border-blue-500/50 text-blue-400 rounded-button text-sm font-normal uppercase">EDITAR</button>
+                                      {/* PONTO 2: botão editar também verifica permissão */}
+                                      <button onClick={async () => {
+                                        if (!await checarPermissao(s.profissional_id)) return;
+                                        setEditingEntregaId(s.id);
+                                        setFormEntrega({ nome: s.nome || '', duracao_minutos: String(s.duracao_minutos ?? ''), preco: String(s.preco ?? ''), preco_promocional: String(s.preco_promocional ?? ''), profissional_id: s.profissional_id || '' });
+                                        setShowNovaEntrega(true);
+                                      }} className="flex-1 py-2 bg-blue-500/20 border border-blue-500/50 text-blue-400 rounded-button text-sm font-normal uppercase">EDITAR</button>
                                       <button onClick={() => deleteEntrega(s)} className="flex-1 py-2 bg-red-500/20 border border-red-500/50 text-red-400 rounded-button text-sm font-normal uppercase">EXCLUIR</button>
                                     </div>
                                   </div>
