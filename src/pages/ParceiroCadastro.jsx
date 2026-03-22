@@ -14,7 +14,6 @@ export default function ParceiroCadastro({ suppressAuthRef }) {
   const [loading,   setLoading]   = useState(false);
   const [erro,      setErro]      = useState('');
   const [showAlert, setShowAlert] = useState(false);
-  const [alertMsg,  setAlertMsg]  = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -57,15 +56,6 @@ export default function ParceiroCadastro({ suppressAuthRef }) {
       const uid = signUpData?.user?.id;
       if (!uid) throw new Error('Falha ao criar conta. Tente novamente.');
 
-      for (let i = 0; i < 6; i++) {
-        const { data } = await supabase.from('users').select('id, type').eq('id', uid).maybeSingle();
-        if (data?.id) {
-          await supabase.from('users').update({ nome: nomeClean, type: 'professional' }).eq('id', uid);
-          break;
-        }
-        await sleep(400);
-      }
-
       const { data: profExiste } = await supabase
         .from('profissionais')
         .select('id, status')
@@ -80,12 +70,20 @@ export default function ParceiroCadastro({ suppressAuthRef }) {
         if (profExiste.status === 'inativo')  return setErro('Seu acesso está inativo. Entre em contato com o responsável.');
       }
 
+      for (let i = 0; i < 6; i++) {
+        const { data } = await supabase.from('users').select('id, type').eq('id', uid).maybeSingle();
+        if (data?.id) {
+          await supabase.from('users').update({ nome: nomeClean, type: 'professional' }).eq('id', uid);
+          break;
+        }
+        await sleep(400);
+      }
+
       const { error: profErr } = await supabase.from('profissionais').insert({
         negocio_id:     negocio.id,
         user_id:        uid,
         nome:           nomeClean,
         status:         'pendente',
-        ativo:          false,
         horario_inicio: '08:00',
         horario_fim:    '18:00',
         dias_trabalho:  [1, 2, 3, 4, 5, 6],
@@ -95,7 +93,6 @@ export default function ParceiroCadastro({ suppressAuthRef }) {
 
       await supabase.auth.signOut();
 
-      setAlertMsg('Aguarde a aprovação do responsável pelo negócio para acessar o painel.');
       setShowAlert(true);
 
     } catch (e) {
@@ -116,7 +113,9 @@ export default function ParceiroCadastro({ suppressAuthRef }) {
             <span className="text-green-400 text-4xl">✓</span>
           </div>
           <h1 className="text-3xl font-normal text-white uppercase mb-4">Cadastro enviado!</h1>
-          <p className="text-gray-400 font-normal mb-8">{alertMsg}</p>
+          <p className="text-gray-400 font-normal mb-8">
+            Aguarde a aprovação do responsável pelo negócio para acessar o painel.
+          </p>
           <button
             onClick={() => navigate('/')}
             className="w-full py-3 bg-gradient-to-r from-primary to-yellow-600 text-black rounded-button font-normal uppercase"
@@ -145,50 +144,26 @@ export default function ParceiroCadastro({ suppressAuthRef }) {
 
             <div>
               <label className="block text-xs text-gray-400 uppercase mb-2">Seu nome</label>
-              <input
-                type="text"
-                value={nome}
-                onChange={(e) => setNome(e.target.value)}
-                placeholder="Nome completo"
-                className="w-full px-4 py-3 bg-dark-200 border border-gray-800 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none transition-colors font-normal"
-                required
-              />
+              <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Nome completo"
+                className="w-full px-4 py-3 bg-dark-200 border border-gray-800 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none transition-colors font-normal" required />
             </div>
 
             <div>
               <label className="block text-xs text-gray-400 uppercase mb-2">Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="seu@email.com"
-                className="w-full px-4 py-3 bg-dark-200 border border-gray-800 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none transition-colors font-normal"
-                required
-              />
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="seu@email.com"
+                className="w-full px-4 py-3 bg-dark-200 border border-gray-800 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none transition-colors font-normal" required />
             </div>
 
             <div>
               <label className="block text-xs text-gray-400 uppercase mb-2">Crie uma senha</label>
-              <input
-                type="password"
-                value={senha}
-                onChange={(e) => setSenha(e.target.value)}
-                placeholder="Mínimo 6 caracteres"
-                className="w-full px-4 py-3 bg-dark-200 border border-gray-800 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none transition-colors font-normal"
-                required
-              />
+              <input type="password" value={senha} onChange={(e) => setSenha(e.target.value)} placeholder="Mínimo 6 caracteres"
+                className="w-full px-4 py-3 bg-dark-200 border border-gray-800 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none transition-colors font-normal" required />
             </div>
 
             <div>
               <label className="block text-xs text-gray-400 uppercase mb-2">Slug do negócio</label>
-              <input
-                type="text"
-                value={slug}
-                onChange={(e) => setSlug(e.target.value)}
-                placeholder="ex: barbearia-do-ze"
-                className="w-full px-4 py-3 bg-dark-200 border border-gray-800 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none transition-colors font-normal"
-                required
-              />
+              <input type="text" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="ex: barbearia-do-ze"
+                className="w-full px-4 py-3 bg-dark-200 border border-gray-800 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none transition-colors font-normal" required />
               <p className="text-xs text-gray-600 mt-1 font-normal">Fornecido pelo responsável do negócio</p>
             </div>
 
@@ -198,11 +173,8 @@ export default function ParceiroCadastro({ suppressAuthRef }) {
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 bg-gradient-to-r from-primary to-yellow-600 text-black rounded-button font-normal uppercase disabled:opacity-60 disabled:cursor-not-allowed"
-            >
+            <button type="submit" disabled={loading}
+              className="w-full py-3 bg-gradient-to-r from-primary to-yellow-600 text-black rounded-button font-normal uppercase disabled:opacity-60 disabled:cursor-not-allowed">
               {loading ? 'ENVIANDO...' : 'SOLICITAR ACESSO'}
             </button>
 
