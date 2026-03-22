@@ -36,7 +36,10 @@ export default function BookingCalendar({
   onClose,
   negocioId,
   clienteId,
+  temaAtivo = 'dark',
 }) {
+  const isLight = temaAtivo === 'light';
+
   const today = parseISO(todayISO);
 
   const [viewYear,  setViewYear]  = useState(today?.year  ?? new Date().getFullYear());
@@ -187,26 +190,49 @@ export default function BookingCalendar({
   const startDow  = firstDow(viewYear, viewMonth);
   const cells     = [...Array(startDow).fill(null), ...Array.from({ length: totalDays }, (_, i) => i + 1)];
 
+  const containerBg     = isLight ? 'bg-white border-gray-200'           : 'bg-dark-100 border-gray-800';
+  const headerBorder    = isLight ? 'border-gray-200'                    : 'border-gray-800';
+  const labelColor      = isLight ? 'text-gray-500'                      : 'text-gray-500';
+  const titleColor      = isLight ? 'text-gray-900'                      : 'text-white';
+  const subtitleColor   = isLight ? 'text-gray-500'                      : 'text-gray-400';
+  const subMutedColor   = isLight ? 'text-gray-400'                      : 'text-gray-600';
+  const closeBtn        = isLight ? 'text-gray-400 hover:text-gray-700 hover:bg-gray-100' : 'text-gray-500 hover:text-white hover:bg-dark-200';
+  const navBtn          = isLight ? 'hover:bg-gray-100 text-gray-400 hover:text-gray-700' : 'hover:bg-dark-200 text-gray-400 hover:text-white';
+  const monthColor      = isLight ? 'text-gray-900'                      : 'text-white';
+  const weekdayColor    = isLight ? 'text-gray-400'                      : 'text-gray-500';
+  const dayDisabled     = isLight ? 'text-gray-300 cursor-not-allowed'   : 'text-gray-700 cursor-not-allowed';
+  const dayNormal       = isLight ? 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' : 'text-gray-300 hover:bg-dark-200 hover:text-white';
+  const dayToday        = isLight ? 'text-gray-900 font-bold'            : 'text-primary';
+  const loadingColor    = isLight ? 'text-gray-400'                      : 'text-gray-500';
+  const slotsErrorClass = isLight ? 'bg-amber-50 border-amber-300 text-amber-700' : 'bg-yellow-500/10 border-yellow-500/30 text-yellow-300';
+  const showMoreBtn     = isLight ? 'border-gray-300 bg-gray-50 text-gray-600 hover:border-gray-400 hover:text-gray-800' : 'border-gray-700 bg-dark-200 text-gray-300 hover:border-gray-500 hover:text-white';
+  const resumeBg        = isLight ? 'bg-gray-50 border-gray-200'         : 'bg-dark-200 border-gray-800';
+  const resumeLabel     = isLight ? 'text-gray-500'                      : 'text-gray-500';
+  const resumeValue     = isLight ? 'text-gray-900'                      : 'text-white';
+  const confirmBtnClass = isLight
+    ? 'bg-gray-900 text-white hover:bg-gray-700'
+    : 'bg-gradient-to-r from-primary to-yellow-600 text-black';
+
   return (
     <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
       <div
         ref={containerRef}
-        className="bg-dark-100 border border-gray-800 rounded-custom w-full max-w-md max-h-[92vh] overflow-y-auto"
+        className={`border rounded-custom w-full max-w-md max-h-[92vh] overflow-y-auto ${containerBg}`}
       >
-        <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-800">
+        <div className={`flex items-center justify-between px-6 pt-6 pb-4 border-b ${headerBorder}`}>
           <div className="min-w-0">
-            <div className="text-xs text-gray-500 uppercase tracking-wide">Agendamento</div>
-            <div className="font-normal text-white truncate">{entrega?.nome}</div>
-            <div className="text-xs text-gray-400 mt-0.5">
+            <div className={`text-xs uppercase tracking-wide ${labelColor}`}>Agendamento</div>
+            <div className={`font-normal truncate ${titleColor}`}>{entrega?.nome}</div>
+            <div className={`text-xs mt-0.5 ${subtitleColor}`}>
               {profissional?.nome}
-              {entrega?.duracao_minutos && <span className="ml-2 text-gray-600">• {entrega.duracao_minutos} MIN</span>}
-              <span className="ml-2 text-primary">• R$ {valorExibido}</span>
+              {entrega?.duracao_minutos && <span className={`ml-2 ${subMutedColor}`}>• {entrega.duracao_minutos} MIN</span>}
+              <span className="ml-2 text-vprimary">• R$ {valorExibido}</span>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="shrink-0 ml-4 p-1.5 rounded-button text-gray-500 hover:text-white hover:bg-dark-200 transition-colors"
+            className={`shrink-0 ml-4 p-1.5 rounded-button transition-colors ${closeBtn}`}
           >
             <X className="w-5 h-5" />
           </button>
@@ -219,17 +245,17 @@ export default function BookingCalendar({
                 type="button"
                 onClick={prevMonth}
                 disabled={!canGoPrev}
-                className="p-1.5 rounded hover:bg-dark-200 text-gray-400 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                className={`p-1.5 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${navBtn}`}
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
-              <span className="text-sm font-normal text-white uppercase tracking-wide select-none">
+              <span className={`text-sm font-normal uppercase tracking-wide select-none ${monthColor}`}>
                 {MONTH_NAMES[viewMonth - 1]} {viewYear}
               </span>
               <button
                 type="button"
                 onClick={nextMonth}
-                className="p-1.5 rounded hover:bg-dark-200 text-gray-400 hover:text-white transition-colors"
+                className={`p-1.5 rounded transition-colors ${navBtn}`}
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -237,7 +263,7 @@ export default function BookingCalendar({
 
             <div className="grid grid-cols-7 mb-1">
               {WEEKDAY_SHORT.map((l, i) => (
-                <div key={i} className="text-center text-[10px] text-gray-500 uppercase py-1 select-none">{l}</div>
+                <div key={i} className={`text-center text-[10px] uppercase py-1 select-none ${weekdayColor}`}>{l}</div>
               ))}
             </div>
 
@@ -260,12 +286,12 @@ export default function BookingCalendar({
                     className={[
                       'h-9 w-9 mx-auto flex items-center justify-center text-sm font-normal transition-colors select-none rounded-full',
                       isSelected
-                        ? 'bg-primary text-black'
+                        ? 'bg-vprimary text-vprimary-text'
                         : isToday && !isDisabled
-                          ? 'text-primary'
+                          ? dayToday
                           : isDisabled
-                            ? 'text-gray-700 cursor-not-allowed'
-                            : 'text-gray-300 hover:bg-dark-200 hover:text-white cursor-pointer',
+                            ? dayDisabled
+                            : dayNormal,
                     ].join(' ')}
                   >
                     {day}
@@ -278,14 +304,14 @@ export default function BookingCalendar({
           {selectedDay && (
             <div ref={slotsRef}>
               {slotsLoading && (
-                <div className="flex items-center justify-center py-8 text-gray-500">
+                <div className={`flex items-center justify-center py-8 ${loadingColor}`}>
                   <Loader2 className="w-5 h-5 animate-spin mr-2" />
                   <span className="text-sm">BUSCANDO HORÁRIOS...</span>
                 </div>
               )}
 
               {!slotsLoading && slotsError && (
-                <div className="flex items-center justify-center bg-yellow-500/10 border border-yellow-500/30 rounded-button p-3 text-yellow-300 text-sm font-normal text-center">
+                <div className={`flex items-center justify-center border rounded-button p-3 text-sm font-normal text-center ${slotsErrorClass}`}>
                   {slotsError}
                 </div>
               )}
@@ -299,31 +325,31 @@ export default function BookingCalendar({
                       <>
                         <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-3">
                           {horariosHot.map((h, i) => (
-                            <SlotButton key={`hot-${i}`} slot={h} isSelected={selectedSlot?.hora === h.hora} onClick={handleSelectSlot} />
+                            <SlotButton key={`hot-${i}`} slot={h} isSelected={selectedSlot?.hora === h.hora} onClick={handleSelectSlot} isLight={isLight} />
                           ))}
                         </div>
                         <button
                           type="button"
                           onClick={() => setShowAll(v => !v)}
-                          className="w-full py-2.5 rounded-full border border-gray-700 bg-dark-200 text-gray-300 text-sm font-normal uppercase hover:border-gray-500 hover:text-white transition-colors"
+                          className={`w-full py-2.5 rounded-full border text-sm font-normal uppercase transition-colors ${showMoreBtn}`}
                         >
                           {showAll ? 'OCULTAR HORÁRIOS' : 'VER MAIS HORÁRIOS'}
                         </button>
                         {showAll && horariosExtra.length > 0 && (
                           <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mt-3">
                             {horariosExtra.map((h, i) => (
-                              <SlotButton key={`extra-${i}`} slot={h} isSelected={selectedSlot?.hora === h.hora} onClick={handleSelectSlot} />
+                              <SlotButton key={`extra-${i}`} slot={h} isSelected={selectedSlot?.hora === h.hora} onClick={handleSelectSlot} isLight={isLight} />
                             ))}
                           </div>
                         )}
                         {showAll && horariosExtra.length === 0 && (
-                          <p className="text-center text-xs text-gray-600 mt-3">Os horários livres já aparecem acima.</p>
+                          <p className={`text-center text-xs mt-3 ${isLight ? 'text-gray-400' : 'text-gray-600'}`}>Os horários livres já aparecem acima.</p>
                         )}
                       </>
                     ) : (
                       <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
                         {horariosAll.map((h, i) => (
-                          <SlotButton key={`all-${i}`} slot={h} isSelected={selectedSlot?.hora === h.hora} onClick={handleSelectSlot} />
+                          <SlotButton key={`all-${i}`} slot={h} isSelected={selectedSlot?.hora === h.hora} onClick={handleSelectSlot} isLight={isLight} />
                         ))}
                       </div>
                     )}
@@ -334,29 +360,29 @@ export default function BookingCalendar({
           )}
 
           {selectedSlot && (
-            <div ref={resumeRef} className="bg-dark-200 border border-gray-800 rounded-custom p-4">
-              <div className="text-xs text-gray-500 uppercase tracking-wide mb-3">Resumo</div>
+            <div ref={resumeRef} className={`border rounded-custom p-4 ${resumeBg}`}>
+              <div className={`text-xs uppercase tracking-wide mb-3 ${resumeLabel}`}>Resumo</div>
               <div className="space-y-2 text-sm mb-4">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">PROFISSIONAL</span>
-                  <span className="text-white">{profissional?.nome}</span>
+                  <span className={resumeLabel}>PROFISSIONAL</span>
+                  <span className={resumeValue}>{profissional?.nome}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">DATA</span>
-                  <span className="text-white">{formatBR(selectedDay)}</span>
+                  <span className={resumeLabel}>DATA</span>
+                  <span className={resumeValue}>{formatBR(selectedDay)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">HORÁRIO</span>
-                  <span className="text-primary font-normal">{selectedSlot.hora}</span>
+                  <span className={resumeLabel}>HORÁRIO</span>
+                  <span className="text-vprimary font-normal">{selectedSlot.hora}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">VALOR</span>
-                  <span className="text-primary">R$ {valorExibido}</span>
+                  <span className={resumeLabel}>VALOR</span>
+                  <span className="text-vprimary">R$ {valorExibido}</span>
                 </div>
               </div>
 
               {confirmError && (
-                <div className="text-xs text-red-400 mb-3 bg-red-500/10 border border-red-500/20 rounded p-2">
+                <div className="text-xs text-red-600 mb-3 bg-red-50 border border-red-200 rounded p-2">
                   {confirmError}
                 </div>
               )}
@@ -365,7 +391,7 @@ export default function BookingCalendar({
                 type="button"
                 onClick={handleConfirm}
                 disabled={confirming}
-                className="w-full py-3 bg-gradient-to-r from-primary to-yellow-600 text-black rounded-button font-normal uppercase disabled:opacity-60 flex items-center justify-center gap-2"
+                className={`w-full py-3 rounded-button font-normal uppercase disabled:opacity-60 flex items-center justify-center gap-2 transition-colors ${confirmBtnClass}`}
               >
                 {confirming
                   ? <><Loader2 className="w-4 h-4 animate-spin" /> CONFIRMANDO...</>
@@ -380,7 +406,19 @@ export default function BookingCalendar({
   );
 }
 
-function SlotButton({ slot, isSelected, onClick }) {
+function SlotButton({ slot, isSelected, onClick, isLight }) {
+  const baseSelected  = 'bg-vprimary text-vprimary-text border-vprimary';
+  const baseRaio      = isLight
+    ? 'bg-gray-50 border-gray-300 hover:border-gray-900 text-gray-800'
+    : 'bg-dark-200 border-gray-800 hover:border-primary text-white';
+  const baseHeat      = isLight
+    ? 'bg-gray-50 border-gray-900/40 text-gray-900 hover:bg-gray-100'
+    : 'bg-dark-200 border-primary/40 text-primary hover:bg-primary/10';
+  const baseNormal    = isLight
+    ? 'bg-white border-gray-200 hover:border-gray-500 text-gray-700'
+    : 'bg-dark-200 border-gray-800 hover:border-primary text-gray-300';
+  const minuteColor   = isLight ? 'text-gray-400' : 'text-gray-500';
+
   return (
     <button
       type="button"
@@ -388,19 +426,19 @@ function SlotButton({ slot, isSelected, onClick }) {
       className={[
         'relative p-3 rounded-custom transition-all border uppercase font-normal text-center',
         isSelected
-          ? 'bg-primary text-black border-primary'
+          ? baseSelected
           : slot.isRaio
-            ? 'bg-dark-200 border-gray-800 hover:border-primary text-white'
+            ? baseRaio
             : slot.isHeat
-              ? 'bg-dark-200 border-primary/40 text-primary hover:bg-primary/10'
-              : 'bg-dark-200 border-gray-800 hover:border-primary text-gray-300',
+              ? baseHeat
+              : baseNormal,
       ].join(' ')}
     >
       {slot.isRaio && !isSelected && (
-        <Zap className="w-3 h-3 text-primary absolute top-1 right-1" />
+        <Zap className={`w-3 h-3 absolute top-1 right-1 ${isLight ? 'text-gray-700' : 'text-primary'}`} />
       )}
       <div className="text-lg normal-case">{slot.hora}</div>
-      <div className="text-[10px] text-gray-500 normal-case">{slot.duracaoMin} MIN</div>
+      <div className={`text-[10px] normal-case ${minuteColor}`}>{slot.duracaoMin} MIN</div>
     </button>
   );
 }
