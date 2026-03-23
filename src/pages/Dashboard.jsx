@@ -75,6 +75,45 @@ function TemaToggle({ value, onChange, loading }) {
         <span className={`inline-block h-5 w-5 rounded-full shadow-md transition-all duration-300 ${isLight ? 'translate-x-7 bg-gray-900' : 'translate-x-1 bg-primary'}`} />
       </button>
       <span className={`text-xs font-normal uppercase transition-colors ${isLight ? 'text-primary' : 'text-gray-600'}`}>WHITE</span>
+      {showEditProfissional && (
+        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
+          <div className="bg-dark-100 border border-gray-800 rounded-custom max-w-md w-full p-8 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-normal">EDITAR PROFISSIONAL</h3>
+              <button onClick={() => { setShowEditProfissional(false); setEditingProfissionalId(null); }}><X className="w-6 h-6" /></button>
+            </div>
+            <form onSubmit={updateProfissional} className="space-y-4">
+              <div><label className="block text-sm mb-2">Nome</label><input type="text" value={formProfissional.nome} onChange={(e) => setFormProfissional({ ...formProfissional, nome: e.target.value })} className="w-full px-4 py-3 bg-dark-200 border border-gray-800 rounded-custom text-white" required /></div>
+              <div><label className="block text-sm mb-2">Profissão</label><input type="text" value={formProfissional.profissao} onChange={(e) => setFormProfissional({ ...formProfissional, profissao: e.target.value })} className="w-full px-4 py-3 bg-dark-200 border border-gray-800 rounded-custom text-white" /></div>
+              <div><label className="block text-sm mb-2">Anos de experiência</label><input type="number" value={formProfissional.anos_experiencia} onChange={(e) => setFormProfissional({ ...formProfissional, anos_experiencia: e.target.value })} className="w-full px-4 py-3 bg-dark-200 border border-gray-800 rounded-custom text-white" /></div>
+              <div className="grid grid-cols-2 gap-3">
+                <div><label className="block text-sm mb-2">Início</label><input type="time" value={formProfissional.horario_inicio} onChange={(e) => setFormProfissional({ ...formProfissional, horario_inicio: e.target.value })} className="w-full px-4 py-3 bg-dark-200 border border-gray-800 rounded-custom text-white" /></div>
+                <div><label className="block text-sm mb-2">Fim</label><input type="time" value={formProfissional.horario_fim} onChange={(e) => setFormProfissional({ ...formProfissional, horario_fim: e.target.value })} className="w-full px-4 py-3 bg-dark-200 border border-gray-800 rounded-custom text-white" /></div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div><label className="block text-sm mb-2">Almoço início</label><input type="time" value={formProfissional.almoco_inicio} onChange={(e) => setFormProfissional({ ...formProfissional, almoco_inicio: e.target.value })} className="w-full px-4 py-3 bg-dark-200 border border-gray-800 rounded-custom text-white" /></div>
+                <div><label className="block text-sm mb-2">Almoço fim</label><input type="time" value={formProfissional.almoco_fim} onChange={(e) => setFormProfissional({ ...formProfissional, almoco_fim: e.target.value })} className="w-full px-4 py-3 bg-dark-200 border border-gray-800 rounded-custom text-white" /></div>
+              </div>
+              <div>
+                <label className="block text-sm mb-2">Dias de trabalho</label>
+                <div className="flex flex-wrap gap-2">
+                  {WEEKDAYS.map(d => (
+                    <button key={d.value} type="button"
+                      onClick={() => { const dias = formProfissional.dias_trabalho.includes(d.value) ? formProfissional.dias_trabalho.filter(x => x !== d.value) : [...formProfissional.dias_trabalho, d.value].sort(); setFormProfissional({ ...formProfissional, dias_trabalho: dias }); }}
+                      className={`px-3 py-1.5 rounded-button text-sm border font-normal uppercase transition-all ${formProfissional.dias_trabalho.includes(d.value) ? 'bg-primary/20 border-primary/50 text-primary' : 'bg-dark-200 border-gray-700 text-gray-500'}`}>
+                      {d.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <button type="submit" disabled={submittingProfissional} className={`w-full py-3 bg-gradient-to-r from-primary to-yellow-600 text-black rounded-button font-normal uppercase ${submittingProfissional ? 'opacity-60 cursor-not-allowed' : ''}`}>
+                {submittingProfissional ? 'SALVANDO...' : 'SALVAR'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
@@ -178,6 +217,17 @@ export default function Dashboard({ user, onLogout }) {
 
   const [notifAgendamentos, setNotifAgendamentos] = useState(0);
   const [notifCancelados, setNotifCancelados]     = useState(0);
+
+  const [showEditProfissional, setShowEditProfissional]       = useState(false);
+  const [editingProfissionalId, setEditingProfissionalId]     = useState(null);
+  const [submittingProfissional, setSubmittingProfissional]   = useState(false);
+  const [formProfissional, setFormProfissional] = useState({ nome: '', profissao: '', anos_experiencia: '', horario_inicio: '08:00', horario_fim: '18:00', almoco_inicio: '', almoco_fim: '', dias_trabalho: [1,2,3,4,5,6] });
+
+  const WEEKDAYS = [
+    { value: 0, label: 'Dom' }, { value: 1, label: 'Seg' }, { value: 2, label: 'Ter' },
+    { value: 3, label: 'Qua' }, { value: 4, label: 'Qui' }, { value: 5, label: 'Sex' },
+    { value: 6, label: 'Sáb' },
+  ];
 
   useEffect(() => { setNovoEmail(user?.email || ''); }, [user?.email]);
 
@@ -568,6 +618,35 @@ export default function Dashboard({ user, onLogout }) {
       const profs = await reloadProfissionais();
       if (profs?.length) await reloadEntregas(negocio.id, profs.map(p => p.id)); else setEntregas([]);
     } catch (e) { await uiAlert('dashboard.professional_delete_error', 'error'); }
+  };
+
+  const updateProfissional = async (e) => {
+    e.preventDefault(); if (submittingProfissional) return;
+    try {
+      setSubmittingProfissional(true);
+      if (!await checarPermissao(editingProfissionalId)) return;
+      const payload = {
+        nome: String(formProfissional.nome || '').trim(),
+        profissao: String(formProfissional.profissao || '').trim() || null,
+        anos_experiencia: formProfissional.anos_experiencia !== '' ? Number(formProfissional.anos_experiencia) : null,
+        horario_inicio: formProfissional.horario_inicio || '08:00',
+        horario_fim: formProfissional.horario_fim || '18:00',
+        almoco_inicio: formProfissional.almoco_inicio || null,
+        almoco_fim: formProfissional.almoco_fim || null,
+        dias_trabalho: formProfissional.dias_trabalho,
+      };
+      if (!payload.nome) throw new Error('Nome obrigatorio.');
+      const { error: updErr } = await supabase.from('profissionais').update(payload).eq('id', editingProfissionalId).eq('negocio_id', negocio.id);
+      if (updErr) throw updErr;
+      await uiAlert('dashboard.professional_updated', 'success');
+      setShowEditProfissional(false); setEditingProfissionalId(null);
+      await reloadProfissionais();
+    } catch (e) {
+      const msg = String(e?.message || '');
+      if (msg.includes('profissional_almoco_bloqueado')) await uiAlert('dashboard.professional_almoco_blocked', 'error');
+      else if (msg.includes('profissional_dia_bloqueado')) await uiAlert('dashboard.professional_dia_blocked', 'error');
+      else await uiAlert('dashboard.professional_update_error', 'error');
+    } finally { setSubmittingProfissional(false); }
   };
 
   const aprovarParceiro = async (prof) => {
@@ -1017,15 +1096,19 @@ export default function Dashboard({ user, onLogout }) {
                         {!isPendente && (isEuMesmo || !parceiroProfissional) && (
                           <>
                             {isInativo && p.motivo_inativo && (<div className="text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-custom p-2 mb-3">INATIVO {p.motivo_inativo ? `• ${p.motivo_inativo}` : ''}</div>)}
-                            {!parceiroProfissional && (
-                              <div className="flex gap-2 mb-3">
-                                <button onClick={() => toggleStatusProfissional(p)} className={`flex-1 py-2 rounded-button text-sm border font-normal uppercase ${isAtivo ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-300' : 'bg-green-500/10 border-green-500/30 text-green-300'}`}>
-                                  {isAtivo ? 'INATIVAR' : 'ATIVAR'}
-                                </button>
-                                <button onClick={() => excluirProfissional(p)} className="flex-1 py-2 bg-red-500/10 border border-red-500/30 text-red-300 rounded-button text-sm font-normal uppercase">EXCLUIR</button>
+                            {!parceiroProfissional ? (
+                              <div className="space-y-2">
+                                <button onClick={() => { setEditingProfissionalId(p.id); setFormProfissional({ nome: p.nome || '', profissao: p.profissao || '', anos_experiencia: String(p.anos_experiencia ?? ''), horario_inicio: p.horario_inicio || '08:00', horario_fim: p.horario_fim || '18:00', almoco_inicio: p.almoco_inicio || '', almoco_fim: p.almoco_fim || '', dias_trabalho: p.dias_trabalho || [1,2,3,4,5,6] }); setShowEditProfissional(true); }} className="w-full py-2 bg-blue-500/20 border border-blue-500/50 text-blue-400 rounded-button text-sm font-normal uppercase">EDITAR</button>
+                                <div className="flex gap-2">
+                                  <button onClick={() => toggleStatusProfissional(p)} className={`flex-1 py-2 rounded-button text-sm border font-normal uppercase ${isAtivo ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-300' : 'bg-green-500/10 border-green-500/30 text-green-300'}`}>
+                                    {isAtivo ? 'INATIVAR' : 'ATIVAR'}
+                                  </button>
+                                  <button onClick={() => excluirProfissional(p)} className="flex-1 py-2 bg-red-500/10 border border-red-500/30 text-red-300 rounded-button text-sm font-normal uppercase">EXCLUIR</button>
+                                </div>
                               </div>
-                            )}
-
+                            ) : isEuMesmo ? (
+                              <button onClick={() => { setEditingProfissionalId(p.id); setFormProfissional({ nome: p.nome || '', profissao: p.profissao || '', anos_experiencia: String(p.anos_experiencia ?? ''), horario_inicio: p.horario_inicio || '08:00', horario_fim: p.horario_fim || '18:00', almoco_inicio: p.almoco_inicio || '', almoco_fim: p.almoco_fim || '', dias_trabalho: p.dias_trabalho || [1,2,3,4,5,6] }); setShowEditProfissional(true); }} className="w-full py-2 bg-blue-500/20 border border-blue-500/50 text-blue-400 rounded-button text-sm font-normal uppercase">EDITAR</button>
+                            ) : null}
                           </>
                         )}
                       </div>
