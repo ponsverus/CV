@@ -18,7 +18,7 @@ const TIPO_PARA_GRUPO = {
   'c. medica':      'consultas',
   'dentista':       'consultas',
   'nutricao':       'consultas',
-  'c.veterinaria':  'consultas',
+  'c. veterinaria':  'consultas',
   'psicologia':     'consultas',
   'fisioterapia':   'consultas',
   'fonoaudiologia': 'consultas',
