@@ -229,9 +229,11 @@ export default function App() {
           } />
 
           <Route path="/parceiro/login" element={
-            isLoggedIn && userType
-              ? <Navigate to={userType === 'professional' ? '/dashboard' : '/minha-area'} />
-              : <ParceiroLogin onLogin={handleLogin} suppressAuthRef={suppressAuthRef} />
+            inRecovery
+              ? <ParceiroLogin onLogin={handleLogin} suppressAuthRef={suppressAuthRef} inRecovery={true} />
+              : isLoggedIn && userType
+                ? <Navigate to={userType === 'professional' ? '/dashboard' : '/minha-area'} />
+                : <ParceiroLogin onLogin={handleLogin} suppressAuthRef={suppressAuthRef} />
           } />
 
           <Route path="/cadastro" element={
