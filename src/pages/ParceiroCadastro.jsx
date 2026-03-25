@@ -7,6 +7,21 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const msgs = ptBR.parceiroCadastro;
 
+function Alerta({ msg }) {
+  if (!msg) return null;
+  const estilos = {
+    erro:   'bg-red-500/10 border-red-500/30 text-red-400',
+    aviso:  'bg-yellow-500/10 border-yellow-500/30 text-yellow-300',
+    sucesso:'bg-green-500/10 border-green-500/30 text-green-400',
+  };
+  const classe = estilos[msg.variant] || estilos.erro;
+  return (
+    <div className={`border rounded-custom px-4 py-3 text-sm font-normal ${classe}`}>
+      {msg.body}
+    </div>
+  );
+}
+
 export default function ParceiroCadastro({ suppressAuthRef }) {
   const navigate = useNavigate();
 
@@ -15,21 +30,21 @@ export default function ParceiroCadastro({ suppressAuthRef }) {
   const [senha,     setSenha]     = useState('');
   const [slug,      setSlug]      = useState('');
   const [loading,   setLoading]   = useState(false);
-  const [erro,      setErro]      = useState('');
+  const [alerta,    setAlerta]    = useState(null);
   const [showAlert, setShowAlert] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErro('');
+    setAlerta(null);
 
     const nomeClean  = nome.trim().toUpperCase().replace(/\s+/g, ' ');
     const emailClean = email.trim().toLowerCase();
     const slugClean  = slug.trim().toLowerCase();
 
-    if (!nomeClean)                               return setErro(msgs.nome_required.body);
-    if (!emailClean || !emailClean.includes('@')) return setErro(msgs.email_invalid.body);
-    if (senha.length < 6)                         return setErro(msgs.senha_too_short.body);
-    if (!slugClean)                               return setErro(msgs.slug_required.body);
+    if (!nomeClean)                               return setAlerta(msgs.nome_required);
+    if (!emailClean || !emailClean.includes('@')) return setAlerta(msgs.email_invalid);
+    if (senha.length < 6)                         return setAlerta(msgs.senha_too_short);
+    if (!slugClean)                               return setAlerta(msgs.slug_required);
 
     setLoading(true);
     if (suppressAuthRef) suppressAuthRef.current = true;
@@ -42,7 +57,7 @@ export default function ParceiroCadastro({ suppressAuthRef }) {
         .maybeSingle();
 
       if (negErr) throw negErr;
-      if (!negocio) return setErro(msgs.negocio_not_found.body);
+      if (!negocio) return setAlerta(msgs.negocio_not_found);
 
       const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({
         email: emailClean,
@@ -51,7 +66,7 @@ export default function ParceiroCadastro({ suppressAuthRef }) {
 
       if (signUpErr) {
         if (String(signUpErr.message || '').toLowerCase().includes('already')) {
-          return setErro(msgs.email_already_exists.body);
+          return setAlerta(msgs.email_already_exists);
         }
         throw signUpErr;
       }
@@ -68,9 +83,9 @@ export default function ParceiroCadastro({ suppressAuthRef }) {
 
       if (profExiste) {
         await supabase.auth.signOut();
-        if (profExiste.status === 'pendente') return setErro(msgs.already_pending.body);
-        if (profExiste.status === 'ativo')    return setErro(msgs.already_active.body);
-        if (profExiste.status === 'inativo')  return setErro(msgs.access_inactive.body);
+        if (profExiste.status === 'pendente') return setAlerta(msgs.already_pending);
+        if (profExiste.status === 'ativo')    return setAlerta(msgs.already_active);
+        if (profExiste.status === 'inativo')  return setAlerta(msgs.access_inactive);
       }
 
       for (let i = 0; i < 6; i++) {
@@ -95,11 +110,10 @@ export default function ParceiroCadastro({ suppressAuthRef }) {
       if (profErr) throw profErr;
 
       await supabase.auth.signOut();
-
       setShowAlert(true);
 
     } catch (e) {
-      setErro(e?.message || msgs.unexpected_error.body);
+      setAlerta({ body: e?.message || msgs.unexpected_error.body, variant: 'erro' });
       await supabase.auth.signOut();
     } finally {
       if (suppressAuthRef) suppressAuthRef.current = false;
@@ -167,11 +181,7 @@ export default function ParceiroCadastro({ suppressAuthRef }) {
               <p className="text-xs text-gray-600 mt-1 font-normal">Fornecido pelo responsável do negócio</p>
             </div>
 
-            {erro && (
-              <div className="bg-red-500/10 border border-red-500/30 rounded-custom px-4 py-3 text-red-400 text-sm font-normal">
-                {erro}
-              </div>
-            )}
+            <Alerta msg={alerta} />
 
             <button type="submit" disabled={loading}
               className="w-full py-3 bg-gradient-to-r from-primary to-yellow-600 text-black rounded-button font-normal uppercase disabled:opacity-60 disabled:cursor-not-allowed">
