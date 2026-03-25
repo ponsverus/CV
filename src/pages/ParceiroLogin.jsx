@@ -6,6 +6,21 @@ import { ptBR } from '../feedback/messages/ptBR';
 
 const msgs = ptBR.parceiroLogin;
 
+function Alerta({ msg }) {
+  if (!msg) return null;
+  const estilos = {
+    erro:   'bg-red-500/10 border-red-500/30 text-red-400',
+    aviso:  'bg-yellow-500/10 border-yellow-500/30 text-yellow-300',
+    sucesso:'bg-green-500/10 border-green-500/30 text-green-400',
+  };
+  const classe = estilos[msg.variant] || estilos.erro;
+  return (
+    <div className={`border rounded-custom px-4 py-3 text-sm font-normal ${classe}`}>
+      {msg.body}
+    </div>
+  );
+}
+
 export default function ParceiroLogin({ onLogin, suppressAuthRef, inRecovery: inRecoveryProp = false }) {
   const navigate = useNavigate();
 
@@ -13,14 +28,14 @@ export default function ParceiroLogin({ onLogin, suppressAuthRef, inRecovery: in
   const [senha,        setSenha]        = useState('');
   const [slug,         setSlug]         = useState('');
   const [loading,      setLoading]      = useState(false);
-  const [erro,         setErro]         = useState('');
+  const [alerta,       setAlerta]       = useState(null);
   const [showPassword, setShowPassword] = useState(false);
 
   const [isRecovery,      setIsRecovery]      = useState(inRecoveryProp);
   const [newPassword,     setNewPassword]     = useState('');
   const [newPassword2,    setNewPassword2]    = useState('');
   const [recoveryLoading, setRecoveryLoading] = useState(false);
-  const [recoveryErro,    setRecoveryErro]    = useState('');
+  const [recoveryAlerta,  setRecoveryAlerta]  = useState(null);
 
   const [resetLoading, setResetLoading] = useState(false);
 
@@ -32,7 +47,7 @@ export default function ParceiroLogin({ onLogin, suppressAuthRef, inRecovery: in
     const { data } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') {
         setIsRecovery(true);
-        setErro('');
+        setAlerta(null);
       }
     });
     return () => { data?.subscription?.unsubscribe?.(); };
@@ -40,14 +55,14 @@ export default function ParceiroLogin({ onLogin, suppressAuthRef, inRecovery: in
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErro('');
+    setAlerta(null);
 
     const emailClean = email.trim().toLowerCase();
     const slugClean  = slug.trim().toLowerCase();
 
-    if (!emailClean || !emailClean.includes('@')) return setErro(msgs.email_invalid.body);
-    if (senha.length < 6)                         return setErro(msgs.senha_too_short.body);
-    if (!slugClean)                               return setErro(msgs.slug_required.body);
+    if (!emailClean || !emailClean.includes('@')) return setAlerta(msgs.email_invalid);
+    if (senha.length < 6)                         return setAlerta(msgs.senha_too_short);
+    if (!slugClean)                               return setAlerta(msgs.slug_required);
 
     setLoading(true);
     if (suppressAuthRef) suppressAuthRef.current = true;
@@ -60,7 +75,7 @@ export default function ParceiroLogin({ onLogin, suppressAuthRef, inRecovery: in
         .maybeSingle();
 
       if (negErr) throw negErr;
-      if (!negocio) return setErro(msgs.negocio_not_found.body);
+      if (!negocio) return setAlerta(msgs.negocio_not_found);
 
       const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({
         email: emailClean,
@@ -69,7 +84,7 @@ export default function ParceiroLogin({ onLogin, suppressAuthRef, inRecovery: in
 
       if (signInErr) {
         if (String(signInErr.message || '').toLowerCase().includes('invalid')) {
-          return setErro(msgs.credentials_invalid.body);
+          return setAlerta(msgs.credentials_invalid);
         }
         throw signInErr;
       }
@@ -88,15 +103,15 @@ export default function ParceiroLogin({ onLogin, suppressAuthRef, inRecovery: in
 
       if (!prof) {
         await supabase.auth.signOut();
-        return setErro(msgs.not_partner.body);
+        return setAlerta(msgs.not_partner);
       }
       if (prof.status === 'pendente') {
         await supabase.auth.signOut();
-        return setErro(msgs.pending_approval.body);
+        return setAlerta(msgs.pending_approval);
       }
       if (prof.status === 'inativo') {
         await supabase.auth.signOut();
-        return setErro(msgs.access_inactive.body);
+        return setAlerta(msgs.access_inactive);
       }
 
       if (suppressAuthRef) suppressAuthRef.current = false;
@@ -104,7 +119,7 @@ export default function ParceiroLogin({ onLogin, suppressAuthRef, inRecovery: in
       navigate('/dashboard', { state: { negocioId: negocio.id } });
 
     } catch (e) {
-      setErro(e?.message || msgs.unexpected_error.body);
+      setAlerta({ body: e?.message || msgs.unexpected_error.body, variant: 'erro' });
       await supabase.auth.signOut();
     } finally {
       if (suppressAuthRef) suppressAuthRef.current = false;
@@ -116,19 +131,19 @@ export default function ParceiroLogin({ onLogin, suppressAuthRef, inRecovery: in
     if (resetLoading) return;
     const emailClean = email.trim().toLowerCase();
     if (!emailClean || !emailClean.includes('@')) {
-      setErro(msgs.reset_email_required.body);
+      setAlerta(msgs.reset_email_required);
       return;
     }
     setResetLoading(true);
-    setErro('');
+    setAlerta(null);
     try {
       const { error: resetErr } = await supabase.auth.resetPasswordForEmail(emailClean, {
         redirectTo: `${window.location.origin}/parceiro/login`,
       });
       if (resetErr) throw resetErr;
-      setErro(msgs.reset_sent.body);
+      setAlerta(msgs.reset_sent);
     } catch {
-      setErro(msgs.reset_error.body);
+      setAlerta(msgs.reset_error);
     } finally {
       setResetLoading(false);
     }
@@ -137,10 +152,10 @@ export default function ParceiroLogin({ onLogin, suppressAuthRef, inRecovery: in
   const handleSetNewPassword = async (e) => {
     e.preventDefault();
     if (recoveryLoading) return;
-    setRecoveryErro('');
+    setRecoveryAlerta(null);
 
-    if (newPassword.length < 6)       return setRecoveryErro(msgs.recovery_password_too_short.body);
-    if (newPassword !== newPassword2) return setRecoveryErro(msgs.recovery_password_mismatch.body);
+    if (newPassword.length < 6)       return setRecoveryAlerta(msgs.recovery_password_too_short);
+    if (newPassword !== newPassword2) return setRecoveryAlerta(msgs.recovery_password_mismatch);
 
     setRecoveryLoading(true);
     try {
@@ -150,9 +165,9 @@ export default function ParceiroLogin({ onLogin, suppressAuthRef, inRecovery: in
       setIsRecovery(false);
       setNewPassword('');
       setNewPassword2('');
-      setErro(msgs.recovery_password_updated.body);
+      setAlerta(msgs.recovery_password_updated);
     } catch {
-      setRecoveryErro(msgs.recovery_password_update_error.body);
+      setRecoveryAlerta(msgs.recovery_password_update_error);
     } finally {
       setRecoveryLoading(false);
     }
@@ -198,11 +213,7 @@ export default function ParceiroLogin({ onLogin, suppressAuthRef, inRecovery: in
                 />
               </div>
 
-              {recoveryErro && (
-                <div className="bg-red-500/10 border border-red-500/30 rounded-custom px-4 py-3 text-red-400 text-sm font-normal">
-                  {recoveryErro}
-                </div>
-              )}
+              <Alerta msg={recoveryAlerta} />
 
               <button
                 type="submit"
@@ -291,15 +302,7 @@ export default function ParceiroLogin({ onLogin, suppressAuthRef, inRecovery: in
               </button>
             </div>
 
-            {erro && (
-              <div className={`border rounded-custom px-4 py-3 text-sm font-normal ${
-                erro === msgs.reset_sent.body
-                  ? 'bg-green-500/10 border-green-500/30 text-green-400'
-                  : 'bg-red-500/10 border-red-500/30 text-red-400'
-              }`}>
-                {erro}
-              </div>
-            )}
+            <Alerta msg={alerta} />
 
             <button
               type="submit"
