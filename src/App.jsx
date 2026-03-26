@@ -1,22 +1,23 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { supabase } from './supabase';
 import { isPasswordRecoveryUrl } from './utils/auth';
 
 import FeedbackProvider from './feedback/FeedbackProvider';
 
-import Home from './pages/Home';
-import Login from './pages/Login';
-import SignupChoice from './pages/SignupChoice';
-import SignupClient from './pages/SignupClient';
+import Home               from './pages/Home';
+import Login              from './pages/Login';
+import SignupChoice       from './pages/SignupChoice';
+import SignupClient       from './pages/SignupClient';
 import SignupProfessional from './pages/SignupProfessional';
-import Dashboard from './pages/Dashboard';
-import Vitrine from './pages/Vitrine';
-import ClientArea from './pages/ClientArea';
-import CriarNegocio from './pages/CriarNegocio';
-import SelecionarNegocio from './pages/SelecionarNegocio';
-import ParceiroCadastro from './pages/ParceiroCadastro';
-import ParceiroLogin from './pages/ParceiroLogin';
+import ParceiroCadastro   from './pages/ParceiroCadastro';
+import ParceiroLogin      from './pages/ParceiroLogin';
+
+const Dashboard        = lazy(() => import('./pages/Dashboard'));
+const Vitrine          = lazy(() => import('./pages/Vitrine'));
+const ClientArea       = lazy(() => import('./pages/ClientArea'));
+const CriarNegocio     = lazy(() => import('./pages/CriarNegocio'));
+const SelecionarNegocio = lazy(() => import('./pages/SelecionarNegocio'));
 
 const PROFILE_TABLE = 'users';
 const isValidType = (t) => t === 'client' || t === 'professional';
@@ -199,7 +200,7 @@ export default function App() {
       await loadType(session.user);
       safeSet(() => setBooting(false));
     } catch {
-      safeSet(() => { setUser(null); setUserType(null); setBooting(false); });
+      safeSet(() => { setUser(null); setUserType(null); setBooting(false)); }
     }
   }, [safeSet, loadType]);
 
@@ -213,83 +214,85 @@ export default function App() {
         <RecoveryWatcher onChange={setInRecovery} />
         <ScrollToTopOnRouteChange />
 
-        <Routes>
-          <Route path="/" element={<Home user={isLoggedIn ? user : null} userType={isLoggedIn ? userType : null} onLogout={handleLogout} />} />
+        <Suspense fallback={<FullScreenLoading />}>
+          <Routes>
+            <Route path="/" element={<Home user={isLoggedIn ? user : null} userType={isLoggedIn ? userType : null} onLogout={handleLogout} />} />
 
-          <Route path="/login" element={
-            inRecovery ? <Login onLogin={handleLogin} inRecovery={true} />
-            : isLoggedIn && userType ? <Navigate to={userType === 'professional' ? '/dashboard' : '/minha-area'} />
-            : <Login onLogin={handleLogin} inRecovery={false} />
-          } />
+            <Route path="/login" element={
+              inRecovery ? <Login onLogin={handleLogin} inRecovery={true} />
+              : isLoggedIn && userType ? <Navigate to={userType === 'professional' ? '/dashboard' : '/minha-area'} />
+              : <Login onLogin={handleLogin} inRecovery={false} />
+            } />
 
-          <Route path="/parceiro/cadastro" element={
-            isLoggedIn && userType
-              ? <Navigate to={userType === 'professional' ? '/dashboard' : '/minha-area'} />
-              : <ParceiroCadastro suppressAuthRef={suppressAuthRef} />
-          } />
-
-          <Route path="/parceiro/login" element={
-            inRecovery
-              ? <ParceiroLogin onLogin={handleLogin} suppressAuthRef={suppressAuthRef} inRecovery={true} />
-              : isLoggedIn && userType
+            <Route path="/parceiro/cadastro" element={
+              isLoggedIn && userType
                 ? <Navigate to={userType === 'professional' ? '/dashboard' : '/minha-area'} />
-                : <ParceiroLogin onLogin={handleLogin} suppressAuthRef={suppressAuthRef} />
-          } />
+                : <ParceiroCadastro suppressAuthRef={suppressAuthRef} />
+            } />
 
-          <Route path="/cadastro" element={
-            isLoggedIn && userType
-              ? <Navigate to={userType === 'professional' ? '/dashboard' : '/minha-area'} />
-              : <SignupChoice />
-          } />
+            <Route path="/parceiro/login" element={
+              inRecovery
+                ? <ParceiroLogin onLogin={handleLogin} suppressAuthRef={suppressAuthRef} inRecovery={true} />
+                : isLoggedIn && userType
+                  ? <Navigate to={userType === 'professional' ? '/dashboard' : '/minha-area'} />
+                  : <ParceiroLogin onLogin={handleLogin} suppressAuthRef={suppressAuthRef} />
+            } />
 
-          <Route path="/cadastro/cliente" element={
-            isLoggedIn && userType === 'client' ? <Navigate to="/minha-area" />
-            : <SignupClient onLogin={handleLogin} />
-          } />
+            <Route path="/cadastro" element={
+              isLoggedIn && userType
+                ? <Navigate to={userType === 'professional' ? '/dashboard' : '/minha-area'} />
+                : <SignupChoice />
+            } />
 
-          <Route path="/cadastro/profissional" element={
-            isLoggedIn && userType === 'professional' ? <Navigate to="/dashboard" />
-            : <SignupProfessional onLogin={handleLogin} />
-          } />
+            <Route path="/cadastro/cliente" element={
+              isLoggedIn && userType === 'client' ? <Navigate to="/minha-area" />
+              : <SignupClient onLogin={handleLogin} />
+            } />
 
-          <Route path="/dashboard" element={
-            isLoggedIn ? (
-              typeLoading ? <FullScreenLoading text="CARREGANDO..." />
-              : userType === 'professional' ? <Dashboard user={user} onLogout={handleLogout} />
-              : userType ? <Navigate to="/minha-area" />
-              : <Navigate to="/login" />
-            ) : <Navigate to="/login" />
-          } />
+            <Route path="/cadastro/profissional" element={
+              isLoggedIn && userType === 'professional' ? <Navigate to="/dashboard" />
+              : <SignupProfessional onLogin={handleLogin} />
+            } />
 
-          <Route path="/minha-area" element={
-            isLoggedIn ? (
-              typeLoading ? <FullScreenLoading text="CARREGANDO..." />
-              : userType === 'client' ? <ClientArea user={user} onLogout={handleLogout} />
-              : userType ? <Navigate to="/dashboard" />
-              : <Navigate to="/login" />
-            ) : <Navigate to="/login" />
-          } />
+            <Route path="/dashboard" element={
+              isLoggedIn ? (
+                typeLoading ? <FullScreenLoading text="CARREGANDO..." />
+                : userType === 'professional' ? <Dashboard user={user} onLogout={handleLogout} />
+                : userType ? <Navigate to="/minha-area" />
+                : <Navigate to="/login" />
+              ) : <Navigate to="/login" />
+            } />
 
-          <Route path="/v/:slug" element={<Vitrine user={isLoggedIn ? user : null} userType={isLoggedIn ? userType : null} />} />
+            <Route path="/minha-area" element={
+              isLoggedIn ? (
+                typeLoading ? <FullScreenLoading text="CARREGANDO..." />
+                : userType === 'client' ? <ClientArea user={user} onLogout={handleLogout} />
+                : userType ? <Navigate to="/dashboard" />
+                : <Navigate to="/login" />
+              ) : <Navigate to="/login" />
+            } />
 
-          <Route path="/criar-negocio" element={
-            isLoggedIn ? (
-              typeLoading ? <FullScreenLoading text="CARREGANDO..." />
-              : userType === 'professional' ? <CriarNegocio user={user} />
-              : userType ? <Navigate to="/minha-area" />
-              : <Navigate to="/login" />
-            ) : <Navigate to="/login" />
-          } />
+            <Route path="/v/:slug" element={<Vitrine user={isLoggedIn ? user : null} userType={isLoggedIn ? userType : null} />} />
 
-          <Route path="/selecionar-negocio" element={
-            isLoggedIn ? (
-              typeLoading ? <FullScreenLoading text="CARREGANDO..." />
-              : userType === 'professional' ? <SelecionarNegocio user={user} onLogout={handleLogout} />
-              : userType ? <Navigate to="/minha-area" />
-              : <Navigate to="/login" />
-            ) : <Navigate to="/login" />
-          } />
-        </Routes>
+            <Route path="/criar-negocio" element={
+              isLoggedIn ? (
+                typeLoading ? <FullScreenLoading text="CARREGANDO..." />
+                : userType === 'professional' ? <CriarNegocio user={user} />
+                : userType ? <Navigate to="/minha-area" />
+                : <Navigate to="/login" />
+              ) : <Navigate to="/login" />
+            } />
+
+            <Route path="/selecionar-negocio" element={
+              isLoggedIn ? (
+                typeLoading ? <FullScreenLoading text="CARREGANDO..." />
+                : userType === 'professional' ? <SelecionarNegocio user={user} onLogout={handleLogout} />
+                : userType ? <Navigate to="/minha-area" />
+                : <Navigate to="/login" />
+              ) : <Navigate to="/login" />
+            } />
+          </Routes>
+        </Suspense>
       </FeedbackProvider>
     </Router>
   );
