@@ -200,7 +200,7 @@ export default function App() {
       await loadType(session.user);
       safeSet(() => setBooting(false));
     } catch {
-      safeSet(() => { setUser(null); setUserType(null); setBooting(false)); }
+      safeSet(() => { setUser(null); setUserType(null); setBooting(false); });
     }
   }, [safeSet, loadType]);
 
