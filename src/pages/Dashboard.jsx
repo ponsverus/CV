@@ -184,13 +184,12 @@ export default function Dashboard({ user, onLogout }) {
   const [submittingProfissional, setSubmittingProfissional]   = useState(false);
   const [formProfissional, setFormProfissional] = useState({ nome: '', profissao: '', anos_experiencia: '', horario_inicio: '08:00', horario_fim: '18:00', almoco_inicio: '', almoco_fim: '', dias_trabalho: [1,2,3,4,5,6] });
 
-  // Estado para auto-cadastro do admin como profissional
   const [submittingAdminProf, setSubmittingAdminProf] = useState(false);
 
   const WEEKDAYS = [
-    { value: 0, label: 'Dom' }, { value: 1, label: 'Seg' }, { value: 2, label: 'Ter' },
-    { value: 3, label: 'Qua' }, { value: 4, label: 'Qui' }, { value: 5, label: 'Sex' },
-    { value: 6, label: 'Sáb' },
+    { value: 0, label: 'DOM' }, { value: 1, label: 'SEG' }, { value: 2, label: 'TER' },
+    { value: 3, label: 'QUA' }, { value: 4, label: 'QUI' }, { value: 5, label: 'SEX' },
+    { value: 6, label: 'SÁB' },
   ];
 
   useEffect(() => { setNovoEmail(user?.email || ''); }, [user?.email]);
@@ -206,7 +205,6 @@ export default function Dashboard({ user, onLogout }) {
   const counterPlural    = useMemo(() => getBizLabel(businessGroup, 'counter_plural'), [businessGroup]);
   const emptyListMsg     = useMemo(() => getBizLabel(businessGroup, 'empty_list'), [businessGroup]);
 
-  // O admin já está cadastrado como profissional neste negócio?
   const adminJaEhProfissional = useMemo(() =>
     profissionais.some(p => p.user_id === user?.id),
   [profissionais, user?.id]);
@@ -457,12 +455,11 @@ export default function Dashboard({ user, onLogout }) {
     finally { setLoading(false); }
   }, [user?.id, location?.state?.negocioId, serverNow, hoje, faturamentoPeriodo]);
 
-  // Admin se cadastra como profissional no próprio negócio
   const cadastrarAdminComoProfissional = async () => {
     if (!negocio?.id || !user?.id || submittingAdminProf) return;
     try {
       setSubmittingAdminProf(true);
-      // Busca o nome atual do admin em users
+
       const { data: userData, error: userErr } = await supabase
         .from('users')
         .select('nome')
@@ -1107,7 +1104,7 @@ export default function Dashboard({ user, onLogout }) {
               <div>
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-normal">Profissionais</h2>
-                  {/* Botão visível apenas para o admin que ainda não se cadastrou como profissional */}
+
                   {souDono && !adminJaEhProfissional && (
                     <button
                       onClick={cadastrarAdminComoProfissional}
