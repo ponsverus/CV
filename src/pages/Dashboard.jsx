@@ -8,7 +8,6 @@ import {
 import { supabase } from '../supabase';
 import { useFeedback } from '../feedback/useFeedback';
 import { getBusinessGroup } from '../businessTerms';
-import { ptBR } from '../feedback/messages/ptBR.js';
 import DatePicker from '../components/DatePicker';
 import PeriodoSelect from '../components/PeriodoSelect';
 import ProfissionalSelect from '../components/ProfissionalSelect';
@@ -99,8 +98,20 @@ function getValorAgendamento(a) {
 
 const normalizeKey = (s) => String(s || '').trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-const getBizLabel = (group, key) =>
-  ptBR?.dashboard?.business?.[key]?.[group] ?? ptBR?.dashboard?.business?.[key]?.['servicos'] ?? '';
+const LABEL_TAB            = { servicos: 'SERVIÇOS',  consultas: 'CONSULTAS',  aulas: 'AULAS'  };
+const LABEL_SECTION        = { servicos: 'Serviços',  consultas: 'Consultas',  aulas: 'Aulas'  };
+const LABEL_BTN_ADD        = { servicos: 'SERVIÇO',   consultas: 'CONSULTA',   aulas: 'AULA'   };
+const LABEL_MODAL_NEW      = { servicos: 'NOVO SERVIÇO',   consultas: 'NOVA CONSULTA',   aulas: 'NOVA AULA'   };
+const LABEL_MODAL_EDIT     = { servicos: 'EDITAR SERVIÇO', consultas: 'EDITAR CONSULTA', aulas: 'EDITAR AULA' };
+const LABEL_COUNTER_SINGULAR = { servicos: 'serviço',  consultas: 'consulta',  aulas: 'aula'  };
+const LABEL_COUNTER_PLURAL   = { servicos: 'serviços', consultas: 'consultas', aulas: 'aulas' };
+const LABEL_EMPTY_LIST = {
+  servicos:  'Sem serviços para este profissional.',
+  consultas: 'Sem consultas para este profissional.',
+  aulas:     'Sem aulas para este profissional.',
+};
+
+const g = (map, group) => map[group] ?? map['servicos'];
 
 export default function Dashboard({ user, onLogout }) {
   const navigate = useNavigate();
@@ -182,15 +193,14 @@ export default function Dashboard({ user, onLogout }) {
   useEffect(() => { setNovoEmail(user?.email || ''); }, [user?.email]);
 
   const businessGroup    = useMemo(() => getBusinessGroup(negocio?.tipo_negocio), [negocio?.tipo_negocio]);
-
-  const tabEntregasLabel = useMemo(() => getBizLabel(businessGroup, 'tab_title').toUpperCase(), [businessGroup]);
-  const sectionTitle     = useMemo(() => getBizLabel(businessGroup, 'tab_title'), [businessGroup]);
-  const btnAddLabel      = useMemo(() => getBizLabel(businessGroup, 'button_add'), [businessGroup]);
-  const modalNewLabel    = useMemo(() => getBizLabel(businessGroup, 'modal_new'), [businessGroup]);
-  const modalEditLabel   = useMemo(() => getBizLabel(businessGroup, 'modal_edit'), [businessGroup]);
-  const counterSingular  = useMemo(() => getBizLabel(businessGroup, 'counter_singular'), [businessGroup]);
-  const counterPlural    = useMemo(() => getBizLabel(businessGroup, 'counter_plural'), [businessGroup]);
-  const emptyListMsg     = useMemo(() => getBizLabel(businessGroup, 'empty_list'), [businessGroup]);
+  const tabEntregasLabel = g(LABEL_TAB, businessGroup);
+  const sectionTitle     = g(LABEL_SECTION, businessGroup);
+  const btnAddLabel      = g(LABEL_BTN_ADD, businessGroup);
+  const modalNewLabel    = g(LABEL_MODAL_NEW, businessGroup);
+  const modalEditLabel   = g(LABEL_MODAL_EDIT, businessGroup);
+  const counterSingular  = g(LABEL_COUNTER_SINGULAR, businessGroup);
+  const counterPlural    = g(LABEL_COUNTER_PLURAL, businessGroup);
+  const emptyListMsg     = g(LABEL_EMPTY_LIST, businessGroup);
 
   const fetchNowFromDb = useCallback(async () => {
     const { data, error: rpcErr } = await supabase.rpc('now_sp');
@@ -225,10 +235,8 @@ export default function Dashboard({ user, onLogout }) {
   const reloadAgendamentosRef = useRef(reloadAgendamentos);
   useEffect(() => { reloadAgendamentosRef.current = reloadAgendamentos; }, [reloadAgendamentos]);
 
-  const agProfIdsKey = useMemo(() => profissionais.map(p => p.id).sort().join(','), [profissionais]);
-
   useEffect(() => {
-    if (!negocio?.id || !agProfIdsKey || !hoje) return;
+    if (!negocio?.id || !agProfIds?.length || !hoje) return;
     const channel = supabase.channel(`agendamentos:${negocio.id}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'agendamentos', filter: `negocio_id=eq.${negocio.id}` }, (payload) => {
         const ev = payload?.eventType;
@@ -245,7 +253,7 @@ export default function Dashboard({ user, onLogout }) {
         loadHoje(negocio.id, parceiroProfissional?.id ?? null);
       }).subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [negocio?.id, agProfIdsKey, hoje, parceiroProfissional?.id]);
+  }, [negocio?.id, agProfIds, hoje, parceiroProfissional?.id]);
 
   useEffect(() => {
     setHistoricoData(prev => prev ? prev : hoje);
@@ -1190,7 +1198,7 @@ export default function Dashboard({ user, onLogout }) {
                 <p className="text-[12px] text-gray-500 mt-2">O preço de oferta deve ser menor que o preço normal.</p>
               </div>
               <button type="submit" disabled={submittingEntrega} className={`w-full py-3 bg-gradient-to-r from-primary to-yellow-600 text-black rounded-button font-normal uppercase ${submittingEntrega ? 'opacity-60 cursor-not-allowed' : ''}`}>
-                {submittingEntrega ? 'SALVANDO...' : editingEntregaId ? 'SALVAR' : getBizLabel(businessGroup, 'button_create')}
+                {submittingEntrega ? 'SALVANDO...' : editingEntregaId ? 'SALVAR' : `CRIAR ${btnAddLabel}`}
               </button>
             </form>
           </div>
