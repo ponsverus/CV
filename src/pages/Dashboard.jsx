@@ -25,6 +25,11 @@ const SUPORTE_MSG = 'Olá, sou cadastrado como Profissional e gostaria de uma aj
 const SUPORTE_HREF = `https://wa.me/${SUPORTE_PHONE_E164}?text=${encodeURIComponent(SUPORTE_MSG)}`;
 
 const AG_PAGE_SIZE = 15;
+const IMAGE_EXT_BY_MIME = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+};
 
 const toNumberOrNull = (v) => {
   if (v === '' || v == null) return null;
@@ -64,6 +69,10 @@ function getPublicUrl(bucket, path) {
     const { data } = supabase.storage.from(bucket).getPublicUrl(stripped);
     return data?.publicUrl || null;
   } catch { return null; }
+}
+
+function getImageExt(file) {
+  return IMAGE_EXT_BY_MIME[file?.type] || null;
 }
 
 function TemaToggle({ value, onChange, loading }) {
@@ -167,6 +176,7 @@ export default function Dashboard({ user, onLogout }) {
 
   const [notifAgendamentos, setNotifAgendamentos] = useState(0);
   const [notifCancelados, setNotifCancelados]     = useState(0);
+  const [ownerBusinessCount, setOwnerBusinessCount] = useState(0);
 
   const [showEditProfissional, setShowEditProfissional]       = useState(false);
   const [editingProfissionalId, setEditingProfissionalId]     = useState(null);
@@ -369,15 +379,43 @@ export default function Dashboard({ user, onLogout }) {
     setLoading(true); setError(null);
     try {
       const negocioIdFromState = location?.state?.negocioId || null;
-      let negocioQuery = negocioIdFromState
-        ? supabase.from('negocios').select('*').eq('id', negocioIdFromState)
-        : supabase.from('negocios').select('*').eq('owner_id', user.id);
-      const negocioResult = await negocioQuery.order('created_at', { ascending: true });
-      if (negocioResult.error) throw negocioResult.error;
-      const negociosList = negocioResult.data || [];
-      if (negociosList.length === 0) { setNegocio(null); setProfissionais([]); setEntregas([]); setAgendamentos([]); setError('Nenhum negocio cadastrado.'); setLoading(false); return; }
-      if (negociosList.length > 1 && !negocioIdFromState) { navigate('/selecionar-negocio', { replace: true }); setLoading(false); return; }
-      const negocioData = negociosList[0];
+      const { count: ownerCount, error: ownerCountErr } = await supabase
+        .from('negocios')
+        .select('id', { count: 'exact', head: true })
+        .eq('owner_id', user.id);
+      if (ownerCountErr) throw ownerCountErr;
+      const totalOwnerBusinesses = Number(ownerCount || 0);
+      setOwnerBusinessCount(totalOwnerBusinesses);
+
+      let negocioData = null;
+
+      if (negocioIdFromState) {
+        const { data, error } = await supabase.from('negocios').select('*').eq('id', negocioIdFromState).maybeSingle();
+        if (error) throw error;
+        negocioData = data || null;
+      } else if (totalOwnerBusinesses > 0) {
+        if (totalOwnerBusinesses > 1) { navigate('/selecionar-negocio', { replace: true }); setLoading(false); return; }
+        const { data, error } = await supabase.from('negocios').select('*').eq('owner_id', user.id).maybeSingle();
+        if (error) throw error;
+        negocioData = data || null;
+      } else {
+        const { data: vinculos, error: vinculosErr } = await supabase
+          .from('profissionais')
+          .select('negocio_id')
+          .eq('user_id', user.id)
+          .eq('status', 'ativo');
+        if (vinculosErr) throw vinculosErr;
+
+        const negocioIds = [...new Set((vinculos || []).map(v => v.negocio_id).filter(Boolean))];
+        if (negocioIds.length > 1) { navigate('/selecionar-negocio', { replace: true }); setLoading(false); return; }
+        if (negocioIds.length === 1) {
+          const { data, error } = await supabase.from('negocios').select('*').eq('id', negocioIds[0]).maybeSingle();
+          if (error) throw error;
+          negocioData = data || null;
+        }
+      }
+
+      if (!negocioData) { setNegocio(null); setProfissionais([]); setEntregas([]); setAgendamentos([]); setError('Nenhum negocio cadastrado.'); setLoading(false); return; }
       setNegocio(negocioData);
       setFormInfo({ nome: negocioData.nome || '', descricao: negocioData.descricao || '', telefone: negocioData.telefone || '', endereco: negocioData.endereco || '', instagram: negocioData.instagram || '', facebook: negocioData.facebook || '', tema: negocioData.tema || 'dark' });
       const [galeriaResult, profissionaisResult] = await Promise.all([
@@ -453,8 +491,10 @@ export default function Dashboard({ user, onLogout }) {
     if (!negocio?.id) return uiAlert('alerts.business_not_loaded', 'error');
     try {
       setLogoUploading(true);
-      const filePath = `${negocio.id}/logo.webp`;
-      const { error: upErr } = await supabase.storage.from('logos').upload(filePath, file, { upsert: true, contentType: 'image/webp' });
+      const ext = getImageExt(file);
+      if (!ext) throw new Error('Formato invalido.');
+      const filePath = `${negocio.id}/logo.${ext}`;
+      const { error: upErr } = await supabase.storage.from('logos').upload(filePath, file, { upsert: true, contentType: file.type });
       if (upErr) throw upErr;
       const { error: dbErr } = await supabase.from('negocios').update({ logo_path: `logos/${filePath}` }).eq('id', negocio.id).eq('owner_id', user.id);
       if (dbErr) throw dbErr;
@@ -502,8 +542,10 @@ export default function Dashboard({ user, onLogout }) {
       for (const file of Array.from(files)) {
         if (!okTypes.includes(file.type)) { await uiAlert('dashboard.gallery_invalid_format', 'error'); continue; }
         if (file.size > 4 * 1024 * 1024) { await uiAlert('dashboard.gallery_too_large', 'error'); continue; }
-        const filePath = `${negocio.id}/${crypto.randomUUID()}.webp`;
-        const { error: upErr } = await supabase.storage.from('galerias').upload(filePath, file, { contentType: 'image/webp' });
+        const ext = getImageExt(file);
+        if (!ext) { await uiAlert('dashboard.gallery_invalid_format', 'error'); continue; }
+        const filePath = `${negocio.id}/${crypto.randomUUID()}.${ext}`;
+        const { error: upErr } = await supabase.storage.from('galerias').upload(filePath, file, { contentType: file.type });
         if (upErr) { await uiAlert('dashboard.gallery_upload_error', 'error'); continue; }
         const { error: dbErr } = await supabase.from('galerias').insert({ negocio_id: negocio.id, path: `galerias/${filePath}` });
         if (dbErr) await uiAlert('dashboard.gallery_upload_error', 'error');
@@ -776,7 +818,9 @@ export default function Dashboard({ user, onLogout }) {
               <div>
                 <h1 className="text-xl font-normal">{negocio.nome}</h1>
                 {!parceiroProfissional
-                  ? <button type="button" onClick={() => navigate('/selecionar-negocio')} className="text-xs text-gray-500 hover:text-primary transition-colors -mt-0.5 block">TROCAR NEGÓCIO</button>
+                  ? ownerBusinessCount > 1
+                    ? <button type="button" onClick={() => navigate('/selecionar-negocio')} className="text-xs text-gray-500 hover:text-primary transition-colors -mt-0.5 block">TROCAR NEGÓCIO</button>
+                    : <span className="text-xs text-gray-500 -mt-0.5 block">DASHBOARD</span>
                   : <span className="text-xs text-primary -mt-0.5 block">{parceiroProfissional.nome}</span>}
               </div>
             </div>
@@ -786,7 +830,7 @@ export default function Dashboard({ user, onLogout }) {
               </Link>
               {!parceiroProfissional && (
                 <label className="inline-block">
-                  <input type="file" accept="image/*" className="hidden" onChange={(e) => uploadLogoNegocio(e.target.files?.[0])} disabled={logoUploading} />
+                  <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(e) => uploadLogoNegocio(e.target.files?.[0])} disabled={logoUploading} />
                   <span className={`inline-flex items-center justify-center text-center rounded-button font-normal border transition-all uppercase focus:outline-none ${logoUploading ? 'bg-gray-900 border-gray-800 text-gray-600 cursor-not-allowed' : 'bg-primary/10 hover:bg-primary/20 border-primary/30 text-primary cursor-pointer'} px-3 py-2 text-[11px] sm:px-4 sm:py-2 sm:text-sm`}>
                     <span className="sm:hidden">{logoUploading ? '...' : 'LOGO'}</span>
                     <span className="hidden sm:inline">{logoUploading ? 'ENVIANDO...' : 'ALTERAR LOGO'}</span>
