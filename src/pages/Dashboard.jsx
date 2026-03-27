@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   Plus, X, Eye, Calendar,
@@ -8,6 +8,7 @@ import {
 import { supabase } from '../supabase';
 import { useFeedback } from '../feedback/useFeedback';
 import { getBusinessGroup } from '../businessTerms';
+import { ptBR } from '../feedback/messages/ptBR.js';
 import DatePicker from '../components/DatePicker';
 import PeriodoSelect from '../components/PeriodoSelect';
 import ProfissionalSelect from '../components/ProfissionalSelect';
@@ -25,6 +26,11 @@ const SUPORTE_MSG = 'Olá, sou cadastrado como Profissional e gostaria de uma aj
 const SUPORTE_HREF = `https://wa.me/${SUPORTE_PHONE_E164}?text=${encodeURIComponent(SUPORTE_MSG)}`;
 
 const AG_PAGE_SIZE = 15;
+const IMAGE_EXT_BY_MIME = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+};
 
 const toNumberOrNull = (v) => {
   if (v === '' || v == null) return null;
@@ -50,17 +56,6 @@ const isCancelStatus = (s) => normalizeStatus(s).includes('cancelado');
 const isDoneStatus   = (s) => normalizeStatus(s) === 'concluido';
 const computeStatusFromDb = (a) => String(a?.status || '');
 
-const WEEKDAYS = [
-  { i: 0, label: 'DOM' }, { i: 1, label: 'SEG' }, { i: 2, label: 'TER' },
-  { i: 3, label: 'QUA' }, { i: 4, label: 'QUI' }, { i: 5, label: 'SEX' }, { i: 6, label: 'SÁB' },
-];
-
-function normalizeDiasTrabalho(arr) {
-  const base = Array.isArray(arr) ? arr : [];
-  const cleaned = base.map(n => Number(n)).filter(n => Number.isFinite(n)).map(n => n === 7 ? 0 : n).filter(n => n >= 0 && n <= 6);
-  return Array.from(new Set(cleaned)).sort((a, b) => a - b);
-}
-
 function formatDateBRFromISO(dateStr) {
   if (!dateStr) return 'Selecionar';
   const [y, m, d] = String(dateStr).split('-');
@@ -75,6 +70,10 @@ function getPublicUrl(bucket, path) {
     const { data } = supabase.storage.from(bucket).getPublicUrl(stripped);
     return data?.publicUrl || null;
   } catch { return null; }
+}
+
+function getImageExt(file) {
+  return IMAGE_EXT_BY_MIME[file?.type] || null;
 }
 
 function TemaToggle({ value, onChange, loading }) {
@@ -110,20 +109,8 @@ function getValorAgendamento(a) {
 
 const normalizeKey = (s) => String(s || '').trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-const LABEL_TAB            = { servicos: 'SERVIÇOS',  consultas: 'CONSULTAS',  aulas: 'AULAS'  };
-const LABEL_SECTION        = { servicos: 'Serviços',  consultas: 'Consultas',  aulas: 'Aulas'  };
-const LABEL_BTN_ADD        = { servicos: 'SERVIÇO',   consultas: 'CONSULTA',   aulas: 'AULA'   };
-const LABEL_MODAL_NEW      = { servicos: 'NOVO SERVIÇO',   consultas: 'NOVA CONSULTA',   aulas: 'NOVA AULA'   };
-const LABEL_MODAL_EDIT     = { servicos: 'EDITAR SERVIÇO', consultas: 'EDITAR CONSULTA', aulas: 'EDITAR AULA' };
-const LABEL_COUNTER_SINGULAR = { servicos: 'serviço',  consultas: 'consulta',  aulas: 'aula'  };
-const LABEL_COUNTER_PLURAL   = { servicos: 'serviços', consultas: 'consultas', aulas: 'aulas' };
-const LABEL_EMPTY_LIST = {
-  servicos:  'Sem serviços para este profissional.',
-  consultas: 'Sem consultas para este profissional.',
-  aulas:     'Sem aulas para este profissional.',
-};
-
-const g = (map, group) => map[group] ?? map['servicos'];
+const getBizLabel = (group, key) =>
+  ptBR?.dashboard?.business?.[key]?.[group] ?? ptBR?.dashboard?.business?.[key]?.['servicos'] ?? '';
 
 export default function Dashboard({ user, onLogout }) {
   const navigate = useNavigate();
@@ -170,15 +157,12 @@ export default function Dashboard({ user, onLogout }) {
   const [metricsDiaLoading, setMetricsDiaLoading]         = useState(false);
   const [metricsPeriodoLoading, setMetricsPeriodoLoading] = useState(false);
 
-  const [showNovaEntrega, setShowNovaEntrega]           = useState(false);
-  const [showNovoProfissional, setShowNovoProfissional] = useState(false);
-  const [submittingEntrega, setSubmittingEntrega]       = useState(false);
-  const [editingEntregaId, setEditingEntregaId]         = useState(null);
-  const [editingProfissional, setEditingProfissional]   = useState(null);
-  const [logoUploading, setLogoUploading]               = useState(false);
+  const [showNovaEntrega, setShowNovaEntrega]       = useState(false);
+  const [submittingEntrega, setSubmittingEntrega]   = useState(false);
+  const [editingEntregaId, setEditingEntregaId]     = useState(null);
+  const [logoUploading, setLogoUploading]           = useState(false);
 
   const [formEntrega, setFormEntrega] = useState({ nome: '', duracao_minutos: '', preco: '', preco_promocional: '', profissional_id: '' });
-  const [formProfissional, setFormProfissional] = useState({ nome: '', profissao: '', anos_experiencia: '', horario_inicio: '08:00', horario_fim: '18:00', almoco_inicio: '', almoco_fim: '', dias_trabalho: [1, 2, 3, 4, 5, 6] });
 
   const [infoSaving, setInfoSaving]             = useState(false);
   const [galleryUploading, setGalleryUploading] = useState(false);
@@ -193,32 +177,77 @@ export default function Dashboard({ user, onLogout }) {
 
   const [notifAgendamentos, setNotifAgendamentos] = useState(0);
   const [notifCancelados, setNotifCancelados]     = useState(0);
+  const [ownerBusinessCount, setOwnerBusinessCount] = useState(0);
+
+  const [showEditProfissional, setShowEditProfissional]       = useState(false);
+  const [editingProfissionalId, setEditingProfissionalId]     = useState(null);
+  const [submittingProfissional, setSubmittingProfissional]   = useState(false);
+  const [formProfissional, setFormProfissional] = useState({ nome: '', profissao: '', anos_experiencia: '', horario_inicio: '08:00', horario_fim: '18:00', almoco_inicio: '', almoco_fim: '', dias_trabalho: [1,2,3,4,5,6] });
+
+  // Estado para auto-cadastro do admin como profissional
+  const [submittingAdminProf, setSubmittingAdminProf] = useState(false);
+
+  const WEEKDAYS = [
+    { value: 0, label: 'Dom' }, { value: 1, label: 'Seg' }, { value: 2, label: 'Ter' },
+    { value: 3, label: 'Qua' }, { value: 4, label: 'Qui' }, { value: 5, label: 'Sex' },
+    { value: 6, label: 'Sáb' },
+  ];
 
   useEffect(() => { setNovoEmail(user?.email || ''); }, [user?.email]);
 
   const businessGroup    = useMemo(() => getBusinessGroup(negocio?.tipo_negocio), [negocio?.tipo_negocio]);
-  const tabEntregasLabel = g(LABEL_TAB, businessGroup);
-  const sectionTitle     = g(LABEL_SECTION, businessGroup);
-  const btnAddLabel      = g(LABEL_BTN_ADD, businessGroup);
-  const modalNewLabel    = g(LABEL_MODAL_NEW, businessGroup);
-  const modalEditLabel   = g(LABEL_MODAL_EDIT, businessGroup);
-  const counterSingular  = g(LABEL_COUNTER_SINGULAR, businessGroup);
-  const counterPlural    = g(LABEL_COUNTER_PLURAL, businessGroup);
-  const emptyListMsg     = g(LABEL_EMPTY_LIST, businessGroup);
 
-  const fetchNowFromDb = async () => {
+  const tabEntregasLabel = useMemo(() => getBizLabel(businessGroup, 'tab_title').toUpperCase(), [businessGroup]);
+  const sectionTitle     = useMemo(() => getBizLabel(businessGroup, 'tab_title'), [businessGroup]);
+  const btnAddLabel      = useMemo(() => getBizLabel(businessGroup, 'button_add'), [businessGroup]);
+  const modalNewLabel    = useMemo(() => getBizLabel(businessGroup, 'modal_new'), [businessGroup]);
+  const modalEditLabel   = useMemo(() => getBizLabel(businessGroup, 'modal_edit'), [businessGroup]);
+  const counterSingular  = useMemo(() => getBizLabel(businessGroup, 'counter_singular'), [businessGroup]);
+  const counterPlural    = useMemo(() => getBizLabel(businessGroup, 'counter_plural'), [businessGroup]);
+  const emptyListMsg     = useMemo(() => getBizLabel(businessGroup, 'empty_list'), [businessGroup]);
+
+  // O admin já está cadastrado como profissional neste negócio?
+  const adminJaEhProfissional = useMemo(() =>
+    profissionais.some(p => p.user_id === user?.id),
+  [profissionais, user?.id]);
+
+  const fetchNowFromDb = useCallback(async () => {
     const { data, error: rpcErr } = await supabase.rpc('now_sp');
     if (rpcErr) throw rpcErr;
     const payload = data?.[0] ?? data;
     if (!payload || !payload.date) throw new Error('now_sp vazio');
     setServerNow(payload); setHoje(String(payload.date));
     return String(payload.date);
-  };
+  }, []);
+
+  const reloadFull = useCallback(async () => {
+    try {
+      const d = await fetchNowFromDb();
+      await loadData(d);
+    } catch {
+      await loadData('');
+    }
+  }, [fetchNowFromDb]);
 
   useEffect(() => { if (!user?.id) return; fetchNowFromDb().then(d => loadData(d)); }, [user?.id]);
 
+  const reloadAgendamentos = useCallback(async (negocioId, profIds, dataHoje) => {
+    const id = negocioId || negocio?.id; const ids = profIds || agProfIds; const dh = dataHoje || hoje; if (!id || !ids?.length || !dh) return;
+    const { data, error: err } = await supabase.from('agendamentos')
+      .select(`*, preco_final, data, horario_inicio, horario_fim, entregas (nome, preco, preco_promocional), profissionais (id, nome), cliente:users!agendamentos_cliente_id_fkey (id, nome, avatar_path, type)`)
+      .eq('negocio_id', id).in('profissional_id', ids).gte('data', dh)
+      .order('data', { ascending: true }).order('horario_inicio', { ascending: true }).order('id', { ascending: true });
+    if (err) return;
+    setAgendamentos((data || []).map(a => ({ ...a, data: a?.data ?? null, horario_inicio: a?.horario_inicio ?? null, horario_fim: a?.horario_fim ?? null })));
+  }, [negocio?.id, agProfIds, hoje]);
+
+  const reloadAgendamentosRef = useRef(reloadAgendamentos);
+  useEffect(() => { reloadAgendamentosRef.current = reloadAgendamentos; }, [reloadAgendamentos]);
+
+  const agProfIdsKey = useMemo(() => profissionais.map(p => p.id).sort().join(','), [profissionais]);
+
   useEffect(() => {
-    if (!negocio?.id || !agProfIds?.length || !hoje) return;
+    if (!negocio?.id || !agProfIdsKey || !hoje) return;
     const channel = supabase.channel(`agendamentos:${negocio.id}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'agendamentos', filter: `negocio_id=eq.${negocio.id}` }, (payload) => {
         const ev = payload?.eventType;
@@ -231,11 +260,11 @@ export default function Dashboard({ user, onLogout }) {
           const st = String(novo?.status || '').toLowerCase();
           if (st.includes('cancelado') && !st.includes('profissional')) setNotifCancelados(prev => prev + 1);
         }
-        reloadAgendamentos();
+        reloadAgendamentosRef.current();
         loadHoje(negocio.id, parceiroProfissional?.id ?? null);
       }).subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [negocio?.id, agProfIds, hoje, parceiroProfissional?.id]);
+  }, [negocio?.id, agProfIdsKey, hoje, parceiroProfissional?.id]);
 
   useEffect(() => {
     setHistoricoData(prev => prev ? prev : hoje);
@@ -251,7 +280,7 @@ export default function Dashboard({ user, onLogout }) {
       const { data, error } = await supabase.rpc('get_dashboard_today', params);
       if (error) throw error;
       setMetricsHoje(data);
-    } catch (e) { console.error('loadHoje error:', e); setMetricsHoje(null); }
+    } catch { setMetricsHoje(null); }
     finally { setMetricsHojeLoading(false); }
   };
 
@@ -266,7 +295,7 @@ export default function Dashboard({ user, onLogout }) {
       const { data, error } = await supabase.rpc('get_dashboard_day', params);
       if (error) throw error;
       setMetricsDia(data);
-    } catch (e) { console.error('loadDia error:', e); setMetricsDia(null); }
+    } catch { setMetricsDia(null); }
     finally { setMetricsDiaLoading(false); }
   };
 
@@ -282,7 +311,7 @@ export default function Dashboard({ user, onLogout }) {
       const { data, error } = await supabase.rpc('get_dashboard_period', params);
       if (error) throw error;
       setMetricsPeriodoData(data);
-    } catch (e) { console.error('loadPeriodo error:', e); setMetricsPeriodoData(null); }
+    } catch { setMetricsPeriodoData(null); }
     finally { setMetricsPeriodoLoading(false); }
   };
 
@@ -312,8 +341,12 @@ export default function Dashboard({ user, onLogout }) {
   const loadMoreHistorico = async () => {
     if (historicoLoadingMore || !historicoHasMore || !negocio?.id || !agProfIds?.length) return;
     const ids = parceiroProfissional ? [parceiroProfissional.id] : agProfIds;
-    try { setHistoricoLoadingMore(true); const nextPage = historicoPage + 1; await fetchHistoricoPage({ negocioId: negocio.id, profIds: ids, date: historicoData, page: nextPage, append: true }); setHistoricoPage(nextPage); }
-    catch (e) { console.error('loadMoreHistorico error:', e); } finally { setHistoricoLoadingMore(false); }
+    try {
+      setHistoricoLoadingMore(true);
+      const nextPage = historicoPage + 1;
+      await fetchHistoricoPage({ negocioId: negocio.id, profIds: ids, date: historicoData, page: nextPage, append: true });
+      setHistoricoPage(nextPage);
+    } catch { } finally { setHistoricoLoadingMore(false); }
   };
 
   const reloadNegocio = useCallback(async () => {
@@ -336,16 +369,6 @@ export default function Dashboard({ user, onLogout }) {
     if (err) return; setEntregas(data || []);
   }, [negocio?.id, agProfIds]);
 
-  const reloadAgendamentos = useCallback(async (negocioId, profIds, dataHoje) => {
-    const id = negocioId || negocio?.id; const ids = profIds || agProfIds; const dh = dataHoje || hoje; if (!id || !ids?.length || !dh) return;
-    const { data, error: err } = await supabase.from('agendamentos')
-      .select(`*, preco_final, data, horario_inicio, horario_fim, entregas (nome, preco, preco_promocional), profissionais (id, nome), cliente:users!agendamentos_cliente_id_fkey (id, nome, avatar_path, type)`)
-      .eq('negocio_id', id).in('profissional_id', ids).gte('data', dh)
-      .order('data', { ascending: true }).order('horario_inicio', { ascending: true }).order('id', { ascending: true });
-    if (err) return;
-    setAgendamentos((data || []).map(a => ({ ...a, data: a?.data ?? null, horario_inicio: a?.horario_inicio ?? null, horario_fim: a?.horario_fim ?? null })));
-  }, [negocio?.id, agProfIds, hoje]);
-
   const reloadGaleria = useCallback(async (negocioId) => {
     const id = negocioId || negocio?.id; if (!id) return;
     const { data } = await supabase.from('galerias').select('id, path, ordem').eq('negocio_id', id).order('ordem', { ascending: true }).order('created_at', { ascending: true });
@@ -355,34 +378,59 @@ export default function Dashboard({ user, onLogout }) {
   const loadData = useCallback(async (dataRef) => {
     if (!user?.id) { setError('Sessao invalida. Faca login novamente.'); setLoading(false); return; }
     setLoading(true); setError(null);
-    if (dataRef === true) { try { dataRef = await fetchNowFromDb(); } catch (e) { dataRef = String(serverNow?.date || hoje || ''); } }
     try {
       const negocioIdFromState = location?.state?.negocioId || null;
-      let negocioQuery = negocioIdFromState
-        ? supabase.from('negocios').select('*').eq('id', negocioIdFromState)
-        : supabase.from('negocios').select('*').eq('owner_id', user.id);
-      const negocioResult = await negocioQuery.order('created_at', { ascending: true });
-      if (negocioResult.error) throw negocioResult.error;
-      const negociosList = negocioResult.data || [];
-      if (negociosList.length === 0) { setNegocio(null); setProfissionais([]); setEntregas([]); setAgendamentos([]); setError('Nenhum negocio cadastrado.'); setLoading(false); return; }
-      if (negociosList.length > 1 && !negocioIdFromState) { navigate('/selecionar-negocio', { replace: true }); setLoading(false); return; }
-      const negocioData = negociosList[0];
+      const { count: ownerCount, error: ownerCountErr } = await supabase
+        .from('negocios')
+        .select('id', { count: 'exact', head: true })
+        .eq('owner_id', user.id);
+      if (ownerCountErr) throw ownerCountErr;
+      const totalOwnerBusinesses = Number(ownerCount || 0);
+      setOwnerBusinessCount(totalOwnerBusinesses);
+
+      let negocioData = null;
+
+      if (negocioIdFromState) {
+        const { data, error } = await supabase.from('negocios').select('*').eq('id', negocioIdFromState).maybeSingle();
+        if (error) throw error;
+        negocioData = data || null;
+      } else if (totalOwnerBusinesses > 0) {
+        if (totalOwnerBusinesses > 1) { navigate('/selecionar-negocio', { replace: true }); setLoading(false); return; }
+        const { data, error } = await supabase.from('negocios').select('*').eq('owner_id', user.id).maybeSingle();
+        if (error) throw error;
+        negocioData = data || null;
+      } else {
+        const { data: vinculos, error: vinculosErr } = await supabase
+          .from('profissionais')
+          .select('negocio_id')
+          .eq('user_id', user.id)
+          .eq('status', 'ativo');
+        if (vinculosErr) throw vinculosErr;
+
+        const negocioIds = [...new Set((vinculos || []).map(v => v.negocio_id).filter(Boolean))];
+        if (negocioIds.length > 1) { navigate('/selecionar-negocio', { replace: true }); setLoading(false); return; }
+        if (negocioIds.length === 1) {
+          const { data, error } = await supabase.from('negocios').select('*').eq('id', negocioIds[0]).maybeSingle();
+          if (error) throw error;
+          negocioData = data || null;
+        }
+      }
+
+      if (!negocioData) { setNegocio(null); setProfissionais([]); setEntregas([]); setAgendamentos([]); setError('Nenhum negocio cadastrado.'); setLoading(false); return; }
       setNegocio(negocioData);
       setFormInfo({ nome: negocioData.nome || '', descricao: negocioData.descricao || '', telefone: negocioData.telefone || '', endereco: negocioData.endereco || '', instagram: negocioData.instagram || '', facebook: negocioData.facebook || '', tema: negocioData.tema || 'dark' });
       const [galeriaResult, profissionaisResult] = await Promise.all([
         supabase.from('galerias').select('id, path, ordem').eq('negocio_id', negocioData.id).order('ordem', { ascending: true }).order('created_at', { ascending: true }),
         supabase.rpc('get_profissionais_com_status', { p_negocio_id: negocioData.id })
       ]);
-      if (galeriaResult.error) console.error('Erro ao carregar galeria:', galeriaResult.error);
+      if (galeriaResult.error) { }
       setGaleriaItems(galeriaResult.data || []);
       if (profissionaisResult.error) throw profissionaisResult.error;
       const profs = profissionaisResult.data || [];
       setProfissionais(profs);
-
       const souDono = negocioData.owner_id === user.id;
       const meuProfissional = souDono ? null : (profs.find(p => p.user_id === user.id) || null);
       setParceiroProfissional(meuProfissional);
-
       const profId = meuProfissional?.id ?? null;
       if (profs.length === 0) { setEntregas([]); setAgendamentos([]); setLoading(false); return; }
       const ids = profs.map(p => p.id);
@@ -400,15 +448,43 @@ export default function Dashboard({ user, onLogout }) {
       setEntregas(entregasResult.data || []);
       if (agendamentosResult.error) throw agendamentosResult.error;
       setAgendamentos((agendamentosResult.data || []).map(a => ({ ...a, data: a?.data ?? null, horario_inicio: a?.horario_inicio ?? null, horario_fim: a?.horario_fim ?? null })));
-
       if (dataHoje) {
         loadHoje(negocioData.id, profId);
         loadDia(negocioData.id, dataHoje, profId);
         loadPeriodo(negocioData.id, dataHoje, faturamentoPeriodo, profId);
       }
-    } catch (e) { console.error('Erro ao carregar:', e); setError(e?.message || 'Erro inesperado.'); }
+    } catch (e) { setError(e?.message || 'Erro inesperado.'); }
     finally { setLoading(false); }
   }, [user?.id, location?.state?.negocioId, serverNow, hoje, faturamentoPeriodo]);
+
+  // Admin se cadastra como profissional no próprio negócio
+  const cadastrarAdminComoProfissional = async () => {
+    if (!negocio?.id || !user?.id || submittingAdminProf) return;
+    try {
+      setSubmittingAdminProf(true);
+      // Busca o nome atual do admin em users
+      const { data: userData, error: userErr } = await supabase
+        .from('users')
+        .select('nome')
+        .eq('id', user.id)
+        .maybeSingle();
+      if (userErr) throw userErr;
+      const nome = String(userData?.nome || '').trim() || 'PROFISSIONAL';
+      const { error: insErr } = await supabase.from('profissionais').insert([{
+        negocio_id:   negocio.id,
+        user_id:      user.id,
+        nome,
+        status:       'ativo',
+      }]);
+      if (insErr) throw insErr;
+      await uiAlert('dashboard.professional_updated', 'success');
+      await reloadProfissionais();
+    } catch {
+      await uiAlert('dashboard.professional_update_error', 'error');
+    } finally {
+      setSubmittingAdminProf(false);
+    }
+  };
 
   const uploadLogoNegocio = async (file) => {
     if (!file || !user?.id) return;
@@ -416,13 +492,15 @@ export default function Dashboard({ user, onLogout }) {
     if (!negocio?.id) return uiAlert('alerts.business_not_loaded', 'error');
     try {
       setLogoUploading(true);
-      const filePath = `${negocio.id}/logo.webp`;
-      const { error: upErr } = await supabase.storage.from('logos').upload(filePath, file, { upsert: true, contentType: 'image/webp' });
+      const ext = getImageExt(file);
+      if (!ext) throw new Error('Formato invalido.');
+      const filePath = `${negocio.id}/logo.${ext}`;
+      const { error: upErr } = await supabase.storage.from('logos').upload(filePath, file, { upsert: true, contentType: file.type });
       if (upErr) throw upErr;
       const { error: dbErr } = await supabase.from('negocios').update({ logo_path: `logos/${filePath}` }).eq('id', negocio.id).eq('owner_id', user.id);
       if (dbErr) throw dbErr;
       await uiAlert('dashboard.logo_updated', 'success'); await reloadNegocio();
-    } catch (e) { await uiAlert('dashboard.logo_update_error', 'error'); }
+    } catch { await uiAlert('dashboard.logo_update_error', 'error'); }
     finally { setLogoUploading(false); }
   };
 
@@ -452,7 +530,7 @@ export default function Dashboard({ user, onLogout }) {
       const { error: updErr } = await supabase.from('negocios').update({ tema: novoTema }).eq('id', negocio.id).eq('owner_id', user.id);
       if (updErr) throw updErr;
       setNegocio(prev => prev ? { ...prev, tema: novoTema } : prev);
-    } catch (e) { setFormInfo(prev => ({ ...prev, tema: negocio?.tema || 'dark' })); await uiAlert('dashboard.business_info_update_error', 'error'); }
+    } catch { setFormInfo(prev => ({ ...prev, tema: negocio?.tema || 'dark' })); await uiAlert('dashboard.business_info_update_error', 'error'); }
     finally { setTemaSaving(false); }
   };
 
@@ -465,14 +543,16 @@ export default function Dashboard({ user, onLogout }) {
       for (const file of Array.from(files)) {
         if (!okTypes.includes(file.type)) { await uiAlert('dashboard.gallery_invalid_format', 'error'); continue; }
         if (file.size > 4 * 1024 * 1024) { await uiAlert('dashboard.gallery_too_large', 'error'); continue; }
-        const filePath = `${negocio.id}/${crypto.randomUUID()}.webp`;
-        const { error: upErr } = await supabase.storage.from('galerias').upload(filePath, file, { contentType: 'image/webp' });
+        const ext = getImageExt(file);
+        if (!ext) { await uiAlert('dashboard.gallery_invalid_format', 'error'); continue; }
+        const filePath = `${negocio.id}/${crypto.randomUUID()}.${ext}`;
+        const { error: upErr } = await supabase.storage.from('galerias').upload(filePath, file, { contentType: file.type });
         if (upErr) { await uiAlert('dashboard.gallery_upload_error', 'error'); continue; }
         const { error: dbErr } = await supabase.from('galerias').insert({ negocio_id: negocio.id, path: `galerias/${filePath}` });
         if (dbErr) await uiAlert('dashboard.gallery_upload_error', 'error');
       }
       await uiAlert('dashboard.gallery_updated', 'success'); await reloadGaleria();
-    } catch (e) { await uiAlert('dashboard.gallery_update_error', 'error'); }
+    } catch { await uiAlert('dashboard.gallery_update_error', 'error'); }
     finally { setGalleryUploading(false); }
   };
 
@@ -485,7 +565,7 @@ export default function Dashboard({ user, onLogout }) {
       if (dbErr) throw dbErr;
       setGaleriaItems(prev => prev.filter(x => x.id !== item.id));
       await uiAlert('dashboard.gallery_image_removed', 'success');
-    } catch (e) { await uiAlert('dashboard.gallery_remove_error', 'error'); }
+    } catch { await uiAlert('dashboard.gallery_remove_error', 'error'); }
   };
 
   const createEntrega = async (e) => {
@@ -554,45 +634,7 @@ export default function Dashboard({ user, onLogout }) {
       const { error: delErr } = await supabase.from('entregas').delete().eq('id', entrega.id).eq('negocio_id', negocio.id);
       if (delErr) throw delErr;
       await uiAlert(`dashboard.business.${businessGroup}.service_deleted`, 'success'); await reloadEntregas();
-    } catch (e2) { await uiAlert(`dashboard.business.${businessGroup}.service_delete_error`, 'error'); }
-  };
-
-  const createProfissional = async (e) => {
-    e.preventDefault();
-    if (parceiroProfissional) return uiAlert('dashboard.parceiro_acao_proibida', 'warning');
-    try {
-      if (!negocio?.id) throw new Error('Erro ao carregar o negocio');
-      const dias = normalizeDiasTrabalho(formProfissional.dias_trabalho);
-      const payload = { negocio_id: negocio.id, nome: toUpperClean(formProfissional.nome), profissao: toUpperClean(formProfissional.profissao) || null, anos_experiencia: toNumberOrNull(formProfissional.anos_experiencia), horario_inicio: formProfissional.horario_inicio, horario_fim: formProfissional.horario_fim, almoco_inicio: String(formProfissional.almoco_inicio || '').trim() || null, almoco_fim: String(formProfissional.almoco_fim || '').trim() || null, dias_trabalho: dias.length ? dias : [1, 2, 3, 4, 5, 6] };
-      if (!payload.nome) throw new Error('Nome e obrigatorio.');
-      const { error: insErr } = await supabase.from('profissionais').insert([payload]);
-      if (insErr) throw insErr;
-      await uiAlert('dashboard.professional_created', 'success');
-      setShowNovoProfissional(false); setEditingProfissional(null);
-      setFormProfissional({ nome: '', profissao: '', anos_experiencia: '', horario_inicio: '08:00', horario_fim: '18:00', almoco_inicio: '', almoco_fim: '', dias_trabalho: [1, 2, 3, 4, 5, 6] });
-      const profs = await reloadProfissionais();
-      if (profs?.length) await reloadEntregas(negocio.id, profs.map(p => p.id));
-    } catch (e2) { await uiAlert('dashboard.professional_create_error', 'error'); }
-  };
-
-  const updateProfissional = async (e) => {
-    e.preventDefault();
-    try {
-      if (!editingProfissional?.id) throw new Error('Profissional invalido.');
-      if (!await checarPermissao(editingProfissional.id)) return;
-      const dias = normalizeDiasTrabalho(formProfissional.dias_trabalho);
-      const payload = { nome: toUpperClean(formProfissional.nome), profissao: toUpperClean(formProfissional.profissao) || null, anos_experiencia: toNumberOrNull(formProfissional.anos_experiencia), horario_inicio: formProfissional.horario_inicio, horario_fim: formProfissional.horario_fim, almoco_inicio: String(formProfissional.almoco_inicio || '').trim() || null, almoco_fim: String(formProfissional.almoco_fim || '').trim() || null, dias_trabalho: dias };
-      if (!payload.nome) throw new Error('Nome e obrigatorio.');
-      const { error: updErr } = await supabase.from('profissionais').update(payload).eq('id', editingProfissional.id).eq('negocio_id', negocio.id);
-      if (updErr) throw updErr;
-      await uiAlert('dashboard.professional_updated', 'success');
-      setShowNovoProfissional(false); setEditingProfissional(null); await reloadProfissionais();
-    } catch (e2) {
-      const msg = String(e2?.message || '');
-      if (msg.includes('profissional_almoco_bloqueado')) await uiAlert('dashboard.professional_lunch_blocked', 'warning');
-      else if (msg.includes('profissional_dia_bloqueado')) await uiAlert('dashboard.professional_workday_blocked', 'warning');
-      else await uiAlert('dashboard.professional_update_error', 'error');
-    }
+    } catch { await uiAlert(`dashboard.business.${businessGroup}.service_delete_error`, 'error'); }
   };
 
   const toggleStatusProfissional = async (p) => {
@@ -611,7 +653,7 @@ export default function Dashboard({ user, onLogout }) {
       if (upErr) throw upErr;
       await uiAlert(novoStatus === 'ativo' ? 'dashboard.professional_activated' : 'dashboard.professional_inactivated', 'success');
       await reloadProfissionais();
-    } catch (e) { await uiAlert('dashboard.professional_toggle_error', 'error'); }
+    } catch { await uiAlert('dashboard.professional_toggle_error', 'error'); }
   };
 
   const excluirProfissional = async (p) => {
@@ -623,7 +665,36 @@ export default function Dashboard({ user, onLogout }) {
       await uiAlert('dashboard.professional_deleted', 'success');
       const profs = await reloadProfissionais();
       if (profs?.length) await reloadEntregas(negocio.id, profs.map(p => p.id)); else setEntregas([]);
-    } catch (e) { await uiAlert('dashboard.professional_delete_error', 'error'); }
+    } catch { await uiAlert('dashboard.professional_delete_error', 'error'); }
+  };
+
+  const updateProfissional = async (e) => {
+    e.preventDefault(); if (submittingProfissional) return;
+    try {
+      setSubmittingProfissional(true);
+      if (!await checarPermissao(editingProfissionalId)) return;
+      const payload = {
+        nome: String(formProfissional.nome || '').trim(),
+        profissao: String(formProfissional.profissao || '').trim() || null,
+        anos_experiencia: formProfissional.anos_experiencia !== '' ? Number(formProfissional.anos_experiencia) : null,
+        horario_inicio: formProfissional.horario_inicio || '08:00',
+        horario_fim: formProfissional.horario_fim || '18:00',
+        almoco_inicio: formProfissional.almoco_inicio || null,
+        almoco_fim: formProfissional.almoco_fim || null,
+        dias_trabalho: formProfissional.dias_trabalho,
+      };
+      if (!payload.nome) throw new Error('Nome obrigatorio.');
+      const { error: updErr } = await supabase.from('profissionais').update(payload).eq('id', editingProfissionalId).eq('negocio_id', negocio.id);
+      if (updErr) throw updErr;
+      await uiAlert('dashboard.professional_updated', 'success');
+      setShowEditProfissional(false); setEditingProfissionalId(null);
+      await reloadProfissionais();
+    } catch (e) {
+      const msg = String(e?.message || '');
+      if (msg.includes('profissional_almoco_bloqueado')) await uiAlert('dashboard.professional_almoco_blocked', 'error');
+      else if (msg.includes('profissional_dia_bloqueado')) await uiAlert('dashboard.professional_dia_blocked', 'error');
+      else await uiAlert('dashboard.professional_update_error', 'error');
+    } finally { setSubmittingProfissional(false); }
   };
 
   const aprovarParceiro = async (prof) => {
@@ -632,7 +703,7 @@ export default function Dashboard({ user, onLogout }) {
       const { error } = await supabase.from('profissionais').update({ status: 'ativo' }).eq('id', prof.id).eq('negocio_id', negocio.id);
       if (error) throw error;
       await uiAlert('dashboard.professional_approved', 'success'); await reloadProfissionais();
-    } catch (e) { await uiAlert('dashboard.partner_approve_error', 'error'); }
+    } catch { await uiAlert('dashboard.partner_approve_error', 'error'); }
   };
 
   const confirmarAtendimento = async (a) => {
@@ -642,7 +713,7 @@ export default function Dashboard({ user, onLogout }) {
       if (updErr) throw updErr;
       await uiAlert('dashboard.booking_confirmed', 'success');
       await reloadAgendamentos(); loadHoje(negocio.id, parceiroProfissional?.id ?? null);
-    } catch (e2) { await uiAlert('dashboard.booking_confirm_error', 'error'); }
+    } catch { await uiAlert('dashboard.booking_confirm_error', 'error'); }
   };
 
   const cancelarAgendamento = async (a) => {
@@ -653,14 +724,14 @@ export default function Dashboard({ user, onLogout }) {
       if (error) throw error;
       await uiAlert('dashboard.booking_canceled', 'error');
       await reloadAgendamentos(); loadHoje(negocio.id, parceiroProfissional?.id ?? null);
-    } catch (e) { await uiAlert('dashboard.booking_cancel_error', 'error'); }
+    } catch { await uiAlert('dashboard.booking_cancel_error', 'error'); }
   };
 
   const salvarEmail = async () => {
     const email = String(novoEmail || '').trim();
     if (!email || !email.includes('@')) { await uiAlert('dashboard.account_email_invalid', 'error'); return; }
     try { setSavingDados(true); const { error: updErr } = await supabase.auth.updateUser({ email }); if (updErr) throw updErr; await uiAlert('dashboard.account_email_update_sent', 'success'); }
-    catch (e) { await uiAlert('dashboard.account_email_update_error', 'error'); } finally { setSavingDados(false); }
+    catch { await uiAlert('dashboard.account_email_update_error', 'error'); } finally { setSavingDados(false); }
   };
 
   const salvarSenha = async () => {
@@ -668,7 +739,7 @@ export default function Dashboard({ user, onLogout }) {
     if (pass.length < 6) { await uiAlert('dashboard.account_password_too_short', 'error'); return; }
     if (pass !== conf) { await uiAlert('dashboard.account_password_mismatch', 'error'); return; }
     try { setSavingDados(true); const { error: updErr } = await supabase.auth.updateUser({ password: pass }); if (updErr) throw updErr; setNovaSenha(''); setConfirmarSenha(''); await uiAlert('dashboard.account_password_updated', 'success'); }
-    catch (e) { await uiAlert('dashboard.account_password_update_error', 'error'); } finally { setSavingDados(false); }
+    catch { await uiAlert('dashboard.account_password_update_error', 'error'); } finally { setSavingDados(false); }
   };
 
   const agendamentosHoje = useMemo(() => {
@@ -725,11 +796,13 @@ export default function Dashboard({ user, onLogout }) {
         <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
         <h1 className="text-2xl font-normal text-white mb-2">Erro ao carregar</h1>
         <p className="text-gray-400 mb-6">{error || 'Negocio inexistente'}</p>
-        <button onClick={() => loadData(true)} className="w-full px-6 py-3 bg-primary/20 border border-primary/50 text-primary rounded-button mb-3 font-normal uppercase">TENTAR NOVAMENTE</button>
+        <button onClick={reloadFull} className="w-full px-6 py-3 bg-primary/20 border border-primary/50 text-primary rounded-button mb-3 font-normal uppercase">TENTAR NOVAMENTE</button>
         <button onClick={onLogout} className="w-full px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-button font-normal uppercase">SAIR</button>
       </div>
     </div>
   );
+
+  const souDono = negocio.owner_id === user?.id;
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -746,7 +819,9 @@ export default function Dashboard({ user, onLogout }) {
               <div>
                 <h1 className="text-xl font-normal">{negocio.nome}</h1>
                 {!parceiroProfissional
-                  ? <button type="button" onClick={() => navigate('/selecionar-negocio')} className="text-xs text-gray-500 hover:text-primary transition-colors -mt-0.5 block">TROCAR NEGÓCIO</button>
+                  ? ownerBusinessCount > 1
+                    ? <button type="button" onClick={() => navigate('/selecionar-negocio')} className="text-xs text-gray-500 hover:text-primary transition-colors -mt-0.5 block">TROCAR NEGÓCIO</button>
+                    : <span className="text-xs text-gray-500 -mt-0.5 block">DASHBOARD</span>
                   : <span className="text-xs text-primary -mt-0.5 block">{parceiroProfissional.nome}</span>}
               </div>
             </div>
@@ -756,7 +831,7 @@ export default function Dashboard({ user, onLogout }) {
               </Link>
               {!parceiroProfissional && (
                 <label className="inline-block">
-                  <input type="file" accept="image/*" className="hidden" onChange={(e) => uploadLogoNegocio(e.target.files?.[0])} disabled={logoUploading} />
+                  <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(e) => uploadLogoNegocio(e.target.files?.[0])} disabled={logoUploading} />
                   <span className={`inline-flex items-center justify-center text-center rounded-button font-normal border transition-all uppercase focus:outline-none ${logoUploading ? 'bg-gray-900 border-gray-800 text-gray-600 cursor-not-allowed' : 'bg-primary/10 hover:bg-primary/20 border-primary/30 text-primary cursor-pointer'} px-3 py-2 text-[11px] sm:px-4 sm:py-2 sm:text-sm`}>
                     <span className="sm:hidden">{logoUploading ? '...' : 'LOGO'}</span>
                     <span className="hidden sm:inline">{logoUploading ? 'ENVIANDO...' : 'ALTERAR LOGO'}</span>
@@ -832,7 +907,6 @@ export default function Dashboard({ user, onLogout }) {
                   <div className="bg-dark-200 border border-gray-800 rounded-custom p-5"><div className="text-xs text-gray-500 mb-2">CONCLUÍDOS HOJE</div><div className="text-3xl font-normal text-white">{Number(metricsHoje?.today?.concluidos || 0)}</div><div className="text-xs text-gray-300 mt-1">TICKET MÉDIO: <span className="text-primary">R$ {Number(metricsHoje?.today?.ticket_medio || 0).toFixed(2)}</span></div></div>
                   <div className="bg-dark-200 border border-gray-800 rounded-custom p-5"><div className="text-xs text-gray-500 mb-2">PRÓXIMO AGENDAMENTO</div>{proximoAgendamento ? (<><div className="text-3xl font-normal text-primary">{getAgInicio(proximoAgendamento)}</div><div className="text-sm text-gray-300 mt-1">{proximoAgendamento.cliente?.nome || '—'} • {proximoAgendamento.profissionais?.nome}</div><div className="text-xs text-gray-500 mt-1">{proximoAgendamento.entregas?.nome}</div></>) : <div className="text-sm text-gray-500">:(</div>}</div>
                 </div>
-
                 {!parceiroProfissional && faturamentoPorProfissionalHoje.length > 0 && (<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 items-start">{faturamentoPorProfissionalHoje.map(([nome, valor]) => (<div key={String(nome)} className="bg-dark-200 border border-gray-800 rounded-custom p-5"><div className="text-xs text-gray-500 mb-1">PROFISSIONAL</div><div className="font-normal text-white">{String(nome || '—')}</div><div className="text-primary font-normal mt-1">R$ {Number(valor || 0).toFixed(2)}</div></div>))}</div>)}
                 <div className="bg-dark-200 border border-gray-800 rounded-custom p-5">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4"><h3 className="text-lg font-normal flex items-center gap-2 uppercase"><span style={{ fontFamily: 'Roboto Condensed, sans-serif' }} className="font-normal text-2xl">$</span>FATURAMENTO</h3><DatePicker value={faturamentoData} onChange={(iso) => setFaturamentoData(iso)} todayISO={hoje} /></div>
@@ -843,7 +917,6 @@ export default function Dashboard({ user, onLogout }) {
                     <div className="bg-dark-100 border border-gray-800 rounded-custom p-4"><div className="text-xs text-gray-500 mb-1">FECHAMENTO</div><div className="text-xl font-normal text-white">{Number(metricsDia?.selected_day?.taxa_conversao || 0).toFixed(1)}%</div><div className="text-xs text-gray-500 mt-1">sobre {Number(metricsDia?.selected_day?.total || 0)} agendamento(s)</div></div>
                     <div className="bg-dark-100 border border-gray-800 rounded-custom p-4"><div className="text-xs text-gray-500 mb-1">TICKET MÉDIO</div><div className="text-xl font-normal text-primary">R$ {Number(metricsDia?.selected_day?.ticket_medio || 0).toFixed(2)}</div></div>
                   </div>
-
                   {!parceiroProfissional && faturamentoPorProfissionalFiltro.length > 0 && (<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4 items-start">{faturamentoPorProfissionalFiltro.map(([nome, valor]) => (<div key={String(nome)} className="bg-dark-100 border border-gray-800 rounded-custom p-4"><div className="text-xs text-gray-500 mb-1">PROFISSIONAL</div><div className="font-normal text-white">{String(nome || '—')}</div><div className="text-primary font-normal mt-1">R$ {Number(valor || 0).toFixed(2)}</div></div>))}</div>)}
                   <div className="mt-2 bg-dark-100 border border-gray-800 rounded-custom p-4">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3"><div className="text-xs text-gray-500 uppercase tracking-wide">FATURAMENTO POR PERÍODO</div><PeriodoSelect value={faturamentoPeriodo} onChange={setFaturamentoPeriodo} /></div>
@@ -1009,7 +1082,6 @@ export default function Dashboard({ user, onLogout }) {
                                     <h3 className="text-sm font-normal text-white mb-0.5">{s.nome}</h3>
                                     <p className="text-xs text-gray-500 mb-4">{p.nome}</p>
                                     <div className="flex gap-2">
-
                                       <button onClick={async () => {
                                         if (!await checarPermissao(s.profissional_id)) return;
                                         setEditingEntregaId(s.id);
@@ -1033,12 +1105,16 @@ export default function Dashboard({ user, onLogout }) {
 
             {activeTab === 'profissionais' && (
               <div>
-                <div className="flex justify-between items-center mb-6">
+                <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-normal">Profissionais</h2>
-                  {!parceiroProfissional && (
-                    <button onClick={() => { setShowNovoProfissional(true); setEditingProfissional(null); setFormProfissional({ nome: '', profissao: '', anos_experiencia: '', horario_inicio: '08:00', horario_fim: '18:00', almoco_inicio: '', almoco_fim: '', dias_trabalho: [1, 2, 3, 4, 5, 6] }); }}
-                      className="flex items-center gap-2 px-5 py-2.5 rounded-button font-normal uppercase border bg-gradient-to-r from-primary to-yellow-600 text-black border-transparent">
-                      <Plus className="w-5 h-5" />ADICIONAR
+                  {/* Botão visível apenas para o admin que ainda não se cadastrou como profissional */}
+                  {souDono && !adminJaEhProfissional && (
+                    <button
+                      onClick={cadastrarAdminComoProfissional}
+                      disabled={submittingAdminProf}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-button text-sm font-normal uppercase border transition-all ${submittingAdminProf ? 'bg-gray-900 border-gray-800 text-gray-600 cursor-not-allowed' : 'bg-primary/10 hover:bg-primary/20 border-primary/30 text-primary'}`}>
+                      <Plus className="w-4 h-4" />
+                      {submittingAdminProf ? 'CADASTRANDO...' : 'ME CADASTRAR'}
                     </button>
                   )}
                 </div>
@@ -1084,16 +1160,19 @@ export default function Dashboard({ user, onLogout }) {
                         {!isPendente && (isEuMesmo || !parceiroProfissional) && (
                           <>
                             {isInativo && p.motivo_inativo && (<div className="text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-custom p-2 mb-3">INATIVO {p.motivo_inativo ? `• ${p.motivo_inativo}` : ''}</div>)}
-                            {!parceiroProfissional && (
-                              <div className="flex gap-2 mb-3">
-                                <button onClick={() => toggleStatusProfissional(p)} className={`flex-1 py-2 rounded-button text-sm border font-normal uppercase ${isAtivo ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-300' : 'bg-green-500/10 border-green-500/30 text-green-300'}`}>
-                                  {isAtivo ? 'INATIVAR' : 'ATIVAR'}
-                                </button>
-                                <button onClick={() => excluirProfissional(p)} className="flex-1 py-2 bg-red-500/10 border border-red-500/30 text-red-300 rounded-button text-sm font-normal uppercase">EXCLUIR</button>
+                            {!parceiroProfissional ? (
+                              <div className="space-y-2 mt-2">
+                                <div className="flex gap-2">
+                                  <button onClick={() => toggleStatusProfissional(p)} className={`flex-1 py-2 rounded-button text-sm border font-normal uppercase ${isAtivo ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-300' : 'bg-green-500/10 border-green-500/30 text-green-300'}`}>
+                                    {isAtivo ? 'INATIVAR' : 'ATIVAR'}
+                                  </button>
+                                  <button onClick={() => excluirProfissional(p)} className="flex-1 py-2 bg-red-500/10 border border-red-500/30 text-red-300 rounded-button text-sm font-normal uppercase">EXCLUIR</button>
+                                </div>
+                                <button onClick={() => { setEditingProfissionalId(p.id); setFormProfissional({ nome: p.nome || '', profissao: p.profissao || '', anos_experiencia: String(p.anos_experiencia ?? ''), horario_inicio: p.horario_inicio || '08:00', horario_fim: p.horario_fim || '18:00', almoco_inicio: p.almoco_inicio || '', almoco_fim: p.almoco_fim || '', dias_trabalho: p.dias_trabalho || [1,2,3,4,5,6] }); setShowEditProfissional(true); }} className="w-full py-2 bg-blue-500/20 border border-blue-500/50 text-blue-400 rounded-button text-sm font-normal uppercase">EDITAR</button>
                               </div>
-                            )}
-                            <button onClick={() => { setEditingProfissional(p); setFormProfissional({ nome: p.nome || '', profissao: p.profissao || '', anos_experiencia: String(p.anos_experiencia ?? ''), horario_inicio: p.horario_inicio || '08:00', horario_fim: p.horario_fim || '18:00', almoco_inicio: p.almoco_inicio || '', almoco_fim: p.almoco_fim || '', dias_trabalho: Array.isArray(p.dias_trabalho) && p.dias_trabalho.length ? p.dias_trabalho : [1, 2, 3, 4, 5, 6] }); setShowNovoProfissional(true); }}
-                              className="w-full py-2 bg-blue-500/20 border border-blue-500/50 text-blue-400 rounded-button text-sm font-normal uppercase">EDITAR</button>
+                            ) : isEuMesmo ? (
+                              <button onClick={() => { setEditingProfissionalId(p.id); setFormProfissional({ nome: p.nome || '', profissao: p.profissao || '', anos_experiencia: String(p.anos_experiencia ?? ''), horario_inicio: p.horario_inicio || '08:00', horario_fim: p.horario_fim || '18:00', almoco_inicio: p.almoco_inicio || '', almoco_fim: p.almoco_fim || '', dias_trabalho: p.dias_trabalho || [1,2,3,4,5,6] }); setShowEditProfissional(true); }} className="w-full py-2 bg-blue-500/20 border border-blue-500/50 text-blue-400 rounded-button text-sm font-normal uppercase">EDITAR</button>
+                            ) : null}
                           </>
                         )}
                       </div>
@@ -1207,21 +1286,21 @@ export default function Dashboard({ user, onLogout }) {
                 <p className="text-[12px] text-gray-500 mt-2">O preço de oferta deve ser menor que o preço normal.</p>
               </div>
               <button type="submit" disabled={submittingEntrega} className={`w-full py-3 bg-gradient-to-r from-primary to-yellow-600 text-black rounded-button font-normal uppercase ${submittingEntrega ? 'opacity-60 cursor-not-allowed' : ''}`}>
-                {submittingEntrega ? 'SALVANDO...' : editingEntregaId ? 'SALVAR' : `CRIAR ${btnAddLabel}`}
+                {submittingEntrega ? 'SALVANDO...' : editingEntregaId ? 'SALVAR' : getBizLabel(businessGroup, 'button_create')}
               </button>
             </form>
           </div>
         </div>
       )}
 
-      {showNovoProfissional && (
+      {showEditProfissional && (
         <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
           <div className="bg-dark-100 border border-gray-800 rounded-custom max-w-md w-full p-8 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-normal">{editingProfissional ? 'EDITAR PROFISSIONAL' : 'NOVO PROFISSIONAL'}</h3>
-              <button onClick={() => { setShowNovoProfissional(false); setEditingProfissional(null); setFormProfissional({ nome: '', profissao: '', anos_experiencia: '', horario_inicio: '08:00', horario_fim: '18:00', almoco_inicio: '', almoco_fim: '', dias_trabalho: [1, 2, 3, 4, 5, 6] }); }}><X className="w-6 h-6" /></button>
+              <h3 className="text-2xl font-normal">EDITAR PROFISSIONAL</h3>
+              <button onClick={() => { setShowEditProfissional(false); setEditingProfissionalId(null); }}><X className="w-6 h-6" /></button>
             </div>
-            <form onSubmit={editingProfissional ? updateProfissional : createProfissional} className="space-y-4">
+            <form onSubmit={updateProfissional} className="space-y-4">
               <div><label className="block text-sm mb-2">Nome</label><input type="text" value={formProfissional.nome} onChange={(e) => setFormProfissional({ ...formProfissional, nome: e.target.value })} className="w-full px-4 py-3 bg-dark-200 border border-gray-800 rounded-custom text-white" required /></div>
               <div><label className="block text-sm mb-2">Como te chamamos?</label><input type="text" value={formProfissional.profissao} onChange={(e) => setFormProfissional({ ...formProfissional, profissao: e.target.value })} className="w-full px-4 py-3 bg-dark-200 border border-gray-800 rounded-custom text-white" placeholder="Ex: Barbeiro, Manicure..." /></div>
               <div><label className="block text-sm mb-2">Anos de experiência</label><input type="number" value={formProfissional.anos_experiencia} onChange={(e) => setFormProfissional({ ...formProfissional, anos_experiencia: e.target.value })} className="w-full px-4 py-3 bg-dark-200 border border-gray-800 rounded-custom text-white" /></div>
@@ -1236,20 +1315,17 @@ export default function Dashboard({ user, onLogout }) {
               <div>
                 <label className="block text-sm mb-2">Dias de trabalho</label>
                 <div className="grid grid-cols-5 sm:grid-cols-7 gap-2">
-                  {WEEKDAYS.map(d => {
-                    const active = (formProfissional.dias_trabalho || []).includes(d.i);
-                    return (
-                      <button type="button" key={d.i}
-                        onClick={() => { const cur = Array.isArray(formProfissional.dias_trabalho) ? [...formProfissional.dias_trabalho] : []; const next = active ? cur.filter(x => x !== d.i) : [...cur, d.i]; setFormProfissional(prev => ({ ...prev, dias_trabalho: normalizeDiasTrabalho(next) })); }}
-                        className={`py-2 rounded-button border font-normal text-xs transition-all ${active ? 'bg-primary/20 border-primary/50 text-primary' : 'bg-dark-200 border-gray-800 text-gray-500'}`}>
-                        {d.label}
-                      </button>
-                    );
-                  })}
+                  {WEEKDAYS.map(d => (
+                    <button key={d.value} type="button"
+                      onClick={() => { const dias = formProfissional.dias_trabalho.includes(d.value) ? formProfissional.dias_trabalho.filter(x => x !== d.value) : [...formProfissional.dias_trabalho, d.value].sort(); setFormProfissional({ ...formProfissional, dias_trabalho: dias }); }}
+                      className={`py-2 rounded-button border font-normal text-xs transition-all ${formProfissional.dias_trabalho.includes(d.value) ? 'bg-primary/20 border-primary/50 text-primary' : 'bg-dark-200 border-gray-800 text-gray-500'}`}>
+                      {d.label}
+                    </button>
+                  ))}
                 </div>
               </div>
-              <button type="submit" className="w-full py-3 bg-gradient-to-r from-primary to-yellow-600 text-black rounded-button font-normal uppercase">
-                {editingProfissional ? 'SALVAR' : 'ADICIONAR'}
+              <button type="submit" disabled={submittingProfissional} className={`w-full py-3 bg-gradient-to-r from-primary to-yellow-600 text-black rounded-button font-normal uppercase ${submittingProfissional ? 'opacity-60 cursor-not-allowed' : ''}`}>
+                {submittingProfissional ? 'SALVANDO...' : 'SALVAR'}
               </button>
             </form>
           </div>
