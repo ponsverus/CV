@@ -173,9 +173,6 @@ export default function Dashboard({ user, onLogout }) {
   const [submittingProfissional, setSubmittingProfissional]   = useState(false);
   const [formProfissional, setFormProfissional] = useState({ nome: '', profissao: '', anos_experiencia: '', horario_inicio: '08:00', horario_fim: '18:00', almoco_inicio: '', almoco_fim: '', dias_trabalho: [1,2,3,4,5,6] });
 
-  // Estado para auto-cadastro do admin como profissional
-  const [submittingAdminProf, setSubmittingAdminProf] = useState(false);
-
   const WEEKDAYS = [
     { value: 0, label: 'Dom' }, { value: 1, label: 'Seg' }, { value: 2, label: 'Ter' },
     { value: 3, label: 'Qua' }, { value: 4, label: 'Qui' }, { value: 5, label: 'Sex' },
@@ -194,11 +191,6 @@ export default function Dashboard({ user, onLogout }) {
   const counterSingular  = useMemo(() => getBizLabel(businessGroup, 'counter_singular'), [businessGroup]);
   const counterPlural    = useMemo(() => getBizLabel(businessGroup, 'counter_plural'), [businessGroup]);
   const emptyListMsg     = useMemo(() => getBizLabel(businessGroup, 'empty_list'), [businessGroup]);
-
-  // O admin já está cadastrado como profissional neste negócio?
-  const adminJaEhProfissional = useMemo(() =>
-    profissionais.some(p => p.user_id === user?.id),
-  [profissionais, user?.id]);
 
   const fetchNowFromDb = useCallback(async () => {
     const { data, error: rpcErr } = await supabase.rpc('now_sp');
@@ -417,35 +409,6 @@ export default function Dashboard({ user, onLogout }) {
     } catch (e) { setError(e?.message || 'Erro inesperado.'); }
     finally { setLoading(false); }
   }, [user?.id, location?.state?.negocioId, serverNow, hoje, faturamentoPeriodo]);
-
-  // Admin se cadastra como profissional no próprio negócio
-  const cadastrarAdminComoProfissional = async () => {
-    if (!negocio?.id || !user?.id || submittingAdminProf) return;
-    try {
-      setSubmittingAdminProf(true);
-      // Busca o nome atual do admin em users
-      const { data: userData, error: userErr } = await supabase
-        .from('users')
-        .select('nome')
-        .eq('id', user.id)
-        .maybeSingle();
-      if (userErr) throw userErr;
-      const nome = String(userData?.nome || '').trim() || 'PROFISSIONAL';
-      const { error: insErr } = await supabase.from('profissionais').insert([{
-        negocio_id:   negocio.id,
-        user_id:      user.id,
-        nome,
-        status:       'ativo',
-      }]);
-      if (insErr) throw insErr;
-      await uiAlert('dashboard.professional_updated', 'success');
-      await reloadProfissionais();
-    } catch {
-      await uiAlert('dashboard.professional_update_error', 'error');
-    } finally {
-      setSubmittingAdminProf(false);
-    }
-  };
 
   const uploadLogoNegocio = async (file) => {
     if (!file || !user?.id) return;
@@ -759,8 +722,6 @@ export default function Dashboard({ user, onLogout }) {
     </div>
   );
 
-  const souDono = negocio.owner_id === user?.id;
-
   return (
     <div className="min-h-screen bg-black text-white">
 
@@ -1060,19 +1021,7 @@ export default function Dashboard({ user, onLogout }) {
 
             {activeTab === 'profissionais' && (
               <div>
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-normal">Profissionais</h2>
-                  {/* Botão visível apenas para o admin que ainda não se cadastrou como profissional */}
-                  {souDono && !adminJaEhProfissional && (
-                    <button
-                      onClick={cadastrarAdminComoProfissional}
-                      disabled={submittingAdminProf}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-button text-sm font-normal uppercase border transition-all ${submittingAdminProf ? 'bg-gray-900 border-gray-800 text-gray-600 cursor-not-allowed' : 'bg-primary/10 hover:bg-primary/20 border-primary/30 text-primary'}`}>
-                      <Plus className="w-4 h-4" />
-                      {submittingAdminProf ? 'CADASTRANDO...' : 'ME CADASTRAR'}
-                    </button>
-                  )}
-                </div>
+                <h2 className="text-2xl font-normal mb-6">Profissionais</h2>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
                   {profissionais.map(p => {
                     const isPendente = p.status === 'pendente';
