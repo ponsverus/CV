@@ -182,7 +182,7 @@ export const ptBR = {
         aulas:     'AULA',
       },
       counter_plural: {
-        servicos:  'SERVIÇOS',
+        servicos:  'SERV',
         consultas: 'CONSULTAS',
         aulas:     'AULAS',
       },
