@@ -177,7 +177,7 @@ export const ptBR = {
       },
 
       counter_singular: {
-        servicos:  'SERVIÇO',
+        servicos:  'SERV',
         consultas: 'CONSULTA',
         aulas:     'AULA',
       },
@@ -1043,12 +1043,12 @@ export const ptBR = {
         aulas:     'Aulas',
       },
       counter_singular: {
-        servicos:  'serviço',
-        consultas: 'consulta',
-        aulas:     'aula',
+        servicos:  'SERV',
+        consultas: 'CONSULTA',
+        aulas:     'AULA',
       },
       counter_plural: {
-        servicos:  'SERVIÇOS',
+        servicos:  'SERV',
         consultas: 'CONSULTAS',
         aulas:     'AULAS',
       },
