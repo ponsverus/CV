@@ -317,7 +317,7 @@ export default function ParceiroLogin({ onLogin, suppressAuthRef, inRecovery: in
 
         <p className="text-center text-sm text-gray-600 mt-6 font-normal">
           Ainda não tem cadastro?{' '}
-          <Link to="/parceiro" className="text-primary hover:text-yellow-500 transition-colors">
+          <Link to="/parceiro/cadastro" className="text-primary hover:text-yellow-500 transition-colors">
             Solicitar acesso
           </Link>
         </p>
