@@ -245,12 +245,12 @@ export default function App() {
             } />
 
             <Route path="/cadastro/cliente" element={
-              isLoggedIn && userType === 'client' ? <Navigate to="/minha-area" />
+              isLoggedIn && userType ? <Navigate to={userType === 'professional' ? '/dashboard' : '/minha-area'} />
               : <SignupClient onLogin={handleLogin} />
             } />
 
             <Route path="/cadastro/profissional" element={
-              isLoggedIn && userType === 'professional' ? <Navigate to="/dashboard" />
+              isLoggedIn && userType ? <Navigate to={userType === 'professional' ? '/dashboard' : '/minha-area'} />
               : <SignupProfessional onLogin={handleLogin} />
             } />
 
