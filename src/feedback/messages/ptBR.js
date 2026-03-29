@@ -155,7 +155,7 @@ export const ptBR = {
 
       button_add: {
         servicos:  'SERVIÇO',
-        consultas: 'CONSULTA',
+        consultas: 'CONSULTAl',
         aulas:     'AULA',
       },
 
