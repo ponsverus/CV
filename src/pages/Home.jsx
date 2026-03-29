@@ -409,15 +409,6 @@ export default function Home({ user, userType, onLogout }) {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
             <div>
               <h4 className="text-white font-normal mb-4">PRODUTO</h4>
-              <ul className="space-y-2">
-                {['COMO FUNCIONA', 'PREÇOS'].map(link => (
-                  <li key={link}>
-                    <a href="#" className="text-gray-500 hover:text-primary transition-colors text-sm">
-                      {link}
-                    </a>
-                  </li>
-                ))}
-              </ul>
             </div>
 
             <div>
