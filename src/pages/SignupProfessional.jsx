@@ -37,6 +37,12 @@ function montarEnderecoUnico({ rua, numero, cidade, estado }) {
   return `${r}, ${n} - ${c}, ${e}`;
 }
 
+async function clearSignupSession() {
+  try {
+    await supabase.auth.signOut();
+  } catch {}
+}
+
 export default function SignupProfessional({ onLogin }) {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -160,53 +166,69 @@ export default function SignupProfessional({ onLogin }) {
       if (!dbType) { showMessage('signupProfessional.profile_not_created'); return; }
       if (dbType !== 'professional') { showMessage('signupProfessional.profile_wrong_type'); return; }
 
-      const { data: negocioExistente, error: negocioExistenteErr } = await supabase
-        .from('negocios')
-        .select('id')
-        .eq('owner_id', userId)
-        .maybeSingle();
-
-      if (negocioExistenteErr) console.error('negocioExistenteErr:', negocioExistenteErr);
-
-      if (negocioExistente?.id) {
-        onLogin(sessionUser, 'professional');
-        navigate('/dashboard');
-        return;
-      }
-
-      const { data: negocioInserted, error: negocioError } = await supabase
-        .from('negocios')
-        .insert([{
-          owner_id: userId,
-          nome: nomeNegocio,
+      const invokeSignupProfessional = async () => supabase.functions.invoke('signup-professional', {
+        body: {
+          nome_usuario: nome,
+          nome_negocio: nomeNegocio,
           slug,
-          tipo_negocio: tipoNegocio,
           descricao,
           telefone,
           endereco: enderecoUnico,
-        }])
-        .select('id')
-        .maybeSingle();
+          tipo_negocio: tipoNegocio,
+          nome_prof: nome,
+          profissao: tipoNegocio,
+          horario_inicio: '08:00',
+          horario_fim: '18:00',
+          dias_trabalho: [1, 2, 3, 4, 5, 6],
+        },
+      });
 
-      if (negocioError) {
-        console.error('negocioError:', negocioError);
+      let fnData = null;
+      let fnError = null;
+
+      for (let i = 0; i < 4; i++) {
+        const { data, error } = await invokeSignupProfessional();
+        fnData = data;
+        fnError = error;
+
+        if (!error) break;
+        if (error?.context?.status !== 404) break;
+
+        const code = await error.context.json().catch(() => null);
+        if (code?.error !== 'usuario_nao_encontrado') break;
+
+        await sleep(350);
+      }
+
+      if (fnError) {
+        const payload = await fnError.context?.json?.().catch(() => null);
+        const code = payload?.error || '';
+
+        if (code === 'slug_indisponivel') {
+          await clearSignupSession();
+          showMessage('signupProfessional.business_slug_taken');
+          return;
+        }
+        if (code === 'usuario_nao_encontrado') {
+          showMessage('signupProfessional.profile_not_created');
+          return;
+        }
+        if (code === 'horario_invalido' || code === 'dias_trabalho_invalidos') {
+          await clearSignupSession();
+          showMessage('signupProfessional.professional_create_error');
+          return;
+        }
+
+        console.error('signup-professional edge error:', fnError, payload);
+        await clearSignupSession();
         showMessage('signupProfessional.business_create_error');
         return;
       }
 
-      const negocioId = negocioInserted?.id;
-      if (!negocioId) { showMessage('signupProfessional.business_id_missing'); return; }
-
-      const { error: profissionalError } = await supabase.from('profissionais').insert([{
-        negocio_id: negocioId,
-        user_id: userId,
-        nome,
-        anos_experiencia: anosExperiencia,
-      }]);
-
-      if (profissionalError) {
-        console.error('profissionalError:', profissionalError);
-        showMessage('signupProfessional.professional_create_error');
+      if (!fnData?.negocio_id || !fnData?.profissional_id) {
+        console.error('signup-professional edge returned incomplete payload:', fnData);
+        await clearSignupSession();
+        showMessage('signupProfessional.business_create_error');
         return;
       }
 
