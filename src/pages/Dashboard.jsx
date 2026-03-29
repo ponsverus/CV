@@ -1294,7 +1294,7 @@ export default function Dashboard({ user, onLogout }) {
                 <p className="text-[12px] text-gray-500 mt-2">O preço de oferta deve ser menor que o preço normal.</p>
               </div>
               <button type="submit" disabled={submittingEntrega} className={`w-full py-3 bg-gradient-to-r from-primary to-yellow-600 text-black rounded-button font-normal uppercase ${submittingEntrega ? 'opacity-60 cursor-not-allowed' : ''}`}>
-                {submittingEntrega ? 'SALVANDO...' : editingEntregaId ? 'SALVAR' : getBizLabel(businessGroup, 'button_create')}
+                {submittingEntrega ? 'SALVANDO...' : 'SALVAR'}
               </button>
             </form>
           </div>
