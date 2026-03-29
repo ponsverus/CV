@@ -148,7 +148,7 @@ export const ptBR = {
     business: {
 
       tab_title: {
-        servicos:  'Serviços',
+        servicos:  'Serviçosh',
         consultas: 'Consultas',
         aulas:     'Aulas',
       },
