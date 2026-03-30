@@ -922,7 +922,12 @@ export default function Dashboard({ user, onLogout }) {
                   {profissionais.map(p => {
                     const isPendente = p.status === 'pendente'; const isInativo = p.status === 'inativo'; const isAtivo = p.status === 'ativo';
                     const label = normalizeKey(p.status_label);
-                    const dotColors: Record<string,string> = { ABERTO: '#22c55e', FECHADO: '#ef4444', ALMOCO: '#facc15', INATIVO: '#6b7280' };
+                    const dotColors = {
+                      ABERTO: '#22c55e',
+                      FECHADO: '#ef4444',
+                      ALMOCO: '#facc15',
+                      INATIVO: '#6b7280'
+                    };
                     const dotColor = isPendente ? '#facc15' : (dotColors[label] || '#6b7280');
                     const isEuMesmo = parceiroProfissional?.id === p.id;
                     return (
