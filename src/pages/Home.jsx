@@ -110,7 +110,7 @@ function SearchBox({
 
       {searchOpen && !buscando && searchTerm.trim().length >= 3 && resultadosBusca.length === 0 && (
         <div className="absolute right-0 top-full z-50 mt-3 w-[min(24rem,calc(100vw-2rem))] rounded-[3px] border border-white/10 bg-dark-100/95 px-5 py-4 text-sm text-gray-400 shadow-2xl backdrop-blur-xl">
-          BUSQUE: NEGÓCIO OU PROFISSIONAL :)
+          Nenhum profissional encontrado.
         </div>
       )}
     </div>
@@ -146,7 +146,7 @@ export default function Home({ user, userType, onLogout }) {
         const { data: profs, error: profErr } = await supabase
           .from('profissionais')
           .select('id, nome, negocio_id')
-          .eq('status', 'ativo')
+          .filter('status::text', 'eq', 'ativo')
           .ilike('nome', `%${term}%`)
           .limit(10);
 
