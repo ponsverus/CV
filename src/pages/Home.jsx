@@ -28,7 +28,6 @@ function SearchBox({
 
   useEffect(() => {
     if (!searchOpen) return;
-
     const handlePointerDown = (event) => {
       if (!wrapRef.current?.contains(event.target)) {
         setSearchOpen(false);
@@ -36,7 +35,6 @@ function SearchBox({
         setResultadosBusca([]);
       }
     };
-
     document.addEventListener('mousedown', handlePointerDown);
     return () => document.removeEventListener('mousedown', handlePointerDown);
   }, [searchOpen, setResultadosBusca, setSearchOpen, setSearchTerm]);
@@ -46,7 +44,9 @@ function SearchBox({
       <div
         className={[
           'relative flex items-center overflow-hidden rounded-full bg-black/40 backdrop-blur-md transition-all duration-300 ease-out',
-          searchOpen ? 'w-[min(24rem,calc(100vw-2rem))] border border-white/10 shadow-[0_0_0_1px_rgba(255,209,26,0.18)]' : 'w-11 border border-transparent bg-transparent backdrop-blur-0',
+          searchOpen
+            ? 'w-[min(24rem,calc(100vw-2rem))] border border-white/10 shadow-[0_0_0_1px_rgba(255,209,26,0.18)]'
+            : 'w-11 border border-transparent bg-transparent backdrop-blur-0',
         ].join(' ')}
       >
         <button
@@ -87,8 +87,8 @@ function SearchBox({
         <div className="absolute right-0 top-full z-50 mt-3 w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-[3px] border border-white/10 bg-dark-100/95 shadow-2xl backdrop-blur-xl">
           {resultadosBusca.map((r, i) => (
             <Link
-              key={`profissional-${r.negocios?.slug}-${i}`}
-              to={`/v/${r.negocios?.slug}`}
+              key={`${r.id}-${i}`}
+              to={`/v/${r.negocio_slug}`}
               onClick={() => {
                 setSearchOpen(false);
                 setSearchTerm('');
@@ -100,8 +100,8 @@ function SearchBox({
               <div className="mt-1 text-[11px] uppercase tracking-[0.08em] text-gray-500">
                 Profissional
               </div>
-              {r.negocios?.nome && (
-                <div className="mt-1 text-sm text-gray-400">{r.negocios.nome}</div>
+              {r.negocio_nome && (
+                <div className="mt-1 text-sm text-gray-400">{r.negocio_nome}</div>
               )}
             </Link>
           ))}
@@ -124,7 +124,6 @@ export default function Home({ user, userType, onLogout }) {
   const [buscando, setBuscando] = useState(false);
 
   const { showMessage } = useFeedback();
-
   const isLogged = !!user && !!userType;
 
   useEffect(() => {
@@ -144,21 +143,43 @@ export default function Home({ user, userType, onLogout }) {
       if (!cancelled) setBuscando(true);
 
       try {
-        // CORREÇÃO: busca SOMENTE profissionais com status 'ativo'
-        const { data: profissionais, error: pErr } = await supabase
+        const { data: profs, error: profErr } = await supabase
           .from('profissionais')
-          .select('nome, negocios(nome, slug)')
+          .select('id, nome, negocio_id')
           .eq('status', 'ativo')
           .ilike('nome', `%${term}%`)
           .limit(10);
 
-        if (pErr) throw pErr;
+        if (profErr) throw profErr;
         if (cancelled) return;
 
-        // Filtra apenas profissionais que possuem negócio com slug válido
-        const profOk = (profissionais || []).filter(p => p?.negocios?.slug);
+        if (!profs || profs.length === 0) {
+          setResultadosBusca([]);
+          return;
+        }
 
-        setResultadosBusca(profOk);
+        const negocioIds = [...new Set(profs.map((p) => p.negocio_id).filter(Boolean))];
+
+        const { data: negs, error: negErr } = await supabase
+          .from('negocios')
+          .select('id, nome, slug')
+          .in('id', negocioIds);
+
+        if (negErr) throw negErr;
+        if (cancelled) return;
+
+        const negMap = Object.fromEntries((negs || []).map((n) => [n.id, n]));
+
+        const resultado = profs
+          .map((p) => ({
+            id: p.id,
+            nome: p.nome,
+            negocio_slug: negMap[p.negocio_id]?.slug ?? null,
+            negocio_nome: negMap[p.negocio_id]?.nome ?? null,
+          }))
+          .filter((r) => r.negocio_slug);
+
+        setResultadosBusca(resultado);
       } catch (error) {
         if (cancelled) return;
         console.error('Erro na busca:', error);
@@ -191,12 +212,8 @@ export default function Home({ user, userType, onLogout }) {
             >
               {[...Array(14)].map((_, index) => (
                 <div key={index} className="flex items-center">
-                  <span className="text-black font-bold text-sm uppercase mx-4">
-                    CLIQUE PARA IR
-                  </span>
-
+                  <span className="text-black font-bold text-sm uppercase mx-4">CLIQUE PARA IR</span>
                   <span className="text-black mx-4">●</span>
-
                   <a
                     href={SUPORTE_HREF}
                     target="_blank"
@@ -205,7 +222,6 @@ export default function Home({ user, userType, onLogout }) {
                   >
                     SUPORTE
                   </a>
-
                   <span className="text-black mx-4">●</span>
                 </div>
               ))}
@@ -218,24 +234,18 @@ export default function Home({ user, userType, onLogout }) {
             0% { transform: translateX(0); }
             100% { transform: translateX(-50%); }
           }
-
           .announcement-bar-wrapper {
             display: flex;
             width: max-content;
             animation: announcement-scroll 50s linear infinite;
           }
-
-          .announcement-bar-wrapper:hover {
-            animation-play-state: paused;
-          }
-
+          .announcement-bar-wrapper:hover { animation-play-state: paused; }
           .announcement-bar-track a {
             position: relative;
             z-index: 10;
             cursor: pointer;
             display: inline-block;
           }
-
           @media (prefers-reduced-motion: reduce) {
             .announcement-bar-wrapper { animation: none; }
           }
@@ -248,7 +258,6 @@ export default function Home({ user, userType, onLogout }) {
             <Link to="/" className="flex items-center justify-center">
               <h1 className="text-2xl sm:text-3xl font-black">COMVAGA</h1>
             </Link>
-
             <div className="absolute right-0 top-1/2 -translate-y-1/2">
               <SearchBox
                 searchOpen={searchOpen}
@@ -292,7 +301,6 @@ export default function Home({ user, userType, onLogout }) {
             >
               MAXIMIZAR MEUS GANHOS <Zap className="w-5 h-5" />
             </Link>
-
             <button
               type="button"
               onClick={() => document.getElementById('como-funciona')?.scrollIntoView({ behavior: 'smooth' })}
@@ -328,7 +336,7 @@ export default function Home({ user, userType, onLogout }) {
             {[
               { num: 1, title: 'PAINEL DE SERVIÇOS', text: 'Cadastre seus serviços e tempos exatos. O sistema transforma esses dados em uma grade totalmente moldável e fluida.' },
               { num: 2, title: 'ACESSO SIMPLIFICADO', text: 'Seu cliente recebe um link exclusivo. Ele visualiza apenas os horários livres reais, sem precisar baixar nada.' },
-              { num: 3, title: 'ENCAIXE AUTOMÁTICO', text: 'O algoritmo recalcula sua agenda a cada mudança: novos horários marcados, desistências ou trocas. Tudo se reorganiza no ato para manter seu trabalho com o máximo de eficiência' }
+              { num: 3, title: 'ENCAIXE AUTOMÁTICO', text: 'O algoritmo recalcula sua agenda a cada mudança: novos horários marcados, desistências ou trocas. Tudo se reorganiza no ato para manter seu trabalho com o máximo de eficiência.' },
             ].map(({ num, title, text }) => (
               <div key={num} className="relative">
                 <div className="absolute -top-6 left-1/2 -translate-x-1/2 md:left-0 md:translate-x-0 md:-top-10 md:-left-4 w-16 h-16 bg-gradient-to-br from-primary to-yellow-600 rounded-full flex items-center justify-center text-black font-black text-2xl shadow-lg shadow-primary/50 z-10">
@@ -374,7 +382,7 @@ export default function Home({ user, userType, onLogout }) {
               { icon: Shield, title: 'AGENDA INTELIGENTE', text: 'O sistema lê o futuro: se o serviço escolhido vai invadir o próximo horário, a reserva é bloqueada automaticamente.' },
               { icon: Clock, title: 'RESGATE IMEDIATO', text: 'Cancelamentos deixam de ser prejuízo. O horário volta automaticamente para a vitrine e pode ser preenchido por outro cliente em segundos.' },
               { icon: Star, title: 'VITRINE PROFISSIONAL', text: 'Tenha um link bio personalizado. O cliente vê profissionalismo desde o primeiro clique.' },
-              { icon: CheckCircle, title: 'GEOMETRIA DE TEMPO', text: 'Substituímos os blocos fixos e obsoletos pelo uso do tempo real de cada serviço, garantindo o encaixe perfeito.' }
+              { icon: CheckCircle, title: 'GEOMETRIA DE TEMPO', text: 'Substituímos os blocos fixos e obsoletos pelo uso do tempo real de cada serviço, garantindo o encaixe perfeito.' },
             ].map(({ icon: Icon, title, text }, i) => (
               <div
                 key={i}
@@ -409,21 +417,19 @@ export default function Home({ user, userType, onLogout }) {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
 
-            {/* LOGO IMAGEM no footer */}
             <div className="flex flex-col justify-start">
-              <Link to="/" className="inline-block hover:opacity-80 transition-opacity">
+              <Link to="/" className="inline-block hover:opacity-75 transition-opacity">
                 <img
                   src="/Comvaga Logo.png"
                   alt="Comvaga"
-                  className="h-10 w-auto object-contain"
+                  className="h-16 w-auto object-contain"
                 />
               </Link>
-              <p className="text-gray-600 text-xs mt-2 uppercase leading-relaxed">
+              <p className="text-gray-600 text-xs mt-3 uppercase leading-relaxed">
                 Sua agenda,<br />matematicamente perfeita.
               </p>
             </div>
 
-            {/* PARA VOCÊ */}
             <div>
               <h4 className="text-white font-normal mb-4">PARA VOCÊ</h4>
               <ul className="space-y-2">
@@ -487,7 +493,7 @@ export default function Home({ user, userType, onLogout }) {
             <div>
               <h4 className="text-white font-normal mb-4">EMPRESA</h4>
               <ul className="space-y-2">
-                {['SOBRE', 'BLOG'].map(link => (
+                {['SOBRE', 'BLOG'].map((link) => (
                   <li key={link}>
                     <a href="#" className="text-gray-400 hover:text-primary transition-colors text-sm">
                       {link}
@@ -500,7 +506,7 @@ export default function Home({ user, userType, onLogout }) {
             <div>
               <h4 className="text-white font-normal mb-4">LEGAL</h4>
               <ul className="space-y-2">
-                {['PRIVACIDADE', 'TERMOS'].map(link => (
+                {['PRIVACIDADE', 'TERMOS'].map((link) => (
                   <li key={link}>
                     <a href="#" className="text-gray-500 hover:text-primary transition-colors text-sm">
                       {link}
@@ -511,10 +517,8 @@ export default function Home({ user, userType, onLogout }) {
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-4">
-            <div className="flex items-center gap-3">
-              <div className="text-gray-600 text-sm">© 2026 COMVAGA. Todos os direitos reservados.</div>
-            </div>
+          <div className="border-t border-gray-900 pt-6">
+            <p className="text-gray-600 text-sm">© 2026 COMVAGA. Todos os direitos reservados.</p>
           </div>
         </div>
       </footer>
