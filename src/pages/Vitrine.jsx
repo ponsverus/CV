@@ -8,7 +8,6 @@ import {
   ArrowLeft,
   X,
   AlertCircle,
-  Instagram,
   Check,
   ChevronRight,
   ChevronLeft,
