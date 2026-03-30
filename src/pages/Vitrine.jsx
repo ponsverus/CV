@@ -251,7 +251,7 @@ function ServicoButtons({ servico, profissional, selecaoProfId, servicosSelecion
     <div className="flex gap-2 mt-3">
       <button onClick={() => !agendarDesabilitado && onAgendarAgora(profissional, [servico])} disabled={agendarDesabilitado}
         className={`flex-1 py-2.5 rounded-button text-sm font-normal uppercase transition-all flex items-center justify-center gap-1.5 ${agendarClass}`}>
-        <Calendar className="w-3.5 h-3.5" />Agendar agora
+        <Calendar className="w-3.5 h-3.5" />Agendar
       </button>
       <button onClick={() => !selecionarDesabilitado && onToggleSelecao(profissional, servico)} disabled={selecionarDesabilitado}
         className={`flex-1 py-2.5 rounded-button text-sm font-normal uppercase transition-all flex items-center justify-center gap-1.5 border ${selecionarClass}`}>
