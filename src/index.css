@@ -1,7 +1,31 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;700;900&display=swap');
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Roboto Condensed", sans-serif;
+
+  --radius-custom: 3px;
+  --radius-button: 9999px;
+
+  --color-primary: #FFD700;
+  --color-dark-100: #1a1a1a;
+  --color-dark-200: #0d0d0d;
+  --color-dark-300: #000000;
+
+  --color-vbg: var(--vbg);
+  --color-vcard: var(--vcard);
+  --color-vcard2: var(--vcard2);
+  --color-vtext: var(--vtext);
+  --color-vsub: var(--vsub);
+  --color-vmuted: var(--vmuted);
+  --color-vborder: var(--vborder);
+  --color-vborder2: var(--vborder2);
+  --color-vprimary: var(--vprimary);
+  --color-vprimary-text: var(--vprimary-text);
+  --color-voferta: var(--voferta-text);
+  --color-vpromo: var(--vpromo-text);
+  --color-verror: var(--verror-text);
+}
 
 :root {
   --vbg:           #000000;
