@@ -76,7 +76,8 @@ function SearchBox({
           ].join(' ')}
         />
 
-        {buscando && (
+        {/* FIX: só mostra spinner enquanto está buscando E o termo tem 3+ chars */}
+        {buscando && searchTerm.trim().length >= 3 && (
           <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2">
             <div className="h-4 w-4 rounded-full border border-primary border-t-transparent animate-spin" />
           </div>
@@ -136,6 +137,7 @@ export default function Home({ user, userType, onLogout }) {
       if (term.length < 3) {
         if (!cancelled) {
           setResultadosBusca([]);
+          // FIX: garante que o spinner para quando o termo fica abaixo de 3 chars
           setBuscando(false);
         }
         return;
@@ -165,6 +167,7 @@ export default function Home({ user, userType, onLogout }) {
         showMessage('home.search_failed_support');
         setResultadosBusca([]);
       } finally {
+        // FIX: só para o spinner se não foi cancelado
         if (!cancelled) setBuscando(false);
       }
     };
@@ -173,6 +176,8 @@ export default function Home({ user, userType, onLogout }) {
     return () => {
       cancelled = true;
       clearTimeout(timer);
+      // FIX: para o spinner imediatamente ao cancelar (nova digitação)
+      setBuscando(false);
     };
   }, [searchTerm, showMessage]);
 
@@ -407,19 +412,18 @@ export default function Home({ user, userType, onLogout }) {
       <footer className="bg-black border-t border-gray-800 py-12 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <h4 className="text-white font-normal mb-4">PRODUTO</h4>
-              <ul className="space-y-2">
-                {['COMO FUNCIONA'].map(link => (
-                  <li key={link}>
-                    <a href="#" className="text-gray-500 hover:text-primary transition-colors text-sm">
-                      {link}
-                    </a>
-                  </li>
-                ))}
-              </ul>
+
+            {/* FIX: seção PRODUTO removida, substituída pela logo COMVAGA */}
+            <div className="flex flex-col justify-start">
+              <Link to="/" className="text-white font-black text-2xl tracking-tight hover:text-primary transition-colors">
+                COMVAGA
+              </Link>
+              <p className="text-gray-600 text-xs mt-2 uppercase leading-relaxed">
+                Sua agenda,<br />matematicamente perfeita.
+              </p>
             </div>
 
+            {/* FIX: PARA VOCÊ — links de parceiro sempre visíveis */}
             <div>
               <h4 className="text-white font-normal mb-4">PARA VOCÊ</h4>
               <ul className="space-y-2">
@@ -431,6 +435,16 @@ export default function Home({ user, userType, onLogout }) {
                         className="text-gray-500 hover:text-primary transition-colors text-sm"
                       >
                         {userType === 'professional' ? 'DASHBOARD' : 'MINHA ÁREA'}
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to="/parceiro/login" className="text-gray-500 hover:text-primary transition-colors text-sm">
+                        LOGIN PARCEIRO
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to="/parceiro/cadastro" className="text-gray-500 hover:text-primary transition-colors text-sm">
+                        CADASTRO PARCEIRO
                       </Link>
                     </li>
                     <li>
