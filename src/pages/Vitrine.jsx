@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import {
   Calendar,
   MapPin,
@@ -417,6 +417,7 @@ function DepoimentosPaginados({ depoimentos, nomeNegocioLabel, isLight }) {
 export default function Vitrine({ user, userType }) {
   const { slug }    = useParams();
   const navigate    = useNavigate();
+  const location    = useLocation();
   const vitrineMsgs = ptBR?.vitrine || {};
   const getMsg      = (key, fallback) => vitrineMsgs?.[key] || fallback;
 
@@ -490,6 +491,7 @@ export default function Vitrine({ user, userType }) {
   const [depoimentoLoading,        setDepoimentoLoading]        = useState(false);
   const [depoimentoTipo,           setDepoimentoTipo]           = useState('negocio');
   const [depoimentoProfissionalId, setDepoimentoProfissionalId] = useState(null);
+  const rebookAppliedRef = useRef(false);
 
   const isProfessional = user && userType === 'professional';
 
@@ -560,6 +562,24 @@ export default function Vitrine({ user, userType }) {
     if (user && negocio?.id) checkFavorito();
     else setIsFavorito(false);
   }, [checkFavorito]);
+
+  useEffect(() => {
+    const rebook = location.state?.rebook;
+    if (rebookAppliedRef.current || !rebook || loading || !negocio?.id) return;
+    const profissional = profissionais.find((p) => p.id === rebook.profissionalId);
+    const servico = entregas.find((s) =>
+      s.id === rebook.entregaId &&
+      s.profissional_id === rebook.profissionalId &&
+      s.ativo !== false
+    );
+    if (!profissional || !servico) return;
+    rebookAppliedRef.current = true;
+    setSelecaoProfId(null);
+    setServicosSelecionados([]);
+    setCalendarLink('');
+    setFlow({ step: 'booking', profissional, servicosSelecionados: [servico], lastSlot: null });
+    navigate(location.pathname, { replace: true, state: {} });
+  }, [location.pathname, location.state, loading, negocio?.id, profissionais, entregas, navigate]);
 
   const toggleFavorito = async () => {
     if (!user) { alertKey('favorite_need_login', 'Login necessário', 'Faça login para favoritar.', 'ENTENDI'); return; }
