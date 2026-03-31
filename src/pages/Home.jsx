@@ -146,7 +146,7 @@ export default function Home({ user, userType, onLogout }) {
         const { data: profs, error: profErr } = await supabase
           .from('profissionais')
           .select('id, nome, negocio_id')
-          .filter('status::text', 'eq', 'ativo')
+          .eq('status', 'ativo')
           .ilike('nome', `%${term}%`)
           .limit(10);
 
@@ -159,6 +159,11 @@ export default function Home({ user, userType, onLogout }) {
         }
 
         const negocioIds = [...new Set(profs.map((p) => p.negocio_id).filter(Boolean))];
+
+        if (negocioIds.length === 0) {
+          setResultadosBusca([]);
+          return;
+        }
 
         const { data: negs, error: negErr } = await supabase
           .from('negocios')
