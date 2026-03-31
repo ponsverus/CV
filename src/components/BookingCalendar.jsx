@@ -117,7 +117,7 @@ export default function BookingCalendar({
       setHorariosAll(final);
       setHorariosHot(hot);
 
-      if (!final.length) setSlotsError('Nenhum horário disponível neste dia.');
+      if (!final.length) setSlotsError('SEM VAGAS PRA HOJE :(');
 
       setTimeout(() => slotsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 80);
     } catch (e) {
