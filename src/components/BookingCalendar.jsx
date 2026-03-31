@@ -355,7 +355,7 @@ export default function BookingCalendar({
                           </div>
                         )}
                         {showAll && horariosExtra.length === 0 && (
-                          <p className={`text-center text-xs mt-3 ${isLight ? 'text-gray-400' : 'text-gray-600'}`}>Os horários livres já aparecem acima.</p>
+                          <p className={`text-center text-xs mt-3 ${isLight ? 'text-gray-400' : 'text-gray-600'}`}>ESCOLHA ACIMA</p>
                         )}
                       </>
                     ) : (
