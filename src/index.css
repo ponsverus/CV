@@ -46,14 +46,14 @@
 }
 
 .vitrine-light {
-  --vbg:           #f4f4f4;
-  --vcard:         #f4f4f4;
-  --vcard2:        #ffffff;
+  --vbg:           #f3efe6;
+  --vcard:         #ffffff;
+  --vcard2:        #ebe4d6;
   --vtext:         #18181b;
-  --vsub:          #3f3f46;
+  --vsub:          #52525b;
   --vmuted:        #71717a;
-  --vborder:       #d4d4d8;
-  --vborder2:      #e4e4e7;
+  --vborder:       #d6cbb6;
+  --vborder2:      #e7dece;
   --vprimary:      #18181b;
   --vprimary-text: #ffffff;
   --voferta-bg:    rgba(22,101,52,0.12);
