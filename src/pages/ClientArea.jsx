@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Calendar, History, LogOut, X, Save } from 'lucide-react';
 import { supabase } from '../supabase';
 import { useFeedback } from '../feedback/useFeedback';
@@ -63,6 +63,7 @@ function getPublicUrl(bucket, path) {
 }
 
 export default function ClientArea({ user, onLogout }) {
+  const navigate = useNavigate();
   const feedback = useFeedback();
 
   const uiAlert = (key, variant = 'info', params = {}) => {
@@ -284,6 +285,24 @@ export default function ClientArea({ user, onLogout }) {
     }
   };
 
+  const marcarNovamente = (agendamento) => {
+    const slug = String(agendamento?.negocio_slug || '').trim();
+    const profissionalId = agendamento?.profissional_id || null;
+    const entregaId = agendamento?.entrega_id || null;
+    if (!slug || !profissionalId || !entregaId) {
+      uiAlert('alerts.action_failed_support', 'warning');
+      return;
+    }
+    navigate(`/v/${slug}`, {
+      state: {
+        rebook: {
+          profissionalId,
+          entregaId,
+        },
+      },
+    });
+  };
+
   const removerFavorito = async (favoritoId) => {
     try {
       const { error } = await supabase.from('favoritos').delete().eq('id', favoritoId).eq('cliente_id', user.id);
@@ -348,7 +367,13 @@ export default function ClientArea({ user, onLogout }) {
           <div className="text-xs text-gray-500">{lista.length}</div>
         </div>
         <div className="space-y-4">
-          {lista.map(ag => (
+          {lista.map(ag => {
+            const podeMarcarNovamente =
+              ['concluido', 'cancelado_cliente', 'cancelado_profissional'].includes(String(ag.status || '')) &&
+              !!ag.negocio_slug &&
+              !!ag.profissional_id &&
+              !!ag.entrega_id;
+            return (
             <div key={ag.id} className="bg-dark-200 border border-gray-800 rounded-custom p-4 sm:p-5">
               <div className="flex items-start justify-between gap-4 mb-4">
                 <div className="flex-1 min-w-0">
@@ -374,16 +399,26 @@ export default function ClientArea({ user, onLogout }) {
                   <div className="text-sm text-white">R$ {moneyBR(getValorAgendamento(ag))}</div>
                 </div>
               </div>
-              {ag.status === 'agendado' && (
-                <button
-                  onClick={() => cancelarAgendamento(ag.id)}
-                  className="w-full py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 text-red-400 rounded-button text-sm transition-all"
-                >
-                  CANCELAR
-                </button>
-              )}
+              <div className="flex flex-col gap-2">
+                {ag.status === 'agendado' && (
+                  <button
+                    onClick={() => cancelarAgendamento(ag.id)}
+                    className="w-full py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 text-red-400 rounded-button text-sm transition-all"
+                  >
+                    CANCELAR
+                  </button>
+                )}
+                {podeMarcarNovamente && (
+                  <button
+                    onClick={() => marcarNovamente(ag)}
+                    className="w-full py-2 bg-primary/20 hover:bg-primary/30 border border-primary/50 text-primary rounded-button text-sm transition-all uppercase"
+                  >
+                    MARCAR NOVAMENTE
+                  </button>
+                )}
+              </div>
             </div>
-          ))}
+          )})}
         </div>
       </div>
     );
