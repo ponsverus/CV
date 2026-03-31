@@ -90,7 +90,7 @@ function FacebookIcon({ className = '', size = 16 }) {
 
 function InstagramIcon({ className = '', size = 16 }) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
       <rect x="3" y="3" width="18" height="18" rx="5" ry="5" />
       <path d="M16.5 7.5h.01" />
       <circle cx="12" cy="12" r="4" />
@@ -158,11 +158,11 @@ function sanitizeTel(raw) {
 
 function AlertModal({ open, onClose, title, body, buttonText, isLight }) {
   if (!open) return null;
-  const bg      = isLight ? 'bg-white border-gray-200'  : 'bg-dark-100 border-gray-800';
-  const titleCl = isLight ? 'text-gray-900'              : 'text-white';
-  const bodyCl  = isLight ? 'text-gray-600'              : 'text-gray-300';
-  const closeCl = isLight ? 'text-gray-400 hover:text-gray-700' : 'text-gray-400 hover:text-white';
-  const btnCl   = isLight ? 'bg-gray-900 text-white hover:bg-gray-700' : 'bg-gradient-to-r from-primary to-yellow-600 text-black';
+  const bg      = isLight ? 'bg-vcard border-vborder'  : 'bg-dark-100 border-gray-800';
+  const titleCl = isLight ? 'text-vtext'               : 'text-white';
+  const bodyCl  = isLight ? 'text-vsub'                : 'text-gray-300';
+  const closeCl = isLight ? 'text-vmuted hover:text-vtext' : 'text-gray-400 hover:text-white';
+  const btnCl   = isLight ? 'bg-vprimary text-vprimary-text hover:opacity-90' : 'bg-gradient-to-r from-primary to-yellow-600 text-black';
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999] flex items-center justify-center p-4">
       <div className={`border rounded-custom max-w-md w-full p-6 ${bg}`}>
@@ -181,12 +181,12 @@ function AlertModal({ open, onClose, title, body, buttonText, isLight }) {
 
 function ConfirmModal({ open, onCancel, onConfirm, title, body, confirmText, cancelText, isLight }) {
   if (!open) return null;
-  const bg       = isLight ? 'bg-white border-gray-200'  : 'bg-dark-100 border-gray-800';
-  const titleCl  = isLight ? 'text-gray-900'              : 'text-white';
-  const bodyCl   = isLight ? 'text-gray-600'              : 'text-gray-300';
-  const closeCl  = isLight ? 'text-gray-400 hover:text-gray-700' : 'text-gray-400 hover:text-white';
-  const cancelCl = isLight ? 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200' : 'bg-dark-200 border-gray-800 text-gray-200';
-  const confirmCl= isLight ? 'bg-gray-900 text-white hover:bg-gray-700' : 'bg-gradient-to-r from-primary to-yellow-600 text-black';
+  const bg       = isLight ? 'bg-vcard border-vborder'  : 'bg-dark-100 border-gray-800';
+  const titleCl  = isLight ? 'text-vtext'               : 'text-white';
+  const bodyCl   = isLight ? 'text-vsub'                : 'text-gray-300';
+  const closeCl  = isLight ? 'text-vmuted hover:text-vtext' : 'text-gray-400 hover:text-white';
+  const cancelCl = isLight ? 'bg-vcard2 border-vborder text-vsub hover:border-vprimary hover:text-vtext' : 'bg-dark-200 border-gray-800 text-gray-200';
+  const confirmCl= isLight ? 'bg-vprimary text-vprimary-text hover:opacity-90' : 'bg-gradient-to-r from-primary to-yellow-600 text-black';
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999] flex items-center justify-center p-4">
       <div className={`border rounded-custom max-w-md w-full p-6 ${bg}`}>
@@ -210,11 +210,11 @@ function SelectionBar({ itens, counterSingular, counterPlural, onConfirm, onClea
   const durTotal = itens.reduce((s, x) => s + Number(x.duracao_minutos || 0), 0);
   const valTotal = itens.reduce((s, x) => s + getPrecoFinalServico(x), 0);
   const label    = qtd === 1 ? counterSingular : counterPlural;
-  const bg       = isLight ? 'rgba(255,255,255,0.97)' : 'rgba(10,10,10,0.97)';
-  const border   = isLight ? 'rgba(24,24,27,0.15)'    : 'rgba(212,160,23,0.25)';
-  const textMain = isLight ? 'text-gray-900'           : 'text-white';
-  const textSub  = isLight ? 'text-gray-500'           : 'text-gray-500';
-  const clearBtn = isLight ? 'text-gray-400 hover:text-gray-600' : 'text-gray-600 hover:text-gray-400';
+  const bg       = isLight ? 'rgba(255,255,255,0.96)' : 'rgba(10,10,10,0.97)';
+  const border   = isLight ? 'rgba(214,203,182,0.9)'  : 'rgba(212,160,23,0.25)';
+  const textMain = isLight ? 'text-vtext'             : 'text-white';
+  const textSub  = isLight ? 'text-vsub'              : 'text-gray-500';
+  const clearBtn = isLight ? 'text-vmuted hover:text-vtext' : 'text-gray-600 hover:text-gray-400';
   return (
     <div className="fixed bottom-0 left-0 right-0 z-[60]" style={{ background: bg, borderTop: `1px solid ${border}` }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
@@ -245,16 +245,16 @@ function ServicoButtons({ servico, profissional, selecaoProfId, servicosSelecion
   if (isProfessional || outroProfSel) {
     selecionarClass = 'bg-vcard2 border-vborder text-vmuted cursor-not-allowed opacity-30';
   } else if (isSelecionado) {
-    selecionarClass = isLight ? 'bg-gray-900/10 border-gray-900 text-gray-900' : 'bg-primary/15 border-primary text-primary';
+    selecionarClass = isLight ? 'bg-vprimary/10 border-vprimary text-vtext' : 'bg-primary/15 border-primary text-primary';
   } else if (modoSelecaoOn) {
-    selecionarClass = isLight ? 'bg-white border-gray-300 text-gray-700 hover:border-gray-900 hover:text-gray-900' : 'bg-vcard2 border-vborder text-white hover:border-primary hover:text-primary';
+    selecionarClass = isLight ? 'bg-vcard border-vborder text-vsub hover:border-vprimary hover:text-vtext' : 'bg-vcard2 border-vborder text-white hover:border-primary hover:text-primary';
   } else {
-    selecionarClass = isLight ? 'bg-white border-gray-300 text-gray-600 hover:border-gray-900 hover:text-gray-900' : 'bg-vcard2 border-vborder text-vsub hover:border-primary hover:text-primary';
+    selecionarClass = isLight ? 'bg-vcard border-vborder text-vsub hover:border-vprimary hover:text-vtext' : 'bg-vcard2 border-vborder text-vsub hover:border-primary hover:text-primary';
   }
 
   const agendarClass = agendarDesabilitado
     ? 'bg-vcard2 border border-vborder text-vmuted cursor-not-allowed opacity-40'
-    : isLight ? 'bg-gray-900 text-white hover:bg-gray-700' : 'bg-gradient-to-r from-primary to-yellow-600 text-black hover:opacity-90';
+    : isLight ? 'bg-vprimary text-vprimary-text hover:opacity-90' : 'bg-gradient-to-r from-primary to-yellow-600 text-black hover:opacity-90';
 
   return (
     <div className="flex gap-2 mt-3">
@@ -340,8 +340,8 @@ function ServicosCarousel({ lista, profissional, selecaoProfId, servicosSelecion
   const itensMostrados = animando ? itensAntigos : itensNovos;
   const translateSaindo   = animDir === 'left' ? '-100%' : animDir === 'right' ? '100%' : '0%';
   const translateEntrando = animDir === 'left' ? '100%'  : animDir === 'right' ? '-100%' : '0%';
-  const dotInactive = isLight ? 'bg-gray-300 hover:bg-gray-400' : 'bg-gray-700 hover:bg-gray-500';
-  const navBtnCl    = isLight ? 'hover:bg-gray-100 text-gray-500 hover:text-gray-800' : 'hover:bg-vcard2 text-vsub hover:text-vtext';
+  const dotInactive = isLight ? 'bg-vborder hover:bg-vsub/40' : 'bg-gray-700 hover:bg-gray-500';
+  const navBtnCl    = isLight ? 'hover:bg-vcard2 text-vmuted hover:text-vtext' : 'hover:bg-vcard2 text-vsub hover:text-vtext';
 
   return (
     <div onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
@@ -371,9 +371,9 @@ function DepoimentosPaginados({ depoimentos, nomeNegocioLabel, isLight }) {
   const totalPaginas = Math.ceil(depoimentos.length / DEPOIMENTOS_POR_PAGINA);
   const inicio = pagina * DEPOIMENTOS_POR_PAGINA;
   const itens  = depoimentos.slice(inicio, inicio + DEPOIMENTOS_POR_PAGINA);
-  const navBtnCl  = isLight ? 'hover:bg-gray-100 text-gray-500 hover:text-gray-800' : 'hover:bg-vcard2 text-vsub hover:text-vtext';
-  const dotInact  = isLight ? 'bg-gray-300 hover:bg-gray-400' : 'bg-gray-700 hover:bg-gray-500';
-  const comentCl  = isLight ? 'text-gray-600' : 'text-vsub';
+  const navBtnCl  = isLight ? 'hover:bg-vcard2 text-vmuted hover:text-vtext' : 'hover:bg-vcard2 text-vsub hover:text-vtext';
+  const dotInact  = isLight ? 'bg-vborder hover:bg-vsub/40' : 'bg-gray-700 hover:bg-gray-500';
+  const comentCl  = isLight ? 'text-vsub' : 'text-vsub';
   if (!depoimentos.length) return <p className="text-vmuted font-normal">Nenhum depoimento ainda</p>;
   return (
     <div>
@@ -730,34 +730,34 @@ export default function Vitrine({ user, userType }) {
   const isLight   = temaAtivo === 'light';
   const hasSelecao = servicosSelecionados.length > 0;
 
-  const headerVoltar    = isLight ? 'text-gray-600 hover:text-gray-900' : 'text-vsub hover:text-primary';
-  const depoimentoBtn   = isLight ? (isProfessional ? 'border-gray-200 text-gray-400 cursor-not-allowed bg-gray-50' : 'border-gray-300 text-gray-600 hover:border-gray-900 bg-white') : (isProfessional ? 'border-vborder2 text-vmuted cursor-not-allowed bg-vcard2' : 'border-vborder text-vsub hover:border-primary bg-vcard2');
-  const favoritoBtn     = isLight ? (isProfessional ? 'bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed' : isFavorito ? 'bg-red-50 border-red-300 text-red-500' : 'bg-white border-gray-300 text-gray-600 hover:text-red-500') : (isProfessional ? 'bg-vcard2 border-vborder2 text-vmuted cursor-not-allowed' : isFavorito ? 'bg-red-500/20 border-red-500/50 text-red-400' : 'bg-vcard2 border-vborder text-vsub hover:text-red-400');
-  const socialIconCl    = isLight ? 'border-gray-300 bg-gray-100 text-gray-600 hover:bg-gray-200 hover:border-gray-500' : 'border-white/20 bg-white/7 text-white/80 hover:bg-white/15 hover:border-white/35';
-  const heroBg          = isLight ? 'bg-gradient-to-br from-gray-100 via-white to-gray-50' : 'bg-gradient-to-br from-primary/20 via-vbg to-yellow-600/20';
-  const telClass        = isLight ? 'text-gray-900 hover:text-gray-600' : 'text-primary hover:text-yellow-500';
-  const addrClass       = isLight ? 'text-gray-600' : 'text-vsub';
-  const mediaColor      = isLight ? 'text-gray-900' : 'text-primary';
-  const profissaoTag    = isLight ? 'bg-gray-100 border-gray-300 text-gray-700' : 'bg-primary/20 border-primary/30 text-primary';
+  const headerVoltar    = isLight ? 'text-vsub hover:text-vtext' : 'text-vsub hover:text-primary';
+  const depoimentoBtn   = isLight ? (isProfessional ? 'border-vborder2 text-vmuted cursor-not-allowed bg-vcard2' : 'border-vborder text-vsub hover:border-vprimary hover:text-vtext bg-vcard') : (isProfessional ? 'border-vborder2 text-vmuted cursor-not-allowed bg-vcard2' : 'border-vborder text-vsub hover:border-primary bg-vcard2');
+  const favoritoBtn     = isLight ? (isProfessional ? 'bg-vcard2 border-vborder2 text-vmuted cursor-not-allowed' : isFavorito ? 'bg-red-50 border-red-300 text-red-500' : 'bg-vcard border-vborder text-vsub hover:text-red-500 hover:border-red-300') : (isProfessional ? 'bg-vcard2 border-vborder2 text-vmuted cursor-not-allowed' : isFavorito ? 'bg-red-500/20 border-red-500/50 text-red-400' : 'bg-vcard2 border-vborder text-vsub hover:text-red-400');
+  const socialIconCl    = isLight ? 'border-vborder bg-vcard text-vsub hover:bg-vcard2 hover:border-vprimary/40 hover:text-vtext' : 'border-white/20 bg-white/7 text-white/80 hover:bg-white/15 hover:border-white/35';
+  const heroBg          = isLight ? 'bg-[linear-gradient(135deg,var(--vcard)_0%,var(--vbg)_48%,var(--vcard2)_100%)]' : 'bg-gradient-to-br from-primary/20 via-vbg to-yellow-600/20';
+  const telClass        = isLight ? 'text-vtext hover:text-vsub' : 'text-primary hover:text-yellow-500';
+  const addrClass       = isLight ? 'text-vsub' : 'text-vsub';
+  const mediaColor      = isLight ? 'text-vtext' : 'text-primary';
+  const profissaoTag    = isLight ? 'bg-vcard2 border-vborder text-vtext' : 'bg-primary/20 border-primary/30 text-primary';
   const almocoBadge     = isLight ? 'text-amber-700' : 'text-yellow-400';
-  const depBtn          = isLight ? (isProfessional ? 'bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed' : 'bg-gray-100 hover:bg-gray-200 border-gray-300 text-gray-700') : (isProfessional ? 'bg-vcard border-vborder2 text-vmuted cursor-not-allowed' : 'bg-primary/20 hover:bg-primary/30 border-primary/50 text-primary');
-  const depoModalBg     = isLight ? 'bg-white border-gray-200' : 'bg-dark-100 border-gray-800';
-  const depoModalTitle  = isLight ? 'text-gray-900' : 'text-white';
-  const depoModalClose  = isLight ? 'text-gray-400 hover:text-gray-700' : 'text-gray-400 hover:text-white';
-  const depoModalLabel  = isLight ? 'text-gray-600' : 'text-gray-300';
-  const depoNegBtn      = (t) => t === 'negocio' ? (isLight ? 'bg-blue-50 border-blue-400 text-blue-700' : 'bg-blue-500/20 border-blue-500/50 text-blue-400') : (isLight ? 'bg-gray-50 border-gray-300 text-gray-600 hover:border-gray-500' : 'bg-dark-200 border-gray-800 text-gray-400');
-  const depoProfBtn     = (t) => t === 'profissional' ? (isLight ? 'bg-gray-900 border-gray-900 text-white' : 'bg-primary/20 border-primary/50 text-primary') : (isLight ? 'bg-gray-50 border-gray-300 text-gray-600 hover:border-gray-500' : 'bg-dark-200 border-gray-800 text-gray-400');
-  const depoProfItem    = (sel) => sel ? (isLight ? 'bg-gray-900 border-gray-900 text-white' : 'bg-primary/20 border-primary/50 text-primary') : (isLight ? 'bg-gray-50 border-gray-200 text-gray-600 hover:border-gray-500' : 'bg-dark-200 border-gray-800 text-gray-400 hover:border-primary/30');
-  const depoNotaBtn     = (n) => depoimentoNota >= n ? (isLight ? 'bg-gray-900 border-gray-900 text-white' : 'bg-primary/20 border-primary/50 text-primary') : (isLight ? 'bg-gray-50 border-gray-300 text-gray-400' : 'bg-dark-200 border-gray-800 text-gray-500');
-  const depoTextarea    = isLight ? 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-gray-900' : 'bg-dark-200 border-gray-800 text-white placeholder-gray-500 focus:border-primary';
-  const depoSendBtn     = isLight ? 'bg-gray-900 text-white hover:bg-gray-700' : 'bg-gradient-to-r from-primary to-yellow-600 text-black';
-  const depoHintCl      = isLight ? 'text-gray-400' : 'text-gray-500';
-  const confirmadoBg    = isLight ? 'bg-white border-gray-200' : 'bg-dark-100 border-gray-800';
-  const confirmadoTitle = isLight ? 'text-gray-900' : 'text-white';
-  const confirmadoSub   = isLight ? 'text-gray-500' : 'text-gray-500';
-  const confirmadoHora  = isLight ? 'text-gray-900 font-bold' : 'text-primary';
-  const confirmadoData  = isLight ? 'text-gray-600' : 'text-gray-400';
-  const confirmadoAgBtn = isLight ? 'bg-gray-900 text-white hover:bg-gray-700' : 'bg-gradient-to-r from-primary to-yellow-600 text-black';
+  const depBtn          = isLight ? (isProfessional ? 'bg-vcard2 border-vborder2 text-vmuted cursor-not-allowed' : 'bg-vcard2 hover:bg-vcard border-vborder text-vtext') : (isProfessional ? 'bg-vcard border-vborder2 text-vmuted cursor-not-allowed' : 'bg-primary/20 hover:bg-primary/30 border-primary/50 text-primary');
+  const depoModalBg     = isLight ? 'bg-vcard border-vborder' : 'bg-dark-100 border-gray-800';
+  const depoModalTitle  = isLight ? 'text-vtext' : 'text-white';
+  const depoModalClose  = isLight ? 'text-vmuted hover:text-vtext' : 'text-gray-400 hover:text-white';
+  const depoModalLabel  = isLight ? 'text-vsub' : 'text-gray-300';
+  const depoNegBtn      = (t) => t === 'negocio' ? (isLight ? 'bg-vprimary border-vprimary text-vprimary-text' : 'bg-blue-500/20 border-blue-500/50 text-blue-400') : (isLight ? 'bg-vcard2 border-vborder text-vsub hover:border-vprimary hover:text-vtext' : 'bg-dark-200 border-gray-800 text-gray-400');
+  const depoProfBtn     = (t) => t === 'profissional' ? (isLight ? 'bg-vprimary border-vprimary text-vprimary-text' : 'bg-primary/20 border-primary/50 text-primary') : (isLight ? 'bg-vcard2 border-vborder text-vsub hover:border-vprimary hover:text-vtext' : 'bg-dark-200 border-gray-800 text-gray-400');
+  const depoProfItem    = (sel) => sel ? (isLight ? 'bg-vprimary border-vprimary text-vprimary-text' : 'bg-primary/20 border-primary/50 text-primary') : (isLight ? 'bg-vcard2 border-vborder text-vsub hover:border-vprimary hover:text-vtext' : 'bg-dark-200 border-gray-800 text-gray-400 hover:border-primary/30');
+  const depoNotaBtn     = (n) => depoimentoNota >= n ? (isLight ? 'bg-vprimary border-vprimary text-vprimary-text' : 'bg-primary/20 border-primary/50 text-primary') : (isLight ? 'bg-vcard2 border-vborder text-vmuted' : 'bg-dark-200 border-gray-800 text-gray-500');
+  const depoTextarea    = isLight ? 'bg-vcard border-vborder text-vtext placeholder-vmuted focus:border-vprimary' : 'bg-dark-200 border-gray-800 text-white placeholder-gray-500 focus:border-primary';
+  const depoSendBtn     = isLight ? 'bg-vprimary text-vprimary-text hover:opacity-90' : 'bg-gradient-to-r from-primary to-yellow-600 text-black';
+  const depoHintCl      = isLight ? 'text-vmuted' : 'text-gray-500';
+  const confirmadoBg    = isLight ? 'bg-vcard border-vborder' : 'bg-dark-100 border-gray-800';
+  const confirmadoTitle = isLight ? 'text-vtext' : 'text-white';
+  const confirmadoSub   = isLight ? 'text-vsub' : 'text-gray-500';
+  const confirmadoHora  = isLight ? 'text-vtext font-bold' : 'text-primary';
+  const confirmadoData  = isLight ? 'text-vsub' : 'text-gray-400';
+  const confirmadoAgBtn = isLight ? 'bg-vprimary text-vprimary-text hover:opacity-90' : 'bg-gradient-to-r from-primary to-yellow-600 text-black';
 
   return (
     <div className={`min-h-screen bg-vbg text-vtext${isLight ? ' vitrine-light' : ''}`} style={hasSelecao ? { paddingBottom: 72 } : undefined}>
