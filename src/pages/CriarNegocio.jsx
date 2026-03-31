@@ -18,6 +18,7 @@ export default function CriarNegocio({ user }) {
   const navigate = useNavigate();
   const { showMessage } = useFeedback();
   const [loading, setLoading] = useState(false);
+  const [ownerBusinessCount, setOwnerBusinessCount] = useState(0);
 
   const [formData, setFormData] = useState({
     nomeNegocio: '',
@@ -30,6 +31,26 @@ export default function CriarNegocio({ user }) {
     cidade: '',
     estado: '',
   });
+
+  React.useEffect(() => {
+    let active = true;
+
+    async function loadOwnerBusinessCount() {
+      if (!user?.id) return;
+
+      const { count, error } = await supabase
+        .from('negocios')
+        .select('id', { count: 'exact', head: true })
+        .eq('owner_id', user.id);
+
+      if (!error && active) {
+        setOwnerBusinessCount(Number(count || 0));
+      }
+    }
+
+    loadOwnerBusinessCount();
+    return () => { active = false; };
+  }, [user?.id]);
 
   const generateSlug = (text) =>
     String(text || '')
@@ -108,6 +129,7 @@ export default function CriarNegocio({ user }) {
   const inputIconClass = 'w-full pl-10 pr-4 py-3 bg-dark-100/40 border border-gray-800/50 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none focus:bg-dark-100/60 transition-all backdrop-blur-sm text-sm';
   const labelClass = 'block text-sm text-gray-400 mb-2 tracking-wide';
   const labelSmClass = 'block text-xs text-gray-500 mb-2 tracking-wide';
+  const backTarget = ownerBusinessCount > 1 ? '/selecionar-negocio' : '/dashboard';
 
   return (
     <div className="min-h-screen bg-black text-white py-8 px-4 relative overflow-hidden">
@@ -119,7 +141,7 @@ export default function CriarNegocio({ user }) {
       <div className="relative z-10 w-full max-w-2xl mx-auto">
         <button
           type="button"
-          onClick={() => navigate('/dashboard')}
+          onClick={() => navigate(backTarget)}
           className="inline-flex items-center gap-2 text-gray-400 hover:text-primary mb-12 transition-colors group"
         >
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
@@ -274,10 +296,10 @@ export default function CriarNegocio({ user }) {
           <div className="text-center pt-4 border-t border-gray-800/50">
             <button
               type="button"
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate(backTarget)}
               className="text-gray-600 hover:text-gray-400 text-sm font-normal transition-colors"
             >
-              Cancelar e voltar ao dashboard
+              {backTarget === '/selecionar-negocio' ? 'Cancelar e voltar para a seleção' : 'Cancelar e voltar ao dashboard'}
             </button>
           </div>
 
