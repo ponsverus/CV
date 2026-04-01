@@ -124,6 +124,14 @@ export default function Home({ user, userType, onLogout }) {
   const [buscando, setBuscando] = useState(false);
 
   const { showMessage } = useFeedback();
+
+  // useFeedback() retorna um objeto novo a cada render.
+  // Colocar showMessage nas deps do useEffect faz o effect cancelar
+  // a busca antes da Promise do Supabase resolver (cancelled = true).
+  // A solução correta é manter showMessage num ref estável.
+  const showMessageRef = useRef(showMessage);
+  useEffect(() => { showMessageRef.current = showMessage; });
+
   const isLogged = !!user && !!userType;
 
   useEffect(() => {
@@ -143,7 +151,7 @@ export default function Home({ user, userType, onLogout }) {
       if (!cancelled) setBuscando(true);
 
       try {
-        // FK explícita: negocios!negocio_id — resolve ambiguidade no PostgREST
+        // FK explícita no join para evitar ambiguidade no PostgREST
         const [{ data: profs, error: profErr }, { data: negs, error: negErr }] =
           await Promise.all([
             supabase
@@ -163,7 +171,6 @@ export default function Home({ user, userType, onLogout }) {
         if (negErr) throw negErr;
         if (cancelled) return;
 
-        // negocios retorna como objeto (relação muitos-para-um), não array
         const resultadosProfs = (profs || [])
           .filter((p) => p.negocios?.slug)
           .map((p) => ({
@@ -189,7 +196,7 @@ export default function Home({ user, userType, onLogout }) {
       } catch (error) {
         if (cancelled) return;
         console.error('Erro na busca:', error);
-        showMessage('home.search_failed_support');
+        showMessageRef.current('home.search_failed_support');
         setResultadosBusca([]);
       } finally {
         if (!cancelled) setBuscando(false);
@@ -202,7 +209,7 @@ export default function Home({ user, userType, onLogout }) {
       clearTimeout(timer);
       setBuscando(false);
     };
-  }, [searchTerm, showMessage]);
+  }, [searchTerm]); // showMessage fora das deps — acesso via ref estável
 
   const handleLogoutClick = () => onLogout?.();
 
