@@ -1248,7 +1248,7 @@ export default function Dashboard({ user, onLogout }) {
                   <div className="bg-dark-200 border border-gray-800 rounded-custom p-5 md:col-span-2"><label className="block text-sm mb-2">Sobre</label><textarea value={formInfo.descricao} onChange={(e) => setFormInfo(prev => ({ ...prev, descricao: e.target.value }))} rows={3} className="w-full px-4 py-3 bg-dark-100 border border-gray-800 rounded-custom text-white resize-none" placeholder="Sobre o negócio..." /></div>
                 </div>
                 <div className="bg-dark-200 border border-gray-800 rounded-custom p-6">
-                  <div className="text-sm font-normal text-white tracking-wide mb-1">REDES SOCIAIS</div>
+                  <div className="text-sm font-normal text-white tracking-wide mb-1">REDES</div>
                   <p className="text-sm text-gray-500 mb-4">Seus links aparecem na vitrine pública. Deixe em branco para ocultar.</p>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div><label className="block text-sm mb-2">Instagram</label><input value={formInfo.instagram} onChange={(e) => setFormInfo(prev => ({ ...prev, instagram: e.target.value }))} className="w-full px-4 py-3 bg-dark-100 border border-gray-800 rounded-custom text-white" placeholder="@seuinstagram" /></div>
@@ -1263,7 +1263,7 @@ export default function Dashboard({ user, onLogout }) {
                       <span className={`inline-flex items-center gap-2 rounded-button font-normal border cursor-pointer transition-all uppercase ${galleryUploading ? 'bg-gray-900 border-gray-800 text-gray-600 cursor-not-allowed' : 'bg-primary/20 hover:bg-primary/30 border-primary/50 text-primary'} px-4 py-2 text-sm`}><Plus className="w-4 h-4" />{galleryUploading ? 'ENVIANDO...' : 'ADICIONAR'}</span>
                     </label>
                   </div>
-                  <p className="text-sm text-gray-500 mb-4">Adicione fotos do seu espaço e serviços. Elas aparecem na sua vitrine pública para atrair novos clientes.</p>
+                  <p className="text-sm text-gray-500 mb-4">Adicione fotos do seu local e do que você oferece. Elas aparecem na sua vitrine pública para atrair novos clientes.</p>
                   {galeriaItems.length > 0 ? (
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                       {galeriaItems.map((item) => (
@@ -1280,7 +1280,7 @@ export default function Dashboard({ user, onLogout }) {
                   </label>
                 </div>
                 <div className="bg-dark-200 border border-gray-800 rounded-custom p-6">
-                  <div className="text-xs text-gray-500 uppercase tracking-wide mb-4">DADOS DA CONTA</div>
+                  <div className="text-xs text-gray-500 uppercase tracking-wide mb-4">CREDENCIAIS</div>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm mb-2">EMAIL</label>
