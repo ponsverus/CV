@@ -5,7 +5,7 @@ import { supabase } from '../supabase';
 import { useFeedback } from '../feedback/useFeedback';
 
 const SUPORTE_PHONE_E164 = '5533999037979';
-const SUPORTE_MSG = 'Olá, preciso de ajuda. Pode me orientar?';
+const SUPORTE_MSG = 'OlÃ¡, preciso de ajuda. Pode me orientar?';
 const SUPORTE_HREF =
   `https://wa.me/${SUPORTE_PHONE_E164}?text=${encodeURIComponent(SUPORTE_MSG)}`;
 
@@ -69,7 +69,7 @@ function SearchBox({
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="BUSQUE UM PROFISSIONAL OU NEGÓCIO :)"
+          placeholder="BUSQUE UM PROFISSIONAL OU NEGÃ“CIO :)"
           className={[
             'bg-transparent pr-4 text-sm text-white placeholder:text-gray-500 focus:outline-none transition-all duration-300',
             searchOpen ? 'w-full opacity-100' : 'w-0 opacity-0',
@@ -97,9 +97,6 @@ function SearchBox({
               className="block border-b border-white/5 px-5 py-4 transition-colors hover:bg-dark-200/90 last:border-b-0"
             >
               <div className="font-bold text-white">{r.nome}</div>
-              <div className="mt-1 text-[11px] uppercase tracking-[0.08em] text-gray-500">
-                {r.tipo === 'negocio' ? 'Negócio' : 'Profissional'}
-              </div>
               {r.subtitulo && (
                 <div className="mt-1 text-sm text-gray-400">{r.subtitulo}</div>
               )}
@@ -124,8 +121,6 @@ export default function Home({ user, userType, onLogout }) {
   const [buscando, setBuscando] = useState(false);
 
   const { showMessage } = useFeedback();
-
-
   const isLogged = !!user && !!userType;
 
   useEffect(() => {
@@ -145,18 +140,17 @@ export default function Home({ user, userType, onLogout }) {
       if (!cancelled) setBuscando(true);
 
       try {
-        // FK explícita no join para evitar ambiguidade no PostgREST
         const [{ data: profs, error: profErr }, { data: negs, error: negErr }] =
           await Promise.all([
             supabase
               .from('profissionais')
-              .select('id, nome, negocios!negocio_id(nome, slug)')
+              .select('id, nome, profissao, cargo, negocios!negocio_id(nome, slug)')
               .eq('status', 'ativo')
               .ilike('nome', `%${term}%`)
               .limit(5),
             supabase
               .from('negocios')
-              .select('id, nome, slug')
+              .select('id, nome, slug, tipo_negocio')
               .ilike('nome', `%${term}%`)
               .limit(5),
           ]);
@@ -172,7 +166,7 @@ export default function Home({ user, userType, onLogout }) {
             id: p.id,
             nome: p.nome,
             slug: p.negocios.slug,
-            subtitulo: p.negocios.nome,
+            subtitulo: p.profissao || p.cargo || p.negocios.nome || null,
           }));
 
         const resultadosNegs = (negs || [])
@@ -182,10 +176,9 @@ export default function Home({ user, userType, onLogout }) {
             id: n.id,
             nome: n.nome,
             slug: n.slug,
-            subtitulo: null,
+            subtitulo: n.tipo_negocio || null,
           }));
 
-        // Negócios primeiro, depois profissionais
         setResultadosBusca([...resultadosNegs, ...resultadosProfs]);
       } catch (error) {
         if (cancelled) return;
@@ -220,7 +213,7 @@ export default function Home({ user, userType, onLogout }) {
               {[...Array(14)].map((_, index) => (
                 <div key={index} className="flex items-center">
                   <span className="text-black font-bold text-sm uppercase mx-4">CLIQUE PARA IR</span>
-                  <span className="text-black mx-4">●</span>
+                  <span className="text-black mx-4">â—</span>
                   <a
                     href={SUPORTE_HREF}
                     target="_blank"
@@ -229,7 +222,7 @@ export default function Home({ user, userType, onLogout }) {
                   >
                     SUPORTE
                   </a>
-                  <span className="text-black mx-4">●</span>
+                  <span className="text-black mx-4">â—</span>
                 </div>
               ))}
             </div>
@@ -298,7 +291,7 @@ export default function Home({ user, userType, onLogout }) {
           </h1>
 
           <p className="text-lg md:text-xl text-gray-400 mb-8 max-w-3xl mx-auto drop-shadow-md">
-            O sistema <span className="text-primary font-bold">ANTECIPA CONFLITOS</span> antes que aconteçam. Se um serviço vai ultrapassar o próximo horário agendado, o sistema bloqueia automaticamente a reserva. Mas vai além: quando há um cancelamento, a tecnologia fragmenta esse tempo livre em múltiplas oportunidades de agendamento, respeitando o tempo exato de cada serviço oferecido. Resultado: sua agenda trabalha no máximo da capacidade, sem desperdício.
+            O sistema <span className="text-primary font-bold">ANTECIPA CONFLITOS</span> antes que aconteÃ§am. Se um serviÃ§o vai ultrapassar o prÃ³ximo horÃ¡rio agendado, o sistema bloqueia automaticamente a reserva. Mas vai alÃ©m: quando hÃ¡ um cancelamento, a tecnologia fragmenta esse tempo livre em mÃºltiplas oportunidades de agendamento, respeitando o tempo exato de cada serviÃ§o oferecido. Resultado: sua agenda trabalha no mÃ¡ximo da capacidade, sem desperdÃ­cio.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
@@ -313,7 +306,7 @@ export default function Home({ user, userType, onLogout }) {
               onClick={() => document.getElementById('como-funciona')?.scrollIntoView({ behavior: 'smooth' })}
               className="px-10 py-5 bg-white/10 border border-white/20 text-white rounded-button font-bold text-lg hover:bg-white/20 backdrop-blur-sm"
             >
-              ENTENDER A LÓGICA
+              ENTENDER A LÃ“GICA
             </button>
           </div>
 
@@ -322,7 +315,7 @@ export default function Home({ user, userType, onLogout }) {
               <div key={i} className="bg-dark-100/50 backdrop-blur-md border border-gray-800 rounded-custom p-6 hover:border-primary/50 transition-all">
                 <div className="text-4xl font-normal text-primary mb-2">{stat}</div>
                 <div className="text-sm text-gray-500 uppercase">
-                  {['Aproveitamento de Tempo', 'Conflito de Horários'][i]}
+                  {['Aproveitamento de Tempo', 'Conflito de HorÃ¡rios'][i]}
                 </div>
               </div>
             ))}
@@ -334,16 +327,16 @@ export default function Home({ user, userType, onLogout }) {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-5xl font-black mb-4">
-              A CIÊNCIA <span className="text-primary">POR TRÁS</span>
+              A CIÃŠNCIA <span className="text-primary">POR TRÃS</span>
             </h2>
             <p className="text-xl text-gray-400">Como o sistema protege seu faturamento e respeita o cliente</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-10 md:gap-14">
             {[
-              { num: 1, title: 'PAINEL DE SERVIÇOS', text: 'Cadastre seus serviços e tempos exatos. O sistema transforma esses dados em uma grade totalmente moldável e fluida.' },
-              { num: 2, title: 'ACESSO SIMPLIFICADO', text: 'Seu cliente recebe um link exclusivo. Ele visualiza apenas os horários livres reais, sem precisar baixar nada.' },
-              { num: 3, title: 'ENCAIXE AUTOMÁTICO', text: 'O algoritmo recalcula sua agenda a cada mudança: novos horários marcados, desistências ou trocas. Tudo se reorganiza no ato para manter seu trabalho com o máximo de eficiência.' },
+              { num: 1, title: 'PAINEL DE SERVIÃ‡OS', text: 'Cadastre seus serviÃ§os e tempos exatos. O sistema transforma esses dados em uma grade totalmente moldÃ¡vel e fluida.' },
+              { num: 2, title: 'ACESSO SIMPLIFICADO', text: 'Seu cliente recebe um link exclusivo. Ele visualiza apenas os horÃ¡rios livres reais, sem precisar baixar nada.' },
+              { num: 3, title: 'ENCAIXE AUTOMÃTICO', text: 'O algoritmo recalcula sua agenda a cada mudanÃ§a: novos horÃ¡rios marcados, desistÃªncias ou trocas. Tudo se reorganiza no ato para manter seu trabalho com o mÃ¡ximo de eficiÃªncia.' },
             ].map(({ num, title, text }) => (
               <div key={num} className="relative">
                 <div className="absolute -top-6 left-1/2 -translate-x-1/2 md:left-0 md:translate-x-0 md:-top-10 md:-left-4 w-16 h-16 bg-gradient-to-br from-primary to-yellow-600 rounded-full flex items-center justify-center text-black font-black text-2xl shadow-lg shadow-primary/50 z-10">
@@ -363,9 +356,9 @@ export default function Home({ user, userType, onLogout }) {
                 <Zap className="w-8 h-8 text-primary" />
               </div>
               <div>
-                <h3 className="text-2xl font-normal mb-2 text-white">REAPROVEITAMENTO AUTOMÁTICO DE HORÁRIOS</h3>
+                <h3 className="text-2xl font-normal mb-2 text-white">REAPROVEITAMENTO AUTOMÃTICO DE HORÃRIOS</h3>
                 <p className="text-gray-300 leading-relaxed">
-                  <span className="text-primary">CANCELOU?</span> O sistema reage em milissegundos. O horário vago é imediatamente redistribuído na vitrine como novas vagas disponíveis, cada uma dimensionada conforme seus serviços. Um espaço de 60 minutos pode se transformar em três oportunidades de 20 minutos ou duas de 30 minutos. Seus clientes veem essas vagas especiais identificadas com um ícone discreto, garantindo transparência total.
+                  <span className="text-primary">CANCELOU?</span> O sistema reage em milissegundos. O horÃ¡rio vago Ã© imediatamente redistribuÃ­do na vitrine como novas vagas disponÃ­veis, cada uma dimensionada conforme seus serviÃ§os. Um espaÃ§o de 60 minutos pode se transformar em trÃªs oportunidades de 20 minutos ou duas de 30 minutos. Seus clientes veem essas vagas especiais identificadas com um Ã­cone discreto, garantindo transparÃªncia total.
                 </p>
               </div>
             </div>
@@ -377,19 +370,19 @@ export default function Home({ user, userType, onLogout }) {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-5xl font-black mb-4">
-              VANTAGEM <span className="text-primary">MÚTUA</span>
+              VANTAGEM <span className="text-primary">MÃšTUA</span>
             </h2>
             <p className="text-xl text-gray-400">Por que Profissionais e Clientes preferem Comvaga</p>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-              { icon: TrendingUp, title: 'LUCRO BLINDADO', text: 'Eliminamos o tempo ocioso. A agenda se ajusta sozinha para caber o máximo de clientes sem sobrecarga.' },
-              { icon: Users, title: 'CLIENTE SATISFEITO', text: 'Para quem agenda: a certeza de ser atendido na hora. Nosso sistema impede que o profissional atrase por erro de cálculo.' },
-              { icon: Shield, title: 'AGENDA INTELIGENTE', text: 'O sistema lê o futuro: se o serviço escolhido vai invadir o próximo horário, a reserva é bloqueada automaticamente.' },
-              { icon: Clock, title: 'RESGATE IMEDIATO', text: 'Cancelamentos deixam de ser prejuízo. O horário volta automaticamente para a vitrine e pode ser preenchido por outro cliente em segundos.' },
-              { icon: Star, title: 'VITRINE PROFISSIONAL', text: 'Tenha um link bio personalizado. O cliente vê profissionalismo desde o primeiro clique.' },
-              { icon: CheckCircle, title: 'GEOMETRIA DE TEMPO', text: 'Substituímos os blocos fixos e obsoletos pelo uso do tempo real de cada serviço, garantindo o encaixe perfeito.' },
+              { icon: TrendingUp, title: 'LUCRO BLINDADO', text: 'Eliminamos o tempo ocioso. A agenda se ajusta sozinha para caber o mÃ¡ximo de clientes sem sobrecarga.' },
+              { icon: Users, title: 'CLIENTE SATISFEITO', text: 'Para quem agenda: a certeza de ser atendido na hora. Nosso sistema impede que o profissional atrase por erro de cÃ¡lculo.' },
+              { icon: Shield, title: 'AGENDA INTELIGENTE', text: 'O sistema lÃª o futuro: se o serviÃ§o escolhido vai invadir o prÃ³ximo horÃ¡rio, a reserva Ã© bloqueada automaticamente.' },
+              { icon: Clock, title: 'RESGATE IMEDIATO', text: 'Cancelamentos deixam de ser prejuÃ­zo. O horÃ¡rio volta automaticamente para a vitrine e pode ser preenchido por outro cliente em segundos.' },
+              { icon: Star, title: 'VITRINE PROFISSIONAL', text: 'Tenha um link bio personalizado. O cliente vÃª profissionalismo desde o primeiro clique.' },
+              { icon: CheckCircle, title: 'GEOMETRIA DE TEMPO', text: 'SubstituÃ­mos os blocos fixos e obsoletos pelo uso do tempo real de cada serviÃ§o, garantindo o encaixe perfeito.' },
             ].map(({ icon: Icon, title, text }, i) => (
               <div
                 key={i}
@@ -408,22 +401,21 @@ export default function Home({ user, userType, onLogout }) {
 
       <section className="py-24 px-4 bg-gradient-to-r from-primary via-yellow-500 to-yellow-600">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-5xl font-black text-black mb-6">ELEVE SEU NÍVEL PROFISSIONAL</h2>
-          <p className="text-2xl text-black/80 mb-8">Sincronia automática, cliente pontual e agenda cheia.</p>
+          <h2 className="text-5xl font-black text-black mb-6">ELEVE SEU NÃVEL PROFISSIONAL</h2>
+          <p className="text-2xl text-black/80 mb-8">Sincronia automÃ¡tica, cliente pontual e agenda cheia.</p>
           <Link
             to="/cadastro"
             className="inline-flex items-center gap-3 px-12 py-6 bg-black text-primary rounded-button font-black text-xl hover:shadow-2xl transition-all hover:scale-105"
           >
-            COMEÇAR AGORA GRÁTIS <Zap className="w-6 h-6" />
+            COMEÃ‡AR AGORA GRÃTIS <Zap className="w-6 h-6" />
           </Link>
-          <p className="text-black/60 text-sm mt-6">Eficiência comprovada em barbearias, estúdios e clínicas.</p>
+          <p className="text-black/60 text-sm mt-6">EficiÃªncia comprovada em barbearias, estÃºdios e clÃ­nicas.</p>
         </div>
       </section>
 
-      <footer className="bg-black border-t border-gray-800 py-12 px-4">
+      <footer className="bg-black py-12 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
-
             <div className="flex flex-col justify-start">
               <Link to="/" className="inline-block hover:opacity-75 transition-opacity">
                 <img
@@ -438,7 +430,7 @@ export default function Home({ user, userType, onLogout }) {
             </div>
 
             <div>
-              <h4 className="text-white font-normal mb-4">PARA VOCÊ</h4>
+              <h4 className="text-white font-normal mb-4">PARA VOCÃŠ</h4>
               <ul className="space-y-2">
                 {isLogged ? (
                   <>
@@ -447,7 +439,7 @@ export default function Home({ user, userType, onLogout }) {
                         to={userType === 'professional' ? '/dashboard' : '/minha-area'}
                         className="text-gray-500 hover:text-primary transition-colors text-sm"
                       >
-                        {userType === 'professional' ? 'DASHBOARD' : 'MINHA ÁREA'}
+                        {userType === 'professional' ? 'DASHBOARD' : 'MINHA ÃREA'}
                       </Link>
                     </li>
                     <li>
@@ -479,7 +471,7 @@ export default function Home({ user, userType, onLogout }) {
                     </li>
                     <li>
                       <Link to="/cadastro" className="text-gray-500 hover:text-primary transition-colors text-sm">
-                        CADASTRAR GRÁTIS
+                        CADASTRAR GRÃTIS
                       </Link>
                     </li>
                     <li>
@@ -524,8 +516,8 @@ export default function Home({ user, userType, onLogout }) {
             </div>
           </div>
 
-          <div className="border-t border-gray-900 pt-6">
-            <p className="text-gray-600 text-sm">© 2026 COMVAGA. Todos os direitos reservados.</p>
+          <div className="pt-6">
+            <p className="text-gray-600 text-sm">Â© 2026 COMVAGA. Todos os direitos reservados.</p>
           </div>
         </div>
       </footer>
