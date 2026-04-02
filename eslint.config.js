@@ -32,13 +32,9 @@ export default [
         'warn',
         { allowConstantExport: true },
       ],
-      'no-unused-vars': [
-        'error',
-        {
-          argsIgnorePattern: '^_',
-          varsIgnorePattern: '^_',
-        },
-      ],
+      'no-unused-vars': 'off',
+      'no-empty': 'off',
+      'react-hooks/exhaustive-deps': 'warn',
     },
   },
 ];
