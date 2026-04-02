@@ -3,28 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { User, Award, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../supabase';
 import { useFeedback } from '../feedback/useFeedback';
-
-const PROFILE_TABLE = 'users';
-const isValidType = (t) => t === 'client' || t === 'professional';
-const isValidOnboardingStatus = (s) => s === 'pending' || s === 'completed';
-
-async function fetchProfile(userId) {
-  const { data, error } = await supabase
-    .from(PROFILE_TABLE)
-    .select('type, onboarding_status')
-    .eq('id', userId)
-    .maybeSingle();
-
-  if (error || !data) return null;
-  if (!isValidType(data.type)) return null;
-
-  return {
-    type: data.type,
-    onboardingStatus: data.type === 'professional'
-      ? (isValidOnboardingStatus(data.onboarding_status) ? data.onboarding_status : 'pending')
-      : 'completed',
-  };
-}
+import { fetchUserAccessProfile } from '../utils/profileAccess';
 
 export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
   const [step, setStep] = useState(1);
@@ -81,7 +60,7 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
       const authUser = authData?.user;
       if (!authUser?.id) throw new Error('Falha ao autenticar.');
 
-      const profile = await fetchProfile(authUser.id);
+      const profile = await fetchUserAccessProfile(authUser.id);
 
       if (!profile) {
         await supabase.auth.signOut();
@@ -96,14 +75,19 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
       if (profile.type !== userType) {
         await supabase.auth.signOut();
         throw new Error(
-          `Esta conta Ã© de ${profile.type === 'client' ? 'CLIENTE' : 'PROFISSIONAL'}. Selecione o tipo correto.`
+          `Esta conta é de ${profile.type === 'client' ? 'CLIENTE' : 'PROFISSIONAL'}. Selecione o tipo correto.`
         );
       }
 
-      onLogin(authUser, profile.type, profile.onboardingStatus);
+      if (profile.accessState === 'partner_pending') {
+        await supabase.auth.signOut();
+        throw new Error('Seu acesso de parceiro ainda está pendente de aprovação.');
+      }
+
+      onLogin(authUser, profile.type, profile.onboardingStatus, profile.accessState);
       navigate(
         profile.type === 'professional'
-          ? (profile.onboardingStatus === 'pending' ? '/cadastro/profissional/retomada' : '/dashboard')
+          ? (profile.accessState === 'owner_resume' ? '/cadastro/profissional/retomada' : '/dashboard')
           : '/minha-area'
       );
     } catch (err) {
@@ -259,7 +243,7 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
                     <div className="relative">
                       <User className="mx-auto mb-4 text-blue-400 w-10 h-10 group-hover:scale-110 transition-transform" />
                       <div className="font-normal text-lg tracking-wide mb-1">Cliente</div>
-                      <div className="text-xs text-gray-500">Agendar serviÃ§os</div>
+                      <div className="text-xs text-gray-500">Agendar serviços</div>
                     </div>
                   </button>
 
@@ -362,7 +346,7 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
 
         <div className="text-center mt-12">
           <p className="text-xs text-gray-600 font-normal">
-            Ao continuar, vocÃª concorda com nossos{' '}
+            Ao continuar, você concorda com nossos{' '}
             <Link to="/termos" className="text-gray-500 hover:text-primary transition-colors">
               Termos de Uso
             </Link>
