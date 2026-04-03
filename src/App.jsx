@@ -208,7 +208,7 @@ export default function App() {
       });
 
     return () => { aliveRef.current = false; subscription?.unsubscribe(); };
-  }, [loadProfile]);
+  }, [loadProfile, safeSet]);
 
   const handleLogin = useCallback((userData, type, nextOnboardingStatus = 'completed', nextAccessState = 'active') => {
     loadedUserRef.current = userData?.id || null;
