@@ -240,7 +240,7 @@ export default function ParceiroLogin({ onLogin, suppressAuthRef, inRecovery: in
             <span className="text-black text-2xl font-normal">C</span>
           </div>
           <h1 className="text-3xl font-normal text-white uppercase">Login Parceiro</h1>
-          <p className="text-gray-500 text-sm mt-2 font-normal">Acesse o painel do seu negócio agora :)</p>
+          <p className="text-gray-500 text-sm mt-2 font-normal">Acesse o painel do seu negócio agora</p>
         </div>
 
         <div className="bg-dark-100 border border-gray-800 rounded-custom p-8">
