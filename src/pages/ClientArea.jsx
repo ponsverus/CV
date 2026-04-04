@@ -66,9 +66,9 @@ export default function ClientArea({ user, onLogout }) {
   const navigate = useNavigate();
   const feedback = useFeedback();
 
-  const uiAlert = (key, variant = 'info', params = {}) => {
+  const uiAlert = useCallback((key, variant = 'info', params = {}) => {
     if (feedback?.showMessage) feedback.showMessage(key, { variant, ...params });
-  };
+  }, [feedback]);
 
   const uiConfirm = async (key, variant = 'warning') => {
     return !!(await feedback.confirm(key, { variant }));
@@ -167,11 +167,11 @@ export default function ClientArea({ user, onLogout }) {
     } finally {
       setLoading(false);
     }
-  }, [user?.id, loadPerfil, fetchAgendamentos, fetchFavoritos]);
+  }, [user?.id, loadPerfil, fetchAgendamentos, fetchFavoritos, uiAlert]);
 
   useEffect(() => {
     if (user?.id) loadData();
-  }, [loadData]);
+  }, [user?.id, loadData]);
 
   const fetchAgendamentosRef = useRef(fetchAgendamentos);
   useEffect(() => { fetchAgendamentosRef.current = fetchAgendamentos; }, [fetchAgendamentos]);
