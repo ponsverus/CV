@@ -118,9 +118,9 @@ export default function Dashboard({ user, onLogout }) {
   const location = useLocation();
   const feedback = useFeedback();
 
-  const uiAlert   = async (key, variant = 'info') => { if (feedback?.showMessage) return feedback.showMessage(key, { variant }); return Promise.resolve(); };
-  const uiConfirm = async (key, variant = 'warning') => { if (feedback?.confirm) return !!(await feedback.confirm(key, { variant })); return false; };
-  const uiPrompt  = async (key, opts = {}) => { if (feedback?.prompt) return await feedback.prompt(key, opts); return null; };
+  const uiAlert   = useCallback(async (key, variant = 'info') => { if (feedback?.showMessage) return feedback.showMessage(key, { variant }); return Promise.resolve(); }, [feedback]);
+  const uiConfirm = useCallback(async (key, variant = 'warning') => { if (feedback?.confirm) return !!(await feedback.confirm(key, { variant })); return false; }, [feedback]);
+  const uiPrompt  = useCallback(async (key, opts = {}) => { if (feedback?.prompt) return await feedback.prompt(key, opts); return null; }, [feedback]);
 
   const [parceiroProfissional, setParceiroProfissional] = useState(null);
   const [activeTab, setActiveTab] = useState('agendamentos');
@@ -133,6 +133,7 @@ export default function Dashboard({ user, onLogout }) {
   const [serverNow, setServerNow]         = useState(() => ({ ts: null, dow: 0, date: '', source: 'db', minutes: 0 }));
   const [hoje, setHoje]                   = useState(() => '');
   const souDono = negocio?.owner_id === user?.id;
+  const parceiroProfissionalId = parceiroProfissional?.id ?? null;
   const acessoDashboardAutorizado = souDono || !!parceiroProfissional;
 
   const checarPermissao = useCallback(async (profissionalId) => {
@@ -144,7 +145,7 @@ export default function Dashboard({ user, onLogout }) {
     if (parceiroProfissional.id === profissionalId) return true;
     await uiAlert('dashboard.parceiro_acao_proibida', 'warning');
     return false;
-  }, [acessoDashboardAutorizado, parceiroProfissional]);
+  }, [acessoDashboardAutorizado, parceiroProfissional, uiAlert]);
 
   const agProfIds = useMemo(() => profissionais.map(p => p.id), [profissionais]);
 
@@ -254,7 +255,7 @@ export default function Dashboard({ user, onLogout }) {
     } catch {
       await loadData('');
     }
-  }, [fetchNowFromDb]);
+  }, [fetchNowFromDb, loadData]);
 
   useEffect(() => {
     let active = true;
@@ -271,12 +272,12 @@ export default function Dashboard({ user, onLogout }) {
     })();
 
     return () => { active = false; };
-  }, [user?.id, fetchNowFromDb]);
+  }, [user?.id, fetchNowFromDb, loadData]);
 
   const reloadAgendamentos = useCallback(async (negocioId, profIds, dataHoje) => {
     const id = negocioId || negocio?.id; const ids = profIds || agProfIds; const dh = dataHoje || hoje; if (!id || !ids?.length || !dh) return;
     const { data, error: err } = await supabase.from('agendamentos')
-      .select(`*, preco_final, data, horario_inicio, horario_fim, entregas (nome, preco, preco_promocional), profissionais (id, nome), cliente:users!agendamentos_cliente_id_fkey (id, nome, avatar_path, type)`)
+      .select(`*, preco_final, data, horario_inicio, horario_fim, entregas (nome, preco, preco_promocional), profissionais (id, nome), cliente:users_public!agendamentos_cliente_id_fkey (id, nome, avatar_path, type)`)
       .eq('negocio_id', id).in('profissional_id', ids).gte('data', dh)
       .order('data', { ascending: true }).order('horario_inicio', { ascending: true }).order('id', { ascending: true });
     if (err) return;
@@ -295,7 +296,7 @@ export default function Dashboard({ user, onLogout }) {
         const ev = payload?.eventType;
         const novo = payload?.new;
         const profIdEvento = novo?.profissional_id;
-        const meuId = parceiroProfissional?.id || null;
+        const meuId = parceiroProfissionalId;
         const meResponde = !meuId || profIdEvento === meuId;
         if (ev === 'INSERT' && meResponde) setNotifAgendamentos(prev => prev + 1);
         if (ev === 'UPDATE' && meResponde) {
@@ -303,17 +304,17 @@ export default function Dashboard({ user, onLogout }) {
           if (st.includes('cancelado') && !st.includes('profissional')) setNotifCancelados(prev => prev + 1);
         }
         reloadAgendamentosRef.current();
-        loadHoje(negocio.id, parceiroProfissional?.id ?? null);
+        loadHoje(negocio.id, parceiroProfissionalId);
       }).subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [negocio?.id, agProfIdsKey, hoje, parceiroProfissional?.id]);
+  }, [negocio?.id, agProfIdsKey, hoje, parceiroProfissionalId, loadHoje]);
 
   useEffect(() => {
     setHistoricoData(prev => prev ? prev : hoje);
     setFaturamentoData(prev => prev ? prev : hoje);
   }, [hoje]);
 
-  const loadHoje = async (negocioId, profId = null) => {
+  const loadHoje = useCallback(async (negocioId, profId = null) => {
     const id = negocioId || negocio?.id; if (!id) return;
     try {
       setMetricsHojeLoading(true);
@@ -324,9 +325,9 @@ export default function Dashboard({ user, onLogout }) {
       setMetricsHoje(data);
     } catch { setMetricsHoje(null); }
     finally { setMetricsHojeLoading(false); }
-  };
+  }, [negocio?.id]);
 
-  const loadDia = async (negocioId, dateISO, profId = null) => {
+  const loadDia = useCallback(async (negocioId, dateISO, profId = null) => {
     const id = negocioId || negocio?.id;
     const date = String(dateISO || faturamentoData || hoje || '');
     if (!id || !date) return;
@@ -339,9 +340,9 @@ export default function Dashboard({ user, onLogout }) {
       setMetricsDia(data);
     } catch { setMetricsDia(null); }
     finally { setMetricsDiaLoading(false); }
-  };
+  }, [negocio?.id, faturamentoData, hoje]);
 
-  const loadPeriodo = async (negocioId, refDateISO, periodo, profId = null) => {
+  const loadPeriodo = useCallback(async (negocioId, refDateISO, periodo, profId = null) => {
     const id = negocioId || negocio?.id;
     const refDate = String(refDateISO || hoje || '');
     const per = String(periodo || faturamentoPeriodo || '7d');
@@ -355,16 +356,16 @@ export default function Dashboard({ user, onLogout }) {
       setMetricsPeriodoData(data);
     } catch { setMetricsPeriodoData(null); }
     finally { setMetricsPeriodoLoading(false); }
-  };
+  }, [negocio?.id, hoje, faturamentoPeriodo]);
 
-  useEffect(() => { if (!negocio?.id || !hoje) return; loadHoje(negocio.id, parceiroProfissional?.id ?? null); }, [negocio?.id, hoje, parceiroProfissional?.id]);
-  useEffect(() => { if (!negocio?.id || !faturamentoData) return; loadDia(negocio.id, faturamentoData, parceiroProfissional?.id ?? null); }, [negocio?.id, faturamentoData, parceiroProfissional?.id]);
-  useEffect(() => { if (!negocio?.id || !hoje) return; loadPeriodo(negocio.id, hoje, faturamentoPeriodo, parceiroProfissional?.id ?? null); }, [negocio?.id, hoje, faturamentoPeriodo, parceiroProfissional?.id]);
+  useEffect(() => { if (!negocio?.id || !hoje) return; loadHoje(negocio.id, parceiroProfissionalId); }, [negocio?.id, hoje, parceiroProfissionalId, loadHoje]);
+  useEffect(() => { if (!negocio?.id || !faturamentoData) return; loadDia(negocio.id, faturamentoData, parceiroProfissionalId); }, [negocio?.id, faturamentoData, parceiroProfissionalId, loadDia]);
+  useEffect(() => { if (!negocio?.id || !hoje) return; loadPeriodo(negocio.id, hoje, faturamentoPeriodo, parceiroProfissionalId); }, [negocio?.id, hoje, faturamentoPeriodo, parceiroProfissionalId, loadPeriodo]);
 
   const fetchHistoricoPage = useCallback(async ({ negocioId, profIds, date, page, append }) => {
     const from = page * AG_PAGE_SIZE; const to = from + AG_PAGE_SIZE - 1;
     const { data, error: qErr } = await supabase.from('agendamentos')
-      .select(`*, preco_final, data, horario_inicio, horario_fim, entregas (nome, preco, preco_promocional), profissionais (id, nome), cliente:users!agendamentos_cliente_id_fkey (id, nome, avatar_path, type)`)
+      .select(`*, preco_final, data, horario_inicio, horario_fim, entregas (nome, preco, preco_promocional), profissionais (id, nome), cliente:users_public!agendamentos_cliente_id_fkey (id, nome, avatar_path, type)`)
       .eq('negocio_id', negocioId).in('profissional_id', profIds).eq('data', date)
       .order('horario_inicio', { ascending: true }).order('id', { ascending: true }).range(from, to);
     if (qErr) throw qErr;
@@ -375,10 +376,10 @@ export default function Dashboard({ user, onLogout }) {
 
   useEffect(() => {
     if (!agProfIds?.length || !historicoData) return;
-    const ids = parceiroProfissional ? [parceiroProfissional.id] : agProfIds;
+    const ids = parceiroProfissionalId ? [parceiroProfissionalId] : agProfIds;
     setHistoricoPage(0); setHistoricoHasMore(false); setHistoricoAgendamentos([]);
     fetchHistoricoPage({ negocioId: negocio?.id, profIds: ids, date: historicoData, page: 0, append: false });
-  }, [historicoData, agProfIds, parceiroProfissional?.id, fetchHistoricoPage]);
+  }, [historicoData, agProfIds, parceiroProfissionalId, fetchHistoricoPage, negocio?.id]);
 
   const loadMoreHistorico = async () => {
     if (historicoLoadingMore || !historicoHasMore || !negocio?.id || !agProfIds?.length) return;
@@ -489,7 +490,7 @@ export default function Dashboard({ user, onLogout }) {
         supabase.from('entregas').select('*, profissionais (id, nome)').eq('negocio_id', negocioData.id).in('profissional_id', ids).order('created_at', { ascending: false }),
         dataHoje
           ? supabase.from('agendamentos')
-              .select(`*, preco_final, data, horario_inicio, horario_fim, entregas (nome, preco, preco_promocional), profissionais (id, nome), cliente:users!agendamentos_cliente_id_fkey (id, nome, avatar_path, type)`)
+              .select(`*, preco_final, data, horario_inicio, horario_fim, entregas (nome, preco, preco_promocional), profissionais (id, nome), cliente:users_public!agendamentos_cliente_id_fkey (id, nome, avatar_path, type)`)
               .eq('negocio_id', negocioData.id).in('profissional_id', ids).gte('data', dataHoje)
               .order('data', { ascending: true }).order('horario_inicio', { ascending: true }).order('id', { ascending: true })
           : Promise.resolve({ data: [], error: null })
@@ -505,7 +506,7 @@ export default function Dashboard({ user, onLogout }) {
       }
     } catch (e) { setError(e?.message || 'Erro inesperado.'); }
     finally { setLoading(false); }
-  }, [user?.id, location?.state?.negocioId, serverNow, hoje, faturamentoPeriodo]);
+  }, [user?.id, location?.state?.negocioId, serverNow?.date, hoje, faturamentoPeriodo, navigate, uiAlert, loadHoje, loadDia, loadPeriodo]);
 
   const cadastrarAdminComoProfissional = async () => {
     if (!negocio?.id || !user?.id || submittingAdminProf) return;
@@ -793,9 +794,9 @@ export default function Dashboard({ user, onLogout }) {
 
   const agendamentosHoje = useMemo(() => {
     const base = agendamentos.filter(a => sameDay(getAgDate(a), hoje));
-    if (!parceiroProfissional) return base;
-    return base.filter(a => a.profissional_id === parceiroProfissional.id);
-  }, [agendamentos, hoje, parceiroProfissional?.id]);
+    if (!parceiroProfissionalId) return base;
+    return base.filter(a => a.profissional_id === parceiroProfissionalId);
+  }, [agendamentos, hoje, parceiroProfissionalId]);
 
   const hojeValidos    = useMemo(() => agendamentosHoje.filter(a => !isCancelStatus(a.status)), [agendamentosHoje]);
   const hojeCancelados = useMemo(() => agendamentosHoje.filter(a => isCancelStatus(a.status)), [agendamentosHoje]);
@@ -806,8 +807,8 @@ export default function Dashboard({ user, onLogout }) {
   }, [hojeValidos, serverNow?.minutes]);
 
   const agendamentosAgrupadosPorProfissional = useMemo(() => {
-    const fonte = parceiroProfissional
-      ? agendamentos.filter(a => a.profissional_id === parceiroProfissional.id)
+    const fonte = parceiroProfissionalId
+      ? agendamentos.filter(a => a.profissional_id === parceiroProfissionalId)
       : agendamentos;
     const map = new Map();
     for (const a of fonte) { const pid = a.profissional_id || a.profissionais?.id || 'sem-prof'; const nome = a.profissionais?.nome || 'PROFISSIONAL'; if (!map.has(pid)) map.set(pid, { pid, nome, itens: [] }); map.get(pid).itens.push(a); }
@@ -815,7 +816,7 @@ export default function Dashboard({ user, onLogout }) {
     const ordem = new Map((profissionais || []).map((p, idx) => [p.id, idx]));
     grupos.sort((a, b) => (ordem.get(a.pid) ?? 9999) - (ordem.get(b.pid) ?? 9999));
     return grupos;
-  }, [agendamentos, profissionais, parceiroProfissional?.id]);
+  }, [agendamentos, profissionais, parceiroProfissionalId]);
 
   const entregasPorProf = useMemo(() => {
     const map = new Map(); for (const p of profissionais) map.set(p.id, []); for (const s of entregas) { if (!map.has(s.profissional_id)) map.set(s.profissional_id, []); map.get(s.profissional_id).push(s); } return map;
