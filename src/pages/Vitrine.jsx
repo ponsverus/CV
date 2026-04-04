@@ -146,6 +146,11 @@ function gerarArquivoICS({ titulo, dataISO, inicioHHMM, duracaoMin, detalhes, lo
     `SUMMARY:${escapeIcsText(titulo)}`,
     `DESCRIPTION:${escapeIcsText(detalhes)}`,
     `LOCATION:${escapeIcsText(local)}`,
+    'BEGIN:VALARM',
+    'ACTION:DISPLAY',
+    'DESCRIPTION:Lembrete de agendamento',
+    'TRIGGER:-PT30M',
+    'END:VALARM',
     'END:VEVENT',
     'END:VCALENDAR',
   ].join('\r\n');
@@ -1108,7 +1113,7 @@ export default function Vitrine({ user, userType }) {
               </p>
               <div className={`rounded-custom border p-4 text-left mb-6 ${isLight ? 'bg-[#f8f2eb] border-[#ccb59f]' : 'bg-white/5 border-white/10'}`}>
                 <p className={`font-normal text-sm mb-3 ${confirmadoSub}`}>Crie um lembrete no seu celular para assegurar o compromisso.</p>
-                <p className={`font-normal text-xs uppercase tracking-[0.2em] mb-4 ${isLight ? 'text-[#9a6c4c]' : 'text-[#c7b19c]'}`}>{calendarActionConfig.hint}</p>
+                <p className={`font-normal text-xs uppercase mb-4 ${isLight ? 'text-[#9a6c4c]' : 'text-[#c7b19c]'}`}>{calendarActionConfig.hint}</p>
                 <button onClick={calendarActionConfig.primaryAction} className={`w-full py-4 rounded-button uppercase font-normal transition-colors ${confirmadoAgBtn}`}>
                   {calendarActionConfig.primaryLabel}
                 </button>
@@ -1169,5 +1174,3 @@ export default function Vitrine({ user, userType }) {
     </div>
   );
 }
-
-
