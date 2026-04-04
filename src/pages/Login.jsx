@@ -5,7 +5,7 @@ import { supabase } from '../supabase';
 import { useFeedback } from '../feedback/useFeedback';
 import { fetchUserAccessProfile } from '../utils/profileAccess';
 
-export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
+export default function Login({ inRecovery: inRecoveryProp = false }) {
   const [step, setStep] = useState(1);
   const [userType, setUserType] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -84,12 +84,6 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
         throw new Error('Seu acesso de parceiro ainda está pendente de aprovação.');
       }
 
-      onLogin(authUser, profile.type, profile.onboardingStatus, profile.accessState);
-      navigate(
-        profile.type === 'professional'
-          ? (profile.accessState === 'owner_resume' ? '/cadastro/profissional/retomada' : '/dashboard')
-          : '/minha-area'
-      );
     } catch (err) {
       showMessage('login.auth_error', { msg: err?.message || '' });
       console.error('Login error:', err);
