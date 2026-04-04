@@ -36,7 +36,7 @@ export default function SelecionarNegocio({ user, onLogout }) {
     if (!loading && negocios.length === 1) {
       navigate('/dashboard', { state: { negocioId: negocios[0].id }, replace: true });
     }
-  }, [loading, negocios]);
+  }, [loading, negocios, navigate]);
 
   const handleSelecionar = (negocioId) => {
     navigate('/dashboard', { state: { negocioId }, replace: true });
