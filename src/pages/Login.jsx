@@ -84,6 +84,8 @@ export default function Login({ inRecovery: inRecoveryProp = false }) {
         throw new Error('Seu acesso de parceiro ainda está pendente de aprovação.');
       }
 
+      // Keep post-login routing centralized in App's auth/session flow.
+      // This avoids racing local navigation against the global auth listener.
     } catch (err) {
       showMessage('login.auth_error', { msg: err?.message || '' });
       console.error('Login error:', err);
@@ -157,11 +159,11 @@ export default function Login({ inRecovery: inRecoveryProp = false }) {
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 -left-20 w-96 h-96 bg-primary/5 rounded-full blur-[120px] animate-pulse"></div>
+        <div className="absolute top-1/4 -left-20 w-96 h-96 bg-primary/5 rounded-full blur-[120px] animate-pulse" />
         <div
           className="absolute bottom-1/4 -right-20 w-96 h-96 bg-primary/5 rounded-full blur-[120px] animate-pulse"
           style={{ animationDelay: '1s' }}
-        ></div>
+        />
       </div>
 
       <div className="w-full max-w-md relative z-10">
@@ -217,7 +219,7 @@ export default function Login({ inRecovery: inRecoveryProp = false }) {
               >
                 {recoveryLoading ? (
                   <span className="flex items-center justify-center gap-2">
-                    <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin"></div>
+                    <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
                     SALVANDO...
                   </span>
                 ) : (
@@ -233,7 +235,7 @@ export default function Login({ inRecovery: inRecoveryProp = false }) {
                     onClick={() => { setUserType('client'); setStep(2); }}
                     className="group relative bg-dark-100/40 border border-gray-800/50 rounded-custom p-8 hover:border-blue-500/50 hover:bg-dark-100/60 transition-all overflow-hidden backdrop-blur-sm"
                   >
-                    <div className="absolute inset-0 bg-blue-500/0 group-hover:bg-blue-500/5 transition-all"></div>
+                    <div className="absolute inset-0 bg-blue-500/0 group-hover:bg-blue-500/5 transition-all" />
                     <div className="relative">
                       <User className="mx-auto mb-4 text-blue-400 w-10 h-10 group-hover:scale-110 transition-transform" />
                       <div className="font-normal text-lg tracking-wide mb-1">Cliente</div>
@@ -245,7 +247,7 @@ export default function Login({ inRecovery: inRecoveryProp = false }) {
                     onClick={() => { setUserType('professional'); setStep(2); }}
                     className="group relative bg-dark-100/40 border border-gray-800/50 rounded-custom p-8 hover:border-primary/50 hover:bg-dark-100/60 transition-all overflow-hidden backdrop-blur-sm"
                   >
-                    <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/5 transition-all"></div>
+                    <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/5 transition-all" />
                     <div className="relative">
                       <Award className="mx-auto mb-4 text-primary w-10 h-10 group-hover:scale-110 transition-transform" />
                       <div className="font-normal text-lg tracking-wide mb-1">Profissional</div>
@@ -279,7 +281,7 @@ export default function Login({ inRecovery: inRecoveryProp = false }) {
                     <div className="relative">
                       <input
                         type={showPassword ? 'text' : 'password'}
-                        placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                        placeholder="••••••••"
                         value={formData.password}
                         onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                         className="w-full px-5 py-4 pr-12 bg-dark-100/50 border border-gray-800 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all backdrop-blur-sm"
@@ -310,10 +312,10 @@ export default function Login({ inRecovery: inRecoveryProp = false }) {
                     disabled={loading}
                     className="w-full py-4 bg-gradient-to-r from-primary to-yellow-600 text-black font-normal rounded-button hover:shadow-lg hover:shadow-primary/20 hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 relative overflow-hidden group"
                   >
-                    <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+                    <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
                     {loading ? (
                       <span className="flex items-center justify-center gap-2">
-                        <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin"></div>
+                        <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
                         ENTRANDO...
                       </span>
                     ) : (
