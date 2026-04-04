@@ -103,9 +103,10 @@ export default function DatePicker({ value, onChange, todayISO }) {
   }, [open]);
 
   useEffect(() => {
-    if (selected) {
-      setViewYear(selected.year);
-      setViewMonth(selected.month);
+    const currentSelected = parseISO(value);
+    if (currentSelected) {
+      setViewYear(currentSelected.year);
+      setViewMonth(currentSelected.month);
     }
   }, [value]);
 
