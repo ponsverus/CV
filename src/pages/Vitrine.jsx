@@ -418,8 +418,8 @@ export default function Vitrine({ user, userType }) {
   const { slug }    = useParams();
   const navigate    = useNavigate();
   const location    = useLocation();
-  const vitrineMsgs = ptBR?.vitrine || {};
-  const getMsg      = (key, fallback) => vitrineMsgs?.[key] || fallback;
+  const vitrineMsgs = useMemo(() => ptBR?.vitrine || {}, []);
+  const getMsg      = useCallback((key, fallback) => vitrineMsgs?.[key] || fallback, [vitrineMsgs]);
 
   const [negocio,       setNegocio]       = useState(null);
   const [profissionais, setProfissionais] = useState([]);
@@ -545,7 +545,7 @@ export default function Vitrine({ user, userType }) {
       clearTimeout(watchdog);
       setLoading(false);
     }
-  }, [slug, loadDepoimentos]);
+  }, [slug, loadDepoimentos, getMsg]);
 
   const checkFavorito = useCallback(async () => {
     if (!user || userType !== 'client' || !negocio?.id) { setIsFavorito(false); return; }
@@ -561,7 +561,7 @@ export default function Vitrine({ user, userType }) {
   useEffect(() => {
     if (user && negocio?.id) checkFavorito();
     else setIsFavorito(false);
-  }, [checkFavorito]);
+  }, [checkFavorito, negocio?.id, user]);
 
   useEffect(() => {
     const rebook = location.state?.rebook;
