@@ -269,7 +269,7 @@ export default function App() {
 
   if (booting) return <FullScreenLoading />;
   if (fatalError && !inRecovery) return <FullScreenError message={fatalError} onRetry={handleRetry} />;
-  if (isLoggedIn && !userType && typeLoading && !inRecovery) return <FullScreenLoading text="CARREGANDO PERFIL..." />;
+  if (isLoggedIn && !userType && !inRecovery) return <FullScreenLoading text="CARREGANDO PERFIL..." />;
 
   return (
     <Router>
