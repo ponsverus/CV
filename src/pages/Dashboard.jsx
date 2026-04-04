@@ -176,32 +176,6 @@ export default function Dashboard({ user, onLogout }) {
     throw lastErr || new Error('Falha ao obter data oficial do banco');
   }, []);
 
-  const reloadFull = useCallback(async () => {
-    try {
-      const d = await fetchNowFromDb();
-      await loadData(d);
-    } catch {
-      await loadData('');
-    }
-  }, [fetchNowFromDb, loadData]);
-
-  useEffect(() => {
-    let active = true;
-
-    if (!user?.id) return () => { active = false; };
-
-    (async () => {
-      try {
-        const d = await fetchNowFromDb();
-        if (active) await loadData(d);
-      } catch {
-        if (active) await loadData('');
-      }
-    })();
-
-    return () => { active = false; };
-  }, [user?.id, fetchNowFromDb, loadData]);
-
   const reloadAgendamentos = useCallback(async (negocioId, profIds, dataHoje) => {
     const id = negocioId || negocio?.id; const ids = profIds || agProfIds; const dh = dataHoje || hoje; if (!id || !ids?.length || !dh) return;
     const { data, error: err } = await supabase.from('agendamentos')
@@ -435,6 +409,32 @@ export default function Dashboard({ user, onLogout }) {
     } catch (e) { setError(e?.message || 'Erro inesperado.'); }
     finally { setLoading(false); }
   }, [user?.id, location?.state?.negocioId, serverNow?.date, hoje, faturamentoPeriodo, navigate, uiAlert, loadHoje, loadDia, loadPeriodo]);
+
+  const reloadFull = useCallback(async () => {
+    try {
+      const d = await fetchNowFromDb();
+      await loadData(d);
+    } catch {
+      await loadData('');
+    }
+  }, [fetchNowFromDb, loadData]);
+
+  useEffect(() => {
+    let active = true;
+
+    if (!user?.id) return () => { active = false; };
+
+    (async () => {
+      try {
+        const d = await fetchNowFromDb();
+        if (active) await loadData(d);
+      } catch {
+        if (active) await loadData('');
+      }
+    })();
+
+    return () => { active = false; };
+  }, [user?.id, fetchNowFromDb, loadData]);
 
   const cadastrarAdminComoProfissional = async () => {
     if (!negocio?.id || !user?.id || submittingAdminProf) return;
