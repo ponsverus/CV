@@ -73,6 +73,13 @@ export default function BookingCalendar({
     return () => document.removeEventListener('mousedown', handle);
   }, [onClose, confirming]);
 
+  useEffect(() => {
+    const parsedToday = parseISO(todayISO);
+    if (!parsedToday) return;
+    setViewYear(parsedToday.year);
+    setViewMonth(parsedToday.month);
+  }, [todayISO]);
+
   const fetchSlots = useCallback(async (dayISO) => {
     if (!profissional?.id || !entrega?.duracao_minutos || !dayISO) return;
 
@@ -251,6 +258,13 @@ export default function BookingCalendar({
         </div>
 
         <div className="px-6 py-5 space-y-6">
+          {!todayISO && (
+            <div className={`flex items-center justify-center border rounded-button p-3 text-sm font-normal text-center ${slotsErrorClass}`}>
+              Sincronizando horário oficial...
+            </div>
+          )}
+
+          {todayISO && (
           <div>
             <div className="flex items-center justify-between mb-4">
               <button
@@ -312,8 +326,9 @@ export default function BookingCalendar({
               })}
             </div>
           </div>
+          )}
 
-          {selectedDay && (
+          {todayISO && selectedDay && (
             <div ref={slotsRef}>
               {slotsLoading && (
                 <div className={`flex items-center justify-center py-8 ${loadingColor}`}>
@@ -371,7 +386,7 @@ export default function BookingCalendar({
             </div>
           )}
 
-          {selectedSlot && (
+          {todayISO && selectedSlot && (
             <div ref={resumeRef} className={`border rounded-custom p-4 ${resumeBg}`}>
               <div className={`text-xs uppercase tracking-wide mb-3 ${resumeLabel}`}>Resumo</div>
               <div className="space-y-2 text-sm mb-4">
