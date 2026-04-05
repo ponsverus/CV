@@ -413,6 +413,13 @@ export const ptBR = {
       screen: 'dark',
       buttonText: 'ENTENDI',
     },
+    professional_schedule_blocked: {
+      title: 'Horário de trabalho bloqueado',
+      body: 'Há agendamentos futuros fora do novo horário de trabalho que você está tentando salvar.\n\nCancele ou reagende esses atendimentos antes de alterar a abertura ou o fechamento.',
+      variant: 'warning',
+      screen: 'dark',
+      buttonText: 'ENTENDI',
+    },
 
     booking_confirmed: {
       title: 'Concluído',
