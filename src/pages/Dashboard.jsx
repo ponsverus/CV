@@ -671,6 +671,7 @@ export default function Dashboard({ user, onLogout }) {
       const msg = String(e?.message || '');
       if (msg.includes('profissional_almoco_bloqueado')) await uiAlert('dashboard.professional_almoco_blocked', 'error');
       else if (msg.includes('profissional_dia_bloqueado')) await uiAlert('dashboard.professional_dia_blocked', 'error');
+      else if (msg.includes('profissional_horario_bloqueado') || msg.includes('profissional_expediente_bloqueado')) await uiAlert('dashboard.professional_schedule_blocked', 'error');
       else await uiAlert('dashboard.professional_update_error', 'error');
     } finally { setSubmittingProfissional(false); }
   };
