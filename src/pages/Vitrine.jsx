@@ -17,7 +17,7 @@ import { supabase } from '../supabase';
 import { ptBR } from '../feedback/messages/ptBR';
 import { getBusinessGroup } from '../businessTerms';
 import BookingCalendar from '../components/BookingCalendar';
-import negocioVerificadoIcon from '../assets/icons/negocio-verificado.svg';
+import negocioVerificadoIcon from '../assets/icons/negocio-verificado.jpeg';
 
 const SERVICOS_POR_PAGINA = 4;
 const DEPOIMENTOS_POR_PAGINA = 10;
