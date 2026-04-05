@@ -20,23 +20,12 @@ import BookingCalendar from '../components/BookingCalendar';
 
 const SERVICOS_POR_PAGINA = 4;
 const DEPOIMENTOS_POR_PAGINA = 10;
+const NOW_RPC_SEQUENCE = ['now_sp', 'now_sp_fallback'];
 
 function timeToMinutes(t) {
   if (!t) return 0;
   const [h, m] = String(t).split(':').map(Number);
   return (h * 60) + (m || 0);
-}
-
-function getNowSP() {
-  const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'America/Sao_Paulo',
-    year: 'numeric', month: '2-digit', day: '2-digit',
-    hour: '2-digit', minute: '2-digit', hour12: false,
-  }).formatToParts(new Date());
-  const get = (type) => parts.find(p => p.type === type)?.value;
-  const y = get('year'), mo = get('month'), d = get('day');
-  const hh = get('hour'), mm = get('minute');
-  return { date: `${y}-${mo}-${d}`, minutes: (Number(hh) * 60) + Number(mm) };
 }
 
 function formatDateBR(ymd) {
@@ -302,7 +291,7 @@ function SelectionBar({ itens, counterSingular, counterPlural, onConfirm, onClea
           <div className="w-8 h-8 rounded-full bg-vprimary flex items-center justify-center text-vprimary-text text-xs font-normal shrink-0" style={{ fontVariantNumeric: 'tabular-nums' }}>{qtd}</div>
           <div className="min-w-0">
             <div className={`text-sm font-normal truncate ${textMain}`}>{qtd} {label} selecionado{qtd > 1 ? 's' : ''}</div>
-            <div className={`text-xs font-normal ${textSub}`}>{durTotal} min &nbsp;Â·&nbsp; R$ {valTotal.toFixed(2)}</div>
+            <div className={`text-xs font-normal ${textSub}`}>{durTotal} min • R$ {valTotal.toFixed(2)}</div>
           </div>
           <button onClick={onClear} className={`shrink-0 ml-1 ${clearBtn}`} title="Limpar seleção"><X className="w-4 h-4" /></button>
         </div>
@@ -557,13 +546,12 @@ export default function Vitrine({ user, userType }) {
   };
 
   const [isFavorito, setIsFavorito] = useState(false);
+  const [serverNow, setServerNow] = useState(() => ({ ts: null, dow: 0, date: '', source: 'db', minutes: 0 }));
   const [calendarExport, setCalendarExport] = useState({ googleUrl: '', icsUrl: '', icsFilename: '' });
   const [flow, setFlow] = useState({ step: 'idle', profissional: null, servicosSelecionados: [], lastSlot: null });
   const [selecaoProfId,        setSelecaoProfId]        = useState(null);
   const [servicosSelecionados, setServicosSelecionados] = useState([]);
-
-  const nowSP    = useMemo(() => getNowSP(), []);
-  const todayISO = nowSP.date;
+  const todayISO = serverNow.date;
 
   const [showDepoimento,           setShowDepoimento]           = useState(false);
   const [depoimentoNota,           setDepoimentoNota]           = useState(5);
@@ -575,6 +563,38 @@ export default function Vitrine({ user, userType }) {
 
   const isProfessional = user && userType === 'professional';
   const calendarPlatformMode = useMemo(() => getCalendarPlatformMode(), []);
+
+  const fetchNowFromDb = useCallback(async () => {
+    let lastErr = null;
+
+    for (const rpcName of NOW_RPC_SEQUENCE) {
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const { data, error } = await supabase.rpc(rpcName);
+
+        if (error) {
+          lastErr = error;
+          continue;
+        }
+
+        const payload = data?.[0] ?? data;
+        if (!payload?.date) {
+          lastErr = new Error(`${rpcName} vazio`);
+          continue;
+        }
+
+        setServerNow({
+          ts: payload?.ts ?? null,
+          dow: Number(payload?.dow ?? 0),
+          date: String(payload.date),
+          source: payload?.source || rpcName,
+          minutes: Number(payload?.minutes ?? 0),
+        });
+        return payload;
+      }
+    }
+
+    throw lastErr || new Error('Falha ao obter horário oficial');
+  }, []);
 
   const loadDepoimentos = useCallback(async (negocioId) => {
     const { data, error: rpcErr } = await withTimeout(supabase.rpc('get_depoimentos_vitrine', { p_negocio_id: negocioId }), 7000, 'depoimentos');
@@ -590,6 +610,7 @@ export default function Vitrine({ user, userType }) {
     setLoading(true); setError(null);
     const watchdog = setTimeout(() => { setLoading(false); setError(getMsg('load_timeout', 'Demorou demais para carregar. Tente novamente.')); }, 12000);
     try {
+      await fetchNowFromDb();
       const { data: negocioData, error: negocioError } = await withTimeout(supabase.from('negocios').select('*').eq('slug', slug).maybeSingle(), 7000, 'negocio');
       if (negocioError) throw negocioError;
       if (!negocioData) { setNegocio(null); setProfissionais([]); setEntregas([]); setDepoimentos([]); setGaleriaItems([]); return; }
@@ -626,7 +647,7 @@ export default function Vitrine({ user, userType }) {
       clearTimeout(watchdog);
       setLoading(false);
     }
-  }, [slug, loadDepoimentos, getMsg]);
+  }, [slug, loadDepoimentos, getMsg, fetchNowFromDb]);
 
   const checkFavorito = useCallback(async () => {
     if (!user || userType !== 'client' || !negocio?.id) { setIsFavorito(false); return; }
@@ -638,6 +659,13 @@ export default function Vitrine({ user, userType }) {
   }, [user, userType, negocio?.id]);
 
   useEffect(() => { loadVitrine(); }, [loadVitrine]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      fetchNowFromDb().catch(() => {});
+    }, 60000);
+    return () => clearInterval(timer);
+  }, [fetchNowFromDb]);
 
   useEffect(() => {
     if (user && negocio?.id) checkFavorito();
@@ -687,6 +715,10 @@ export default function Vitrine({ user, userType }) {
   };
 
   const requireLogin = async () => {
+    if (!todayISO) {
+      alertKey('schedule_time_unavailable', 'Horário oficial indisponível', 'Ainda estamos sincronizando o horário oficial. Tente novamente em instantes.', 'ENTENDI');
+      return false;
+    }
     if (!user) {
       const ok = await confirmKey('schedule_need_login_confirm', 'Login necessário', 'Você precisa fazer login para agendar. Deseja fazer login agora?', 'IR PARA LOGIN', 'MAIS TARDE');
       if (ok) navigate('/login');
@@ -864,8 +896,8 @@ export default function Vitrine({ user, userType }) {
     if (!ini || !fim) return false;
     const a = timeToMinutes(ini), b = timeToMinutes(fim);
     if (!Number.isFinite(a) || !Number.isFinite(b)) return false;
-    if (b < a) return (nowSP.minutes >= a || nowSP.minutes < b);
-    return (nowSP.minutes >= a && nowSP.minutes < b);
+    if (b < a) return (serverNow.minutes >= a || serverNow.minutes < b);
+    return (serverNow.minutes >= a && serverNow.minutes < b);
   };
 
   const getProfStatus = (p) => {
@@ -874,9 +906,9 @@ export default function Vitrine({ user, userType }) {
     const fim = timeToMinutes(p?.horario_fim    || '18:00');
     const dias = normalizeDiasTrabalho(p?.dias_trabalho);
     const diasEfetivos = dias.length ? dias : [0, 1, 2, 3, 4, 5, 6];
-    const hojeDow = getDowFromDateSP(nowSP.date);
+    const hojeDow = getDowFromDateSP(serverNow.date);
     const trabalhaHoje = hojeDow == null ? true : diasEfetivos.includes(hojeDow);
-    const dentroHorario = nowSP.minutes >= ini && nowSP.minutes < fim;
+    const dentroHorario = serverNow.minutes >= ini && serverNow.minutes < fim;
     if (!(trabalhaHoje && dentroHorario)) return { label: 'FECHADO', color: 'bg-red-500' };
     if (isInLunchNow(p)) return { label: 'ALMOÇO', color: 'bg-yellow-400' };
     return { label: 'ABERTO', color: 'bg-green-500' };
