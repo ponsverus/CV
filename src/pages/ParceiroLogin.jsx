@@ -177,9 +177,7 @@ export default function ParceiroLogin({ onLogin, suppressAuthRef, inRecovery: in
       <div className="min-h-screen bg-black flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-primary to-yellow-600 rounded-custom flex items-center justify-center mx-auto mb-4">
-              <span className="text-black text-2xl font-normal">C</span>
-            </div>
+            <img src="/Comvaga Logo.png" alt="COMVAGA" className="h-20 w-auto object-contain mx-auto mb-4" />
             <h1 className="text-3xl font-normal text-white uppercase">Nova senha</h1>
             <p className="text-gray-500 text-sm mt-2 font-normal">Defina sua nova senha de acesso</p>
           </div>
@@ -230,9 +228,7 @@ export default function ParceiroLogin({ onLogin, suppressAuthRef, inRecovery: in
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-primary to-yellow-600 rounded-custom flex items-center justify-center mx-auto mb-4">
-            <span className="text-black text-2xl font-normal">C</span>
-          </div>
+          <img src="/Comvaga Logo.png" alt="COMVAGA" className="h-20 w-auto object-contain mx-auto mb-4" />
           <h1 className="text-3xl font-normal text-white uppercase">Login Parceiro</h1>
           <p className="text-gray-500 text-sm mt-2 font-normal">Acesse o painel do seu negócio agora</p>
         </div>
@@ -309,7 +305,7 @@ export default function ParceiroLogin({ onLogin, suppressAuthRef, inRecovery: in
 
         <p className="text-center text-sm text-gray-600 mt-6 font-normal">
           Ainda não tem cadastro?{' '}
-          <Link to="/parceiro" className="text-primary hover:text-yellow-500 transition-colors">
+          <Link to="/parceiro/login" className="text-primary hover:text-yellow-500 transition-colors">
             Solicitar acesso
           </Link>
         </p>
