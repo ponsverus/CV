@@ -1,6 +1,8 @@
 import React from 'react';
 import DatePicker from '../../../components/DatePicker';
 import PeriodoSelect from '../../../components/PeriodoSelect';
+import AgendaUtilizacaoBlock from '../components/AgendaUtilizacaoBlock';
+import FutureBookingsBlock from '../components/FutureBookingsBlock';
 import { getAgInicio } from '../utils';
 
 export default function VisaoGeralSection({
@@ -18,6 +20,10 @@ export default function VisaoGeralSection({
   setFaturamentoPeriodo,
   metricsPeriodoData,
   metricsPeriodoLoading,
+  metricsUtilizacao,
+  metricsUtilizacaoLoading,
+  metricsFutureBookings,
+  metricsFutureBookingsLoading,
   counterSingular,
 }) {
   return (
@@ -47,6 +53,18 @@ export default function VisaoGeralSection({
           </div>
         </div>
       </div>
+      <AgendaUtilizacaoBlock
+        souDono={souDono}
+        faturamentoPeriodo={faturamentoPeriodo}
+        metricsUtilizacao={metricsUtilizacao}
+        metricsUtilizacaoLoading={metricsUtilizacaoLoading}
+      />
+      <FutureBookingsBlock
+        souDono={souDono}
+        faturamentoPeriodo={faturamentoPeriodo}
+        metricsFutureBookings={metricsFutureBookings}
+        metricsFutureBookingsLoading={metricsFutureBookingsLoading}
+      />
     </div>
   );
 }
