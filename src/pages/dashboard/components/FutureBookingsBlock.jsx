@@ -36,7 +36,9 @@ export default function FutureBookingsBlock({
           <h3 className="text-lg font-normal uppercase">Receita Futura Projetada</h3>
           <div className="text-xs text-gray-500 mt-1">Receita confirmada para {formatDate(data?.amanha)}</div>
         </div>
-        <div className="text-sm text-gray-400">Amanhã</div>
+        <div className="text-sm text-gray-400">
+          AMANH<span className="font-bold italic">Ã</span>
+        <div>
       </div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 items-start">
