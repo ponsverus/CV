@@ -131,28 +131,28 @@ export default function AgendaUtilizacaoBlock({
                 <div className="font-normal text-white">{String(item?.nome || 'PROFISSIONAL')}</div>
                 <div className="grid grid-cols-2 gap-3 mt-3 text-sm">
                   <div>
-                    <div className="text-gray-500">Ocupação</div>
-                    <div className="text-primary font-normal">{formatPercent(item?.taxa_ocupacao)}</div>
-                  </div>
-                  <div>
                     <div className="text-gray-500">Válidos</div>
                     <div className="text-white font-normal">{Number(item?.agendamentos_validos || 0)}</div>
                   </div>
                   <div>
-                    <div className="text-gray-500">Ocupado</div>
-                    <div className="text-green-400 font-normal">{formatDurationFromMinutes(item?.minutos_ocupados)}</div>
+                    <div className="text-gray-500">Cancelados</div>
+                    <div className="text-red-400 font-normal">{Number(item?.cancelados || 0)}</div>
                   </div>
                   <div>
                     <div className="text-gray-500">Disponível</div>
                     <div className="text-yellow-400 font-normal">{formatDurationFromMinutes(item?.minutos_ociosos)}</div>
                   </div>
                   <div>
+                    <div className="text-gray-500">Ocupado</div>
+                    <div className="text-green-400 font-normal">{formatDurationFromMinutes(item?.minutos_ocupados)}</div>
+                  </div>
+                  <div>
                     <div className="text-gray-500">Tempo total</div>
                     <div className="text-gray-300 font-normal">{formatDurationFromMinutes(item?.minutos_disponiveis)}</div>
                   </div>
                   <div>
-                    <div className="text-gray-500">Cancelados</div>
-                    <div className="text-red-400 font-normal">{Number(item?.cancelados || 0)}</div>
+                    <div className="text-gray-500">Ocupação</div>
+                    <div className="text-primary font-normal">{formatPercent(item?.taxa_ocupacao)}</div>
                   </div>
                 </div>
               </div>
