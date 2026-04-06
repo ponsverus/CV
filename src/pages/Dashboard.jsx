@@ -1,3 +1,4 @@
+
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -44,6 +45,30 @@ function getPublicUrl(bucket, path) {
     const { data } = supabase.storage.from(bucket).getPublicUrl(stripped);
     return data?.publicUrl || null;
   } catch { return null; }
+}
+
+function normalizeAgRow(a) {
+  return {
+    ...a,
+    data: a?.data ?? null,
+    horario_inicio: a?.horario_inicio ?? null,
+    horario_fim: a?.horario_fim ?? null,
+    entregas: {
+      nome: a?.entrega_nome ?? null,
+      preco: a?.entrega_preco ?? null,
+      preco_promocional: a?.entrega_promo ?? null,
+    },
+    profissionais: {
+      id: a?.prof_id ?? null,
+      nome: a?.prof_nome ?? null,
+    },
+    cliente: {
+      id: a?.cliente_id_ref ?? null,
+      nome: a?.cliente_nome ?? null,
+      avatar_path: a?.cliente_avatar ?? null,
+      type: a?.cliente_type ?? null,
+    },
+  };
 }
 
 export default function Dashboard({ user, onLogout }) {
@@ -178,12 +203,13 @@ export default function Dashboard({ user, onLogout }) {
 
   const reloadAgendamentos = useCallback(async (negocioId, profIds, dataHoje) => {
     const id = negocioId || negocio?.id; const ids = profIds || agProfIds; const dh = dataHoje || hoje; if (!id || !ids?.length || !dh) return;
-    const { data, error: err } = await supabase.from('agendamentos')
-      .select(`*, preco_final, data, horario_inicio, horario_fim, entregas (nome, preco, preco_promocional), profissionais (id, nome), cliente:users_public!agendamentos_cliente_id_fkey (id, nome, avatar_path, type)`)
-      .eq('negocio_id', id).in('profissional_id', ids).gte('data', dh)
-      .order('data', { ascending: true }).order('horario_inicio', { ascending: true }).order('id', { ascending: true });
+    const { data, error: err } = await supabase.rpc('get_agendamentos_negocio', {
+      p_negocio_id: id,
+      p_profissional_ids: ids,
+      p_data_inicio: dh,
+    });
     if (err) return;
-    setAgendamentos((data || []).map(a => ({ ...a, data: a?.data ?? null, horario_inicio: a?.horario_inicio ?? null, horario_fim: a?.horario_fim ?? null })));
+    setAgendamentos((data || []).map(normalizeAgRow));
   }, [negocio?.id, agProfIds, hoje]);
 
   const reloadAgendamentosRef = useRef(reloadAgendamentos);
@@ -265,13 +291,16 @@ export default function Dashboard({ user, onLogout }) {
   }, [negocio?.id, agProfIdsKey, hoje, parceiroProfissionalId, loadHoje]);
 
   const fetchHistoricoPage = useCallback(async ({ negocioId, profIds, date, page, append }) => {
-    const from = page * AG_PAGE_SIZE; const to = from + AG_PAGE_SIZE - 1;
-    const { data, error: qErr } = await supabase.from('agendamentos')
-      .select(`*, preco_final, data, horario_inicio, horario_fim, entregas (nome, preco, preco_promocional), profissionais (id, nome), cliente:users_public!agendamentos_cliente_id_fkey (id, nome, avatar_path, type)`)
-      .eq('negocio_id', negocioId).in('profissional_id', profIds).eq('data', date)
-      .order('horario_inicio', { ascending: true }).order('id', { ascending: true }).range(from, to);
+    const { data, error: qErr } = await supabase.rpc('get_agendamentos_negocio', {
+      p_negocio_id: negocioId,
+      p_profissional_ids: profIds,
+      p_data_inicio: date,
+      p_data_fim: date,
+      p_limit: AG_PAGE_SIZE,
+      p_offset: page * AG_PAGE_SIZE,
+    });
     if (qErr) throw qErr;
-    const rows = (data || []).map(a => ({ ...a, data: a?.data ?? null, horario_inicio: a?.horario_inicio ?? null, horario_fim: a?.horario_fim ?? null }));
+    const rows = (data || []).map(normalizeAgRow);
     setHistoricoAgendamentos(prev => { const next = append ? [...prev, ...rows] : rows; const seen = new Set(); return next.filter(a => seen.has(a.id) ? false : (seen.add(a.id), true)); });
     setHistoricoHasMore(rows.length === AG_PAGE_SIZE);
   }, []);
@@ -391,16 +420,17 @@ export default function Dashboard({ user, onLogout }) {
       const [entregasResult, agendamentosResult] = await Promise.all([
         supabase.from('entregas').select('*, profissionais (id, nome)').eq('negocio_id', negocioData.id).in('profissional_id', ids).order('created_at', { ascending: false }),
         dataHoje
-          ? supabase.from('agendamentos')
-              .select(`*, preco_final, data, horario_inicio, horario_fim, entregas (nome, preco, preco_promocional), profissionais (id, nome), cliente:users_public!agendamentos_cliente_id_fkey (id, nome, avatar_path, type)`)
-              .eq('negocio_id', negocioData.id).in('profissional_id', ids).gte('data', dataHoje)
-              .order('data', { ascending: true }).order('horario_inicio', { ascending: true }).order('id', { ascending: true })
+          ? supabase.rpc('get_agendamentos_negocio', {
+              p_negocio_id: negocioData.id,
+              p_profissional_ids: ids,
+              p_data_inicio: dataHoje,
+            })
           : Promise.resolve({ data: [], error: null })
       ]);
       if (entregasResult.error) throw entregasResult.error;
       setEntregas(entregasResult.data || []);
       if (agendamentosResult.error) throw agendamentosResult.error;
-      setAgendamentos((agendamentosResult.data || []).map(a => ({ ...a, data: a?.data ?? null, horario_inicio: a?.horario_inicio ?? null, horario_fim: a?.horario_fim ?? null })));
+      setAgendamentos((agendamentosResult.data || []).map(normalizeAgRow));
       if (dataHoje) {
         loadHoje(negocioData.id, profId);
         loadDia(negocioData.id, dataHoje, profId);
