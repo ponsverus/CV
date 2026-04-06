@@ -68,15 +68,17 @@ export default function AgendaUtilizacaoBlock({
     <div className="bg-dark-200 border border-gray-800 rounded-custom p-5">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
         <div>
-          <h3 className="text-lg font-normal uppercase">Utilização da Agenda</h3>
+          <h3 className="text-lg font-normal uppercase">Utili. da Agenda</h3>
           <div className="text-xs text-gray-500 mt-1">Leitura prevista para {formatDateDots(data?.amanha)}</div>
         </div>
-        <div className="text-sm text-gray-400">Amanhã</div>
+        <div className="text-sm text-gray-400">
+          AMANH<span className="font-bold italic">A</span>
+        </div>
       </div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-3 items-start">
         <MetricCard
-          label="TAXA DE OCUPAÇÃO"
+          label="TAXA DE OCUPA."
           tone="text-primary"
           value={metricsUtilizacaoLoading ? '...' : formatPercent(data?.taxa_ocupacao)}
         />
@@ -151,7 +153,7 @@ export default function AgendaUtilizacaoBlock({
                     <div className="text-gray-300 font-normal">{formatDurationFromMinutes(item?.minutos_disponiveis)}</div>
                   </div>
                   <div>
-                    <div className="text-gray-500">Ocupação</div>
+                    <div className="text-gray-500">Ocupa.</div>
                     <div className="text-primary font-normal">{formatPercent(item?.taxa_ocupacao)}</div>
                   </div>
                 </div>
