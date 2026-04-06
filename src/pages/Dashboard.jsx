@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -118,9 +117,13 @@ export default function Dashboard({ user, onLogout }) {
   const [metricsHoje, setMetricsHoje]               = useState(null);
   const [metricsDia, setMetricsDia]                 = useState(null);
   const [metricsPeriodoData, setMetricsPeriodoData] = useState(null);
+  const [metricsUtilizacao, setMetricsUtilizacao]   = useState(null);
+  const [metricsFutureBookings, setMetricsFutureBookings] = useState(null);
   const [metricsHojeLoading, setMetricsHojeLoading]       = useState(false);
   const [metricsDiaLoading, setMetricsDiaLoading]         = useState(false);
   const [metricsPeriodoLoading, setMetricsPeriodoLoading] = useState(false);
+  const [metricsUtilizacaoLoading, setMetricsUtilizacaoLoading] = useState(false);
+  const [metricsFutureBookingsLoading, setMetricsFutureBookingsLoading] = useState(false);
 
   const [showNovaEntrega, setShowNovaEntrega]       = useState(false);
   const [submittingEntrega, setSubmittingEntrega]   = useState(false);
@@ -266,9 +269,41 @@ export default function Dashboard({ user, onLogout }) {
     finally { setMetricsPeriodoLoading(false); }
   }, [negocio?.id, hoje, faturamentoPeriodo]);
 
+  const loadUtilizacao = useCallback(async (negocioId, refDateISO, _periodo, profId = null) => {
+    const id = negocioId || negocio?.id;
+    const refDate = String(refDateISO || hoje || '');
+    if (!id || !refDate) return;
+    try {
+      setMetricsUtilizacaoLoading(true);
+      const params = { p_negocio_id: id, p_ref_date: refDate, p_periodo: 'amanha' };
+      if (profId) params.p_profissional_id = profId;
+      const { data, error } = await supabase.rpc('get_dashboard_utilizacao', params);
+      if (error) throw error;
+      setMetricsUtilizacao(data);
+    } catch { setMetricsUtilizacao(null); }
+    finally { setMetricsUtilizacaoLoading(false); }
+  }, [negocio?.id, hoje]);
+
+  const loadFutureBookings = useCallback(async (negocioId, refDateISO, _periodo, profId = null) => {
+    const id = negocioId || negocio?.id;
+    const refDate = String(refDateISO || hoje || '');
+    if (!id || !refDate) return;
+    try {
+      setMetricsFutureBookingsLoading(true);
+      const params = { p_negocio_id: id, p_ref_date: refDate, p_periodo: 'amanha' };
+      if (profId) params.p_profissional_id = profId;
+      const { data, error } = await supabase.rpc('get_dashboard_future_bookings', params);
+      if (error) throw error;
+      setMetricsFutureBookings(data);
+    } catch { setMetricsFutureBookings(null); }
+    finally { setMetricsFutureBookingsLoading(false); }
+  }, [negocio?.id, hoje]);
+
   useEffect(() => { if (!negocio?.id || !hoje) return; loadHoje(negocio.id, parceiroProfissionalId); }, [negocio?.id, hoje, parceiroProfissionalId, loadHoje]);
   useEffect(() => { if (!negocio?.id || !faturamentoData) return; loadDia(negocio.id, faturamentoData, parceiroProfissionalId); }, [negocio?.id, faturamentoData, parceiroProfissionalId, loadDia]);
   useEffect(() => { if (!negocio?.id || !hoje) return; loadPeriodo(negocio.id, hoje, faturamentoPeriodo, parceiroProfissionalId); }, [negocio?.id, hoje, faturamentoPeriodo, parceiroProfissionalId, loadPeriodo]);
+  useEffect(() => { if (!negocio?.id || !hoje) return; loadUtilizacao(negocio.id, hoje, null, parceiroProfissionalId); }, [negocio?.id, hoje, parceiroProfissionalId, loadUtilizacao]);
+  useEffect(() => { if (!negocio?.id || !hoje) return; loadFutureBookings(negocio.id, hoje, null, parceiroProfissionalId); }, [negocio?.id, hoje, parceiroProfissionalId, loadFutureBookings]);
 
   useEffect(() => {
     if (!negocio?.id || !agProfIdsKey || !hoje) return;
@@ -286,9 +321,11 @@ export default function Dashboard({ user, onLogout }) {
         }
         reloadAgendamentosRef.current();
         loadHoje(negocio.id, parceiroProfissionalId);
+        loadUtilizacao(negocio.id, hoje, null, parceiroProfissionalId);
+        loadFutureBookings(negocio.id, hoje, null, parceiroProfissionalId);
       }).subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [negocio?.id, agProfIdsKey, hoje, parceiroProfissionalId, loadHoje]);
+  }, [negocio?.id, agProfIdsKey, hoje, parceiroProfissionalId, loadHoje, loadUtilizacao, loadFutureBookings]);
 
   const fetchHistoricoPage = useCallback(async ({ negocioId, profIds, date, page, append }) => {
     const { data, error: qErr } = await supabase.rpc('get_agendamentos_negocio', {
@@ -435,10 +472,12 @@ export default function Dashboard({ user, onLogout }) {
         loadHoje(negocioData.id, profId);
         loadDia(negocioData.id, dataHoje, profId);
         loadPeriodo(negocioData.id, dataHoje, faturamentoPeriodo, profId);
+        loadUtilizacao(negocioData.id, dataHoje, null, profId);
+        loadFutureBookings(negocioData.id, dataHoje, null, profId);
       }
     } catch (e) { setError(e?.message || 'Erro inesperado.'); }
     finally { setLoading(false); }
-  }, [user?.id, location?.state?.negocioId, serverNow?.date, hoje, faturamentoPeriodo, navigate, uiAlert, loadHoje, loadDia, loadPeriodo]);
+  }, [user?.id, location?.state?.negocioId, serverNow?.date, hoje, faturamentoPeriodo, navigate, uiAlert, loadHoje, loadDia, loadPeriodo, loadUtilizacao, loadFutureBookings]);
 
   const reloadFull = useCallback(async () => {
     try {
@@ -925,6 +964,10 @@ export default function Dashboard({ user, onLogout }) {
                 setFaturamentoPeriodo={setFaturamentoPeriodo}
                 metricsPeriodoData={metricsPeriodoData}
                 metricsPeriodoLoading={metricsPeriodoLoading}
+                metricsUtilizacao={metricsUtilizacao}
+                metricsUtilizacaoLoading={metricsUtilizacaoLoading}
+                metricsFutureBookings={metricsFutureBookings}
+                metricsFutureBookingsLoading={metricsFutureBookingsLoading}
                 counterSingular={counterSingular}
               />
             )}
