@@ -39,7 +39,7 @@ export default function FutureBookingsBlock({
         <div className="text-sm text-gray-400">Amanhã</div>
       </div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 items-start">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 items-start">
         <MetricCard
           label="RECEITA PROJETADA"
           tone="text-primary"
@@ -51,13 +51,9 @@ export default function FutureBookingsBlock({
           subtle={metricsFutureBookingsLoading ? null : formatDate(data?.amanha)}
         />
         <MetricCard
-          label="TICKET MEDIO FUTURO"
+          label="TICKET MÉDIO FUTURO"
           tone="text-green-400"
           value={metricsFutureBookingsLoading ? '...' : formatCurrency(data?.ticket_medio)}
-        />
-        <MetricCard
-          label="DIA ANALISADO"
-          value={metricsFutureBookingsLoading ? '...' : formatDate(data?.amanha)}
         />
       </div>
 
@@ -75,10 +71,6 @@ export default function FutureBookingsBlock({
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-gray-500">Agendamentos</span>
                   <span className="text-white font-normal">{Number(item?.total_agendamentos || 0)}</span>
-                </div>
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-gray-500">Dia</span>
-                  <span className="text-gray-300 font-normal">{formatDate(data?.amanha)}</span>
                 </div>
               </div>
             </div>
