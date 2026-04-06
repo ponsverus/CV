@@ -31,12 +31,13 @@ export default function FutureBookingsBlock({
 
   return (
     <div className="bg-dark-200 border border-gray-800 rounded-custom p-5">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
         <div>
           <h3 className="text-lg font-normal uppercase">Receita Futura Projetada</h3>
-          <div className="text-xs text-gray-500 mt-1">Receita confirmada para {formatDate(data?.amanha)}</div>
+          <div className="mt-2 inline-flex items-center rounded-full border border-gray-700 bg-dark-100 px-3 py-1 text-xs text-gray-300">
+            {formatDate(data?.amanha)}
+          </div>
         </div>
-        <div className="text-sm text-gray-400">Amanhã</div>
       </div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 items-start">
@@ -50,7 +51,7 @@ export default function FutureBookingsBlock({
           value={metricsFutureBookingsLoading ? '...' : Number(data?.total_agendamentos || 0)}
         />
         <MetricCard
-          label="TICKET MÉDIO FUTURO"
+          label="TICKET MÃ‰DIO FUTURO"
           tone="text-green-400"
           value={metricsFutureBookingsLoading ? '...' : formatCurrency(data?.ticket_medio)}
         />
