@@ -23,7 +23,6 @@ function MetricCard({ label, value, tone = 'text-white', subtle }) {
 
 export default function FutureBookingsBlock({
   souDono,
-  faturamentoPeriodo,
   metricsFutureBookings,
   metricsFutureBookingsLoading,
 }) {
@@ -35,9 +34,9 @@ export default function FutureBookingsBlock({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
         <div>
           <h3 className="text-lg font-normal uppercase">Receita Futura Projetada</h3>
-          <div className="text-xs text-gray-500 mt-1">Periodo ativo: {String(faturamentoPeriodo || '7d').toUpperCase()}</div>
+          <div className="text-xs text-gray-500 mt-1">Receita confirmada para {String(data?.amanha || 'amanhã')}</div>
         </div>
-        <div className="text-sm text-gray-400">Receita contratada para frente, sem cancelados</div>
+        <div className="text-sm text-gray-400">Amanhã</div>
       </div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 items-start">
@@ -49,7 +48,7 @@ export default function FutureBookingsBlock({
         <MetricCard
           label="AGENDAMENTOS FUTUROS"
           value={metricsFutureBookingsLoading ? '...' : Number(data?.total_agendamentos || 0)}
-          subtle={metricsFutureBookingsLoading ? null : `Proximo dia: ${formatDate(data?.proximo_dia)}`}
+          subtle={metricsFutureBookingsLoading ? null : formatDate(data?.amanha)}
         />
         <MetricCard
           label="TICKET MEDIO FUTURO"
@@ -57,8 +56,8 @@ export default function FutureBookingsBlock({
           value={metricsFutureBookingsLoading ? '...' : formatCurrency(data?.ticket_medio)}
         />
         <MetricCard
-          label="JANELA"
-          value={metricsFutureBookingsLoading ? '...' : `${data?.start_date || '-'} a ${data?.end_date || '-'}`}
+          label="DIA ANALISADO"
+          value={metricsFutureBookingsLoading ? '...' : formatDate(data?.amanha)}
         />
       </div>
 
@@ -78,8 +77,8 @@ export default function FutureBookingsBlock({
                   <span className="text-white font-normal">{Number(item?.total_agendamentos || 0)}</span>
                 </div>
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-gray-500">Proximo dia</span>
-                  <span className="text-gray-300 font-normal">{formatDate(item?.proximo_dia)}</span>
+                  <span className="text-gray-500">Dia</span>
+                  <span className="text-gray-300 font-normal">{formatDate(data?.amanha)}</span>
                 </div>
               </div>
             </div>
