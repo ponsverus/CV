@@ -66,19 +66,18 @@ export default function AgendaUtilizacaoBlock({
 
   return (
     <div className="bg-dark-200 border border-gray-800 rounded-custom p-5">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
         <div>
-          <h3 className="text-lg font-normal uppercase">Utili. da Agenda</h3>
-          <div className="text-xs text-gray-500 mt-1"> {formatDateDots(data?.amanha)}</div>
-        </div>
-        <div className="text-sm text-gray-400">
-          AMANH<span className="font-bold italic">Ã</span>
+          <h3 className="text-lg font-normal uppercase">UtilizaÃ§Ã£o da Agenda</h3>
+          <div className="mt-2 inline-flex items-center rounded-full border border-gray-700 bg-dark-100 px-3 py-1 text-xs text-gray-300">
+            {formatDateDots(data?.amanha)}
+          </div>
         </div>
       </div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-3 items-start">
         <MetricCard
-          label="TAXA DE OCUPA."
+          label="TAXA DE OCUPAÃ‡ÃƒO"
           tone="text-primary"
           value={metricsUtilizacaoLoading ? '...' : formatPercent(data?.taxa_ocupacao)}
         />
@@ -92,7 +91,7 @@ export default function AgendaUtilizacaoBlock({
           value={metricsUtilizacaoLoading ? '...' : formatDurationFromMinutes(data?.minutos_disponiveis)}
         />
         <MetricCard
-          label="TEMPO DISPONÍVEL"
+          label="TEMPO DISPONÃVEL"
           tone="text-yellow-400"
           value={metricsUtilizacaoLoading ? '...' : formatDurationFromMinutes(data?.minutos_ociosos)}
         />
@@ -111,7 +110,7 @@ export default function AgendaUtilizacaoBlock({
                 type="button"
                 onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
                 disabled={currentPage === 0}
-                className="hidden md:inline-flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 items-center justify-center w-10 h-10 rounded-full border border-gray-700 bg-dark-100 text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed hover:border-primary hover:text-primary transition-colors z-10"
+                className="hidden md:inline-flex absolute left-3 top-1/2 -translate-y-1/2 items-center justify-center w-10 h-10 rounded-full border border-gray-700 bg-dark-100 text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed hover:border-primary hover:text-primary transition-colors z-10"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
@@ -119,7 +118,7 @@ export default function AgendaUtilizacaoBlock({
                 type="button"
                 onClick={() => setPage((prev) => Math.min(prev + 1, pageCount - 1))}
                 disabled={currentPage === pageCount - 1}
-                className="hidden md:inline-flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 items-center justify-center w-10 h-10 rounded-full border border-gray-700 bg-dark-100 text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed hover:border-primary hover:text-primary transition-colors z-10"
+                className="hidden md:inline-flex absolute right-3 top-1/2 -translate-y-1/2 items-center justify-center w-10 h-10 rounded-full border border-gray-700 bg-dark-100 text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed hover:border-primary hover:text-primary transition-colors z-10"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -133,7 +132,7 @@ export default function AgendaUtilizacaoBlock({
                 <div className="font-normal text-white">{String(item?.nome || 'PROFISSIONAL')}</div>
                 <div className="grid grid-cols-2 gap-3 mt-3 text-sm">
                   <div>
-                    <div className="text-gray-500">Válidos</div>
+                    <div className="text-gray-500">VÃ¡lidos</div>
                     <div className="text-white font-normal">{Number(item?.agendamentos_validos || 0)}</div>
                   </div>
                   <div>
@@ -141,7 +140,7 @@ export default function AgendaUtilizacaoBlock({
                     <div className="text-red-400 font-normal">{Number(item?.cancelados || 0)}</div>
                   </div>
                   <div>
-                    <div className="text-gray-500">Disponível</div>
+                    <div className="text-gray-500">DisponÃ­vel</div>
                     <div className="text-yellow-400 font-normal">{formatDurationFromMinutes(item?.minutos_ociosos)}</div>
                   </div>
                   <div>
@@ -153,7 +152,7 @@ export default function AgendaUtilizacaoBlock({
                     <div className="text-gray-300 font-normal">{formatDurationFromMinutes(item?.minutos_disponiveis)}</div>
                   </div>
                   <div>
-                    <div className="text-gray-500">Ocupa.</div>
+                    <div className="text-gray-500">OcupaÃ§Ã£o</div>
                     <div className="text-primary font-normal">{formatPercent(item?.taxa_ocupacao)}</div>
                   </div>
                 </div>
@@ -179,7 +178,7 @@ export default function AgendaUtilizacaoBlock({
                     type="button"
                     onClick={() => setPage(index)}
                     className={`w-2.5 h-2.5 rounded-full transition-colors ${index === currentPage ? 'bg-primary' : 'bg-gray-600 hover:bg-gray-400'}`}
-                    aria-label={`Ir para página ${index + 1}`}
+                    aria-label={`Ir para pÃ¡gina ${index + 1}`}
                   />
                 ))}
               </div>
