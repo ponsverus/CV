@@ -55,13 +55,11 @@ export default function VisaoGeralSection({
       </div>
       <AgendaUtilizacaoBlock
         souDono={souDono}
-        faturamentoPeriodo={faturamentoPeriodo}
         metricsUtilizacao={metricsUtilizacao}
         metricsUtilizacaoLoading={metricsUtilizacaoLoading}
       />
       <FutureBookingsBlock
         souDono={souDono}
-        faturamentoPeriodo={faturamentoPeriodo}
         metricsFutureBookings={metricsFutureBookings}
         metricsFutureBookingsLoading={metricsFutureBookingsLoading}
       />
