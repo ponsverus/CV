@@ -1,13 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-function hoursToMinutes(value) {
-  const minutes = Math.round(Number(value || 0) * 60);
-  return Number.isFinite(minutes) ? Math.max(minutes, 0) : 0;
-}
-
-function formatDuration(value) {
-  const totalMinutes = hoursToMinutes(value);
+function formatDurationFromMinutes(value) {
+  const totalMinutes = Math.max(Number(value || 0), 0);
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
 
@@ -18,6 +13,13 @@ function formatDuration(value) {
 
 function formatPercent(value) {
   return `${Number(value || 0).toFixed(1)}%`;
+}
+
+function formatDateDots(value) {
+  if (!value) return 'Selecionar';
+  const [year, month, day] = String(value).split('-');
+  if (!year || !month || !day) return String(value);
+  return `${day}.${month}.${year}`;
 }
 
 function MetricCard({ label, value, tone = 'text-white', subtle }) {
@@ -67,7 +69,7 @@ export default function AgendaUtilizacaoBlock({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
         <div>
           <h3 className="text-lg font-normal uppercase">Utilização da Agenda</h3>
-          <div className="text-xs text-gray-500 mt-1">Leitura prevista para {String(data?.amanha || 'amanhã')}</div>
+          <div className="text-xs text-gray-500 mt-1">Leitura prevista para {formatDateDots(data?.amanha)}</div>
         </div>
         <div className="text-sm text-gray-400">Amanhã</div>
       </div>
@@ -77,21 +79,20 @@ export default function AgendaUtilizacaoBlock({
           label="TAXA DE OCUPAÇÃO"
           tone="text-primary"
           value={metricsUtilizacaoLoading ? '...' : formatPercent(data?.taxa_ocupacao)}
-          subtle="Baseado na agenda disponível de amanhã"
         />
         <MetricCard
           label="TEMPO OCUPADO"
           tone="text-green-400"
-          value={metricsUtilizacaoLoading ? '...' : formatDuration(data?.horas_ocupadas)}
+          value={metricsUtilizacaoLoading ? '...' : formatDurationFromMinutes(data?.minutos_ocupados)}
+        />
+        <MetricCard
+          label="TEMPO TOTAL"
+          value={metricsUtilizacaoLoading ? '...' : formatDurationFromMinutes(data?.minutos_disponiveis)}
         />
         <MetricCard
           label="TEMPO DISPONÍVEL"
-          value={metricsUtilizacaoLoading ? '...' : formatDuration(data?.horas_disponiveis)}
-        />
-        <MetricCard
-          label="TEMPO OCIOSO"
           tone="text-yellow-400"
-          value={metricsUtilizacaoLoading ? '...' : formatDuration(data?.horas_ociosas)}
+          value={metricsUtilizacaoLoading ? '...' : formatDurationFromMinutes(data?.minutos_ociosos)}
         />
         <MetricCard
           label="AGENDAMENTOS"
@@ -101,7 +102,28 @@ export default function AgendaUtilizacaoBlock({
       </div>
 
       {souDono && porProfissional.length > 0 ? (
-        <div className="mt-4">
+        <div className="mt-4 relative md:px-12">
+          {pageCount > 1 ? (
+            <>
+              <button
+                type="button"
+                onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
+                disabled={currentPage === 0}
+                className="hidden md:inline-flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 items-center justify-center w-10 h-10 rounded-full border border-gray-700 bg-dark-100 text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed hover:border-primary hover:text-primary transition-colors z-10"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setPage((prev) => Math.min(prev + 1, pageCount - 1))}
+                disabled={currentPage === pageCount - 1}
+                className="hidden md:inline-flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 items-center justify-center w-10 h-10 rounded-full border border-gray-700 bg-dark-100 text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed hover:border-primary hover:text-primary transition-colors z-10"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </>
+          ) : null}
+
           <div className="grid md:grid-cols-3 gap-3 items-start">
             {visibleProfissionais.map((item) => (
               <div key={String(item?.profissional_id || item?.nome)} className="bg-dark-100 border border-gray-800 rounded-custom p-4">
@@ -118,15 +140,15 @@ export default function AgendaUtilizacaoBlock({
                   </div>
                   <div>
                     <div className="text-gray-500">Ocupado</div>
-                    <div className="text-green-400 font-normal">{formatDuration(item?.horas_ocupadas)}</div>
-                  </div>
-                  <div>
-                    <div className="text-gray-500">Ocioso</div>
-                    <div className="text-yellow-400 font-normal">{formatDuration(item?.horas_ociosas)}</div>
+                    <div className="text-green-400 font-normal">{formatDurationFromMinutes(item?.minutos_ocupados)}</div>
                   </div>
                   <div>
                     <div className="text-gray-500">Disponível</div>
-                    <div className="text-gray-300 font-normal">{formatDuration(item?.horas_disponiveis)}</div>
+                    <div className="text-yellow-400 font-normal">{formatDurationFromMinutes(item?.minutos_ociosos)}</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500">Tempo total</div>
+                    <div className="text-gray-300 font-normal">{formatDurationFromMinutes(item?.minutos_disponiveis)}</div>
                   </div>
                   <div>
                     <div className="text-gray-500">Cancelados</div>
@@ -138,12 +160,12 @@ export default function AgendaUtilizacaoBlock({
           </div>
 
           {pageCount > 1 ? (
-            <div className="flex items-center justify-between gap-4 mt-4">
+            <div className="flex items-center justify-between md:justify-center gap-4 mt-4">
               <button
                 type="button"
                 onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
                 disabled={currentPage === 0}
-                className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-gray-700 text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed hover:border-primary hover:text-primary transition-colors"
+                className="inline-flex md:hidden items-center justify-center w-10 h-10 rounded-full border border-gray-700 text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed hover:border-primary hover:text-primary transition-colors"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
@@ -164,7 +186,7 @@ export default function AgendaUtilizacaoBlock({
                 type="button"
                 onClick={() => setPage((prev) => Math.min(prev + 1, pageCount - 1))}
                 disabled={currentPage === pageCount - 1}
-                className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-gray-700 text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed hover:border-primary hover:text-primary transition-colors"
+                className="inline-flex md:hidden items-center justify-center w-10 h-10 rounded-full border border-gray-700 text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed hover:border-primary hover:text-primary transition-colors"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
