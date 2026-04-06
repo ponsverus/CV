@@ -48,7 +48,6 @@ export default function FutureBookingsBlock({
         <MetricCard
           label="AGENDAMENTOS FUTUROS"
           value={metricsFutureBookingsLoading ? '...' : Number(data?.total_agendamentos || 0)}
-          subtle={metricsFutureBookingsLoading ? null : formatDate(data?.amanha)}
         />
         <MetricCard
           label="TICKET MÉDIO FUTURO"
