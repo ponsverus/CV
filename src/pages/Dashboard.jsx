@@ -874,6 +874,7 @@ export default function Dashboard({ user, onLogout }) {
       : ['visao-geral', 'agendamentos', 'cancelados', 'historico', 'entregas', 'profissionais'];
 
   const TAB_LABELS = { 'visao-geral': 'GERAL', 'agendamentos': 'AGENDAMENTOS', 'cancelados': 'CANCELADOS', 'historico': 'HISTÓRICO', 'entregas': tabEntregasLabel, 'profissionais': 'PROFISSIONAIS', 'info-negocio': 'INFO DO NEGÓCIO' };
+  const handleDashboardLogout = useCallback(() => onLogout(parceiroProfissional ? '/parceiro/login' : '/login'), [onLogout, parceiroProfissional]);
 
   if (bootstrapState === 'loading') return (
     <div className="min-h-screen bg-black flex items-center justify-center">
@@ -891,7 +892,7 @@ export default function Dashboard({ user, onLogout }) {
         <h1 className="text-2xl font-normal text-white mb-2">Erro ao carregar</h1>
         <p className="text-gray-400 mb-6">{error}</p>
         <button onClick={reloadFull} className="w-full px-6 py-3 bg-primary/20 border border-primary/50 text-primary rounded-button mb-3 font-normal uppercase">TENTAR NOVAMENTE</button>
-        <button onClick={onLogout} className="w-full px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-button font-normal uppercase">SAIR</button>
+        <button onClick={handleDashboardLogout} className="w-full px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-button font-normal uppercase">SAIR</button>
       </div>
     </div>
   );
@@ -939,7 +940,7 @@ export default function Dashboard({ user, onLogout }) {
                   </span>
                 </label>
               )}
-              <button onClick={onLogout} className="flex items-center gap-2 px-4 py-1.5 sm:py-2 bg-red-600 hover:bg-red-700 rounded-button text-sm font-normal uppercase">
+              <button onClick={handleDashboardLogout} className="flex items-center gap-2 px-4 py-1.5 sm:py-2 bg-red-600 hover:bg-red-700 rounded-button text-sm font-normal uppercase">
                 <LogOut className="w-4 h-4" /><span className="hidden sm:inline">SAIR</span>
               </button>
             </div>
