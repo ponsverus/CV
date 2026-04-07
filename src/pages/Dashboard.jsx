@@ -1,3 +1,4 @@
+
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -113,6 +114,7 @@ export default function Dashboard({ user, onLogout }) {
   const [historicoData, setHistoricoData]                 = useState('');
   const [faturamentoData, setFaturamentoData]             = useState('');
   const [faturamentoPeriodo, setFaturamentoPeriodo]       = useState('7d');
+  const faturamentoPeriodoRef                            = useRef('7d');
 
   const [metricsHoje, setMetricsHoje]               = useState(null);
   const [metricsDia, setMetricsDia]                 = useState(null);
@@ -225,6 +227,10 @@ export default function Dashboard({ user, onLogout }) {
     setFaturamentoData(prev => prev ? prev : hoje);
   }, [hoje]);
 
+  useEffect(() => {
+    faturamentoPeriodoRef.current = faturamentoPeriodo;
+  }, [faturamentoPeriodo]);
+
   const loadHoje = useCallback(async (negocioId, profId = null) => {
     const id = negocioId || negocio?.id; if (!id) return;
     try {
@@ -240,7 +246,7 @@ export default function Dashboard({ user, onLogout }) {
 
   const loadDia = useCallback(async (negocioId, dateISO, profId = null) => {
     const id = negocioId || negocio?.id;
-    const date = String(dateISO || faturamentoData || hoje || '');
+    const date = String(dateISO || hoje || '');
     if (!id || !date) return;
     try {
       setMetricsDiaLoading(true);
@@ -251,12 +257,12 @@ export default function Dashboard({ user, onLogout }) {
       setMetricsDia(data);
     } catch { setMetricsDia(null); }
     finally { setMetricsDiaLoading(false); }
-  }, [negocio?.id, faturamentoData, hoje]);
+  }, [negocio?.id, hoje]);
 
   const loadPeriodo = useCallback(async (negocioId, refDateISO, periodo, profId = null) => {
     const id = negocioId || negocio?.id;
     const refDate = String(refDateISO || hoje || '');
-    const per = String(periodo || faturamentoPeriodo || '7d');
+    const per = String(periodo || '7d');
     if (!id || !refDate) return;
     try {
       setMetricsPeriodoLoading(true);
@@ -267,7 +273,7 @@ export default function Dashboard({ user, onLogout }) {
       setMetricsPeriodoData(data);
     } catch { setMetricsPeriodoData(null); }
     finally { setMetricsPeriodoLoading(false); }
-  }, [negocio?.id, hoje, faturamentoPeriodo]);
+  }, [negocio?.id, hoje]);
 
   const loadUtilizacao = useCallback(async (negocioId, refDateISO, _periodo, profId = null) => {
     const id = negocioId || negocio?.id;
@@ -471,13 +477,13 @@ export default function Dashboard({ user, onLogout }) {
       if (dataHoje) {
         loadHoje(negocioData.id, profId);
         loadDia(negocioData.id, dataHoje, profId);
-        loadPeriodo(negocioData.id, dataHoje, faturamentoPeriodo, profId);
+        loadPeriodo(negocioData.id, dataHoje, faturamentoPeriodoRef.current, profId);
         loadUtilizacao(negocioData.id, dataHoje, null, profId);
         loadFutureBookings(negocioData.id, dataHoje, null, profId);
       }
     } catch (e) { setError(e?.message || 'Erro inesperado.'); }
     finally { setLoading(false); }
-  }, [user?.id, location?.state?.negocioId, serverNow?.date, hoje, faturamentoPeriodo, navigate, uiAlert, loadHoje, loadDia, loadPeriodo, loadUtilizacao, loadFutureBookings]);
+  }, [user?.id, location?.state?.negocioId, serverNow?.date, hoje, navigate, uiAlert, loadHoje, loadDia, loadPeriodo, loadUtilizacao, loadFutureBookings]);
 
   const reloadFull = useCallback(async () => {
     try {
@@ -757,8 +763,8 @@ export default function Dashboard({ user, onLogout }) {
   const confirmarAtendimento = async (a) => {
     if (!await checarPermissao(a.profissional_id)) return;
     try {
-      const { error: updErr } = await supabase.from('agendamentos').update({ status: 'concluido' }).eq('id', a.id).eq('negocio_id', negocio.id);
-      if (updErr) throw updErr;
+      const { error } = await supabase.rpc('concluir_agendamento_profissional', { p_agendamento_id: a.id });
+      if (error) throw error;
       await uiAlert('dashboard.booking_confirmed', 'success');
       await reloadAgendamentos(); loadHoje(negocio.id, parceiroProfissional?.id ?? null);
     } catch { await uiAlert('dashboard.booking_confirm_error', 'error'); }
