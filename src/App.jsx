@@ -84,6 +84,17 @@ function RecoveryWatcher({ onChange }) {
   return null;
 }
 
+function LogoutRedirectResetter({ redirectPath, onClear }) {
+  const loc = useLocation();
+
+  useEffect(() => {
+    if (!redirectPath) return;
+    if (loc.pathname === redirectPath) onClear();
+  }, [loc.pathname, redirectPath, onClear]);
+
+  return null;
+}
+
 export default function App() {
   const [user,             setUser]             = useState(null);
   const [userType,         setUserType]         = useState(null);
@@ -93,6 +104,7 @@ export default function App() {
   const [typeLoading,      setTypeLoading]      = useState(false);
   const [fatalError,       setFatalError]       = useState(null);
   const [inRecovery,       setInRecovery]       = useState(false);
+  const [postLogoutRedirect, setPostLogoutRedirect] = useState(null);
 
   const aliveRef        = useRef(true);
   const loadedUserRef   = useRef(null);
@@ -221,10 +233,12 @@ export default function App() {
     );
     setAccessState(nextAccessState);
     setFatalError(null);
+    setPostLogoutRedirect(null);
   }, []);
 
-  const handleLogout = useCallback(async () => {
+  const handleLogout = useCallback(async (redirectTo = '/login') => {
     loadedUserRef.current = null;
+    setPostLogoutRedirect(redirectTo);
     try {
       await supabase.auth.signOut();
     } finally {
@@ -275,6 +289,7 @@ export default function App() {
     <Router>
       <FeedbackProvider>
         <RecoveryWatcher onChange={setInRecovery} />
+        <LogoutRedirectResetter redirectPath={postLogoutRedirect} onClear={() => setPostLogoutRedirect(null)} />
         <ScrollToTopOnRouteChange />
 
         <Suspense fallback={<FullScreenLoading />}>
@@ -307,7 +322,7 @@ export default function App() {
                 : userType === 'professional' && accessState === 'partner_pending'
                   ? <PartnerPendingApproval onLogout={handleLogout} />
                   : <Navigate to={getPostLoginPath(userType, accessState, onboardingStatus)} />
-              ) : <Navigate to="/login" />
+              ) : <Navigate to={postLogoutRedirect || "/login"} />
             } />
 
             <Route path="/cadastro" element={
@@ -348,8 +363,8 @@ export default function App() {
                       ? <Navigate to="/parceiro/aguardando" />
                       : <Dashboard user={user} onLogout={handleLogout} />
                 : userType ? <Navigate to="/minha-area" />
-                : <Navigate to="/login" />
-              ) : <Navigate to="/login" />
+                : <Navigate to={postLogoutRedirect || "/login"} />
+              ) : <Navigate to={postLogoutRedirect || "/login"} />
             } />
 
             <Route path="/minha-area" element={
@@ -373,8 +388,8 @@ export default function App() {
                       ? <Navigate to="/parceiro/aguardando" />
                       : <CriarNegocio user={user} />
                 : userType ? <Navigate to="/minha-area" />
-                : <Navigate to="/login" />
-              ) : <Navigate to="/login" />
+                : <Navigate to={postLogoutRedirect || "/login"} />
+              ) : <Navigate to={postLogoutRedirect || "/login"} />
             } />
 
             <Route path="/selecionar-negocio" element={
@@ -387,8 +402,8 @@ export default function App() {
                       ? <Navigate to="/parceiro/aguardando" />
                       : <SelecionarNegocio user={user} onLogout={handleLogout} />
                 : userType ? <Navigate to="/minha-area" />
-                : <Navigate to="/login" />
-              ) : <Navigate to="/login" />
+                : <Navigate to={postLogoutRedirect || "/login"} />
+              ) : <Navigate to={postLogoutRedirect || "/login"} />
             } />
           </Routes>
         </Suspense>
