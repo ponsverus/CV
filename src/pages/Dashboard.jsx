@@ -905,7 +905,6 @@ export default function Dashboard({ user, onLogout }) {
             <div className="mb-2 flex items-center gap-2">
               <span style={{ fontFamily: 'Roboto Condensed, sans-serif' }} className="text-green-400 font-normal text-3xl leading-none">$</span>
               <span className="text-sm text-gray-500">FATURAMENTO HOJE</span>
-              {metricsHojeLoading ? <span className="text-[11px] uppercase tracking-wide text-gray-500">atualizando</span> : null}
             </div>
             <div className="text-3xl font-normal text-white mb-1">R$ {Number(metricsHoje?.today?.faturamento || 0).toFixed(2)}</div>
           </div>
