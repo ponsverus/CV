@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -903,8 +902,12 @@ export default function Dashboard({ user, onLogout }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 items-start">
           <div className="bg-gradient-to-br from-green-500/20 to-emerald-600/20 border border-green-500/30 rounded-custom p-6">
-            <div className="mb-2 flex items-center gap-2"><span style={{ fontFamily: 'Roboto Condensed, sans-serif' }} className="text-green-400 font-normal text-3xl leading-none">$</span><span className="text-sm text-gray-500">FATURAMENTO HOJE</span></div>
-            <div className="text-3xl font-normal text-white mb-1">{metricsHojeLoading ? <span className="text-gray-500 text-xl">...</span> : <>R$ {Number(metricsHoje?.today?.faturamento || 0).toFixed(2)}</>}</div>
+            <div className="mb-2 flex items-center gap-2">
+              <span style={{ fontFamily: 'Roboto Condensed, sans-serif' }} className="text-green-400 font-normal text-3xl leading-none">$</span>
+              <span className="text-sm text-gray-500">FATURAMENTO HOJE</span>
+              {metricsHojeLoading ? <span className="text-[11px] uppercase tracking-wide text-gray-500">atualizando</span> : null}
+            </div>
+            <div className="text-3xl font-normal text-white mb-1">R$ {Number(metricsHoje?.today?.faturamento || 0).toFixed(2)}</div>
           </div>
           <div className="bg-dark-100 border border-gray-800 rounded-custom p-6"><Calendar className="w-8 h-8 text-blue-400 mb-2" /><div className="text-3xl font-normal text-white mb-1">{hojeValidos.length}</div><div className="text-sm text-gray-400">AGENDAMENTOS HOJE</div></div>
           <div className="bg-dark-100 border border-gray-800 rounded-custom p-6"><Users className="w-8 h-8 text-purple-400 mb-2" /><div className="text-3xl font-normal text-white mb-1">{profissionais.length}</div><div className="text-sm text-gray-400">PROFISSIONAIS</div></div>
