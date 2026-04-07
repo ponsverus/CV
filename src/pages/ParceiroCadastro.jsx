@@ -62,6 +62,12 @@ export default function ParceiroCadastro({ suppressAuthRef }) {
       const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({
         email: emailClean,
         password: senha,
+        options: {
+          data: {
+            nome: nomeClean,
+            type: 'professional',
+          },
+        },
       });
 
       if (signUpErr) {
@@ -89,9 +95,9 @@ export default function ParceiroCadastro({ suppressAuthRef }) {
       }
 
       for (let i = 0; i < 6; i++) {
-        const { data } = await supabase.from('users').select('id, type').eq('id', uid).maybeSingle();
+        const { data } = await supabase.from('users').select('id').eq('id', uid).maybeSingle();
         if (data?.id) {
-          await supabase.from('users').update({ nome: nomeClean, type: 'professional' }).eq('id', uid);
+          await supabase.from('users').update({ nome: nomeClean }).eq('id', uid);
           break;
         }
         await sleep(400);
