@@ -1,3 +1,4 @@
+
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -18,7 +19,6 @@ import EntregasSection from './dashboard/sections/EntregasSection';
 import ProfissionaisSection from './dashboard/sections/ProfissionaisSection';
 import InfoNegocioSection from './dashboard/sections/InfoNegocioSection';
 import {
-  AG_PAGE_SIZE,
   NOW_RPC_SEQUENCE,
   SUPORTE_HREF,
   WEEKDAYS,
@@ -35,40 +35,10 @@ import {
   toNumberOrNull,
   toUpperClean,
 } from './dashboard/utils';
-
-
-function getPublicUrl(bucket, path) {
-  if (!bucket || !path) return null;
-  try {
-    const stripped = path.replace(new RegExp(`^${bucket}/`), '');
-    const { data } = supabase.storage.from(bucket).getPublicUrl(stripped);
-    return data?.publicUrl || null;
-  } catch { return null; }
-}
-
-function normalizeAgRow(a) {
-  return {
-    ...a,
-    data: a?.data ?? null,
-    horario_inicio: a?.horario_inicio ?? null,
-    horario_fim: a?.horario_fim ?? null,
-    entregas: {
-      nome: a?.entrega_nome ?? null,
-      preco: a?.entrega_preco ?? null,
-      preco_promocional: a?.entrega_promo ?? null,
-    },
-    profissionais: {
-      id: a?.prof_id ?? null,
-      nome: a?.prof_nome ?? null,
-    },
-    cliente: {
-      id: a?.cliente_id_ref ?? null,
-      nome: a?.cliente_nome ?? null,
-      avatar_path: a?.cliente_avatar ?? null,
-      type: a?.cliente_type ?? null,
-    },
-  };
-}
+import { getPublicUrl } from './dashboard/api/dashboardApi';
+import { useDashboardBootstrap } from './dashboard/hooks/useDashboardBootstrap';
+import { useDashboardHistorico } from './dashboard/hooks/useDashboardHistorico';
+import { useDashboardMetrics } from './dashboard/hooks/useDashboardMetrics';
 
 export default function Dashboard({ user, onLogout }) {
   const navigate = useNavigate();
@@ -79,17 +49,38 @@ export default function Dashboard({ user, onLogout }) {
   const uiConfirm = useCallback(async (key, variant = 'warning') => { if (feedback?.confirm) return !!(await feedback.confirm(key, { variant })); return false; }, [feedback]);
   const uiPrompt  = useCallback(async (key, opts = {}) => { if (feedback?.prompt) return await feedback.prompt(key, opts); return null; }, [feedback]);
 
-  const [parceiroProfissional, setParceiroProfissional] = useState(null);
   const [activeTab, setActiveTab] = useState('agendamentos');
-  const [negocio, setNegocio]             = useState(null);
-  const [profissionais, setProfissionais] = useState([]);
-  const [entregas, setEntregas]           = useState([]);
-  const [agendamentos, setAgendamentos]   = useState([]);
-  const [bootstrapState, setBootstrapState] = useState('loading');
-  const [error, setError]                 = useState(null);
-  const [serverNow, setServerNow]         = useState(() => ({ ts: null, dow: 0, date: '', source: 'db', minutes: 0 }));
-  const [hoje, setHoje]                   = useState(() => '');
-  const loadDataRunRef                    = useRef(0);
+  const {
+    parceiroProfissional,
+    setParceiroProfissional,
+    negocio,
+    setNegocio,
+    profissionais,
+    setProfissionais,
+    entregas,
+    setEntregas,
+    agendamentos,
+    setAgendamentos,
+    galeriaItems,
+    setGaleriaItems,
+    ownerBusinessCount,
+    bootstrapState,
+    error,
+    serverNow,
+    hoje,
+    reloadNegocio,
+    reloadProfissionais,
+    reloadEntregas,
+    reloadAgendamentos,
+    reloadGaleria,
+    reloadFull,
+  } = useDashboardBootstrap({
+    userId: user?.id,
+    locationNegocioId: location?.state?.negocioId || null,
+    navigate,
+    rpcSequence: NOW_RPC_SEQUENCE,
+    uiAlert,
+  });
   const souDono = negocio?.owner_id === user?.id;
   const parceiroProfissionalId = parceiroProfissional?.id ?? null;
   const acessoDashboardAutorizado = souDono || !!parceiroProfissional;
@@ -107,25 +98,31 @@ export default function Dashboard({ user, onLogout }) {
 
   const agProfIds = useMemo(() => profissionais.map(p => p.id), [profissionais]);
 
-  const [historicoAgendamentos, setHistoricoAgendamentos] = useState([]);
-  const [historicoPage, setHistoricoPage]                 = useState(0);
-  const [historicoHasMore, setHistoricoHasMore]           = useState(false);
-  const [historicoLoadingMore, setHistoricoLoadingMore]   = useState(false);
-  const [historicoData, setHistoricoData]                 = useState('');
   const [faturamentoData, setFaturamentoData]             = useState('');
   const [faturamentoPeriodo, setFaturamentoPeriodo]       = useState('7d');
-  const faturamentoPeriodoRef                            = useRef('7d');
-
-  const [metricsHoje, setMetricsHoje]               = useState(null);
-  const [metricsDia, setMetricsDia]                 = useState(null);
-  const [metricsPeriodoData, setMetricsPeriodoData] = useState(null);
-  const [metricsUtilizacao, setMetricsUtilizacao]   = useState(null);
-  const [metricsFutureBookings, setMetricsFutureBookings] = useState(null);
-  const [metricsHojeLoading, setMetricsHojeLoading]       = useState(false);
-  const [metricsDiaLoading, setMetricsDiaLoading]         = useState(false);
-  const [metricsPeriodoLoading, setMetricsPeriodoLoading] = useState(false);
-  const [metricsUtilizacaoLoading, setMetricsUtilizacaoLoading] = useState(false);
-  const [metricsFutureBookingsLoading, setMetricsFutureBookingsLoading] = useState(false);
+  const {
+    metricsHoje,
+    metricsDia,
+    metricsPeriodoData,
+    metricsUtilizacao,
+    metricsFutureBookings,
+    metricsHojeLoading,
+    metricsDiaLoading,
+    metricsPeriodoLoading,
+    metricsUtilizacaoLoading,
+    metricsFutureBookingsLoading,
+    loadHoje,
+    loadDia,
+    loadPeriodo,
+    loadUtilizacao,
+    loadFutureBookings,
+  } = useDashboardMetrics({
+    negocioId: negocio?.id,
+    hoje,
+    faturamentoData,
+    faturamentoPeriodo,
+    parceiroProfissionalId,
+  });
 
   const [showNovaEntrega, setShowNovaEntrega]       = useState(false);
   const [submittingEntrega, setSubmittingEntrega]   = useState(false);
@@ -136,7 +133,6 @@ export default function Dashboard({ user, onLogout }) {
 
   const [infoSaving, setInfoSaving]             = useState(false);
   const [galleryUploading, setGalleryUploading] = useState(false);
-  const [galeriaItems, setGaleriaItems]         = useState([]);
   const [formInfo, setFormInfo] = useState({ nome: '', descricao: '', telefone: '', endereco: '', instagram: '', facebook: '', tema: 'dark' });
   const [temaSaving, setTemaSaving]             = useState(false);
 
@@ -147,7 +143,6 @@ export default function Dashboard({ user, onLogout }) {
 
   const [notifAgendamentos, setNotifAgendamentos] = useState(0);
   const [notifCancelados, setNotifCancelados]     = useState(0);
-  const [ownerBusinessCount, setOwnerBusinessCount] = useState(0);
 
   const [showEditProfissional, setShowEditProfissional]       = useState(false);
   const [editingProfissionalId, setEditingProfissionalId]     = useState(null);
@@ -158,6 +153,18 @@ export default function Dashboard({ user, onLogout }) {
 
 
   useEffect(() => { setNovoEmail(user?.email || ''); }, [user?.email]);
+  useEffect(() => {
+    if (!negocio) return;
+    setFormInfo({
+      nome: negocio.nome || '',
+      descricao: negocio.descricao || '',
+      telefone: negocio.telefone || '',
+      endereco: negocio.endereco || '',
+      instagram: negocio.instagram || '',
+      facebook: negocio.facebook || '',
+      tema: negocio.tema || 'dark',
+    });
+  }, [negocio]);
 
   const businessGroup    = useMemo(() => getBusinessGroup(negocio?.tipo_negocio), [negocio?.tipo_negocio]);
 
@@ -174,142 +181,28 @@ export default function Dashboard({ user, onLogout }) {
     profissionais.some(p => p.user_id === user?.id),
   [profissionais, user?.id]);
 
-  const fetchNowFromDb = useCallback(async () => {
-    let lastErr = null;
-
-    for (const rpcName of NOW_RPC_SEQUENCE) {
-      for (let attempt = 0; attempt < 2; attempt++) {
-        const { data, error: rpcErr } = await supabase.rpc(rpcName);
-
-        if (rpcErr) {
-          lastErr = rpcErr;
-          continue;
-        }
-
-        const payload = data?.[0] ?? data;
-        if (!payload || !payload.date) {
-          lastErr = new Error(`${rpcName} vazio`);
-          continue;
-        }
-
-        const normalizedPayload = {
-          ...payload,
-          source: payload?.source || rpcName,
-        };
-
-        setServerNow(normalizedPayload);
-        setHoje(String(normalizedPayload.date));
-        return String(normalizedPayload.date);
-      }
-    }
-
-    throw lastErr || new Error('Falha ao obter data oficial do banco');
-  }, []);
-
-  const reloadAgendamentos = useCallback(async (negocioId, profIds, dataHoje) => {
-    const id = negocioId || negocio?.id; const ids = profIds || agProfIds; const dh = dataHoje || hoje; if (!id || !ids?.length || !dh) return;
-    const { data, error: err } = await supabase.rpc('get_agendamentos_negocio', {
-      p_negocio_id: id,
-      p_profissional_ids: ids,
-      p_data_inicio: dh,
-    });
-    if (err) return;
-    setAgendamentos((data || []).map(normalizeAgRow));
-  }, [negocio?.id, agProfIds, hoje]);
-
   const reloadAgendamentosRef = useRef(reloadAgendamentos);
   useEffect(() => { reloadAgendamentosRef.current = reloadAgendamentos; }, [reloadAgendamentos]);
 
   const agProfIdsKey = useMemo(() => profissionais.map(p => p.id).sort().join(','), [profissionais]);
+  const {
+    historicoAgendamentos,
+    historicoHasMore,
+    historicoLoadingMore,
+    historicoData,
+    setHistoricoData,
+    loadMoreHistorico,
+  } = useDashboardHistorico({
+    negocioId: negocio?.id,
+    hoje,
+    agProfIds,
+    parceiroProfissionalId,
+    parceiroProfissional,
+  });
 
   useEffect(() => {
-    setHistoricoData(prev => prev ? prev : hoje);
     setFaturamentoData(prev => prev ? prev : hoje);
   }, [hoje]);
-
-  useEffect(() => {
-    faturamentoPeriodoRef.current = faturamentoPeriodo;
-  }, [faturamentoPeriodo]);
-
-  const loadHoje = useCallback(async (negocioId, profId = null) => {
-    const id = negocioId || negocio?.id; if (!id) return;
-    try {
-      setMetricsHojeLoading(true);
-      const params = { p_negocio_id: id };
-      if (profId) params.p_profissional_id = profId;
-      const { data, error } = await supabase.rpc('get_dashboard_today', params);
-      if (error) throw error;
-      setMetricsHoje(data);
-    } catch { setMetricsHoje(null); }
-    finally { setMetricsHojeLoading(false); }
-  }, [negocio?.id]);
-
-  const loadDia = useCallback(async (negocioId, dateISO, profId = null) => {
-    const id = negocioId || negocio?.id;
-    const date = String(dateISO || hoje || '');
-    if (!id || !date) return;
-    try {
-      setMetricsDiaLoading(true);
-      const params = { p_negocio_id: id, p_date: date };
-      if (profId) params.p_profissional_id = profId;
-      const { data, error } = await supabase.rpc('get_dashboard_day', params);
-      if (error) throw error;
-      setMetricsDia(data);
-    } catch { setMetricsDia(null); }
-    finally { setMetricsDiaLoading(false); }
-  }, [negocio?.id, hoje]);
-
-  const loadPeriodo = useCallback(async (negocioId, refDateISO, periodo, profId = null) => {
-    const id = negocioId || negocio?.id;
-    const refDate = String(refDateISO || hoje || '');
-    const per = String(periodo || '7d');
-    if (!id || !refDate) return;
-    try {
-      setMetricsPeriodoLoading(true);
-      const params = { p_negocio_id: id, p_ref_date: refDate, p_periodo: per };
-      if (profId) params.p_profissional_id = profId;
-      const { data, error } = await supabase.rpc('get_dashboard_period', params);
-      if (error) throw error;
-      setMetricsPeriodoData(data);
-    } catch { setMetricsPeriodoData(null); }
-    finally { setMetricsPeriodoLoading(false); }
-  }, [negocio?.id, hoje]);
-
-  const loadUtilizacao = useCallback(async (negocioId, refDateISO, _periodo, profId = null) => {
-    const id = negocioId || negocio?.id;
-    const refDate = String(refDateISO || hoje || '');
-    if (!id || !refDate) return;
-    try {
-      setMetricsUtilizacaoLoading(true);
-      const params = { p_negocio_id: id, p_ref_date: refDate, p_periodo: 'amanha' };
-      if (profId) params.p_profissional_id = profId;
-      const { data, error } = await supabase.rpc('get_dashboard_utilizacao', params);
-      if (error) throw error;
-      setMetricsUtilizacao(data);
-    } catch { setMetricsUtilizacao(null); }
-    finally { setMetricsUtilizacaoLoading(false); }
-  }, [negocio?.id, hoje]);
-
-  const loadFutureBookings = useCallback(async (negocioId, refDateISO, _periodo, profId = null) => {
-    const id = negocioId || negocio?.id;
-    const refDate = String(refDateISO || hoje || '');
-    if (!id || !refDate) return;
-    try {
-      setMetricsFutureBookingsLoading(true);
-      const params = { p_negocio_id: id, p_ref_date: refDate, p_periodo: 'amanha' };
-      if (profId) params.p_profissional_id = profId;
-      const { data, error } = await supabase.rpc('get_dashboard_future_bookings', params);
-      if (error) throw error;
-      setMetricsFutureBookings(data);
-    } catch { setMetricsFutureBookings(null); }
-    finally { setMetricsFutureBookingsLoading(false); }
-  }, [negocio?.id, hoje]);
-
-  useEffect(() => { if (!negocio?.id || !hoje) return; loadHoje(negocio.id, parceiroProfissionalId); }, [negocio?.id, hoje, parceiroProfissionalId, loadHoje]);
-  useEffect(() => { if (!negocio?.id || !faturamentoData) return; loadDia(negocio.id, faturamentoData, parceiroProfissionalId); }, [negocio?.id, faturamentoData, parceiroProfissionalId, loadDia]);
-  useEffect(() => { if (!negocio?.id || !hoje) return; loadPeriodo(negocio.id, hoje, faturamentoPeriodo, parceiroProfissionalId); }, [negocio?.id, hoje, faturamentoPeriodo, parceiroProfissionalId, loadPeriodo]);
-  useEffect(() => { if (!negocio?.id || !hoje) return; loadUtilizacao(negocio.id, hoje, null, parceiroProfissionalId); }, [negocio?.id, hoje, parceiroProfissionalId, loadUtilizacao]);
-  useEffect(() => { if (!negocio?.id || !hoje) return; loadFutureBookings(negocio.id, hoje, null, parceiroProfissionalId); }, [negocio?.id, hoje, parceiroProfissionalId, loadFutureBookings]);
 
   useEffect(() => {
     if (!negocio?.id || !agProfIdsKey || !hoje) return;
@@ -327,227 +220,11 @@ export default function Dashboard({ user, onLogout }) {
         }
         reloadAgendamentosRef.current();
         loadHoje(negocio.id, parceiroProfissionalId);
-        loadUtilizacao(negocio.id, hoje, null, parceiroProfissionalId);
-        loadFutureBookings(negocio.id, hoje, null, parceiroProfissionalId);
+        loadUtilizacao(negocio.id, hoje, parceiroProfissionalId);
+        loadFutureBookings(negocio.id, hoje, parceiroProfissionalId);
       }).subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [negocio?.id, agProfIdsKey, hoje, parceiroProfissionalId, loadHoje, loadUtilizacao, loadFutureBookings]);
-
-  const fetchHistoricoPage = useCallback(async ({ negocioId, profIds, date, page, append }) => {
-    const { data, error: qErr } = await supabase.rpc('get_agendamentos_negocio', {
-      p_negocio_id: negocioId,
-      p_profissional_ids: profIds,
-      p_data_inicio: date,
-      p_data_fim: date,
-      p_limit: AG_PAGE_SIZE,
-      p_offset: page * AG_PAGE_SIZE,
-    });
-    if (qErr) throw qErr;
-    const rows = (data || []).map(normalizeAgRow);
-    setHistoricoAgendamentos(prev => { const next = append ? [...prev, ...rows] : rows; const seen = new Set(); return next.filter(a => seen.has(a.id) ? false : (seen.add(a.id), true)); });
-    setHistoricoHasMore(rows.length === AG_PAGE_SIZE);
-  }, []);
-
-  useEffect(() => {
-    if (!agProfIds?.length || !historicoData) return;
-    const ids = parceiroProfissionalId ? [parceiroProfissionalId] : agProfIds;
-    setHistoricoPage(0); setHistoricoHasMore(false); setHistoricoAgendamentos([]);
-    fetchHistoricoPage({ negocioId: negocio?.id, profIds: ids, date: historicoData, page: 0, append: false });
-  }, [historicoData, agProfIds, parceiroProfissionalId, fetchHistoricoPage, negocio?.id]);
-
-  const loadMoreHistorico = async () => {
-    if (historicoLoadingMore || !historicoHasMore || !negocio?.id || !agProfIds?.length) return;
-    const ids = parceiroProfissional ? [parceiroProfissional.id] : agProfIds;
-    try {
-      setHistoricoLoadingMore(true);
-      const nextPage = historicoPage + 1;
-      await fetchHistoricoPage({ negocioId: negocio.id, profIds: ids, date: historicoData, page: nextPage, append: true });
-      setHistoricoPage(nextPage);
-    } catch { } finally { setHistoricoLoadingMore(false); }
-  };
-
-  const reloadNegocio = useCallback(async () => {
-    if (!negocio?.id) return;
-    const { data, error: err } = await supabase.from('negocios').select('*').eq('id', negocio.id).maybeSingle();
-    if (err || !data) return;
-    setNegocio(data);
-    setFormInfo({ nome: data.nome || '', descricao: data.descricao || '', telefone: data.telefone || '', endereco: data.endereco || '', instagram: data.instagram || '', facebook: data.facebook || '', tema: data.tema || 'dark' });
-  }, [negocio?.id]);
-
-  const reloadProfissionais = useCallback(async (negocioId, negocioOwnerId = negocio?.owner_id) => {
-    const id = negocioId || negocio?.id; if (!id) return;
-    const { data, error: err } = await supabase.rpc('get_profissionais_com_status', { p_negocio_id: id });
-    if (err) return;
-    const profs = data || [];
-    const ownerContext = (negocioOwnerId === user?.id);
-    const scopedProfs = ownerContext ? profs : profs.filter((p) => p.user_id === user?.id);
-    setProfissionais(scopedProfs);
-    setParceiroProfissional(ownerContext ? null : (scopedProfs[0] || null));
-    return scopedProfs;
-  }, [negocio?.id, negocio?.owner_id, user?.id]);
-
-  const reloadEntregas = useCallback(async (negocioId, profIds) => {
-    const id = negocioId || negocio?.id; const ids = profIds || agProfIds; if (!id || !ids?.length) return;
-    const { data, error: err } = await supabase.from('entregas').select('*, profissionais (id, nome)').eq('negocio_id', id).in('profissional_id', ids).order('created_at', { ascending: false });
-    if (err) return; setEntregas(data || []);
-  }, [negocio?.id, agProfIds]);
-
-  const reloadGaleria = useCallback(async (negocioId) => {
-    const id = negocioId || negocio?.id; if (!id) return;
-    const { data } = await supabase.from('galerias').select('id, path, ordem').eq('negocio_id', id).order('ordem', { ascending: true }).order('created_at', { ascending: true });
-    setGaleriaItems(data || []);
-  }, [negocio?.id]);
-
-  const loadData = useCallback(async (dataRef) => {
-    if (!user?.id) { setError('Sessao invalida. Faca login novamente.'); setBootstrapState('error'); return; }
-    const runId = ++loadDataRunRef.current;
-    const isCurrentRun = () => loadDataRunRef.current === runId;
-    setBootstrapState('loading');
-    setError(null);
-    setParceiroProfissional(null);
-    setNegocio(null);
-    setProfissionais([]);
-    setEntregas([]);
-    setAgendamentos([]);
-    try {
-      const negocioIdFromState = location?.state?.negocioId || null;
-      const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-      const { count: ownerCount, error: ownerCountErr } = await supabase
-        .from('negocios')
-        .select('id', { count: 'exact', head: true })
-        .eq('owner_id', user.id);
-      if (ownerCountErr) throw ownerCountErr;
-      const totalOwnerBusinesses = Number(ownerCount || 0);
-      if (!isCurrentRun()) return;
-      setOwnerBusinessCount(totalOwnerBusinesses);
-
-      const resolveNegocioData = async () => {
-        if (negocioIdFromState) {
-          const { data, error } = await supabase.from('negocios').select('*').eq('id', negocioIdFromState).maybeSingle();
-          if (error) throw error;
-          return data || null;
-        }
-
-        if (totalOwnerBusinesses > 0) {
-          if (totalOwnerBusinesses > 1) {
-            navigate('/selecionar-negocio', { replace: true });
-            return '__redirect__';
-          }
-          const { data, error } = await supabase.from('negocios').select('*').eq('owner_id', user.id).maybeSingle();
-          if (error) throw error;
-          return data || null;
-        }
-
-        const { data: vinculos, error: vinculosErr } = await supabase
-          .from('profissionais')
-          .select('negocio_id')
-          .eq('user_id', user.id)
-          .eq('status', 'ativo');
-        if (vinculosErr) throw vinculosErr;
-
-        const negocioIds = [...new Set((vinculos || []).map(v => v.negocio_id).filter(Boolean))];
-        if (negocioIds.length > 1) {
-          navigate('/selecionar-negocio', { replace: true });
-          return '__redirect__';
-        }
-        if (negocioIds.length === 1) {
-          const { data, error } = await supabase.from('negocios').select('*').eq('id', negocioIds[0]).maybeSingle();
-          if (error) throw error;
-          return data || null;
-        }
-
-        return null;
-      };
-
-      let negocioData = null;
-      for (const delay of [0, 120, 320]) {
-        if (delay) await wait(delay);
-        negocioData = await resolveNegocioData();
-        if (negocioData === '__redirect__') return;
-        if (negocioData) break;
-      }
-
-      if (!isCurrentRun()) return;
-      if (!negocioData) {
-        setError('Nenhum negocio cadastrado.');
-        setBootstrapState('error');
-        return;
-      }
-      setNegocio(negocioData);
-      setFormInfo({ nome: negocioData.nome || '', descricao: negocioData.descricao || '', telefone: negocioData.telefone || '', endereco: negocioData.endereco || '', instagram: negocioData.instagram || '', facebook: negocioData.facebook || '', tema: negocioData.tema || 'dark' });
-      const [galeriaResult, profissionaisResult] = await Promise.all([
-        supabase.from('galerias').select('id, path, ordem').eq('negocio_id', negocioData.id).order('ordem', { ascending: true }).order('created_at', { ascending: true }),
-        supabase.rpc('get_profissionais_com_status', { p_negocio_id: negocioData.id })
-      ]);
-      if (!isCurrentRun()) return;
-      if (galeriaResult.error) {
-        await uiAlert('dashboard.gallery_load_warning', 'warning');
-      }
-      setGaleriaItems(galeriaResult.data || []);
-      if (profissionaisResult.error) throw profissionaisResult.error;
-      const profs = profissionaisResult.data || [];
-      const souDonoDoNegocio = negocioData.owner_id === user.id;
-      const meuProfissional = souDonoDoNegocio ? null : (profs.find(p => p.user_id === user.id) || null);
-      if (!souDonoDoNegocio && !meuProfissional) {
-        setNegocio(null); setParceiroProfissional(null); setProfissionais([]); setEntregas([]); setAgendamentos([]); setGaleriaItems([]);
-        setError('Você não tem acesso a este negócio.');
-        setBootstrapState('error');
-        return;
-      }
-      const profsEscopo = souDonoDoNegocio ? profs : profs.filter((p) => p.id === meuProfissional?.id);
-      setParceiroProfissional(meuProfissional);
-      setProfissionais(profsEscopo);
-      const profId = meuProfissional?.id ?? null;
-      if (profsEscopo.length === 0) { setEntregas([]); setAgendamentos([]); setBootstrapState('ready'); return; }
-      const ids = profsEscopo.map(p => p.id);
-      const dataHoje = (typeof dataRef === 'string' && dataRef) ? dataRef : String(serverNow?.date || hoje || '');
-      const [entregasResult, agendamentosResult] = await Promise.all([
-        supabase.from('entregas').select('*, profissionais (id, nome)').eq('negocio_id', negocioData.id).in('profissional_id', ids).order('created_at', { ascending: false }),
-        dataHoje
-          ? supabase.rpc('get_agendamentos_negocio', {
-              p_negocio_id: negocioData.id,
-              p_profissional_ids: ids,
-              p_data_inicio: dataHoje,
-            })
-          : Promise.resolve({ data: [], error: null })
-      ]);
-      if (!isCurrentRun()) return;
-      if (entregasResult.error) throw entregasResult.error;
-      setEntregas(entregasResult.data || []);
-      if (agendamentosResult.error) throw agendamentosResult.error;
-      setAgendamentos((agendamentosResult.data || []).map(normalizeAgRow));
-      setBootstrapState('ready');
-    } catch (e) {
-      setError(e?.message || 'Erro inesperado.');
-      setBootstrapState('error');
-    }
-  }, [user?.id, location?.state?.negocioId, serverNow?.date, hoje, navigate, uiAlert]);
-
-  const reloadFull = useCallback(async () => {
-    try {
-      const d = await fetchNowFromDb();
-      await loadData(d);
-    } catch {
-      await loadData('');
-    }
-  }, [fetchNowFromDb, loadData]);
-
-  useEffect(() => {
-    let active = true;
-
-    if (!user?.id) return () => { active = false; };
-
-    (async () => {
-      try {
-        const d = await fetchNowFromDb();
-        if (active) await loadData(d);
-      } catch {
-        if (active) await loadData('');
-      }
-    })();
-
-    return () => { active = false; };
-  }, [user?.id, fetchNowFromDb, loadData]);
 
   const cadastrarAdminComoProfissional = async () => {
     if (!negocio?.id || !user?.id || submittingAdminProf) return;
