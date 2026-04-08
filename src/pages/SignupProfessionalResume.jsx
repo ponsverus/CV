@@ -4,8 +4,6 @@ import { Award, ArrowLeft, MapPin } from 'lucide-react';
 import { supabase } from '../supabase';
 import { useFeedback } from '../feedback/useFeedback';
 
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-
 function onlyTrim(v) {
   return String(v || '').trim();
 }
@@ -166,48 +164,32 @@ export default function SignupProfessionalResume({ user, onLogin }) {
         estado: formData.estado,
       });
 
-      let fnData = null;
-      let fnError = null;
+      const { data, error } = await supabase.rpc('resume_professional_onboarding', {
+        p_nome_usuario: nome,
+        p_nome_negocio: nomeNegocio,
+        p_slug: slug,
+        p_descricao: descricao,
+        p_telefone: telefone,
+        p_endereco: enderecoUnico,
+        p_tipo_negocio: tipoNegocio,
+        p_nome_prof: nome,
+        p_profissao: tipoNegocio,
+        p_anos_experiencia: anosExperiencia,
+      });
 
-      for (let attempt = 0; attempt < 3; attempt++) {
-        const { data, error } = await supabase.functions.invoke('signup-professional', {
-          body: {
-            nome_usuario: nome,
-            nome_negocio: nomeNegocio,
-            slug,
-            descricao,
-            telefone,
-            endereco: enderecoUnico,
-            tipo_negocio: tipoNegocio,
-            nome_prof: nome,
-            profissao: tipoNegocio,
-            horario_inicio: '08:00',
-            horario_fim: '18:00',
-            dias_trabalho: [1, 2, 3, 4, 5, 6],
-          },
-        });
-
-        fnData = data;
-        fnError = error;
-
-        if (!error) break;
-        if (error?.context?.status !== 404) break;
-
-        const payload = await error.context?.json?.().catch(() => null);
-        if (payload?.error !== 'usuario_nao_encontrado') break;
-        if (attempt < 2) await sleep(1000);
-      }
-
-      if (fnError) {
-        const payload = await fnError.context?.json?.().catch(() => null);
-        const code = payload?.error || '';
+      if (error) {
+        const code = String(error.message || '').split(':')[0].trim();
 
         if (code === 'slug_indisponivel') {
           showMessage('signupProfessional.business_slug_taken');
           return;
         }
-        if (code === 'usuario_nao_encontrado') {
+        if (code === 'usuario_nao_encontrado' || code === 'negocio_nao_encontrado' || code === 'profissional_nao_encontrado') {
           showMessage('signupProfessional.profile_not_created');
+          return;
+        }
+        if (code === 'slug_invalido') {
+          showMessage('signupProfessional.business_slug_invalid');
           return;
         }
         if (code === 'horario_invalido' || code === 'dias_trabalho_invalidos') {
@@ -215,25 +197,15 @@ export default function SignupProfessionalResume({ user, onLogin }) {
           return;
         }
 
-        console.error('signup-professional resume edge error:', fnError, payload);
+        console.error('resume_professional_onboarding error:', error);
         showMessage('signupProfessional.business_create_error');
         return;
       }
 
-      if (!fnData?.profissional_id) {
-        console.error('signup-professional resume incomplete payload:', fnData);
+      if (!data?.profissional_id) {
+        console.error('resume_professional_onboarding incomplete payload:', data);
         showMessage('signupProfessional.business_create_error');
         return;
-      }
-
-      const { error: expErr } = await supabase
-        .from('profissionais')
-        .update({ anos_experiencia: anosExperiencia })
-        .eq('id', fnData.profissional_id)
-        .eq('user_id', user.id);
-
-      if (expErr) {
-        console.error('signup-professional resume experience update error:', expErr);
       }
 
       onLogin(user, 'professional', 'completed');
