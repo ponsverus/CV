@@ -20,21 +20,39 @@ export default function SelecionarNegocio({ user, onLogout }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user?.id) return;
+    let active = true;
+
+    if (!user?.id) {
+      setLoading(false);
+      return () => { active = false; };
+    }
+
     supabase
       .from('negocios')
       .select('id, nome, slug, logo_path, tipo_negocio, endereco')
       .eq('owner_id', user.id)
       .order('created_at', { ascending: true })
       .then(({ data, error }) => {
+        if (!active) return;
         if (!error) setNegocios(data || []);
         setLoading(false);
       });
+
+    return () => {
+      active = false;
+    };
   }, [user?.id]);
 
   useEffect(() => {
-    if (!loading && negocios.length === 1) {
+    if (loading) return;
+
+    if (negocios.length === 1) {
       navigate('/dashboard', { state: { negocioId: negocios[0].id }, replace: true });
+      return;
+    }
+
+    if (negocios.length === 0) {
+      navigate('/dashboard', { replace: true });
     }
   }, [loading, negocios, navigate]);
 
@@ -42,28 +60,12 @@ export default function SelecionarNegocio({ user, onLogout }) {
     navigate('/dashboard', { state: { negocioId }, replace: true });
   };
 
-  if (loading) {
+  if (loading || negocios.length === 0) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <div className="text-primary text-xl">CARREGANDO...</div>
-        </div>
-      </div>
-    );
-  }
-
-  if (negocios.length === 0) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center p-4">
-        <div className="text-center">
-          <p className="text-gray-400 mb-6">Nenhum negócio encontrado.</p>
-          <button
-            onClick={() => navigate('/criar-negocio')}
-            className="px-6 py-3 bg-primary/20 border border-primary/50 text-primary rounded-button font-normal uppercase"
-          >
-            CRIAR NEGÓCIO
-          </button>
         </div>
       </div>
     );
@@ -82,8 +84,8 @@ export default function SelecionarNegocio({ user, onLogout }) {
         </div>
 
         <div className="text-center mb-10">
-          <h1 className="text-3xl font-normal mb-2 tracking-wide">Qual negócio?</h1>
-          <p className="text-gray-500 text-sm font-normal">Selecione o negócio que deseja gerenciar</p>
+          <h1 className="text-3xl font-normal mb-2 tracking-wide">Qual negocio?</h1>
+          <p className="text-gray-500 text-sm font-normal">Selecione o negocio que deseja gerenciar</p>
         </div>
 
         <div className="space-y-3 mb-6">
@@ -115,7 +117,7 @@ export default function SelecionarNegocio({ user, onLogout }) {
                   )}
                 </div>
                 <div className="text-gray-600 group-hover:text-primary transition-colors shrink-0">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6"/></svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6" /></svg>
                 </div>
               </button>
             );
@@ -128,7 +130,7 @@ export default function SelecionarNegocio({ user, onLogout }) {
           className="w-full flex items-center justify-center gap-2 py-3 rounded-full border border-primary/40 bg-primary/10 text-primary text-sm font-normal uppercase tracking-normal hover:border-primary/70 hover:bg-primary/20 transition-all"
         >
           <Plus className="w-4 h-4" />
-          CRIAR OUTRO NEGÓCIO
+          CRIAR OUTRO NEGOCIO
         </button>
 
         <div className="mt-8 text-center">
