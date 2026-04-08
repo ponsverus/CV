@@ -1,5 +1,11 @@
 import { supabase } from '../../../supabase';
 
+function isAdminRemovedProfessional(row) {
+  return row?.status === 'inativo'
+    && row?.motivo_inativo === 'excluido_admin'
+    && !row?.user_id;
+}
+
 export function getPublicUrl(bucket, path) {
   if (!bucket || !path) return null;
   try {
@@ -97,9 +103,10 @@ export async function fetchOwnerNegocio(ownerId) {
 export async function fetchPartnerNegocioIds(userId) {
   const { data, error } = await supabase
     .from('profissionais')
-    .select('negocio_id')
+    .select('negocio_id, created_at')
     .eq('user_id', userId)
-    .eq('status', 'ativo');
+    .eq('status', 'ativo')
+    .order('created_at', { ascending: false });
 
   if (error) throw error;
   return [...new Set((data || []).map((item) => item.negocio_id).filter(Boolean))];
@@ -119,7 +126,13 @@ export async function fetchGaleria(negocioId) {
 export async function fetchProfissionaisComStatus(negocioId) {
   const { data, error } = await supabase.rpc('get_profissionais_com_status', { p_negocio_id: negocioId });
   if (error) throw error;
-  return data || [];
+  return (data || []).filter((row) => !isAdminRemovedProfessional(row));
+}
+
+export async function removeProfissionalSeguramente(profissionalId) {
+  const { data, error } = await supabase.rpc('remove_profissional_seguro', { p_profissional_id: profissionalId });
+  if (error) throw error;
+  return data;
 }
 
 export async function fetchEntregas(negocioId, profissionalIds) {
