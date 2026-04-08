@@ -50,14 +50,20 @@ export default function ParceiroCadastro({ suppressAuthRef }) {
     if (suppressAuthRef) suppressAuthRef.current = true;
 
     try {
-      const { data: negocio, error: negErr } = await supabase
-        .from('negocios')
-        .select('id, nome')
-        .eq('slug', slugClean)
-        .maybeSingle();
+      const { data: signupStatus, error: signupStatusErr } = await supabase.rpc('get_partner_signup_status', {
+        p_slug: slugClean,
+        p_email: emailClean,
+      });
 
-      if (negErr) throw negErr;
-      if (!negocio) return setAlerta(msgs.negocio_not_found);
+      if (signupStatusErr) throw signupStatusErr;
+      if (signupStatus?.status === 'negocio_not_found') return setAlerta(msgs.negocio_not_found);
+      if (signupStatus?.status === 'pendente') return setAlerta(msgs.already_pending);
+      if (signupStatus?.status === 'ativo') return setAlerta(msgs.already_active);
+      if (signupStatus?.status === 'inativo') return setAlerta(msgs.access_inactive);
+      if (signupStatus?.status === 'email_exists') return setAlerta(msgs.email_already_exists);
+      if (signupStatus?.status !== 'available' || !signupStatus?.negocio_id) {
+        throw new Error(msgs.unexpected_error.body);
+      }
 
       const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({
         email: emailClean,
@@ -80,20 +86,6 @@ export default function ParceiroCadastro({ suppressAuthRef }) {
       const uid = signUpData?.user?.id;
       if (!uid) throw new Error(msgs.account_create_error.body);
 
-      const { data: profExiste } = await supabase
-        .from('profissionais')
-        .select('id, status')
-        .eq('negocio_id', negocio.id)
-        .eq('user_id', uid)
-        .maybeSingle();
-
-      if (profExiste) {
-        await supabase.auth.signOut();
-        if (profExiste.status === 'pendente') return setAlerta(msgs.already_pending);
-        if (profExiste.status === 'ativo')    return setAlerta(msgs.already_active);
-        if (profExiste.status === 'inativo')  return setAlerta(msgs.access_inactive);
-      }
-
       for (let i = 0; i < 6; i++) {
         const { data } = await supabase.from('users').select('id').eq('id', uid).maybeSingle();
         if (data?.id) {
@@ -104,7 +96,7 @@ export default function ParceiroCadastro({ suppressAuthRef }) {
       }
 
       const { error: profErr } = await supabase.from('profissionais').insert({
-        negocio_id:     negocio.id,
+        negocio_id:     signupStatus.negocio_id,
         user_id:        uid,
         nome:           nomeClean,
         status:         'pendente',
@@ -113,7 +105,20 @@ export default function ParceiroCadastro({ suppressAuthRef }) {
         dias_trabalho:  [1, 2, 3, 4, 5, 6],
       });
 
-      if (profErr) throw profErr;
+      if (profErr) {
+        await supabase.auth.signOut();
+
+        const { data: retryStatus } = await supabase.rpc('get_partner_signup_status', {
+          p_slug: slugClean,
+          p_email: emailClean,
+        });
+
+        if (retryStatus?.status === 'pendente') return setAlerta(msgs.already_pending);
+        if (retryStatus?.status === 'ativo') return setAlerta(msgs.already_active);
+        if (retryStatus?.status === 'inativo') return setAlerta(msgs.access_inactive);
+
+        throw profErr;
+      }
 
       await supabase.auth.signOut();
       setShowAlert(true);
