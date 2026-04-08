@@ -17,9 +17,16 @@ import { ptBR } from '../feedback/messages/ptBR';
 import { getBusinessGroup } from '../businessTerms';
 import BookingCalendar from '../components/BookingCalendar';
 import negocioVerificadoIcon from '../assets/icons/negocio-verificado.png';
+import BookingConfirmedModal from './vitrine/components/BookingConfirmedModal';
+import DepoimentoModal from './vitrine/components/DepoimentoModal';
 import { getPublicUrl } from './vitrine/api/vitrineApi';
 import { useVitrineBootstrap } from './vitrine/hooks/useVitrineBootstrap';
 import { useVitrineInteractions } from './vitrine/hooks/useVitrineInteractions';
+import VitrineGallerySection from './vitrine/sections/VitrineGallerySection';
+import VitrineProfessionalsSection from './vitrine/sections/VitrineProfessionalsSection';
+import VitrineDepoimentosSection from './vitrine/sections/VitrineDepoimentosSection';
+import VitrineEntregasSection from './vitrine/sections/VitrineEntregasSection';
+import VitrineTopSection from './vitrine/sections/VitrineTopSection';
 
 const SERVICOS_POR_PAGINA = 4;
 const DEPOIMENTOS_POR_PAGINA = 10;
@@ -135,42 +142,12 @@ function gerarArquivoICS({ titulo, dataISO, inicioHHMM, duracaoMin, detalhes, lo
   };
 }
 
-function FacebookIcon({ className = '', size = 16 }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
-      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-    </svg>
-  );
-}
-
-function InstagramIcon({ className = '', size = 16 }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
-      <rect x="3" y="3" width="18" height="18" rx="5" ry="5" />
-      <path d="M16.5 7.5h.01" />
-      <circle cx="12" cy="12" r="4" />
-    </svg>
-  );
-}
-
-function HeartIcon({ filled = false, className = '', size = 20 }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
-      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-    </svg>
-  );
-}
-
-function StarChar({ size = 18, className = '' }) {
-  return <span className={className || 'text-primary'} style={{ fontSize: size, lineHeight: 1 }} aria-hidden="true">â˜…</span>;
-}
-
 function Stars5Char({ value = 0, size = 14 }) {
   const v = Math.max(0, Math.min(5, Number(value || 0)));
   return (
     <div className="flex items-center gap-1" aria-label={`Nota ${v} de 5`}>
       {[1, 2, 3, 4, 5].map(i => (
-        <span key={i} style={{ fontSize: size, lineHeight: 1 }} className={i <= v ? 'text-primary' : 'text-gray-300'} aria-hidden="true">â˜…</span>
+        <span key={i} style={{ fontSize: size, lineHeight: 1 }} className={i <= v ? 'text-primary' : 'text-gray-300'} aria-hidden="true">★</span>
       ))}
     </div>
   );
@@ -277,9 +254,9 @@ function SelectionBar({ itens, counterSingular, counterPlural, onConfirm, onClea
           <div className="w-8 h-8 rounded-full bg-vprimary flex items-center justify-center text-vprimary-text text-xs font-normal shrink-0" style={{ fontVariantNumeric: 'tabular-nums' }}>{qtd}</div>
           <div className="min-w-0">
             <div className={`text-sm font-normal truncate ${textMain}`}>{qtd} {label} selecionado{qtd > 1 ? 's' : ''}</div>
-            <div className={`text-xs font-normal ${textSub}`}>{durTotal} min â€¢ R$ {valTotal.toFixed(2)}</div>
+            <div className={`text-xs font-normal ${textSub}`}>{durTotal} min • R$ {valTotal.toFixed(2)}</div>
           </div>
-          <button onClick={onClear} className={`shrink-0 ml-1 ${clearBtn}`} title="Limpar seleÃ§Ã£o"><X className="w-4 h-4" /></button>
+          <button onClick={onClear} className={`shrink-0 ml-1 ${clearBtn}`} title="Limpar seleção"><X className="w-4 h-4" /></button>
         </div>
         <button onClick={onConfirm} className="shrink-0 flex items-center gap-2 px-5 py-2.5 bg-vprimary text-vprimary-text rounded-full text-sm font-normal uppercase whitespace-nowrap transition-opacity hover:opacity-80">
           <Calendar className="w-4 h-4" />Escolher data<ChevronRight className="w-4 h-4" />
@@ -413,7 +390,7 @@ function ServicosCarousel({ lista, profissional, selecaoProfId, servicosSelecion
       {totalPaginas > 1 && (
         <div className="flex items-center justify-center gap-3 mt-4">
           <button onClick={() => irPara(pagina - 1)} disabled={pagina === 0} className={`p-1.5 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${navBtnCl}`}><ChevronLeft className="w-4 h-4" /></button>
-          {Array.from({ length: totalPaginas }).map((_, i) => (<button key={i} onClick={() => irPara(i)} className={['rounded-full transition-all duration-300', i === pagina ? 'w-4 h-2 bg-vprimary' : `w-2 h-2 ${dotInactive}`].join(' ')} aria-label={`PÃ¡gina ${i + 1}`} />))}
+          {Array.from({ length: totalPaginas }).map((_, i) => (<button key={i} onClick={() => irPara(i)} className={['rounded-full transition-all duration-300', i === pagina ? 'w-4 h-2 bg-vprimary' : `w-2 h-2 ${dotInactive}`].join(' ')} aria-label={`Página ${i + 1}`} />))}
           <button onClick={() => irPara(pagina + 1)} disabled={pagina === totalPaginas - 1} className={`p-1.5 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${navBtnCl}`}><ChevronRight className="w-4 h-4" /></button>
         </div>
       )}
@@ -461,7 +438,7 @@ function DepoimentosPaginados({ depoimentos, nomeNegocioLabel, isLight }) {
       {totalPaginas > 1 && (
         <div className="flex items-center justify-center gap-3 mt-6">
           <button onClick={() => setPagina(p => Math.max(0, p - 1))} disabled={pagina === 0} className={`p-1.5 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${navBtnCl}`}><ChevronLeft className="w-4 h-4" /></button>
-          {Array.from({ length: totalPaginas }).map((_, i) => (<button key={i} onClick={() => setPagina(i)} className={['rounded-full transition-all duration-300', i === pagina ? 'w-4 h-2 bg-vprimary' : `w-2 h-2 ${dotInact}`].join(' ')} aria-label={`PÃ¡gina ${i + 1}`} />))}
+          {Array.from({ length: totalPaginas }).map((_, i) => (<button key={i} onClick={() => setPagina(i)} className={['rounded-full transition-all duration-300', i === pagina ? 'w-4 h-2 bg-vprimary' : `w-2 h-2 ${dotInact}`].join(' ')} aria-label={`Página ${i + 1}`} />))}
           <button onClick={() => setPagina(p => Math.min(totalPaginas - 1, p + 1))} disabled={pagina === totalPaginas - 1} className={`p-1.5 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${navBtnCl}`}><ChevronRight className="w-4 h-4" /></button>
         </div>
       )}
@@ -496,10 +473,10 @@ export default function Vitrine({ user, userType }) {
 
   const businessGroup   = useMemo(() => getBusinessGroup(negocio?.tipo_negocio), [negocio?.tipo_negocio]);
   const bizV            = vitrineMsgs?.business || {};
-  const sectionTitle    = bizV?.section_title?.[businessGroup]  ?? 'ServiÃ§os';
-  const counterSingular = ptBR?.vitrine?.business?.counter_singular?.[businessGroup] ?? 'serviÃ§o';
-  const counterPlural   = ptBR?.vitrine?.business?.counter_plural?.[businessGroup]   ?? 'serviÃ§os';
-  const emptyListMsg    = ptBR?.vitrine?.business?.empty_list?.[businessGroup]       ?? 'Sem serviÃ§os para este profissional.';
+  const sectionTitle    = bizV?.section_title?.[businessGroup]  ?? 'Serviços';
+  const counterSingular = ptBR?.vitrine?.business?.counter_singular?.[businessGroup] ?? 'serviço';
+  const counterPlural   = ptBR?.vitrine?.business?.counter_plural?.[businessGroup]   ?? 'serviços';
+  const emptyListMsg    = ptBR?.vitrine?.business?.empty_list?.[businessGroup]       ?? 'Sem serviços para este profissional.';
 
   const [nativeAlertOpen,   setNativeAlertOpen]   = useState(false);
   const [nativeAlertData,   setNativeAlertData]   = useState({ title: '', body: '', buttonText: 'OK' });
@@ -609,25 +586,25 @@ export default function Vitrine({ user, userType }) {
   }, [calendarExport.icsUrl, location.pathname, location.state, loading, negocio?.id, profissionais, entregas, navigate]);
 
   const toggleFavorito = async () => {
-    if (!user) { alertKey('favorite_need_login', 'Login necessÃ¡rio', 'FaÃ§a login para favoritar.', 'ENTENDI'); return; }
-    if (userType !== 'client') { alertKey('favorite_only_client', 'AÃ§Ã£o restrita', 'Apenas CLIENTE pode favoritar negÃ³cios.', 'ENTENDI'); return; }
-    if (!negocio?.id) { alertKey('favorite_invalid_business', 'NegÃ³cio invÃ¡lido', 'NegÃ³cio invÃ¡lido.', 'ENTENDI'); return; }
+    if (!user) { alertKey('favorite_need_login', 'Login necessário', 'Faça login para favoritar.', 'ENTENDI'); return; }
+    if (userType !== 'client') { alertKey('favorite_only_client', 'Ação restrita', 'Apenas CLIENTE pode favoritar negócios.', 'ENTENDI'); return; }
+    if (!negocio?.id) { alertKey('favorite_invalid_business', 'Negócio inválido', 'Negócio inválido.', 'ENTENDI'); return; }
     try { await toggleFavoritoState(); }
     catch { alertKey('favorite_toggle_error', 'Erro', 'Erro ao favoritar. Tente novamente.', 'OK'); }
   };
 
   const requireLogin = async () => {
     if (!user) {
-      const ok = await confirmKey('schedule_need_login_confirm', 'Login necessÃ¡rio', 'VocÃª precisa fazer login para agendar. Deseja fazer login agora?', 'IR PARA LOGIN', 'MAIS TARDE');
+      const ok = await confirmKey('schedule_need_login_confirm', 'Login necessário', 'Você precisa fazer login para agendar. Deseja fazer login agora?', 'IR PARA LOGIN', 'MAIS TARDE');
       if (ok) navigate('/login');
       return false;
     }
-    if (userType !== 'client') { alertKey('schedule_only_client', 'AÃ§Ã£o restrita', 'VocÃª estÃ¡ logado como PROFISSIONAL. Para agendar, entre como CLIENTE.', 'ENTENDI'); return false; }
+    if (userType !== 'client') { alertKey('schedule_only_client', 'Ação restrita', 'Você está logado como PROFISSIONAL. Para agendar, entre como CLIENTE.', 'ENTENDI'); return false; }
     if (!todayISO) {
       try {
         await fetchNowFromDb();
       } catch {
-        alertKey('schedule_time_unavailable', 'HorÃ¡rio oficial indisponÃ­vel', 'Ainda estamos sincronizando o horÃ¡rio oficial. Tente novamente em instantes.', 'ENTENDI');
+        alertKey('schedule_time_unavailable', 'Horário oficial indisponível', 'Ainda estamos sincronizando o horário oficial. Tente novamente em instantes.', 'ENTENDI');
         return false;
       }
     }
@@ -689,7 +666,7 @@ export default function Vitrine({ user, userType }) {
     const detalhes = [
       'Agendamento confirmado pelo Comvaga.',
       flow.profissional?.nome ? `Profissional: ${flow.profissional.nome}` : '',
-      serviceNames.length ? `ServiÃ§os: ${serviceNames.join(', ')}` : '',
+      serviceNames.length ? `Serviços: ${serviceNames.join(', ')}` : '',
     ].filter(Boolean).join('\n');
     const local = negocio?.endereco || nomeNegocioLabel || '';
     const googleUrl = gerarLinkGoogle({
@@ -739,25 +716,25 @@ export default function Vitrine({ user, userType }) {
   const calendarActionConfig = useMemo(() => {
     if (calendarPlatformMode === 'google-with-fallback') {
       return {
-        hint: 'Abrir no Google Agenda. Se nÃ£o abrir no seu celular, baixe o evento.',
+        hint: 'Abrir no Google Agenda. Se não abrir no seu celular, baixe o evento.',
         primaryLabel: 'ABRIR NO GOOGLE AGENDA',
         primaryAction: abrirGoogleAgenda,
-        secondaryLabel: 'SE NÃƒO ABRIR, BAIXAR EVENTO (.ICS)',
+        secondaryLabel: 'SE NÃO ABRIR, BAIXAR EVENTO (.ICS)',
         secondaryAction: baixarEventoICS,
       };
     }
     if (calendarPlatformMode === 'ics') {
       return {
-        hint: 'Baixar evento compatÃ­vel com CalendÃ¡rio do iPhone, Mac e Outlook.',
-        primaryLabel: 'BAIXAR EVENTO DO CALENDÃRIO',
+        hint: 'Baixar evento compatível com Calendário do iPhone, Mac e Outlook.',
+        primaryLabel: 'BAIXAR EVENTO DO CALENDÁRIO',
         primaryAction: baixarEventoICS,
         secondaryLabel: '',
         secondaryAction: null,
       };
     }
     return {
-      hint: 'Baixar evento compatÃ­vel com os principais aplicativos de calendÃ¡rio.',
-      primaryLabel: 'BAIXAR EVENTO DO CALENDÃRIO',
+      hint: 'Baixar evento compatível com os principais aplicativos de calendário.',
+      primaryLabel: 'BAIXAR EVENTO DO CALENDÁRIO',
       primaryAction: baixarEventoICS,
       secondaryLabel: '',
       secondaryAction: null,
@@ -766,17 +743,17 @@ export default function Vitrine({ user, userType }) {
 
   const abrirDepoimento = async () => {
     if (!user) {
-      const ok = await confirmKey('review_need_login_confirm', 'Login necessÃ¡rio', 'VocÃª precisa fazer login para deixar um depoimento. Deseja fazer login agora?', 'IR PARA LOGIN', 'MAIS TARDE');
+      const ok = await confirmKey('review_need_login_confirm', 'Login necessário', 'Você precisa fazer login para deixar um depoimento. Deseja fazer login agora?', 'IR PARA LOGIN', 'MAIS TARDE');
       if (ok) navigate('/login');
       return;
     }
-    if (userType !== 'client') { alertKey('review_only_client', 'AÃ§Ã£o restrita', 'Apenas CLIENTE pode deixar depoimentos.', 'ENTENDI'); return; }
+    if (userType !== 'client') { alertKey('review_only_client', 'Ação restrita', 'Apenas CLIENTE pode deixar depoimentos.', 'ENTENDI'); return; }
     setDepoimentoNota(5); setDepoimentoTexto(''); setDepoimentoTipo('negocio'); setDepoimentoProfissionalId(null); setShowDepoimento(true);
   };
 
   const enviarDepoimento = async () => {
     if (!user || userType !== 'client') return;
-    if (!negocio?.id) { alertKey('review_invalid_business', 'NegÃ³cio invÃ¡lido', 'NegÃ³cio invÃ¡lido.', 'ENTENDI'); return; }
+    if (!negocio?.id) { alertKey('review_invalid_business', 'Negócio inválido', 'Negócio inválido.', 'ENTENDI'); return; }
     try {
       const ok = await enviarDepoimentoState();
       if (!ok) return;
@@ -813,7 +790,7 @@ export default function Vitrine({ user, userType }) {
     const trabalhaHoje = hojeDow == null ? true : diasEfetivos.includes(hojeDow);
     const dentroHorario = serverNow.minutes >= ini && serverNow.minutes < fim;
     if (!(trabalhaHoje && dentroHorario)) return { label: 'FECHADO', color: 'bg-red-500' };
-    if (isInLunchNow(p)) return { label: 'ALMOÃ‡O', color: 'bg-yellow-400' };
+    if (isInLunchNow(p)) return { label: 'ALMOÇO', color: 'bg-yellow-400' };
     return { label: 'ABERTO', color: 'bg-green-500' };
   };
 
@@ -837,11 +814,11 @@ export default function Vitrine({ user, userType }) {
 
   if (loading) return (<div className="min-h-screen bg-black flex items-center justify-center"><div className="text-primary text-2xl font-normal animate-pulse">CARREGANDO...</div></div>);
   if (error)   return (<div className="min-h-screen bg-black flex items-center justify-center p-4"><div className="max-w-md w-full bg-dark-100 border border-red-500/40 rounded-custom p-8 text-center"><AlertCircle className="w-14 h-14 text-red-400 mx-auto mb-4" /><h1 className="text-2xl font-normal text-white mb-2">Houve um erro ao carregar</h1><p className="text-gray-400 mb-6">{error}</p><button onClick={loadVitrine} className="w-full px-6 py-3 bg-primary/20 border border-primary/50 text-primary rounded-button font-normal uppercase">Tentar novamente</button></div></div>);
-  if (!negocio) return (<div className="min-h-screen bg-black flex items-center justify-center p-4"><div className="text-center"><h1 className="text-3xl font-normal text-white mb-4">NegÃ³cio inexistente.</h1><Link to="/" className="text-primary hover:text-yellow-500 font-normal">Voltar para Home</Link></div></div>);
+  if (!negocio) return (<div className="min-h-screen bg-black flex items-center justify-center p-4"><div className="text-center"><h1 className="text-3xl font-normal text-white mb-4">Negócio inexistente.</h1><Link to="/" className="text-primary hover:text-yellow-500 font-normal">Voltar para Home</Link></div></div>);
 
   const depoimentosNegocio = depoimentos.filter(d => d.tipo === 'negocio');
   const mediaDepoimentos = depoimentosNegocio.length > 0 ? (depoimentosNegocio.reduce((sum, d) => sum + d.nota, 0) / depoimentosNegocio.length).toFixed(1) : '0.0';
-  const nomeNegocioLabel = String(negocio?.nome || '').trim() || 'NEGÃ“CIO';
+  const nomeNegocioLabel = String(negocio?.nome || '').trim() || 'NEGÓCIO';
   const temaAtivo = negocio?.tema || 'dark';
   const isLight   = temaAtivo === 'light';
   const hasSelecao = servicosSelecionados.length > 0;
@@ -879,161 +856,15 @@ export default function Vitrine({ user, userType }) {
     <div className={`min-h-screen bg-vbg text-vtext${isLight ? ' vitrine-light' : ''}`} style={hasSelecao ? { paddingBottom: 72 } : undefined}>
       <AlertModal  open={nativeAlertOpen}   onClose={closeAlert} title={nativeAlertData.title} body={nativeAlertData.body} buttonText={nativeAlertData.buttonText} isLight={isLight} />
       <ConfirmModal open={nativeConfirmOpen} onCancel={() => closeConfirm(false)} onConfirm={() => closeConfirm(true)} title={nativeConfirmData.title} body={nativeConfirmData.body} confirmText={nativeConfirmData.confirmText} cancelText={nativeConfirmData.cancelText} isLight={isLight} />
+      <VitrineTopSection navigate={navigate} abrirDepoimento={abrirDepoimento} toggleFavorito={toggleFavorito} isProfessional={isProfessional} depoimentoBtn={depoimentoBtn} favoritoBtn={favoritoBtn} isFavorito={isFavorito} headerVoltar={headerVoltar} heroBg={heroBg} negocio={negocio} logoUrl={logoUrl} negocioVerificadoIcon={negocioVerificadoIcon} mediaDepoimentos={mediaDepoimentos} mediaColor={mediaColor} addrClass={addrClass} telClass={telClass} socialIconCl={socialIconCl} instagramUrl={instagramUrl} facebookUrl={facebookUrl} sanitizeTel={sanitizeTel} />
 
-      <div className="bg-primary overflow-hidden relative h-10 flex items-center">
-        <div className="announcement-bar-marquee flex whitespace-nowrap">
-          <div className="flex animate-marquee-sync">
-            <div className="flex items-center shrink-0">{[...Array(20)].map((_, i) => (<div key={`a-${i}`} className="flex items-center"><span className="text-black font-normal text-sm uppercase mx-4">Ã‰ DE MINAS</span><span className="text-black text-sm">â—</span></div>))}</div>
-            <div className="flex items-center shrink-0" aria-hidden="true">{[...Array(20)].map((_, i) => (<div key={`b-${i}`} className="flex items-center"><span className="text-black font-normal text-sm uppercase mx-4">Ã‰ DE MINAS</span><span className="text-black text-sm">â—</span></div>))}</div>
-          </div>
-        </div>
-        <style>{`@keyframes marquee-sync{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}.animate-marquee-sync{display:flex;animation:marquee-sync 40s linear infinite}.announcement-bar-marquee:hover .animate-marquee-sync{animation-play-state:paused}@media(prefers-reduced-motion:reduce){.animate-marquee-sync{animation:none}}`}</style>
-      </div>
+      <VitrineProfessionalsSection profissionais={profissionais} entregasPorProf={entregasPorProf} depoimentosPorProf={depoimentosPorProf} getProfStatus={getProfStatus} getAlmocoRange={getAlmocoRange} counterSingular={counterSingular} counterPlural={counterPlural} profissaoTag={profissaoTag} mediaColor={mediaColor} almocoBadge={almocoBadge} />
 
-      <header className="bg-vcard border-b border-vborder sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <button onClick={() => navigate(-1)} className={`flex items-center gap-2 transition-colors uppercase ${headerVoltar}`}><ArrowLeft className="w-5 h-5" /><span className="hidden sm:inline">Voltar</span></button>
-            <div className="flex items-center gap-2">
-              <button onClick={abrirDepoimento} disabled={!!isProfessional} className={`flex items-center gap-2 h-9 px-5 rounded-button transition-all border uppercase focus:outline-none focus:ring-0 ${depoimentoBtn}`}>
-                <StarChar size={18} className="text-primary" /><span className="hidden sm:inline">Depoimento</span>
-              </button>
-              <button onClick={toggleFavorito} disabled={!!isProfessional} className={`h-9 flex items-center gap-2 px-5 rounded-button transition-all uppercase border focus:outline-none focus:ring-0 ${favoritoBtn}`}>
-                <HeartIcon filled={isFavorito} size={20} className={isFavorito ? 'text-red-500' : ''} />
-                <span className="hidden sm:inline">{isProfessional ? 'Somente Cliente' : (isFavorito ? 'Favoritado' : 'Favoritar')}</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <VitrineEntregasSection profissionais={profissionais} entregasPorProf={entregasPorProf} sectionTitle={sectionTitle} emptyListMsg={emptyListMsg} counterSingular={counterSingular} counterPlural={counterPlural} getPrecoFinalServico={getPrecoFinalServico} ServicosCarousel={ServicosCarousel} selecaoProfId={selecaoProfId} servicosSelecionados={servicosSelecionados} isProfessional={isProfessional} handleAgendarAgora={handleAgendarAgora} handleToggleSelecao={handleToggleSelecao} isLight={isLight} />
 
-      <section className={`relative py-12 sm:py-16 px-4 sm:px-6 lg:px-8 ${heroBg}`}>
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col sm:flex-row items-start gap-6">
-            {logoUrl
-              ? (<div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border border-vborder bg-vcard"><img src={logoUrl} alt="Logo" className="w-full h-full object-cover" /></div>)
-              : (<div className="w-20 h-20 sm:w-24 sm:h-24 bg-vprimary rounded-custom flex items-center justify-center text-4xl sm:text-5xl font-normal text-vprimary-text">{negocio.nome?.[0] || 'N'}</div>)
-            }
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-3">
-                <h1 className="text-3xl sm:text-4xl md:text-5xl font-normal">{negocio.nome}</h1>
-                <img src={negocioVerificadoIcon} alt="NegÃ³cio verificado" className="w-6 h-6 sm:w-7 sm:h-7 shrink-0" />
-              </div>
-              <p className="text-base sm:text-lg text-vsub mb-4 font-normal">{negocio.descricao}</p>
-              <div className="flex flex-wrap items-center gap-4 sm:gap-6">
-                <div className="flex items-center gap-2"><StarChar size={18} className="text-primary" /><span className={`text-xl font-normal ${mediaColor}`}>{mediaDepoimentos}</span></div>
-                {negocio.endereco && (<div className={`flex items-center gap-2 text-sm ${addrClass}`}><MapPin className="w-4 h-4" strokeWidth={1.5} /><span className="font-normal">{negocio.endereco}</span></div>)}
-                {negocio.telefone && (<a href={`tel:${sanitizeTel(negocio.telefone) || negocio.telefone}`} className={`flex items-center gap-2 text-sm font-normal transition-colors ${telClass}`}><Phone className="w-4 h-4" strokeWidth={1.5} />{negocio.telefone}</a>)}
-                {(instagramUrl || facebookUrl) && (
-                  <div className="flex items-center gap-2">
-                    {instagramUrl && (<a href={instagramUrl} target="_blank" rel="noreferrer" aria-label="Instagram" className={`flex items-center justify-center w-9 h-9 rounded-full border transition-all ${socialIconCl}`}><InstagramIcon className="w-[18px] h-[18px]" size={18} /></a>)}
-                    {facebookUrl  && (<a href={facebookUrl}  target="_blank" rel="noreferrer" aria-label="Facebook"  className={`flex items-center justify-center w-9 h-9 rounded-full border transition-all ${socialIconCl}`}><FacebookIcon size={18} /></a>)}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <VitrineGallerySection galeriaItems={galeriaItems} />
 
-      <section className="py-12 px-4 sm:px-6 lg:px-8 bg-vcard2">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl sm:text-3xl font-normal mb-6">Profissionais</h2>
-          <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 [column-fill:_balance]">
-            {profissionais.map(prof => {
-              const totalEntregas = (entregasPorProf.get(prof.id) || []).length;
-              const status    = getProfStatus(prof);
-              const depInfo   = depoimentosPorProf.get(prof.id);
-              const profissao = String(prof?.profissao ?? '').trim();
-              const { ini: almIni, fim: almFim } = getAlmocoRange(prof);
-              const avatarUrl  = getPublicUrl('avatars', prof.avatar_path);
-              const horarioIni = String(prof.horario_inicio || '08:00').slice(0, 5);
-              const horarioFim = String(prof.horario_fim    || '18:00').slice(0, 5);
-              return (
-                <div key={prof.id} className="mb-6 break-inside-avoid bg-vcard border border-vborder rounded-custom p-6 hover:border-vprimary/50 transition-all">
-                  <div className="flex items-start gap-4 mb-4">
-                    {avatarUrl
-                      ? (<div className="w-14 h-14 rounded-custom overflow-hidden border border-vborder bg-vcard2 shrink-0"><img src={avatarUrl} alt={prof.nome} className="w-full h-full object-cover" /></div>)
-                      : (<div className="w-14 h-14 bg-vprimary rounded-custom flex items-center justify-center text-2xl font-normal text-vprimary-text shrink-0">{prof.nome?.[0] || 'P'}</div>)
-                    }
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2 mb-1">
-                        <h3 className="text-lg font-normal">{prof.nome}</h3>
-                        {profissao && (<span className={`inline-block px-2 py-1 rounded-button text-[10px] font-normal uppercase whitespace-nowrap shrink-0 border ${profissaoTag}`}>{profissao}</span>)}
-                      </div>
-                      {status?.label && (
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${status.color}`} />
-                          <span className="text-xs text-vsub font-normal uppercase">{status.label}</span>
-                        </div>
-                      )}
-                      {depInfo?.media && (<div className="flex items-center gap-2 mb-1"><StarChar size={16} className="text-primary" /><span className={`text-lg font-normal ${mediaColor}`}>{depInfo.media}</span><span className="text-xs text-vmuted">({depInfo.count})</span></div>)}
-                      {prof.anos_experiencia != null && (<p className="text-sm text-vmuted font-normal">{prof.anos_experiencia} ano(s) de experiÃªncia</p>)}
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-vcard2 border border-vborder text-xs text-vsub font-normal"><Clock className="w-3 h-3 shrink-0" />{horarioIni} - {horarioFim}</span>
-                    {almIni && almFim && (<span className="inline-flex items-center px-3 py-1 rounded-full bg-vcard2 border border-vborder text-xs text-vsub font-normal"><span className={`ml-1 ${almocoBadge}`}> â€¢ {String(almIni).slice(0, 5)} - {String(almFim).slice(0, 5)}</span></span>)}
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-vcard2 border border-vborder text-xs text-vsub font-normal">{totalEntregas} {totalEntregas === 1 ? counterSingular : counterPlural}</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-12 px-4 sm:px-6 lg:px-8 bg-vcard2">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl sm:text-3xl font-normal mb-6">{sectionTitle}</h2>
-          {profissionais.length === 0 ? (
-            <p className="text-vmuted font-normal">{emptyListMsg}</p>
-          ) : (
-            <div className="space-y-4">
-              {profissionais.map(p => {
-                const lista = (entregasPorProf.get(p.id) || []).slice().sort((a, b) => {
-                  const pa = Number(getPrecoFinalServico(a) ?? 0); const pb = Number(getPrecoFinalServico(b) ?? 0);
-                  if (pb !== pa) return pb - pa;
-                  return String(a.nome || '').localeCompare(String(b.nome || ''));
-                });
-                return (
-                  <div key={p.id} className="bg-vcard border border-vborder rounded-custom p-6 hover:border-vprimary/50 transition-all">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="font-normal text-lg">{p.nome}</div>
-                      <div className="text-xs text-vmuted font-normal">{lista.length} {lista.length === 1 ? counterSingular : counterPlural}</div>
-                    </div>
-                    <ServicosCarousel lista={lista} profissional={p} selecaoProfId={selecaoProfId} servicosSelecionados={servicosSelecionados} isProfessional={isProfessional} onAgendarAgora={handleAgendarAgora} onToggleSelecao={handleToggleSelecao} emptyMsg={emptyListMsg} isLight={isLight} />
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {galeriaItems.length > 0 && (
-        <section className="py-12 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="columns-2 sm:columns-3 lg:columns-4 gap-3 [column-fill:_balance]">
-              {galeriaItems.map((item) => {
-                const url = getPublicUrl('galerias', item.path);
-                if (!url) return null;
-                return (<div key={item.id} className="mb-3 w-full break-inside-avoid overflow-hidden rounded-custom border border-vborder bg-vcard"><img src={url} alt="Galeria" className="w-full h-auto object-contain bg-vbg" loading="lazy" /></div>);
-              })}
-            </div>
-          </div>
-        </section>
-      )}
-
-      <section className="py-12 px-4 sm:px-6 lg:px-8 bg-vcard2">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between gap-3 mb-6">
-            <h2 className="text-2xl sm:text-3xl font-normal">Depoimentos</h2>
-            <button onClick={abrirDepoimento} disabled={!!isProfessional} className={`px-5 py-2 border rounded-button text-sm transition-all uppercase font-normal ${depBtn}`}>+ Depoimento</button>
-          </div>
-          <DepoimentosPaginados depoimentos={depoimentos} nomeNegocioLabel={nomeNegocioLabel} isLight={isLight} />
-        </div>
-      </section>
+      <VitrineDepoimentosSection abrirDepoimento={abrirDepoimento} isProfessional={isProfessional} depBtn={depBtn} DepoimentosPaginados={DepoimentosPaginados} depoimentos={depoimentos} nomeNegocioLabel={nomeNegocioLabel} isLight={isLight} />
 
       <SelectionBar itens={servicosSelecionados} counterSingular={counterSingular} counterPlural={counterPlural} onConfirm={handleConfirmarSelecao} onClear={handleLimparSelecao} isLight={isLight} />
 
@@ -1041,76 +872,10 @@ export default function Vitrine({ user, userType }) {
         <BookingCalendar profissional={flow.profissional} entrega={entregaVirtual} todayISO={todayISO} negocioId={negocio.id} clienteId={user?.id} onConfirm={handleBookingConfirm} onClose={() => setFlow(prev => ({ ...prev, step: 'idle' }))} temaAtivo={temaAtivo} />
       )}
 
-      {flow.step === 'confirmado' && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className={`border rounded-custom max-w-md w-full ${confirmadoBg}`}>
-            <div className="p-8 text-center">
-              <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4"><Calendar className="w-10 h-10 text-green-500" /></div>
-              <h3 className={`text-2xl font-normal mb-2 ${confirmadoTitle}`}>AGENDADO :)</h3>
-              <p className="font-normal mb-1">
-                {flow.lastSlot?.label && <span className={`font-normal ${confirmadoHora}`}>{flow.lastSlot.label}</span>}
-                {flow.lastSlot?.dataISO && <span className={confirmadoData}> - {formatDateBR(flow.lastSlot.dataISO)}</span>}
-              </p>
-              <div className={`rounded-custom border p-4 text-left mb-6 ${isLight ? 'bg-[#f8f2eb] border-[#ccb59f]' : 'bg-white/5 border-white/10'}`}>
-                <p className={`font-normal text-sm mb-3 ${confirmadoSub}`}>Crie um lembrete no seu celular para assegurar o compromisso.</p>
-                <p className={`font-normal text-xs uppercase mb-4 ${isLight ? 'text-[#9a6c4c]' : 'text-[#c7b19c]'}`}>{calendarActionConfig.hint}</p>
-                <button onClick={calendarActionConfig.primaryAction} className={`w-full py-4 rounded-button uppercase font-normal transition-colors ${confirmadoAgBtn}`}>
-                  {calendarActionConfig.primaryLabel}
-                </button>
-                {calendarActionConfig.secondaryAction && (
-                  <button
-                    onClick={calendarActionConfig.secondaryAction}
-                    className={`w-full py-3 rounded-button uppercase font-normal mt-3 transition-colors border ${isLight ? 'border-[#c6a98d] text-[#4a2f1d] hover:bg-[#ead9c9]' : 'border-white/15 text-white hover:bg-white/8'}`}
-                  >
-                    {calendarActionConfig.secondaryLabel}
-                  </button>
-                )}
-              </div>
-              <button onClick={() => { setFlow(prev => ({ ...prev, step: 'idle' })); navigate('/minha-area'); }} className="w-full py-3 bg-transparent border border-red-500 text-red-500 rounded-button uppercase font-normal hover:bg-red-500/10 transition-colors">PREFIRO ESQUECER</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <BookingConfirmedModal open={flow.step === 'confirmado'} flow={flow} confirmadoBg={confirmadoBg} confirmadoTitle={confirmadoTitle} confirmadoHora={confirmadoHora} confirmadoData={confirmadoData} isLight={isLight} confirmadoSub={confirmadoSub} calendarActionConfig={calendarActionConfig} confirmadoAgBtn={confirmadoAgBtn} formatDateBR={formatDateBR} onClose={() => setFlow(prev => ({ ...prev, step: 'idle' }))} navigate={navigate} />
 
-      {showDepoimento && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className={`border rounded-custom max-w-md w-full max-h-[90vh] flex flex-col ${depoModalBg}`}>
-            <div className="flex justify-between items-center p-6 pb-4 shrink-0">
-              <h3 className={`text-2xl font-normal ${depoModalTitle}`}>DEPOIMENTO</h3>
-              <button onClick={() => setShowDepoimento(false)} className={depoModalClose}><X className="w-6 h-6" /></button>
-            </div>
-            <div className="overflow-y-auto px-6 pb-6 flex-1">
-              <div className="mb-4">
-                <div className={`text-sm font-normal mb-2 ${depoModalLabel}`}>VocÃª estÃ¡ deixando um depoimento sobre</div>
-                <div className="grid grid-cols-2 gap-2">
-                  <button onClick={() => { setDepoimentoTipo('negocio'); setDepoimentoProfissionalId(null); }} className={`px-4 py-3 rounded-custom border transition-all font-normal ${depoNegBtn(depoimentoTipo)}`}>{nomeNegocioLabel}</button>
-                  <button onClick={() => setDepoimentoTipo('profissional')} className={`px-4 py-3 rounded-custom border transition-all font-normal ${depoProfBtn(depoimentoTipo)}`}>PROFISSIONAL</button>
-                </div>
-              </div>
-              {depoimentoTipo === 'profissional' && (
-                <div className="mb-4">
-                  <div className={`text-sm font-normal mb-2 ${depoModalLabel}`}>Qual profissional?</div>
-                  <div className="space-y-2 max-h-40 overflow-y-auto">
-                    {profissionais.map(prof => (<button key={prof.id} onClick={() => setDepoimentoProfissionalId(prof.id)} className={`w-full text-left px-4 py-3 rounded-custom border transition-all font-normal ${depoProfItem(depoimentoProfissionalId === prof.id)}`}>{prof.nome}</button>))}
-                  </div>
-                </div>
-              )}
-              <div className="mb-4">
-                <div className={`text-sm font-normal mb-2 ${depoModalLabel}`}>Nota</div>
-                <div className="flex gap-2">{[1, 2, 3, 4, 5].map(n => (<button key={n} onClick={() => setDepoimentoNota(n)} className={`w-12 h-8 rounded-button border transition-all font-normal ${depoNotaBtn(n)}`}>{n}</button>))}</div>
-              </div>
-              <div className="mb-5">
-                <div className={`text-sm font-normal mb-2 ${depoModalLabel}`}>ComentÃ¡rio Ã© opcional</div>
-                <textarea value={depoimentoTexto} onChange={(e) => setDepoimentoTexto(e.target.value)} rows={4} className={`w-full px-4 py-3 border rounded-custom focus:outline-none resize-none font-normal ${depoTextarea}`} placeholder="Conte como foi sua experiÃªncia..." />
-              </div>
-              <button onClick={enviarDepoimento} disabled={depoimentoLoading || (depoimentoTipo === 'profissional' && !depoimentoProfissionalId)} className={`w-full py-3 rounded-button disabled:opacity-60 uppercase font-normal transition-colors ${depoSendBtn}`}>
-                {depoimentoLoading ? 'ENVIANDO...' : 'ENVIAR DEPOIMENTO'}
-              </button>
-              <p className={`text-xs mt-3 font-normal ${depoHintCl}`}>{depoimentoTipo === 'profissional' && !depoimentoProfissionalId ? 'Selecione um profissional para continuar' : 'Somente clientes logados podem deixar depoimentos.'}</p>
-            </div>
-          </div>
-        </div>
-      )}
+      <DepoimentoModal open={showDepoimento} setShowDepoimento={setShowDepoimento} depoModalBg={depoModalBg} depoModalTitle={depoModalTitle} depoModalClose={depoModalClose} depoModalLabel={depoModalLabel} depoimentoTipo={depoimentoTipo} setDepoimentoTipo={setDepoimentoTipo} setDepoimentoProfissionalId={setDepoimentoProfissionalId} depoNegBtn={depoNegBtn} nomeNegocioLabel={nomeNegocioLabel} depoProfBtn={depoProfBtn} profissionais={profissionais} depoProfItem={depoProfItem} depoimentoProfissionalId={depoimentoProfissionalId} depoNotaBtn={depoNotaBtn} setDepoimentoNota={setDepoimentoNota} depoTextarea={depoTextarea} depoimentoTexto={depoimentoTexto} setDepoimentoTexto={setDepoimentoTexto} enviarDepoimento={enviarDepoimento} depoimentoLoading={depoimentoLoading} depoSendBtn={depoSendBtn} depoHintCl={depoHintCl} />
     </div>
   );
 }
+
