@@ -38,7 +38,10 @@ export default function AgendaUtilizacaoBlock({
   metricsUtilizacaoLoading,
 }) {
   const data = metricsUtilizacao?.utilizacao || {};
-  const porProfissional = Array.isArray(data?.por_profissional) ? data.por_profissional : [];
+  const porProfissional = useMemo(
+    () => (Array.isArray(data?.por_profissional) ? data.por_profissional : []),
+    [data?.por_profissional]
+  );
   const [cardsPerPage, setCardsPerPage] = useState(3);
   const [page, setPage] = useState(0);
 
@@ -68,7 +71,7 @@ export default function AgendaUtilizacaoBlock({
     <div className="bg-dark-200 border border-gray-800 rounded-custom p-5">
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3 mb-4">
         <div>
-          <h3 className="text-lg font-normal uppercase">Manejo da Agenda</h3>
+          <h3 className="text-lg font-normal uppercase">Utilização da Agenda</h3>
         </div>
         <div className="inline-flex items-center self-start rounded-full border border-gray-700 bg-dark-100 px-3 py-1 text-xs text-gray-300">
           {formatDateDots(data?.amanha)}
@@ -77,7 +80,7 @@ export default function AgendaUtilizacaoBlock({
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-3 items-start">
         <MetricCard
-          label="TAXA DE OCUPA."
+          label="TAXA DE OCUPAÇÃO"
           tone="text-primary"
           value={metricsUtilizacaoLoading ? '...' : formatPercent(data?.taxa_ocupacao)}
         />
@@ -152,7 +155,7 @@ export default function AgendaUtilizacaoBlock({
                     <div className="text-gray-300 font-normal">{formatDurationFromMinutes(item?.minutos_disponiveis)}</div>
                   </div>
                   <div>
-                    <div className="text-gray-500">Ocupa.</div>
+                    <div className="text-gray-500">Ocupação</div>
                     <div className="text-primary font-normal">{formatPercent(item?.taxa_ocupacao)}</div>
                   </div>
                 </div>
