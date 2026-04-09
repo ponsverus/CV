@@ -1,10 +1,10 @@
 import React from 'react';
+import DepoimentosPaginados from '../components/DepoimentosPaginados';
 
 export default function VitrineDepoimentosSection({
-  abrirDepoimento,
+  onAbrirDepoimento,
   isProfessional,
   depBtn,
-  DepoimentosPaginados,
   depoimentos,
   nomeNegocioLabel,
   isLight,
@@ -14,7 +14,7 @@ export default function VitrineDepoimentosSection({
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between gap-3 mb-6">
           <h2 className="text-2xl sm:text-3xl font-normal">Depoimentos</h2>
-          <button onClick={abrirDepoimento} disabled={!!isProfessional} className={`px-5 py-2 border rounded-button text-sm transition-all uppercase font-normal ${depBtn}`}>+ Depoimento</button>
+          <button type="button" onClick={onAbrirDepoimento} disabled={!!isProfessional} className={`px-5 py-2 border rounded-button text-sm transition-all uppercase font-normal ${depBtn}`}>+ Depoimento</button>
         </div>
         <DepoimentosPaginados depoimentos={depoimentos} nomeNegocioLabel={nomeNegocioLabel} isLight={isLight} />
       </div>
