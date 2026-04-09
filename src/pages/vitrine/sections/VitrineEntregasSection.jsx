@@ -1,43 +1,40 @@
 import React from 'react';
+import EntregasCarousel from '../components/EntregasCarousel';
 
 export default function VitrineEntregasSection({
-  profissionais,
-  entregasPorProf,
+  cards,
   sectionTitle,
   emptyListMsg,
   counterSingular,
   counterPlural,
-  getPrecoFinalServico,
-  ServicosCarousel,
-  selecaoProfId,
-  servicosSelecionados,
-  isProfessional,
-  handleAgendarAgora,
-  handleToggleSelecao,
-  isLight,
+  booking,
 }) {
   return (
     <section className="py-12 px-4 sm:px-6 lg:px-8 bg-vcard2">
       <div className="max-w-7xl mx-auto">
         <h2 className="text-2xl sm:text-3xl font-normal mb-6">{sectionTitle}</h2>
-        {profissionais.length === 0 ? (
+        {cards.length === 0 ? (
           <p className="text-vmuted font-normal">{emptyListMsg}</p>
         ) : (
           <div className="space-y-4">
-            {profissionais.map((p) => {
-              const lista = (entregasPorProf.get(p.id) || []).slice().sort((a, b) => {
-                const pa = Number(getPrecoFinalServico(a) ?? 0);
-                const pb = Number(getPrecoFinalServico(b) ?? 0);
-                if (pb !== pa) return pb - pa;
-                return String(a.nome || '').localeCompare(String(b.nome || ''));
-              });
+            {cards.map((card) => {
               return (
-                <div key={p.id} className="bg-vcard border border-vborder rounded-custom p-6 hover:border-vprimary/50 transition-all">
+                <div key={card.id} className="bg-vcard border border-vborder rounded-custom p-6 hover:border-vprimary/50 transition-all">
                   <div className="flex items-center justify-between mb-4">
-                    <div className="font-normal text-lg">{p.nome}</div>
-                    <div className="text-xs text-vmuted font-normal">{lista.length} {lista.length === 1 ? counterSingular : counterPlural}</div>
+                    <div className="font-normal text-lg">{card.nome}</div>
+                    <div className="text-xs text-vmuted font-normal">{card.lista.length} {card.lista.length === 1 ? counterSingular : counterPlural}</div>
                   </div>
-                  <ServicosCarousel lista={lista} profissional={p} selecaoProfId={selecaoProfId} servicosSelecionados={servicosSelecionados} isProfessional={isProfessional} onAgendarAgora={handleAgendarAgora} onToggleSelecao={handleToggleSelecao} emptyMsg={emptyListMsg} isLight={isLight} />
+                  <EntregasCarousel
+                    lista={card.lista}
+                    profissional={card.profissional}
+                    selecaoProfId={booking.selecaoProfId}
+                    servicosSelecionados={booking.servicosSelecionados}
+                    isProfessional={booking.isProfessional}
+                    onAgendarAgora={booking.onAgendarAgora}
+                    onToggleSelecao={booking.onToggleSelecao}
+                    emptyMsg={emptyListMsg}
+                    isLight={booking.isLight}
+                  />
                 </div>
               );
             })}
