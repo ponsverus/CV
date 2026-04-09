@@ -4,6 +4,7 @@ import { normalizeKey, STATUS_COLOR_CLASS } from '../utils';
 
 export default function ProfissionaisSection({
   souDono,
+  currentUserId,
   adminJaEhProfissional,
   cadastrarAdminComoProfissional,
   submittingAdminProf,
@@ -40,6 +41,7 @@ export default function ProfissionaisSection({
           const label = normalizeKey(p.status_label);
           const dotClass = STATUS_COLOR_CLASS[label] || 'bg-gray-500';
           const isEuMesmo = parceiroProfissional?.id === p.id;
+          const isAdminOwnProfessionalCard = souDono && p.user_id && p.user_id === currentUserId;
           return (
             <div key={p.id} className={`relative bg-dark-200 border rounded-custom p-5 ${isPendente ? 'border-yellow-500/40' : isEuMesmo ? 'border-primary/30' : 'border-gray-800'}`}>
               {isPendente && (<div className="absolute top-3 right-3 text-[10px] px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 font-normal uppercase">AGUARDANDO</div>)}
@@ -80,7 +82,9 @@ export default function ProfissionaisSection({
                         <button onClick={() => toggleStatusProfissional(p)} className={`flex-1 py-2 rounded-button text-sm border font-normal uppercase ${isAtivo ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-300' : 'bg-green-500/10 border-green-500/30 text-green-300'}`}>
                           {isAtivo ? 'INATIVAR' : 'ATIVAR'}
                         </button>
-                        <button onClick={() => excluirProfissional(p)} className="flex-1 py-2 bg-red-500/10 border border-red-500/30 text-red-300 rounded-button text-sm font-normal uppercase">EXCLUIR</button>
+                        {!isAdminOwnProfessionalCard && (
+                          <button onClick={() => excluirProfissional(p)} className="flex-1 py-2 bg-red-500/10 border border-red-500/30 text-red-300 rounded-button text-sm font-normal uppercase">EXCLUIR</button>
+                        )}
                       </div>
                       <button onClick={() => { setEditingProfissionalId(p.id); setFormProfissional({ nome: p.nome || '', profissao: p.profissao || '', anos_experiencia: String(p.anos_experiencia ?? ''), horario_inicio: p.horario_inicio || '08:00', horario_fim: p.horario_fim || '18:00', almoco_inicio: p.almoco_inicio || '', almoco_fim: p.almoco_fim || '', dias_trabalho: p.dias_trabalho || [1, 2, 3, 4, 5, 6] }); setShowEditProfissional(true); }} className="w-full py-2 bg-blue-500/20 border border-blue-500/50 text-blue-400 rounded-button text-sm font-normal uppercase">EDITAR</button>
                     </div>
