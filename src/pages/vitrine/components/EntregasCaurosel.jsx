@@ -154,14 +154,36 @@ export default function EntregasCarousel({
   const [exibindo, setExibindo] = useState(0);
   const [animando, setAnimando] = useState(false);
   const touchStartX = useRef(null);
+  const animationTimeoutRef = useRef(null);
   const totalPaginas = Math.ceil(lista.length / ENTREGAS_POR_PAGINA);
 
   useEffect(() => {
+    if (animationTimeoutRef.current) {
+      clearTimeout(animationTimeoutRef.current);
+      animationTimeoutRef.current = null;
+    }
     setPagina(0);
     setExibindo(0);
     setAnimDir(null);
     setAnimando(false);
   }, [profissional.id]);
+
+  useEffect(() => {
+    const ultimaPagina = Math.max(totalPaginas - 1, 0);
+    if (pagina <= ultimaPagina && exibindo <= ultimaPagina) return;
+    if (animationTimeoutRef.current) {
+      clearTimeout(animationTimeoutRef.current);
+      animationTimeoutRef.current = null;
+    }
+    setPagina((prev) => Math.min(prev, ultimaPagina));
+    setExibindo((prev) => Math.min(prev, ultimaPagina));
+    setAnimDir(null);
+    setAnimando(false);
+  }, [exibindo, pagina, totalPaginas]);
+
+  useEffect(() => () => {
+    if (animationTimeoutRef.current) clearTimeout(animationTimeoutRef.current);
+  }, []);
 
   const irPara = (idx) => {
     const alvo = Math.max(0, Math.min(idx, totalPaginas - 1));
@@ -170,10 +192,12 @@ export default function EntregasCarousel({
     setAnimDir(dir);
     setAnimando(true);
     setPagina(alvo);
-    setTimeout(() => {
+    if (animationTimeoutRef.current) clearTimeout(animationTimeoutRef.current);
+    animationTimeoutRef.current = setTimeout(() => {
       setExibindo(alvo);
       setAnimDir(null);
       setAnimando(false);
+      animationTimeoutRef.current = null;
     }, 320);
   };
 
