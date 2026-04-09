@@ -31,35 +31,28 @@ function StarChar({ size = 18, className = '' }) {
   return <span className={className || 'text-primary'} style={{ fontSize: size, lineHeight: 1 }} aria-hidden="true">★</span>;
 }
 
-export default function VitrineTopSection({
-  navigate,
-  abrirDepoimento,
-  toggleFavorito,
-  isProfessional,
-  depoimentoBtn,
-  favoritoBtn,
-  isFavorito,
-  headerVoltar,
-  heroBg,
-  negocio,
-  logoUrl,
-  negocioVerificadoIcon,
-  mediaDepoimentos,
-  mediaColor,
-  addrClass,
-  telClass,
-  socialIconCl,
-  instagramUrl,
-  facebookUrl,
-  sanitizeTel,
-}) {
+export default function VitrineTopSection({ header, business, actions }) {
   return (
     <>
       <div className="bg-primary overflow-hidden relative h-10 flex items-center">
         <div className="announcement-bar-marquee flex whitespace-nowrap">
           <div className="flex animate-marquee-sync">
-            <div className="flex items-center shrink-0">{[...Array(20)].map((_, i) => (<div key={`a-${i}`} className="flex items-center"><span className="text-black font-normal text-sm uppercase mx-4">É DE MINAS</span><span className="text-black text-sm">●</span></div>))}</div>
-            <div className="flex items-center shrink-0" aria-hidden="true">{[...Array(20)].map((_, i) => (<div key={`b-${i}`} className="flex items-center"><span className="text-black font-normal text-sm uppercase mx-4">É DE MINAS</span><span className="text-black text-sm">●</span></div>))}</div>
+            <div className="flex items-center shrink-0">
+              {[...Array(20)].map((_, i) => (
+                <div key={`a-${i}`} className="flex items-center">
+                  <span className="text-black font-normal text-sm uppercase mx-4">É DE MINAS</span>
+                  <span className="text-black text-sm">•</span>
+                </div>
+              ))}
+            </div>
+            <div className="flex items-center shrink-0" aria-hidden="true">
+              {[...Array(20)].map((_, i) => (
+                <div key={`b-${i}`} className="flex items-center">
+                  <span className="text-black font-normal text-sm uppercase mx-4">É DE MINAS</span>
+                  <span className="text-black text-sm">•</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
         <style>{`@keyframes marquee-sync{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}.animate-marquee-sync{display:flex;animation:marquee-sync 40s linear infinite}.announcement-bar-marquee:hover .animate-marquee-sync{animation-play-state:paused}@media(prefers-reduced-motion:reduce){.animate-marquee-sync{animation:none}}`}</style>
@@ -68,41 +61,71 @@ export default function VitrineTopSection({
       <header className="bg-vcard border-b border-vborder sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <button onClick={() => navigate(-1)} className={`flex items-center gap-2 transition-colors uppercase ${headerVoltar}`}><ArrowLeft className="w-5 h-5" /><span className="hidden sm:inline">Voltar</span></button>
+            <button type="button" onClick={actions.onBack} className={`flex items-center gap-2 transition-colors uppercase ${header.backClass}`}>
+              <ArrowLeft className="w-5 h-5" />
+              <span className="hidden sm:inline">Voltar</span>
+            </button>
             <div className="flex items-center gap-2">
-              <button onClick={abrirDepoimento} disabled={!!isProfessional} className={`flex items-center gap-2 h-9 px-5 rounded-button transition-all border uppercase focus:outline-none focus:ring-0 ${depoimentoBtn}`}>
-                <StarChar size={18} className="text-primary" /><span className="hidden sm:inline">Depoimento</span>
+              <button type="button" onClick={actions.onAbrirDepoimento} disabled={!!header.isProfessional} className={`flex items-center gap-2 h-9 px-5 rounded-button transition-all border uppercase focus:outline-none focus:ring-0 ${header.depoimentoBtn}`}>
+                <StarChar size={18} className="text-primary" />
+                <span className="hidden sm:inline">Depoimento</span>
               </button>
-              <button onClick={toggleFavorito} disabled={!!isProfessional} className={`h-9 flex items-center gap-2 px-5 rounded-button transition-all uppercase border focus:outline-none focus:ring-0 ${favoritoBtn}`}>
-                <HeartIcon filled={isFavorito} size={20} className={isFavorito ? 'text-red-500' : ''} />
-                <span className="hidden sm:inline">{isProfessional ? 'Somente Cliente' : (isFavorito ? 'Favoritado' : 'Favoritar')}</span>
+              <button type="button" onClick={actions.onToggleFavorito} disabled={!!header.isProfessional} className={`h-9 flex items-center gap-2 px-5 rounded-button transition-all uppercase border focus:outline-none focus:ring-0 ${header.favoritoBtn}`}>
+                <HeartIcon filled={header.isFavorito} size={20} className={header.isFavorito ? 'text-red-500' : ''} />
+                <span className="hidden sm:inline">{header.isProfessional ? 'Somente Cliente' : (header.isFavorito ? 'Favoritado' : 'Favoritar')}</span>
               </button>
             </div>
           </div>
         </div>
       </header>
 
-      <section className={`relative py-12 sm:py-16 px-4 sm:px-6 lg:px-8 ${heroBg}`}>
+      <section className={`relative py-12 sm:py-16 px-4 sm:px-6 lg:px-8 ${header.heroBg}`}>
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row items-start gap-6">
-            {logoUrl
-              ? (<div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border border-vborder bg-vcard"><img src={logoUrl} alt="Logo" className="w-full h-full object-cover" /></div>)
-              : (<div className="w-20 h-20 sm:w-24 sm:h-24 bg-vprimary rounded-custom flex items-center justify-center text-4xl sm:text-5xl font-normal text-vprimary-text">{negocio.nome?.[0] || 'N'}</div>)
-            }
+            {business.logoUrl ? (
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border border-vborder bg-vcard">
+                <img src={business.logoUrl} alt="Logo" className="w-full h-full object-cover" />
+              </div>
+            ) : (
+              <div className="w-20 h-20 sm:w-24 sm:h-24 bg-vprimary rounded-custom flex items-center justify-center text-4xl sm:text-5xl font-normal text-vprimary-text">
+                {business.negocio.nome?.[0] || 'N'}
+              </div>
+            )}
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-3">
-                <h1 className="text-3xl sm:text-4xl md:text-5xl font-normal">{negocio.nome}</h1>
-                <img src={negocioVerificadoIcon} alt="Negócio verificado" className="w-6 h-6 sm:w-7 sm:h-7 shrink-0" />
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-normal">{business.negocio.nome}</h1>
+                <img src={business.negocioVerificadoIcon} alt="Negócio verificado" className="w-6 h-6 sm:w-7 sm:h-7 shrink-0" />
               </div>
-              <p className="text-base sm:text-lg text-vsub mb-4 font-normal">{negocio.descricao}</p>
+              <p className="text-base sm:text-lg text-vsub mb-4 font-normal">{business.negocio.descricao}</p>
               <div className="flex flex-wrap items-center gap-4 sm:gap-6">
-                <div className="flex items-center gap-2"><StarChar size={18} className="text-primary" /><span className={`text-xl font-normal ${mediaColor}`}>{mediaDepoimentos}</span></div>
-                {negocio.endereco && (<div className={`flex items-center gap-2 text-sm ${addrClass}`}><MapPin className="w-4 h-4" strokeWidth={1.5} /><span className="font-normal">{negocio.endereco}</span></div>)}
-                {negocio.telefone && (<a href={`tel:${sanitizeTel(negocio.telefone) || negocio.telefone}`} className={`flex items-center gap-2 text-sm font-normal transition-colors ${telClass}`}><Phone className="w-4 h-4" strokeWidth={1.5} />{negocio.telefone}</a>)}
-                {(instagramUrl || facebookUrl) && (
+                <div className="flex items-center gap-2">
+                  <StarChar size={18} className="text-primary" />
+                  <span className={`text-xl font-normal ${business.mediaColor}`}>{business.mediaDepoimentos}</span>
+                </div>
+                {business.negocio.endereco && (
+                  <div className={`flex items-center gap-2 text-sm ${business.addrClass}`}>
+                    <MapPin className="w-4 h-4" strokeWidth={1.5} />
+                    <span className="font-normal">{business.negocio.endereco}</span>
+                  </div>
+                )}
+                {business.negocio.telefone && (
+                  <a href={`tel:${actions.sanitizeTel(business.negocio.telefone) || business.negocio.telefone}`} className={`flex items-center gap-2 text-sm font-normal transition-colors ${business.telClass}`}>
+                    <Phone className="w-4 h-4" strokeWidth={1.5} />
+                    {business.negocio.telefone}
+                  </a>
+                )}
+                {(business.instagramUrl || business.facebookUrl) && (
                   <div className="flex items-center gap-2">
-                    {instagramUrl && (<a href={instagramUrl} target="_blank" rel="noreferrer" aria-label="Instagram" className={`flex items-center justify-center w-9 h-9 rounded-full border transition-all ${socialIconCl}`}><InstagramIcon className="w-[18px] h-[18px]" size={18} /></a>)}
-                    {facebookUrl && (<a href={facebookUrl} target="_blank" rel="noreferrer" aria-label="Facebook" className={`flex items-center justify-center w-9 h-9 rounded-full border transition-all ${socialIconCl}`}><FacebookIcon size={18} /></a>)}
+                    {business.instagramUrl && (
+                      <a href={business.instagramUrl} target="_blank" rel="noreferrer" aria-label="Instagram" className={`flex items-center justify-center w-9 h-9 rounded-full border transition-all ${business.socialIconCl}`}>
+                        <InstagramIcon className="w-[18px] h-[18px]" size={18} />
+                      </a>
+                    )}
+                    {business.facebookUrl && (
+                      <a href={business.facebookUrl} target="_blank" rel="noreferrer" aria-label="Facebook" className={`flex items-center justify-center w-9 h-9 rounded-full border transition-all ${business.socialIconCl}`}>
+                        <FacebookIcon size={18} />
+                      </a>
+                    )}
                   </div>
                 )}
               </div>
