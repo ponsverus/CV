@@ -34,6 +34,8 @@ export default function SignupProfessionalResume({ user, onLogin }) {
   const [loading, setLoading] = useState(false);
   const [booting, setBooting] = useState(true);
   const [profileName, setProfileName] = useState('');
+  const [resumeContexts, setResumeContexts] = useState([]);
+  const [selectedNegocioId, setSelectedNegocioId] = useState('');
   const [formData, setFormData] = useState({
     nomeNegocio: '',
     urlNegocio: '',
@@ -61,15 +63,13 @@ export default function SignupProfessionalResume({ user, onLogin }) {
         ] = await Promise.all([
           supabase.from('users').select('nome').eq('id', user.id).maybeSingle(),
           supabase.from('negocios')
-            .select('nome, slug, tipo_negocio, descricao, telefone, endereco')
+            .select('id, nome, slug, tipo_negocio, descricao, telefone, endereco, created_at')
             .eq('owner_id', user.id)
-            .order('created_at', { ascending: true })
-            .limit(1),
+            .order('created_at', { ascending: true }),
           supabase.from('profissionais')
-            .select('anos_experiencia')
+            .select('id, negocio_id, anos_experiencia, created_at')
             .eq('user_id', user.id)
-            .order('created_at', { ascending: true })
-            .limit(1),
+            .order('created_at', { ascending: true }),
         ]);
 
         if (userErr) throw userErr;
@@ -77,18 +77,32 @@ export default function SignupProfessionalResume({ user, onLogin }) {
         if (profissionalErr) throw profissionalErr;
         if (!active) return;
 
-        const negocio = negocioRows?.[0] || null;
-        const profissional = profissionalRows?.[0] || null;
-        const endereco = parseEndereco(negocio?.endereco);
+        const profissionaisPorNegocio = new Map();
+        for (const profissional of profissionalRows || []) {
+          if (!profissional?.negocio_id || profissionaisPorNegocio.has(profissional.negocio_id)) continue;
+          profissionaisPorNegocio.set(profissional.negocio_id, profissional);
+        }
+
+        const contexts = (negocioRows || [])
+          .map((negocio) => ({
+            negocio,
+            profissional: profissionaisPorNegocio.get(negocio.id) || null,
+          }))
+          .filter((item) => item.profissional);
+
+        const initialContext = contexts[0] || null;
+        const endereco = parseEndereco(initialContext?.negocio?.endereco);
 
         setProfileName(onlyTrim(userData?.nome || user?.user_metadata?.nome || ''));
+        setResumeContexts(contexts);
+        setSelectedNegocioId(initialContext?.negocio?.id || '');
         setFormData({
-          nomeNegocio: onlyTrim(negocio?.nome),
-          urlNegocio: onlyTrim(negocio?.slug),
-          tipoNegocio: onlyTrim(negocio?.tipo_negocio),
-          anosExperiencia: profissional?.anos_experiencia != null ? String(profissional.anos_experiencia) : '',
-          descricao: onlyTrim(negocio?.descricao),
-          telefone: onlyTrim(negocio?.telefone),
+          nomeNegocio: onlyTrim(initialContext?.negocio?.nome),
+          urlNegocio: onlyTrim(initialContext?.negocio?.slug),
+          tipoNegocio: onlyTrim(initialContext?.negocio?.tipo_negocio),
+          anosExperiencia: initialContext?.profissional?.anos_experiencia != null ? String(initialContext.profissional.anos_experiencia) : '',
+          descricao: onlyTrim(initialContext?.negocio?.descricao),
+          telefone: onlyTrim(initialContext?.negocio?.telefone),
           rua: endereco.rua,
           numero: endereco.numero,
           cidade: endereco.cidade,
@@ -105,6 +119,25 @@ export default function SignupProfessionalResume({ user, onLogin }) {
     loadResumeData();
     return () => { active = false; };
   }, [showMessage, user?.id, user?.user_metadata?.nome]);
+
+  useEffect(() => {
+    if (!selectedNegocioId) return;
+    const selectedContext = resumeContexts.find((item) => item.negocio.id === selectedNegocioId);
+    if (!selectedContext) return;
+    const endereco = parseEndereco(selectedContext.negocio?.endereco);
+    setFormData({
+      nomeNegocio: onlyTrim(selectedContext.negocio?.nome),
+      urlNegocio: onlyTrim(selectedContext.negocio?.slug),
+      tipoNegocio: onlyTrim(selectedContext.negocio?.tipo_negocio),
+      anosExperiencia: selectedContext.profissional?.anos_experiencia != null ? String(selectedContext.profissional.anos_experiencia) : '',
+      descricao: onlyTrim(selectedContext.negocio?.descricao),
+      telefone: onlyTrim(selectedContext.negocio?.telefone),
+      rua: endereco.rua,
+      numero: endereco.numero,
+      cidade: endereco.cidade,
+      estado: endereco.estado,
+    });
+  }, [selectedNegocioId, resumeContexts]);
 
   const generateSlug = (text) => {
     return String(text || '')
@@ -139,6 +172,7 @@ export default function SignupProfessionalResume({ user, onLogin }) {
 
     try {
       const nome = onlyTrim(profileName || user?.user_metadata?.nome);
+      const negocioId = String(selectedNegocioId || '').trim();
       const nomeNegocio = onlyTrim(formData.nomeNegocio);
       const slug = onlyTrim(formData.urlNegocio);
       const tipoNegocio = onlyTrim(formData.tipoNegocio);
@@ -147,6 +181,7 @@ export default function SignupProfessionalResume({ user, onLogin }) {
       const anosExperiencia = parseInt(String(formData.anosExperiencia || ''), 10) || 0;
 
       if (!nome) { showMessage('signupProfessional.name_required'); return; }
+      if (!negocioId) { showMessage('signupProfessional.profile_not_created'); return; }
       if (!telefone) { showMessage('signupProfessional.phone_required'); return; }
       if (!nomeNegocio) { showMessage('signupProfessional.business_name_required'); return; }
       if (!slug || slug.length < 3) { showMessage('signupProfessional.business_slug_invalid'); return; }
@@ -165,6 +200,7 @@ export default function SignupProfessionalResume({ user, onLogin }) {
       });
 
       const { data, error } = await supabase.rpc('resume_professional_onboarding', {
+        p_negocio_id: negocioId,
         p_nome_usuario: nome,
         p_nome_negocio: nomeNegocio,
         p_slug: slug,
@@ -184,7 +220,7 @@ export default function SignupProfessionalResume({ user, onLogin }) {
           showMessage('signupProfessional.business_slug_taken');
           return;
         }
-        if (code === 'usuario_nao_encontrado' || code === 'negocio_nao_encontrado' || code === 'profissional_nao_encontrado') {
+        if (code === 'usuario_nao_encontrado' || code === 'negocio_nao_encontrado' || code === 'negocio_nao_informado' || code === 'profissional_nao_encontrado') {
           showMessage('signupProfessional.profile_not_created');
           return;
         }
@@ -229,10 +265,30 @@ export default function SignupProfessionalResume({ user, onLogin }) {
     );
   }
 
+  if (!resumeContexts.length) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-dark-100 border border-gray-800 rounded-custom p-8 text-center">
+          <Award className="mx-auto mb-4 text-primary w-12 h-12" />
+          <h1 className="text-2xl font-normal text-white mb-3">Nenhum cadastro para retomar</h1>
+          <p className="text-gray-400 mb-6">NÃ£o encontramos um contexto de retomada vinculado Ã sua conta.</p>
+          <button
+            type="button"
+            onClick={() => navigate('/dashboard')}
+            className="w-full px-6 py-3 bg-primary/20 border border-primary/50 text-primary rounded-button font-normal uppercase"
+          >
+            IR PARA O DASHBOARD
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const inputClass = 'w-full px-4 py-3 bg-dark-100/40 border border-gray-800/50 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none focus:bg-dark-100/60 transition-all backdrop-blur-sm text-sm';
   const inputIconClass = 'w-full pl-10 pr-4 py-3 bg-dark-100/40 border border-gray-800/50 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none focus:bg-dark-100/60 transition-all backdrop-blur-sm text-sm';
   const labelClass = 'block text-sm text-gray-400 mb-2 tracking-wide';
   const labelSmClass = 'block text-xs text-gray-500 mb-2 tracking-wide';
+  const hasMultipleContexts = resumeContexts.length > 1;
 
   return (
     <div className="min-h-screen bg-black text-white py-8 px-4 relative overflow-hidden">
@@ -261,6 +317,24 @@ export default function SignupProfessionalResume({ user, onLogin }) {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
+          {hasMultipleContexts && (
+            <div>
+              <label className={labelClass}>Qual negócio deseja retomar?</label>
+              <select
+                value={selectedNegocioId}
+                onChange={(e) => setSelectedNegocioId(e.target.value)}
+                className={inputClass}
+                required
+              >
+                {resumeContexts.map((context) => (
+                  <option key={context.negocio.id} value={context.negocio.id}>
+                    {context.negocio.nome || context.negocio.slug || context.negocio.id}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <div>
             <label className={labelClass}>Seu Nome Completo</label>
             <input
