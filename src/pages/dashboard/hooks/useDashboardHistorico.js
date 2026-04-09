@@ -55,7 +55,7 @@ export function useDashboardHistorico({
       await fetchHistoricoPage({ profIds: ids, date: historicoData, page: nextPage, append: true });
       setHistoricoPage(nextPage);
     } catch {
-      
+      // Mantem o estado atual se a pagina adicional do historico falhar.
     } finally {
       setHistoricoLoadingMore(false);
     }
