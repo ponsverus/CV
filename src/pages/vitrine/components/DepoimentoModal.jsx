@@ -1,6 +1,17 @@
 import React from 'react';
 import { X } from 'lucide-react';
 
+function StarChar({ active }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={`text-xl leading-none ${active ? 'opacity-100' : 'opacity-50'}`}
+    >
+      {'\u2605'}
+    </span>
+  );
+}
+
 export default function DepoimentoModal({
   open,
   onClose,
@@ -48,10 +59,20 @@ export default function DepoimentoModal({
           )}
           <div className="mb-4">
             <div className={`text-sm font-normal mb-2 ${styles.modalLabel}`}>Nota</div>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
               {[1, 2, 3, 4, 5].map((n) => (
-                <button type="button" key={n} onClick={() => actions.setNota(n)} className={`w-12 h-8 rounded-button border transition-all font-normal ${styles.notaBtn(n)}`}>{n}</button>
+                <button
+                  type="button"
+                  key={n}
+                  onClick={() => actions.setNota(n)}
+                  className={`w-10 h-10 rounded-full border transition-all flex items-center justify-center ${styles.notaBtn(n)}`}
+                  aria-label={`${n} estrela${n > 1 ? 's' : ''}`}
+                  aria-pressed={state.nota === n}
+                >
+                  <StarChar active={state.nota >= n} />
+                </button>
               ))}
+              <span className={`text-xs font-normal ml-1 ${styles.modalLabel}`}>{state.nota} de 5</span>
             </div>
           </div>
           <div className="mb-5">
