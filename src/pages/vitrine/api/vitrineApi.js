@@ -61,7 +61,7 @@ export async function fetchVitrineNegocioBySlug(slug) {
 
 export async function fetchVitrineProfissionais(negocioId) {
   const { data, error } = await withTimeout(
-    supabase.from('profissionais').select('*').eq('negocio_id', negocioId).eq('status', 'ativo'),
+    supabase.rpc('get_profissionais_vitrine', { p_negocio_id: negocioId }),
     7000,
     'profissionais'
   );
