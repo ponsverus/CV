@@ -349,7 +349,7 @@ export function useDashboardMutations({
       if (!await checarPermissao(editingProfissionalId)) return;
       const payload = {
         nome: String(formProfissional.nome || '').trim(),
-        profissao: String(formProfissional.profissao || '').trim() || null,
+        profissao: toUpperClean(formProfissional.profissao) || null,
         anos_experiencia: formProfissional.anos_experiencia !== '' ? Number(formProfissional.anos_experiencia) : null,
         horario_inicio: formProfissional.horario_inicio || '08:00',
         horario_fim: formProfissional.horario_fim || '18:00',
