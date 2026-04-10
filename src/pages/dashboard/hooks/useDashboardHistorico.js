@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { AG_PAGE_SIZE } from '../utils';
-import { fetchAgendamentosNegocio } from '../api/dashboardApi';
+import { fetchAgendamentosNegocio, fetchHistoricoProfissionalIds } from '../api/dashboardApi';
 
 export function useDashboardHistorico({
   negocioId,
@@ -14,10 +14,41 @@ export function useDashboardHistorico({
   const [historicoHasMore, setHistoricoHasMore] = useState(false);
   const [historicoLoadingMore, setHistoricoLoadingMore] = useState(false);
   const [historicoData, setHistoricoData] = useState('');
+  const [historicoProfIds, setHistoricoProfIds] = useState([]);
 
   useEffect(() => {
     setHistoricoData((prev) => (prev ? prev : hoje));
   }, [hoje]);
+
+  useEffect(() => {
+    let active = true;
+    if (!negocioId) {
+      setHistoricoProfIds([]);
+      return () => {
+        active = false;
+      };
+    }
+
+    if (parceiroProfissionalId) {
+      setHistoricoProfIds([parceiroProfissionalId]);
+      return () => {
+        active = false;
+      };
+    }
+
+    (async () => {
+      try {
+        const ids = await fetchHistoricoProfissionalIds(negocioId);
+        if (active) setHistoricoProfIds(ids);
+      } catch {
+        if (active) setHistoricoProfIds([]);
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, [negocioId, parceiroProfissionalId]);
 
   const fetchHistoricoPage = useCallback(async ({ profIds, date, page, append }) => {
     const rows = await fetchAgendamentosNegocio({
@@ -38,36 +69,33 @@ export function useDashboardHistorico({
   }, [negocioId]);
 
   useEffect(() => {
-    if (!agProfIds?.length || !historicoData || !negocioId) return;
-    const ids = parceiroProfissionalId ? [parceiroProfissionalId] : agProfIds;
+    if (!historicoProfIds?.length || !historicoData || !negocioId) return;
     setHistoricoPage(0);
     setHistoricoHasMore(false);
     setHistoricoAgendamentos([]);
-    fetchHistoricoPage({ profIds: ids, date: historicoData, page: 0, append: false });
-  }, [agProfIds, fetchHistoricoPage, historicoData, negocioId, parceiroProfissionalId]);
+    fetchHistoricoPage({ profIds: historicoProfIds, date: historicoData, page: 0, append: false });
+  }, [fetchHistoricoPage, historicoData, historicoProfIds, negocioId]);
 
   const loadMoreHistorico = useCallback(async () => {
-    if (historicoLoadingMore || !historicoHasMore || !negocioId || !agProfIds?.length) return;
-    const ids = parceiroProfissional ? [parceiroProfissional.id] : agProfIds;
+    if (historicoLoadingMore || !historicoHasMore || !negocioId || !historicoProfIds?.length) return;
     try {
       setHistoricoLoadingMore(true);
       const nextPage = historicoPage + 1;
-      await fetchHistoricoPage({ profIds: ids, date: historicoData, page: nextPage, append: true });
+      await fetchHistoricoPage({ profIds: historicoProfIds, date: historicoData, page: nextPage, append: true });
       setHistoricoPage(nextPage);
     } catch {
-      
+      // Mantem o estado atual se a pagina adicional do historico falhar.
     } finally {
       setHistoricoLoadingMore(false);
     }
   }, [
-    agProfIds,
     fetchHistoricoPage,
     historicoData,
     historicoHasMore,
     historicoLoadingMore,
     historicoPage,
+    historicoProfIds,
     negocioId,
-    parceiroProfissional,
   ]);
 
   return {
