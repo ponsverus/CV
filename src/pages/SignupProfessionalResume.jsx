@@ -271,7 +271,7 @@ export default function SignupProfessionalResume({ user, onLogin }) {
         <div className="max-w-md w-full bg-dark-100 border border-gray-800 rounded-custom p-8 text-center">
           <Award className="mx-auto mb-4 text-primary w-12 h-12" />
           <h1 className="text-2xl font-normal text-white mb-3">Nenhum cadastro para retomar</h1>
-          <p className="text-gray-400 mb-6">NÃ£o encontramos um contexto de retomada vinculado Ã sua conta.</p>
+          <p className="text-gray-400 mb-6">Falta o contexto de retomada vinculado à sua conta.</p>
           <button
             type="button"
             onClick={() => navigate('/dashboard')}
