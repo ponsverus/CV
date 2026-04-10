@@ -45,7 +45,7 @@ export function useVitrinePresentation({
     const trabalhaHoje = hojeDow == null ? true : diasEfetivos.includes(hojeDow);
     const dentroHorario = serverNow.minutes >= ini && serverNow.minutes < fim;
     if (!(trabalhaHoje && dentroHorario)) return { label: 'FECHADO', color: 'bg-red-500' };
-    if (isInLunchNow(p)) return { label: 'ALMOCO', color: 'bg-yellow-400' };
+    if (isInLunchNow(p)) return { label: 'PAUSA', color: 'bg-yellow-400' };
     return { label: 'ABERTO', color: 'bg-green-500' };
   }, [getDowFromDateSP, isInLunchNow, normalizeDiasTrabalho, serverNow.date, serverNow.minutes, timeToMinutes]);
 
