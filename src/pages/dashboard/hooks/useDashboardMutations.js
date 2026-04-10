@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { supabase } from '../../../supabase';
-import { getImageExt, isEnderecoPadrao, toNumberOrNull, toUpperClean } from '../utils';
-import { removeProfissionalSeguramente } from '../api/dashboardApi';
+import { isEnderecoPadrao, toNumberOrNull, toUpperClean } from '../utils';
+import { removeNegocioSeguramente, removeProfissionalSeguramente } from '../api/dashboardApi';
+import { convertImageToWebp, isImageFile } from '../../../utils/media';
 
 export function useDashboardMutations({
   userId,
@@ -15,6 +16,7 @@ export function useDashboardMutations({
   reloadAgendamentos,
   reloadGaleria,
   loadHoje,
+  navigate,
   checarPermissao,
   uiAlert,
   uiConfirm,
@@ -45,6 +47,7 @@ export function useDashboardMutations({
   const [submittingProfissional, setSubmittingProfissional] = useState(false);
   const [submittingAdminProf, setSubmittingAdminProf] = useState(false);
   const [savingDados, setSavingDados] = useState(false);
+  const [deletingBusiness, setDeletingBusiness] = useState(false);
 
   const ensureOwnerAction = async () => {
     if (!negocio?.id) {
@@ -90,13 +93,18 @@ export function useDashboardMutations({
     if (!(await ensureOwnerAction())) return;
     try {
       setLogoUploading(true);
-      const ext = getImageExt(file);
-      if (!ext) throw new Error('Formato invalido.');
-      const filePath = `${negocio.id}/logo.${ext}`;
-      const { error: upErr } = await supabase.storage.from('logos').upload(filePath, file, { upsert: true, contentType: file.type });
+      if (!isImageFile(file)) throw new Error('Formato invalido.');
+      const convertedFile = await convertImageToWebp(file);
+      const oldPath = negocio?.logo_path || null;
+      const filePath = `${negocio.id}/logo.webp`;
+      const { error: upErr } = await supabase.storage.from('logos').upload(filePath, convertedFile, { upsert: true, contentType: convertedFile.type });
       if (upErr) throw upErr;
       const { error: dbErr } = await supabase.from('negocios').update({ logo_path: `logos/${filePath}` }).eq('id', negocio.id).eq('owner_id', userId);
       if (dbErr) throw dbErr;
+      if (oldPath && oldPath !== `logos/${filePath}`) {
+        const normalizedOldPath = String(oldPath).replace(/^logos\//, '');
+        await supabase.storage.from('logos').remove([normalizedOldPath]);
+      }
       await uiAlert('dashboard.logo_updated', 'success');
       await reloadNegocio();
     } catch {
@@ -149,14 +157,50 @@ export function useDashboardMutations({
     }
   };
 
+  const excluirNegocio = async () => {
+    if (deletingBusiness) return;
+    if (!(await ensureOwnerAction())) return;
+    const ok = await uiConfirm('dashboard.business_delete_confirm', 'warning');
+    if (!ok) return;
+    try {
+      setDeletingBusiness(true);
+      const result = await removeNegocioSeguramente(negocio.id);
+      await uiAlert('dashboard.business_deleted', 'success');
+
+      const remaining = Number(result?.remaining_owner_businesses || 0);
+      const accountDeleted = !!result?.account_deleted;
+
+      if (accountDeleted) {
+        await supabase.auth.signOut();
+        navigate('/', { replace: true });
+        return;
+      }
+
+      if (remaining > 1) {
+        navigate('/selecionar-negocio', { replace: true });
+        return;
+      }
+
+      if (remaining === 1) {
+        navigate('/dashboard', { replace: true });
+        return;
+      }
+
+      navigate('/criar-negocio', { replace: true });
+    } catch {
+      await uiAlert('dashboard.business_delete_error', 'error');
+    } finally {
+      setDeletingBusiness(false);
+    }
+  };
+
   const uploadGaleria = async (files) => {
     if (!files?.length) return;
     if (!(await ensureOwnerAction())) return;
-    const okTypes = ['image/png', 'image/jpeg', 'image/webp'];
     try {
       setGalleryUploading(true);
       for (const file of Array.from(files)) {
-        if (!okTypes.includes(file.type)) {
+        if (!isImageFile(file)) {
           await uiAlert('dashboard.gallery_invalid_format', 'error');
           continue;
         }
@@ -164,13 +208,9 @@ export function useDashboardMutations({
           await uiAlert('dashboard.gallery_too_large', 'error');
           continue;
         }
-        const ext = getImageExt(file);
-        if (!ext) {
-          await uiAlert('dashboard.gallery_invalid_format', 'error');
-          continue;
-        }
-        const filePath = `${negocio.id}/${crypto.randomUUID()}.${ext}`;
-        const { error: upErr } = await supabase.storage.from('galerias').upload(filePath, file, { contentType: file.type });
+        const convertedFile = await convertImageToWebp(file);
+        const filePath = `${negocio.id}/${crypto.randomUUID()}.webp`;
+        const { error: upErr } = await supabase.storage.from('galerias').upload(filePath, convertedFile, { contentType: convertedFile.type });
         if (upErr) {
           await uiAlert('dashboard.gallery_upload_error', 'error');
           continue;
@@ -470,10 +510,12 @@ export function useDashboardMutations({
     submittingProfissional,
     submittingAdminProf,
     savingDados,
+    deletingBusiness,
     cadastrarAdminComoProfissional,
     uploadLogoNegocio,
     salvarInfoNegocio,
     salvarTema,
+    excluirNegocio,
     uploadGaleria,
     removerImagemGaleria,
     createEntrega,
