@@ -129,6 +129,12 @@ export async function fetchProfissionaisComStatus(negocioId) {
   return (data || []).filter((row) => !isAdminRemovedProfessional(row));
 }
 
+export async function fetchHistoricoProfissionalIds(negocioId) {
+  const { data, error } = await supabase.rpc('get_profissionais_com_status', { p_negocio_id: negocioId });
+  if (error) throw error;
+  return [...new Set((data || []).map((row) => row?.id).filter(Boolean))];
+}
+
 export async function removeProfissionalSeguramente(profissionalId) {
   const { data, error } = await supabase.rpc('remove_profissional_seguro', { p_profissional_id: profissionalId });
   if (error) throw error;
