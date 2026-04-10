@@ -3,7 +3,7 @@ import { ptBR } from '../../feedback/messages/ptBR.js';
 export const STATUS_COLOR_CLASS = {
   ABERTO: 'bg-green-500',
   FECHADO: 'bg-red-500',
-  ALMOCO: 'bg-yellow-400',
+  PAUSA: 'bg-yellow-400',
   INATIVO: 'bg-gray-600',
 };
 
