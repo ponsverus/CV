@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -197,10 +196,12 @@ export default function Dashboard({ user, onLogout }) {
     submittingProfissional,
     submittingAdminProf,
     savingDados,
+    deletingBusiness,
     cadastrarAdminComoProfissional,
     uploadLogoNegocio,
     salvarInfoNegocio,
     salvarTema,
+    excluirNegocio,
     uploadGaleria,
     removerImagemGaleria,
     createEntrega,
@@ -222,13 +223,14 @@ export default function Dashboard({ user, onLogout }) {
     parceiroProfissional,
     reloadNegocio,
     reloadProfissionais,
-    reloadEntregas,
-    reloadAgendamentos,
-    reloadGaleria,
-    loadHoje,
-    checarPermissao,
-    uiAlert,
-    uiConfirm,
+      reloadEntregas,
+      reloadAgendamentos,
+      reloadGaleria,
+      loadHoje,
+      navigate,
+      checarPermissao,
+      uiAlert,
+      uiConfirm,
     uiPrompt,
     setNegocio,
     setGaleriaItems,
@@ -375,7 +377,7 @@ export default function Dashboard({ user, onLogout }) {
               </Link>
               {souDono && (
                 <label className="inline-block">
-                  <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(e) => uploadLogoNegocio(e.target.files?.[0])} disabled={logoUploading} />
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => uploadLogoNegocio(e.target.files?.[0])} disabled={logoUploading} />
                   <span className={`inline-flex items-center justify-center text-center rounded-button font-normal border transition-all uppercase focus:outline-none ${logoUploading ? 'bg-gray-900 border-gray-800 text-gray-600 cursor-not-allowed' : 'bg-primary/10 hover:bg-primary/20 border-primary/30 text-primary cursor-pointer'}  px-4 py-1.5 text-[11px] sm:px-4 sm:py-2 sm:text-sm`}>
                     <span className="sm:hidden">{logoUploading ? '...' : 'LOGO'}</span>
                     <span className="hidden sm:inline">{logoUploading ? 'ENVIANDO...' : 'ALTERAR LOGO'}</span>
@@ -554,11 +556,13 @@ export default function Dashboard({ user, onLogout }) {
                 salvarEmail={salvarEmail}
                 novaSenha={novaSenha}
                 setNovaSenha={setNovaSenha}
-                confirmarSenha={confirmarSenha}
-                setConfirmarSenha={setConfirmarSenha}
-                salvarSenha={() => salvarSenha(novaSenha, confirmarSenha)}
-                navigate={navigate}
-              />
+                  confirmarSenha={confirmarSenha}
+                  setConfirmarSenha={setConfirmarSenha}
+                  salvarSenha={() => salvarSenha(novaSenha, confirmarSenha)}
+                  deletingBusiness={deletingBusiness}
+                  excluirNegocio={excluirNegocio}
+                  navigate={navigate}
+                />
             )}
 
           </div>
