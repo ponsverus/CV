@@ -28,10 +28,10 @@ export const ptBR = {
 
   dashboard: {
     business_delete_confirm: {
-      title: 'Excluir negÃ³cio?',
+      title: 'Excluir negócio?',
       body:
-        'Tem certeza que deseja excluir este negÃ³cio?\n\n' +
-        'Esta aÃ§Ã£o remove os dados do negÃ³cio e nÃ£o pode ser desfeita.',
+        'Tem certeza que deseja excluir este negócio?\n\n' +
+        'Esta ação remove os dados do negócio e não pode ser desfeita.',
       variant: 'warning',
       screen: 'dark',
       confirmText: 'EXCLUIR',
@@ -39,15 +39,15 @@ export const ptBR = {
       buttonText: 'EXCLUIR',
     },
     business_deleted: {
-      title: 'NegÃ³cio excluÃ­do',
-      body: 'O negÃ³cio foi excluÃ­do com sucesso.',
+      title: 'Negócio excluído',
+      body: 'O negócio foi excluído com sucesso.',
       variant: 'success',
       screen: 'light',
       buttonText: 'OK',
     },
     business_delete_error: {
       title: 'Erro ao excluir',
-      body: 'NÃ£o foi possÃ­vel excluir o negÃ³cio agora.\n\nTente novamente.',
+      body: 'Não foi possível excluir o negócio agora.\n\nTente novamente.',
       variant: 'danger',
       screen: 'dark',
       buttonText: 'OK',
