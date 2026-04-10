@@ -130,7 +130,7 @@ export function useVitrinePresentation({
     telClass: isLight ? 'text-vtext hover:text-vsub' : 'text-primary hover:text-yellow-500',
     addrClass: 'text-vsub',
     mediaColor: isLight ? 'text-vtext' : 'text-primary',
-    profissaoTag: isLight ? 'bg-vcard2 border-vborder text-vtext' : 'bg-primary/20 border-primary/30 text-primary',
+    profissaoTag: 'bg-primary/20 border-primary/30 text-primary',
     almocoBadge: isLight ? 'text-amber-700' : 'text-yellow-400',
     depBtn: isLight ? (isProfessional ? 'bg-vcard2 border-vborder2 text-vmuted cursor-not-allowed' : 'bg-vcard2 hover:bg-vcard border-vborder text-vtext') : (isProfessional ? 'bg-vcard border-vborder2 text-vmuted cursor-not-allowed' : 'bg-primary/20 hover:bg-primary/30 border-primary/50 text-primary'),
     depoModalBg: isLight ? 'bg-vcard border-vborder' : 'bg-dark-100 border-gray-800',
