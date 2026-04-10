@@ -600,22 +600,22 @@ export default function ClientArea({ user, onLogout }) {
                 </div>
 
                 <div className="bg-dark-200 border border-gray-800 rounded-custom p-5">
-                  <div className="text-xs text-gray-500 mb-4">CONTA</div>
+                  <div className="text-xs text-gray-500 mb-4">CREDENCIAIS</div>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm mb-2">EMAIL</label>
                       <input type="email" value={novoEmail} onChange={(e) => setNovoEmail(e.target.value)} className="w-full px-4 py-3 bg-dark-100 border border-gray-800 rounded-custom text-white" />
                       <button type="button" disabled={savingDados} onClick={salvarEmail} className="mt-3 w-full py-2 bg-primary/20 hover:bg-primary/30 border border-primary/50 text-primary rounded-button text-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed">
-                        SALVAR EMAIL
+                        SALVAR NOVO EMAIL
                       </button>
                     </div>
                     <div>
-                      <label className="block text-sm mb-2">SENHA</label>
+                      <label className="block text-sm mb-2">NOVA SENHA</label>
                       <input type="password" value={novaSenha} onChange={(e) => setNovaSenha(e.target.value)} className="w-full px-4 py-3 bg-dark-100 border border-gray-800 rounded-custom text-white" placeholder="••••••••" />
-                      <label className="block text-sm mb-2 mt-3">CONFIRMAR</label>
+                      <label className="block text-sm mb-2 mt-3">CONFIRMAR NOVA SENHA</label>
                       <input type="password" value={confirmarSenha} onChange={(e) => setConfirmarSenha(e.target.value)} className="w-full px-4 py-3 bg-dark-100 border border-gray-800 rounded-custom text-white" placeholder="••••••••" />
                       <button type="button" disabled={savingDados} onClick={salvarSenha} className="mt-3 w-full py-2 bg-green-500/20 hover:bg-green-500/30 border border-green-500/50 text-green-300 rounded-button text-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed">
-                        SALVAR SENHA
+                        SALVAR NOVA SENHA
                       </button>
                     </div>
                   </div>
