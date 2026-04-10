@@ -1,5 +1,7 @@
-import React from 'react';
-import { Clock } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ChevronLeft, ChevronRight, Clock } from 'lucide-react';
+
+const PROFISSIONAIS_POR_PAGINA = 3;
 
 function StarChar({ size = 18, className = '' }) {
   return <span className={className || 'text-primary'} style={{ fontSize: size, lineHeight: 1 }} aria-hidden="true">★</span>;
@@ -13,12 +15,22 @@ export default function VitrineProfessionalsSection({
   mediaColor,
   almocoBadge,
 }) {
+  const [pagina, setPagina] = useState(0);
+  const totalPaginas = Math.ceil(cards.length / PROFISSIONAIS_POR_PAGINA);
+  const inicio = pagina * PROFISSIONAIS_POR_PAGINA;
+  const itens = cards.slice(inicio, inicio + PROFISSIONAIS_POR_PAGINA);
+
+  useEffect(() => {
+    const ultimaPaginaValida = Math.max(0, totalPaginas - 1);
+    setPagina((prev) => Math.min(prev, ultimaPaginaValida));
+  }, [totalPaginas]);
+
   return (
     <section className="py-12 px-4 sm:px-6 lg:px-8 bg-vcard2">
       <div className="max-w-7xl mx-auto">
         <h2 className="text-2xl sm:text-3xl font-normal mb-6">Profissionais</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
-          {cards.map((prof) => (
+          {itens.map((prof) => (
             <div key={prof.id} className="bg-vcard border border-vborder rounded-custom p-6 hover:border-vprimary/50 transition-all self-start">
               <div className="flex items-start gap-4 mb-4">
                 {prof.avatarUrl ? (
@@ -74,6 +86,25 @@ export default function VitrineProfessionalsSection({
             </div>
           ))}
         </div>
+        {totalPaginas > 1 && (
+          <div className="flex items-center justify-center gap-3 mt-6">
+            <button type="button" onClick={() => setPagina((p) => Math.max(0, p - 1))} disabled={pagina === 0} className="p-1.5 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:bg-vcard text-vmuted hover:text-vtext">
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            {Array.from({ length: totalPaginas }).map((_, i) => (
+              <button
+                type="button"
+                key={i}
+                onClick={() => setPagina(i)}
+                className={['rounded-full transition-all duration-300', i === pagina ? 'w-4 h-2 bg-vprimary' : 'w-2 h-2 bg-vborder hover:bg-vsub/40'].join(' ')}
+                aria-label={`Página ${i + 1}`}
+              />
+            ))}
+            <button type="button" onClick={() => setPagina((p) => Math.min(totalPaginas - 1, p + 1))} disabled={pagina === totalPaginas - 1} className="p-1.5 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:bg-vcard text-vmuted hover:text-vtext">
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );
