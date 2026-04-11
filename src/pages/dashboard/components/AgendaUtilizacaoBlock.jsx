@@ -32,11 +32,21 @@ function MetricCard({ label, value, tone = 'text-white', subtle }) {
   );
 }
 
-function ProfessionalMetric({ label, value, tone = 'text-white' }) {
+function clampPercent(value) {
+  return Math.max(0, Math.min(100, Number(value || 0)));
+}
+
+function ProfessionalMetricBar({ label, value, percent, barClass = 'bg-white' }) {
+  const width = clampPercent(percent);
   return (
     <div className="min-w-0">
-      <div className="text-[10px] text-gray-500 uppercase tracking-wide leading-none">{label}</div>
-      <div className={`mt-1 text-sm font-normal leading-tight ${tone}`}>{value}</div>
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-[10px] text-gray-500 uppercase tracking-wide leading-none">{label}</span>
+        <span className="text-xs font-normal text-gray-200">{value}</span>
+      </div>
+      <div className="mt-1.5 h-1.5 w-full rounded-full bg-gray-800 overflow-hidden">
+        <div className={`h-full rounded-full ${barClass}`} style={{ width: `${width}%` }} />
+      </div>
     </div>
   );
 }
@@ -140,6 +150,16 @@ export default function AgendaUtilizacaoBlock({
           <div className="grid md:grid-cols-3 gap-3 items-start">
             {visibleProfissionais.map((item) => (
               <div key={String(item?.profissional_id || item?.nome)} className="bg-dark-100 border border-gray-800 rounded-custom p-4">
+                {(() => {
+                  const validos = Number(item?.agendamentos_validos || 0);
+                  const cancelados = Number(item?.cancelados || 0);
+                  const totalAgendamentos = Math.max(validos + cancelados, 1);
+                  const minutosDisponiveis = Number(item?.minutos_disponiveis || 0);
+                  const minutosOcupados = Number(item?.minutos_ocupados || 0);
+                  const minutosOciosos = Number(item?.minutos_ociosos || 0);
+
+                  return (
+                    <>
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <div className="text-[10px] text-gray-500 uppercase tracking-wide">Profissional</div>
@@ -150,14 +170,17 @@ export default function AgendaUtilizacaoBlock({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-x-5 gap-y-3 mt-4">
-                  <ProfessionalMetric label="Válidos" value={Number(item?.agendamentos_validos || 0)} />
-                  <ProfessionalMetric label="Cancelados" tone="text-red-400" value={Number(item?.cancelados || 0)} />
-                  <ProfessionalMetric label="Disponível" tone="text-yellow-400" value={formatDurationFromMinutes(item?.minutos_ociosos)} />
-                  <ProfessionalMetric label="Ocupado" tone="text-green-400" value={formatDurationFromMinutes(item?.minutos_ocupados)} />
-                  <ProfessionalMetric label="Tempo total" tone="text-gray-300" value={formatDurationFromMinutes(item?.minutos_disponiveis)} />
-                  <ProfessionalMetric label="Ocupação" tone="text-primary" value={formatPercent(item?.taxa_ocupacao)} />
+                <div className="mt-4 space-y-3">
+                  <ProfessionalMetricBar label="Válidos" value={validos} percent={(validos / totalAgendamentos) * 100} barClass="bg-white" />
+                  <ProfessionalMetricBar label="Cancelados" value={cancelados} percent={(cancelados / totalAgendamentos) * 100} barClass="bg-red-400" />
+                  <ProfessionalMetricBar label="Disponível" value={formatDurationFromMinutes(minutosOciosos)} percent={minutosDisponiveis > 0 ? (minutosOciosos / minutosDisponiveis) * 100 : 0} barClass="bg-yellow-400" />
+                  <ProfessionalMetricBar label="Ocupado" value={formatDurationFromMinutes(minutosOcupados)} percent={minutosDisponiveis > 0 ? (minutosOcupados / minutosDisponiveis) * 100 : 0} barClass="bg-green-400" />
+                  <ProfessionalMetricBar label="Tempo total" value={formatDurationFromMinutes(minutosDisponiveis)} percent={minutosDisponiveis > 0 ? 100 : 0} barClass="bg-gray-300" />
+                  <ProfessionalMetricBar label="Ocupação" value={formatPercent(item?.taxa_ocupacao)} percent={item?.taxa_ocupacao} barClass="bg-primary" />
                 </div>
+                    </>
+                  );
+                })()}
               </div>
             ))}
           </div>
