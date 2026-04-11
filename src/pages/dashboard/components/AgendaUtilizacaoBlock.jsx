@@ -42,7 +42,7 @@ function ProfessionalMetricBar({ label, value, percent, barClass = 'bg-white' })
     <div className="min-w-0">
       <div className="flex items-center justify-between gap-3">
         <span className="text-[10px] text-gray-500 tracking-wide leading-none">{label}</span>
-        <span className="text-xs font-normal text-gray-200">{value}</span>
+        <span className="text-sm font-normal text-gray-200">{value}</span>
       </div>
       <div className="mt-1.5 h-1.5 w-full rounded-full bg-gray-800 overflow-hidden">
         <div className={`h-full rounded-full ${barClass}`} style={{ width: `${width}%` }} />
@@ -54,7 +54,7 @@ function ProfessionalMetricBar({ label, value, percent, barClass = 'bg-white' })
 function ProfessionalCountPill({ label, value, tone = 'text-white', border = 'border-gray-700', bg = 'bg-dark-200/60' }) {
   return (
     <div className={`flex flex-1 items-center justify-center gap-2 rounded-full border ${border} ${bg} px-3 py-1.5`}>
-      <span className="text-xs text-gray-500 uppercase tracking-wide">{label}</span>
+      <span className="text-sm text-gray-500 uppercase tracking-wide">{label}</span>
       <span className={`text-sm font-normal ${tone}`}>{value}</span>
     </div>
   );
