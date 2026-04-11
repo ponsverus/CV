@@ -32,6 +32,15 @@ function MetricCard({ label, value, tone = 'text-white', subtle }) {
   );
 }
 
+function ProfessionalMetric({ label, value, tone = 'text-white' }) {
+  return (
+    <div className="rounded-button border border-gray-800 bg-dark-200/70 px-3 py-2">
+      <div className="text-[10px] text-gray-500 uppercase tracking-wide">{label}</div>
+      <div className={`mt-1 text-sm font-normal ${tone}`}>{value}</div>
+    </div>
+  );
+}
+
 export default function AgendaUtilizacaoBlock({
   souDono,
   metricsUtilizacao,
@@ -131,33 +140,23 @@ export default function AgendaUtilizacaoBlock({
           <div className="grid md:grid-cols-3 gap-3 items-start">
             {visibleProfissionais.map((item) => (
               <div key={String(item?.profissional_id || item?.nome)} className="bg-dark-100 border border-gray-800 rounded-custom p-4">
-                <div className="text-xs text-gray-500 mb-1">PROFISSIONAL</div>
-                <div className="font-normal text-white">{String(item?.nome || 'PROFISSIONAL')}</div>
-                <div className="grid grid-cols-2 gap-3 mt-3 text-sm">
+                <div className="flex items-start justify-between gap-3 border-b border-gray-800 pb-3">
                   <div>
-                    <div className="text-gray-500">Válidos</div>
-                    <div className="text-white font-normal">{Number(item?.agendamentos_validos || 0)}</div>
+                    <div className="text-[10px] text-gray-500 uppercase tracking-wide">Profissional</div>
+                    <div className="mt-1 font-normal text-white leading-snug">{String(item?.nome || 'PROFISSIONAL')}</div>
                   </div>
-                  <div>
-                    <div className="text-gray-500">Cancelados</div>
-                    <div className="text-red-400 font-normal">{Number(item?.cancelados || 0)}</div>
+                  <div className="shrink-0 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-xs font-normal text-primary">
+                    {formatPercent(item?.taxa_ocupacao)}
                   </div>
-                  <div>
-                    <div className="text-gray-500">Disponível</div>
-                    <div className="text-yellow-400 font-normal">{formatDurationFromMinutes(item?.minutos_ociosos)}</div>
-                  </div>
-                  <div>
-                    <div className="text-gray-500">Ocupado</div>
-                    <div className="text-green-400 font-normal">{formatDurationFromMinutes(item?.minutos_ocupados)}</div>
-                  </div>
-                  <div>
-                    <div className="text-gray-500">Tempo total</div>
-                    <div className="text-gray-300 font-normal">{formatDurationFromMinutes(item?.minutos_disponiveis)}</div>
-                  </div>
-                  <div>
-                    <div className="text-gray-500">Ocupa.</div>
-                    <div className="text-primary font-normal">{formatPercent(item?.taxa_ocupacao)}</div>
-                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 mt-3">
+                  <ProfessionalMetric label="Válidos" value={Number(item?.agendamentos_validos || 0)} />
+                  <ProfessionalMetric label="Cancelados" tone="text-red-400" value={Number(item?.cancelados || 0)} />
+                  <ProfessionalMetric label="Disponível" tone="text-yellow-400" value={formatDurationFromMinutes(item?.minutos_ociosos)} />
+                  <ProfessionalMetric label="Ocupado" tone="text-green-400" value={formatDurationFromMinutes(item?.minutos_ocupados)} />
+                  <ProfessionalMetric label="Tempo total" tone="text-gray-300" value={formatDurationFromMinutes(item?.minutos_disponiveis)} />
+                  <ProfessionalMetric label="Ocupação" tone="text-primary" value={formatPercent(item?.taxa_ocupacao)} />
                 </div>
               </div>
             ))}
