@@ -4,6 +4,7 @@ import {
   fetchDashboardFutureBookings,
   fetchDashboardPeriod,
   fetchDashboardToday,
+  fetchDashboardTopCards,
   fetchDashboardUtilizacao,
 } from '../api/dashboardApi';
 
@@ -15,11 +16,13 @@ export function useDashboardMetrics({
   parceiroProfissionalId,
 }) {
   const [metricsHoje, setMetricsHoje] = useState(null);
+  const [metricsTopCards, setMetricsTopCards] = useState(null);
   const [metricsDia, setMetricsDia] = useState(null);
   const [metricsPeriodoData, setMetricsPeriodoData] = useState(null);
   const [metricsUtilizacao, setMetricsUtilizacao] = useState(null);
   const [metricsFutureBookings, setMetricsFutureBookings] = useState(null);
   const [metricsHojeLoading, setMetricsHojeLoading] = useState(false);
+  const [metricsTopCardsLoading, setMetricsTopCardsLoading] = useState(false);
   const [metricsDiaLoading, setMetricsDiaLoading] = useState(false);
   const [metricsPeriodoLoading, setMetricsPeriodoLoading] = useState(false);
   const [metricsUtilizacaoLoading, setMetricsUtilizacaoLoading] = useState(false);
@@ -34,6 +37,18 @@ export function useDashboardMetrics({
       setMetricsHoje(null);
     } finally {
       setMetricsHojeLoading(false);
+    }
+  }, [negocioId, parceiroProfissionalId]);
+
+  const loadTopCards = useCallback(async (id = negocioId, profId = parceiroProfissionalId) => {
+    if (!id) return;
+    try {
+      setMetricsTopCardsLoading(true);
+      setMetricsTopCards(await fetchDashboardTopCards(id, profId));
+    } catch {
+      setMetricsTopCards(null);
+    } finally {
+      setMetricsTopCardsLoading(false);
     }
   }, [negocioId, parceiroProfissionalId]);
 
@@ -91,6 +106,11 @@ export function useDashboardMetrics({
   }, [negocioId, hoje, parceiroProfissionalId, loadHoje]);
 
   useEffect(() => {
+    if (!negocioId || !hoje) return;
+    loadTopCards(negocioId, parceiroProfissionalId);
+  }, [negocioId, hoje, parceiroProfissionalId, loadTopCards]);
+
+  useEffect(() => {
     if (!negocioId || !faturamentoData) return;
     loadDia(negocioId, faturamentoData, parceiroProfissionalId);
   }, [negocioId, faturamentoData, parceiroProfissionalId, loadDia]);
@@ -112,16 +132,19 @@ export function useDashboardMetrics({
 
   return {
     metricsHoje,
+    metricsTopCards,
     metricsDia,
     metricsPeriodoData,
     metricsUtilizacao,
     metricsFutureBookings,
     metricsHojeLoading,
+    metricsTopCardsLoading,
     metricsDiaLoading,
     metricsPeriodoLoading,
     metricsUtilizacaoLoading,
     metricsFutureBookingsLoading,
     loadHoje,
+    loadTopCards,
     loadDia,
     loadPeriodo,
     loadUtilizacao,
