@@ -6,9 +6,9 @@ function formatDurationFromMinutes(value) {
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
 
-  if (hours <= 0) return `${minutes} min`;
-  if (minutes === 0) return `${hours}h`;
-  return `${hours}h ${String(minutes).padStart(2, '0')}min`;
+  if (hours <= 0) return `${minutes} MIN`;
+  if (minutes === 0) return `${hours}H`;
+  return `${hours}h ${String(minutes).padStart(2, '0')}MIN`;
 }
 
 function formatPercent(value) {
@@ -54,7 +54,7 @@ function ProfessionalMetricBar({ label, value, percent, barClass = 'bg-white' })
 function ProfessionalCountPill({ label, value, tone = 'text-white', border = 'border-gray-700', bg = 'bg-dark-200/60' }) {
   return (
     <div className={`flex flex-1 items-center justify-center gap-2 rounded-full border ${border} ${bg} px-3 py-1.5`}>
-      <span className="text-sm text-gray-500 uppercase tracking-wide">{label}</span>
+      <span className="text-xs text-gray-500 uppercase tracking-wide">{label}</span>
       <span className={`text-sm font-normal ${tone}`}>{value}</span>
     </div>
   );
