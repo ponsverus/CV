@@ -34,71 +34,9 @@ function MetricCard({ label, value, tone = 'text-white', subtle }) {
 
 function ProfessionalMetric({ label, value, tone = 'text-white' }) {
   return (
-    <div
-      className={`bg-dark-200/70 border border-gray-800 px-3 py-2`}
-      style={{ borderRadius: '3px' }}
-    >
-      <div className="text-[9px] text-gray-500 uppercase tracking-wide">{label}</div>
-      <div className={`mt-1 text-sm font-normal ${tone}`}>{value}</div>
-    </div>
-  );
-}
-
-function ProfissionalCard({ item }) {
-  return (
-    <div className="bg-dark-100 border border-gray-800 rounded-custom p-4">
-      {/* Cabeçalho em pílula */}
-      <div className="flex items-center justify-between gap-3 bg-dark-200 border border-gray-800 rounded-full px-3 py-2 mb-3">
-        <div className="min-w-0">
-          <div className="text-[9px] text-gray-500 uppercase tracking-wide leading-none mb-1">
-            Profissional
-          </div>
-          <div className="text-sm font-normal text-white truncate leading-snug">
-            {String(item?.nome || 'PROFISSIONAL')}
-          </div>
-        </div>
-        <div className="shrink-0 text-right">
-          <div className="text-base font-normal text-primary leading-none">
-            {formatPercent(item?.taxa_ocupacao)}
-          </div>
-          <div className="text-[9px] text-gray-500 uppercase tracking-wide mt-0.5">
-            Ocupação
-          </div>
-        </div>
-      </div>
-
-      {/* Mini cards das 6 métricas */}
-      <div className="grid grid-cols-2 gap-1.5">
-        <ProfessionalMetric
-          label="Válidos"
-          value={Number(item?.agendamentos_validos || 0)}
-        />
-        <ProfessionalMetric
-          label="Cancelados"
-          tone="text-red-400"
-          value={Number(item?.cancelados || 0)}
-        />
-        <ProfessionalMetric
-          label="Ocupado"
-          tone="text-green-400"
-          value={formatDurationFromMinutes(item?.minutos_ocupados)}
-        />
-        <ProfessionalMetric
-          label="Disponível"
-          tone="text-yellow-400"
-          value={formatDurationFromMinutes(item?.minutos_ociosos)}
-        />
-        <ProfessionalMetric
-          label="Tempo total"
-          tone="text-gray-300"
-          value={formatDurationFromMinutes(item?.minutos_disponiveis)}
-        />
-        <ProfessionalMetric
-          label="Taxa"
-          tone="text-primary"
-          value={formatPercent(item?.taxa_ocupacao)}
-        />
-      </div>
+    <div className="min-w-0">
+      <div className="text-[10px] text-gray-500 uppercase tracking-wide leading-none">{label}</div>
+      <div className={`mt-1 text-sm font-normal leading-tight ${tone}`}>{value}</div>
     </div>
   );
 }
@@ -120,6 +58,7 @@ export default function AgendaUtilizacaoBlock({
     const updateCardsPerPage = () => {
       setCardsPerPage(window.innerWidth < 768 ? 1 : 3);
     };
+
     updateCardsPerPage();
     window.addEventListener('resize', updateCardsPerPage);
     return () => window.removeEventListener('resize', updateCardsPerPage);
@@ -200,10 +139,26 @@ export default function AgendaUtilizacaoBlock({
 
           <div className="grid md:grid-cols-3 gap-3 items-start">
             {visibleProfissionais.map((item) => (
-              <ProfissionalCard
-                key={String(item?.profissional_id || item?.nome)}
-                item={item}
-              />
+              <div key={String(item?.profissional_id || item?.nome)} className="bg-dark-100 border border-gray-800 rounded-custom p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-[10px] text-gray-500 uppercase tracking-wide">Profissional</div>
+                    <div className="mt-1 font-normal text-white leading-snug">{String(item?.nome || 'PROFISSIONAL')}</div>
+                  </div>
+                  <div className="shrink-0 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-xs font-normal text-primary">
+                    {formatPercent(item?.taxa_ocupacao)}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-x-5 gap-y-3 mt-4">
+                  <ProfessionalMetric label="Válidos" value={Number(item?.agendamentos_validos || 0)} />
+                  <ProfessionalMetric label="Cancelados" tone="text-red-400" value={Number(item?.cancelados || 0)} />
+                  <ProfessionalMetric label="Disponível" tone="text-yellow-400" value={formatDurationFromMinutes(item?.minutos_ociosos)} />
+                  <ProfessionalMetric label="Ocupado" tone="text-green-400" value={formatDurationFromMinutes(item?.minutos_ocupados)} />
+                  <ProfessionalMetric label="Tempo total" tone="text-gray-300" value={formatDurationFromMinutes(item?.minutos_disponiveis)} />
+                  <ProfessionalMetric label="Ocupação" tone="text-primary" value={formatPercent(item?.taxa_ocupacao)} />
+                </div>
+              </div>
             ))}
           </div>
 
@@ -224,9 +179,7 @@ export default function AgendaUtilizacaoBlock({
                     key={index}
                     type="button"
                     onClick={() => setPage(index)}
-                    className={`w-2.5 h-2.5 rounded-full transition-colors ${
-                      index === currentPage ? 'bg-primary' : 'bg-gray-600 hover:bg-gray-400'
-                    }`}
+                    className={`w-2.5 h-2.5 rounded-full transition-colors ${index === currentPage ? 'bg-primary' : 'bg-gray-600 hover:bg-gray-400'}`}
                     aria-label={`Ir para página ${index + 1}`}
                   />
                 ))}
