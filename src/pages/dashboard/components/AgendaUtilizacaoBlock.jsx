@@ -27,7 +27,7 @@ function MetricCard({ label, value, tone = 'text-white', subtle }) {
     <div className="bg-dark-200 border border-gray-800 rounded-custom p-4">
       <div className="text-xs text-gray-500 mb-1">{label}</div>
       <div className={`text-xl font-normal ${tone}`}>{value}</div>
-      {subtle ? <div className="text-xs text-gray-500 mt-1">{subtle}</div> : null}
+      {subtle ? <div className="text-sm text-gray-500 mt-1">{subtle}</div> : null}
     </div>
   );
 }
@@ -101,7 +101,7 @@ export default function AgendaUtilizacaoBlock({
         <div>
           <h3 className="text-lg font-normal uppercase">Utiliza. da Agenda</h3>
         </div>
-        <div className="inline-flex items-center self-start rounded-full border border-gray-700 bg-dark-100 px-3 py-1 text-xs text-gray-300">
+        <div className="inline-flex items-center self-start rounded-full border border-gray-700 bg-dark-100 px-3 py-1 text-sm text-gray-300">
           {formatDateDots(data?.amanha)}
         </div>
       </div>
