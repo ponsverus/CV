@@ -23,9 +23,9 @@ function MetricCard({ label, value, tone = 'text-white', subtle }) {
 
 function ProfessionalInfoPill({ label, value, tone = 'text-white', border = 'border-gray-700', bg = 'bg-dark-200/60' }) {
   return (
-    <div className={`flex flex-1 items-center justify-center gap-2 rounded-full border ${border} ${bg} px-3 py-1.5`}>
-      <span className="text-[10px] text-gray-500 uppercase tracking-wide">{label}</span>
-      <span className={`text-sm font-normal ${tone}`}>{value}</span>
+    <div className={`flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-full border ${border} ${bg} px-2 py-1.5`}>
+      <span className="whitespace-nowrap text-sm text-gray-500 uppercase tracking-wide">{label}</span>
+      <span className={`whitespace-nowrap text-sm font-normal ${tone}`}>{value}</span>
     </div>
   );
 }
@@ -72,7 +72,7 @@ export default function FutureBookingsBlock({
             <div key={String(item?.profissional_id || item?.nome)} className="bg-dark-100 border border-gray-800 rounded-custom p-4">
               <div className="text-xs text-gray-500 mb-1">PROFISSIONAL</div>
               <div className="font-normal text-white">{String(item?.nome || 'PROFISSIONAL')}</div>
-              <div className="mt-3 flex items-center gap-2">
+              <div className="mt-3 grid grid-cols-2 gap-2">
                 <ProfessionalInfoPill label="Receita" value={formatCurrency(item?.receita_projetada)} tone="text-primary" border="border-primary/30" bg="bg-primary/10" />
                 <ProfessionalInfoPill label="Agend." value={Number(item?.total_agendamentos || 0)} />
               </div>
