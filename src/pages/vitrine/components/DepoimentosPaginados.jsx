@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const DEPOIMENTOS_POR_PAGINA = 10;
@@ -29,19 +29,39 @@ export default function DepoimentosPaginados({ depoimentos, nomeNegocioLabel, is
   const navBtnCl = isLight ? 'hover:bg-vcard2 text-vmuted hover:text-vtext' : 'hover:bg-vcard2 text-vsub hover:text-vtext';
   const dotInact = isLight ? 'bg-vborder hover:bg-vsub/40' : 'bg-gray-700 hover:bg-gray-500';
   const comentCl = isLight ? 'text-vsub' : 'text-vsub';
+  const touchStartRef = useRef(null);
 
   useEffect(() => {
     const ultimaPaginaValida = Math.max(0, totalPaginas - 1);
     setPagina((prev) => Math.min(prev, ultimaPaginaValida));
   }, [totalPaginas]);
 
+  const goPrev = () => setPagina((p) => Math.max(0, p - 1));
+  const goNext = () => setPagina((p) => Math.min(totalPaginas - 1, p + 1));
+  const handleTouchStart = (event) => {
+    const touch = event.touches?.[0];
+    if (!touch) return;
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+  };
+  const handleTouchEnd = (event) => {
+    const start = touchStartRef.current;
+    const touch = event.changedTouches?.[0];
+    touchStartRef.current = null;
+    if (!start || !touch || totalPaginas <= 1) return;
+    const dx = touch.clientX - start.x;
+    const dy = touch.clientY - start.y;
+    if (Math.abs(dx) < 45 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
+    if (dx < 0) goNext();
+    else goPrev();
+  };
+
   if (!depoimentos.length) return <p className="text-vmuted font-normal">Nenhum depoimento ainda</p>;
 
   return (
     <div>
-      <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 [column-fill:_balance]">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         {itens.map((dep) => (
-          <div key={dep.id} className="mb-4 break-inside-avoid bg-vcard border border-vborder rounded-custom p-4 relative">
+          <div key={dep.id} className="bg-vcard border border-vborder rounded-custom p-4 relative self-start">
             <div className="absolute top-3 right-3">
               {dep.profissional_id && dep.profissionais?.nome ? (
                 <span className="inline-block px-1.5 py-0.5 bg-vprimary/10 border border-vprimary/30 rounded-button text-[10px] text-vprimary font-normal uppercase">
@@ -74,7 +94,7 @@ export default function DepoimentosPaginados({ depoimentos, nomeNegocioLabel, is
       </div>
       {totalPaginas > 1 && (
         <div className="flex items-center justify-center gap-3 mt-6">
-          <button type="button" onClick={() => setPagina((p) => Math.max(0, p - 1))} disabled={pagina === 0} className={`p-1.5 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${navBtnCl}`}>
+          <button type="button" onClick={goPrev} disabled={pagina === 0} className={`inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent border border-transparent transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:border-vborder ${navBtnCl}`}>
             <ChevronLeft className="w-4 h-4" />
           </button>
           {Array.from({ length: totalPaginas }).map((_, i) => (
@@ -86,7 +106,7 @@ export default function DepoimentosPaginados({ depoimentos, nomeNegocioLabel, is
               aria-label={`Página ${i + 1}`}
             />
           ))}
-          <button type="button" onClick={() => setPagina((p) => Math.min(totalPaginas - 1, p + 1))} disabled={pagina === totalPaginas - 1} className={`p-1.5 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${navBtnCl}`}>
+          <button type="button" onClick={goNext} disabled={pagina === totalPaginas - 1} className={`inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent border border-transparent transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:border-vborder ${navBtnCl}`}>
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
