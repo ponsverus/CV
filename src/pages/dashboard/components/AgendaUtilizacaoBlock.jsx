@@ -51,6 +51,15 @@ function ProfessionalMetricBar({ label, value, percent, barClass = 'bg-white' })
   );
 }
 
+function ProfessionalCountPill({ label, value, tone = 'text-white', border = 'border-gray-700', bg = 'bg-dark-200/60' }) {
+  return (
+    <div className={`flex flex-1 items-center justify-between gap-3 rounded-full border ${border} ${bg} px-3 py-1.5`}>
+      <span className="text-[10px] text-gray-500 uppercase tracking-wide">{label}</span>
+      <span className={`text-sm font-normal ${tone}`}>{value}</span>
+    </div>
+  );
+}
+
 export default function AgendaUtilizacaoBlock({
   souDono,
   metricsUtilizacao,
@@ -171,12 +180,14 @@ export default function AgendaUtilizacaoBlock({
                 </div>
 
                 <div className="mt-4 space-y-3">
-                  <ProfessionalMetricBar label="Válidos" value={validos} percent={(validos / totalAgendamentos) * 100} barClass="bg-white" />
-                  <ProfessionalMetricBar label="Cancelados" value={cancelados} percent={(cancelados / totalAgendamentos) * 100} barClass="bg-red-400" />
                   <ProfessionalMetricBar label="Disponível" value={formatDurationFromMinutes(minutosOciosos)} percent={minutosDisponiveis > 0 ? (minutosOciosos / minutosDisponiveis) * 100 : 0} barClass="bg-yellow-400" />
                   <ProfessionalMetricBar label="Ocupado" value={formatDurationFromMinutes(minutosOcupados)} percent={minutosDisponiveis > 0 ? (minutosOcupados / minutosDisponiveis) * 100 : 0} barClass="bg-green-400" />
-                  <ProfessionalMetricBar label="Tempo total" value={formatDurationFromMinutes(minutosDisponiveis)} percent={minutosDisponiveis > 0 ? 100 : 0} barClass="bg-gray-300" />
                   <ProfessionalMetricBar label="Ocupação" value={formatPercent(item?.taxa_ocupacao)} percent={item?.taxa_ocupacao} barClass="bg-primary" />
+                  <ProfessionalMetricBar label="Tempo total" value={formatDurationFromMinutes(minutosDisponiveis)} percent={minutosDisponiveis > 0 ? 100 : 0} barClass="bg-gray-300" />
+                  <div className="flex items-center gap-2 pt-1">
+                    <ProfessionalCountPill label="Válidos" value={validos} />
+                    <ProfessionalCountPill label="Cancelados" value={cancelados} tone="text-red-400" border="border-red-400/30" bg="bg-red-400/10" />
+                  </div>
                 </div>
                     </>
                   );
