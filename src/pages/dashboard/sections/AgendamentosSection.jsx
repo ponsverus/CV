@@ -10,7 +10,6 @@ import {
 } from '../utils';
 
 export default function AgendamentosSection({
-  reloadAgendamentos,
   agendamentosAgrupadosPorProfissional,
   hoje,
   confirmarAtendimento,
@@ -20,7 +19,6 @@ export default function AgendamentosSection({
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-normal">Agendamentos</h2>
-        <button onClick={() => reloadAgendamentos()} className="px-4 py-2 bg-primary/20 hover:bg-primary/30 border border-primary/50 text-primary rounded-button text-sm font-normal uppercase">ATUALIZAR</button>
       </div>
       {agendamentosAgrupadosPorProfissional.length > 0 ? (
         <div className="space-y-8">
