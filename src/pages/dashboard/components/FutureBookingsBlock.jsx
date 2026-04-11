@@ -35,7 +35,7 @@ export default function FutureBookingsBlock({
         <div>
           <h3 className="text-lg font-normal uppercase">Receita Futura Projetada</h3>
         </div>
-        <div className="inline-flex items-center self-start rounded-full border border-gray-700 bg-dark-100 px-3 py-1 text-xs text-gray-300">
+        <div className="inline-flex items-center self-start rounded-full border border-gray-700 bg-dark-100 px-3 py-1 text-sm text-gray-300">
           {formatDateDots(data?.amanha)}
         </div>
       </div>
