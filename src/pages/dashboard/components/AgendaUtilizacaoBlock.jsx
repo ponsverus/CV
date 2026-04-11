@@ -132,12 +132,17 @@ export default function AgendaUtilizacaoBlock({
         />
         <MetricCard
           label="AGENDAMENTOS"
-          value={metricsUtilizacaoLoading ? '...' : Number(data?.agendamentos_validos || 0)}
-          subtle={metricsUtilizacaoLoading ? null : (
-            <>
-              <span className="text-red-400">{Number(data?.cancelados || 0)}</span>
-              <span className="text-gray-400">cancelado(s)</span>
-            </>
+          value={metricsUtilizacaoLoading ? '...' : (
+            <div className="flex items-center gap-2">
+              <div className="inline-flex items-center justify-center gap-2 rounded-full border border-gray-700 bg-transparent px-3 py-1.5">
+                <span className="text-xs text-gray-500 uppercase tracking-wide">Todos</span>
+                <span className="text-sm font-normal text-white">{Number(data?.agendamentos_validos || 0)}</span>
+              </div>
+              <div className="inline-flex items-center justify-center gap-2 rounded-full border border-red-400/30 bg-red-400/10 px-3 py-1.5">
+                <span className="text-xs text-gray-500 uppercase tracking-wide">Cancelados</span>
+                <span className="text-sm font-normal text-red-400">{Number(data?.cancelados || 0)}</span>
+              </div>
+            </div>
           )}
         />
       </div>
