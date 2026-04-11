@@ -188,6 +188,15 @@ export async function fetchDashboardToday(negocioId, profissionalId = null) {
   return data;
 }
 
+export async function fetchDashboardTopCards(negocioId, profissionalId = null) {
+  const params = { p_negocio_id: negocioId };
+  if (profissionalId) params.p_profissional_id = profissionalId;
+  const { data, error } = await supabase.rpc('get_dashboard_top_cards', params);
+  if (error) throw error;
+  if (data?.error) throw new Error(String(data.error));
+  return data?.top_cards || data || null;
+}
+
 export async function fetchDashboardDay(negocioId, dateISO, profissionalId = null) {
   const params = { p_negocio_id: negocioId, p_date: dateISO };
   if (profissionalId) params.p_profissional_id = profissionalId;
