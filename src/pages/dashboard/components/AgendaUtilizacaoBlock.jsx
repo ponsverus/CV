@@ -8,7 +8,7 @@ function formatDurationFromMinutes(value) {
 
   if (hours <= 0) return `${minutes} MIN`;
   if (minutes === 0) return `${hours}H`;
-  return `${hours}h ${String(minutes).padStart(2, '0')}MIN`;
+  return `${hours}H ${String(minutes).padStart(2, '0')}MIN`;
 }
 
 function formatPercent(value) {
