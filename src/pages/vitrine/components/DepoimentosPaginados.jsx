@@ -93,11 +93,12 @@ export default function DepoimentosPaginados({ depoimentos, nomeNegocioLabel, is
         ))}
       </div>
       {totalPaginas > 1 && (
-        <div className="flex items-center justify-center gap-3 mt-6">
-          <button type="button" onClick={goPrev} disabled={pagina === 0} className={`inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent border border-transparent transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:border-vborder ${navBtnCl}`}>
+        <div className="flex items-center justify-center gap-4 mt-6">
+          <button type="button" onClick={goPrev} disabled={pagina === 0} className={`inline-flex h-7 w-7 items-center justify-center rounded-full bg-transparent border border-vborder transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:border-vsub ${navBtnCl}`}>
             <ChevronLeft className="w-4 h-4" />
           </button>
-          {Array.from({ length: totalPaginas }).map((_, i) => (
+          <div className="flex items-center justify-center gap-3">
+            {Array.from({ length: totalPaginas }).map((_, i) => (
             <button
               type="button"
               key={i}
@@ -105,8 +106,9 @@ export default function DepoimentosPaginados({ depoimentos, nomeNegocioLabel, is
               className={['rounded-full transition-all duration-300', i === pagina ? 'w-4 h-2 bg-vprimary' : `w-2 h-2 ${dotInact}`].join(' ')}
               aria-label={`Página ${i + 1}`}
             />
-          ))}
-          <button type="button" onClick={goNext} disabled={pagina === totalPaginas - 1} className={`inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent border border-transparent transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:border-vborder ${navBtnCl}`}>
+            ))}
+          </div>
+          <button type="button" onClick={goNext} disabled={pagina === totalPaginas - 1} className={`inline-flex h-7 w-7 items-center justify-center rounded-full bg-transparent border border-vborder transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:border-vsub ${navBtnCl}`}>
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
