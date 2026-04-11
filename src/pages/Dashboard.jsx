@@ -71,6 +71,21 @@ function TrendBadge({ data }) {
   );
 }
 
+function RevenueTrendBadge({ data }) {
+  const percent = data?.variacao_percentual;
+  const delta = data?.variacao_valor;
+  const hasPercent = percent !== null && percent !== undefined;
+  const value = hasPercent ? Number(percent || 0) : Number(delta || 0);
+  const text = hasPercent ? formatPercentDelta(percent) : formatDelta(delta);
+  const tone = value > 0 ? 'text-green-500' : value < 0 ? 'text-red-500' : 'text-gray-500';
+
+  return (
+    <div className={`inline-flex items-center rounded-full border border-white bg-white px-3 py-1 text-xs ${tone}`}>
+      {text}
+    </div>
+  );
+}
+
 function InfoPill({ label, value, tone = 'text-gray-300', border = 'border-gray-700', bg = 'bg-transparent' }) {
   return (
     <div className={`inline-flex items-center justify-center gap-1.5 rounded-full border ${border} ${bg} px-3 py-1 text-xs`}>
@@ -475,10 +490,7 @@ export default function Dashboard({ user, onLogout }) {
             value={metricsTopCardsLoading ? '...' : topCardsReady ? formatCurrency(topFaturamento.valor) : '--'}
           >
             {topCardsReady ? (
-              <>
-                <TrendBadge data={topFaturamento} />
-                <span className="text-[10px] text-gray-500 uppercase">{topFaturamento.comparativo_label || 'vs ontem'}</span>
-              </>
+              <RevenueTrendBadge data={topFaturamento} />
             ) : null}
           </DashboardTopCard>
 
@@ -488,10 +500,7 @@ export default function Dashboard({ user, onLogout }) {
             value={metricsTopCardsLoading ? '...' : topCardsReady ? Number(topAgendamentos.total || 0) : '--'}
           >
             {topCardsReady ? (
-              <>
-                <TrendBadge data={topAgendamentos} />
-                <span className="text-[10px] text-gray-500 uppercase">{topAgendamentos.comparativo_label || 'vs ontem'}</span>
-              </>
+              <TrendBadge data={topAgendamentos} />
             ) : null}
           </DashboardTopCard>
 
@@ -501,11 +510,7 @@ export default function Dashboard({ user, onLogout }) {
             value={metricsTopCardsLoading ? '...' : topCardsReady ? Number(topProfissionais.total || 0) : '--'}
           >
             {topCardsReady ? (
-              <>
-                <InfoPill label="Ativos" value={Number(topProfissionais.ativos || 0)} tone="text-green-400" border="border-green-400/30" bg="bg-green-400/10" />
-                {topProfissionais.inativos !== undefined && <InfoPill label="Inativos" value={Number(topProfissionais.inativos || 0)} />}
-                {topProfissionais.pendentes !== undefined && <InfoPill label="Pend." value={Number(topProfissionais.pendentes || 0)} tone="text-yellow-400" border="border-yellow-400/30" bg="bg-yellow-400/10" />}
-              </>
+              <InfoPill label="Ativos" value={Number(topProfissionais.ativos || 0)} />
             ) : null}
           </DashboardTopCard>
 
@@ -515,10 +520,7 @@ export default function Dashboard({ user, onLogout }) {
             value={metricsTopCardsLoading ? '...' : topCardsReady ? Number(topEntregas.total || 0) : '--'}
           >
             {topCardsReady ? (
-              <>
-                <InfoPill label="Ativos" value={Number(topEntregas.ativos || 0)} tone="text-green-400" border="border-green-400/30" bg="bg-green-400/10" />
-                <InfoPill label="Media" value={formatCurrency(topEntregas.preco_medio)} tone="text-primary" border="border-primary/30" bg="bg-primary/10" />
-              </>
+              <InfoPill label="Média" value={formatCurrency(topEntregas.preco_medio)} />
             ) : null}
           </DashboardTopCard>
         </div>
