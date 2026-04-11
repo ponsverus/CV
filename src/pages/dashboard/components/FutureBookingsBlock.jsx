@@ -73,8 +73,8 @@ export default function FutureBookingsBlock({
               <div className="text-xs text-gray-500 mb-1">PROFISSIONAL</div>
               <div className="font-normal text-white">{String(item?.nome || 'PROFISSIONAL')}</div>
               <div className="mt-3 grid grid-cols-2 gap-2">
-                <ProfessionalInfoPill label="Receita" value={formatCurrency(item?.receita_projetada)} tone="text-primary" border="border-primary/30" bg="bg-primary/10" />
-                <ProfessionalInfoPill label="Agend." value={Number(item?.total_agendamentos || 0)} />
+                <ProfessionalInfoPill value={formatCurrency(item?.receita_projetada)} tone="text-primary" border="border-primary/30" bg="bg-primary/10" />
+                <ProfessionalInfoPill label="Agendam." value={Number(item?.total_agendamentos || 0)} />
               </div>
             </div>
           ))}
