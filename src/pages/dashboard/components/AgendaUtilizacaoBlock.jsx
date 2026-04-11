@@ -27,7 +27,7 @@ function MetricCard({ label, value, tone = 'text-white', subtle }) {
     <div className="bg-dark-200 border border-gray-800 rounded-custom p-4">
       <div className="text-xs text-gray-500 mb-1">{label}</div>
       <div className={`text-xl font-normal ${tone}`}>{value}</div>
-      {subtle ? <div className="text-sm text-gray-500 mt-1">{subtle}</div> : null}
+      {subtle ? <div className="text-sm text-red-400 mt-1">{subtle}</div> : null}
     </div>
   );
 }
@@ -108,9 +108,9 @@ export default function AgendaUtilizacaoBlock({
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-3 items-start">
         <MetricCard
-          label="TAXA DE OCUPA."
-          tone="text-primary"
-          value={metricsUtilizacaoLoading ? '...' : formatPercent(data?.taxa_ocupacao)}
+          label="TEMPO DISPONIVEL"
+          tone="text-yellow-400"
+          value={metricsUtilizacaoLoading ? '...' : formatDurationFromMinutes(data?.minutos_ociosos)}
         />
         <MetricCard
           label="TEMPO OCUPADO"
@@ -118,13 +118,13 @@ export default function AgendaUtilizacaoBlock({
           value={metricsUtilizacaoLoading ? '...' : formatDurationFromMinutes(data?.minutos_ocupados)}
         />
         <MetricCard
-          label="TEMPO TOTAL"
-          value={metricsUtilizacaoLoading ? '...' : formatDurationFromMinutes(data?.minutos_disponiveis)}
+          label="TAXA DE OCUPA."
+          tone="text-primary"
+          value={metricsUtilizacaoLoading ? '...' : formatPercent(data?.taxa_ocupacao)}
         />
         <MetricCard
-          label="TEMPO DISPONÍVEL"
-          tone="text-yellow-400"
-          value={metricsUtilizacaoLoading ? '...' : formatDurationFromMinutes(data?.minutos_ociosos)}
+          label="TEMPO TOTAL"
+          value={metricsUtilizacaoLoading ? '...' : formatDurationFromMinutes(data?.minutos_disponiveis)}
         />
         <MetricCard
           label="AGENDAMENTOS"
