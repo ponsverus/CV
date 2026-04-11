@@ -27,7 +27,11 @@ function MetricCard({ label, value, tone = 'text-white', subtle }) {
     <div className="bg-dark-200 border border-gray-800 rounded-custom p-4">
       <div className="text-xs text-gray-500 mb-1">{label}</div>
       <div className={`text-xl font-normal ${tone}`}>{value}</div>
-      {subtle ? <div className="text-sm text-red-400 mt-1">{subtle}</div> : null}
+      {subtle ? (
+        <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-red-400/30 bg-red-400/10 px-3 py-1 text-sm">
+          {subtle}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -129,7 +133,12 @@ export default function AgendaUtilizacaoBlock({
         <MetricCard
           label="AGENDAMENTOS"
           value={metricsUtilizacaoLoading ? '...' : Number(data?.agendamentos_validos || 0)}
-          subtle={metricsUtilizacaoLoading ? null : `${Number(data?.cancelados || 0)} cancelado(s)`}
+          subtle={metricsUtilizacaoLoading ? null : (
+            <>
+              <span className="text-red-400">{Number(data?.cancelados || 0)}</span>
+              <span className="text-gray-400">cancelado(s)</span>
+            </>
+          )}
         />
       </div>
 
