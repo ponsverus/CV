@@ -46,7 +46,7 @@ export default function EntregaModal({
         </div>
 
         <form onSubmit={onSubmit}>
-          <ServiceFieldRow label="Profissional">
+          <ServiceFieldRow label="PROFISSIONAL">
             <ProfissionalSelect
               value={formEntrega.profissional_id}
               onChange={(id) => setFormEntrega({ ...formEntrega, profissional_id: id })}
@@ -57,7 +57,7 @@ export default function EntregaModal({
             />
           </ServiceFieldRow>
 
-          <ServiceFieldRow label="Nome">
+          <ServiceFieldRow label="NOME">
             <input
               type="text"
               value={formEntrega.nome}
@@ -68,7 +68,7 @@ export default function EntregaModal({
             />
           </ServiceFieldRow>
 
-          <ServiceFieldRow label="Duracao">
+          <ServiceFieldRow label="DUR. EM MINUTOS">
             <input
               type="number"
               value={formEntrega.duracao_minutos}
@@ -79,7 +79,7 @@ export default function EntregaModal({
             />
           </ServiceFieldRow>
 
-          <ServiceFieldRow label="Preco">
+          <ServiceFieldRow label="VALOR">
             <input
               type="number"
               step="0.01"
