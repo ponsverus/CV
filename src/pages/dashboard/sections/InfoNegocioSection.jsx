@@ -65,10 +65,10 @@ export default function InfoNegocioSection({
         </div>
         <p className="text-sm text-gray-500 mb-4">Adicione fotos do seu local e do que voce oferece. Elas aparecem na sua vitrine publica para atrair novos clientes.</p>
         {galeriaItems.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="columns-2 sm:columns-3 lg:columns-4 gap-3">
             {galeriaItems.map((item) => (
-              <div key={item.id || item.path} className="relative bg-dark-100 border border-gray-800 rounded-custom overflow-hidden">
-                <img src={getPublicUrl('galerias', item.path)} alt="Galeria" className="w-full h-28 object-cover" />
+              <div key={item.id || item.path} className="relative mb-3 w-full break-inside-avoid bg-dark-100 border border-gray-800 rounded-custom overflow-hidden">
+                <img src={getPublicUrl('galerias', item.path)} alt="Galeria" className="w-full h-auto object-contain bg-dark-100" loading="lazy" />
                 <button onClick={() => removerImagemGaleria(item)} className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 sm:left-auto sm:top-2 sm:right-2 sm:translate-x-0 sm:translate-y-0 px-3 py-1 rounded-full bg-black/60 border border-gray-700 hover:border-red-400 text-[12px] text-red-200 font-normal uppercase">REMOVER</button>
               </div>
             ))}
