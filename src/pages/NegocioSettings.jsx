@@ -39,7 +39,7 @@ function SettingRow({ label, value, hint, multiline = false, type = 'text', onSa
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           {multiline ? (
             <textarea
-              className="min-h-20 w-full resize-y rounded-full border border-gray-800 bg-dark-200 px-3 py-2 text-[14px] text-white outline-none focus:border-primary/50"
+              className="min-h-20 w-full resize-y rounded-custom border border-gray-800 bg-dark-200 px-3 py-2 text-[14px] text-white outline-none focus:border-primary/50"
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               autoFocus
@@ -102,7 +102,7 @@ function PasswordRow({ onSave }) {
       <span className="w-[74px] shrink-0 pt-0.5 text-[14px] text-gray-500">Senha</span>
       {editing ? (
         <div className="flex min-w-0 flex-1 flex-col gap-2">
-          <input className="w-full rounded-custom border border-gray-800 bg-dark-200 px-3 py-2 text-[14px] text-white outline-none focus:border-primary/50" type="password" placeholder="Nova senha" value={nova} onChange={(e) => setNova(e.target.value)} autoFocus />
+          <input className="w-full rounded-full border border-gray-800 bg-dark-200 px-3 py-2 text-[14px] text-white outline-none focus:border-primary/50" type="password" placeholder="Nova senha" value={nova} onChange={(e) => setNova(e.target.value)} autoFocus />
           <input className="w-full rounded-custom border border-gray-800 bg-dark-200 px-3 py-2 text-[14px] text-white outline-none focus:border-primary/50" type="password" placeholder="Confirmar nova senha" value={confirmar} onChange={(e) => setConfirmar(e.target.value)} />
           <div className="flex items-center gap-3">
             <button type="button" onClick={handleSave} disabled={saving} className="rounded-full border border-primary/30 px-3 py-1 text-[12px] uppercase text-primary disabled:opacity-50">
@@ -377,7 +377,7 @@ export default function NegocioSettings({ user }) {
   if (loadError || !negocio) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center p-4 text-white">
-        <div className="w-full max-w-md rounded-custom border border-red-500/40 bg-dark-100 p-8 text-center">
+        <div className="w-full max-w-md rounded-full border border-red-500/40 bg-dark-100 p-8 text-center">
           <p className="mb-6 text-gray-400">{loadError || 'Negocio nao encontrado.'}</p>
           <button type="button" onClick={voltarDashboard} className="rounded-full border border-primary/40 px-6 py-3 text-primary">
             VOLTAR
