@@ -45,7 +45,7 @@ export default function EntregasSection({
                             <span className="inline-flex items-center rounded-full border border-gray-700 bg-transparent px-3 py-1 text-xs text-gray-500">{s.duracao_minutos} MIN</span>
                           </div>
                           <h3 className="text-sm font-normal text-white mb-0.5">{s.nome}</h3>
-                          <p className="text-xs text-gray-500 mb-4">{p.nome}</p>
+                          <p className="text-xs text-gray-500 mb-4">PROF: {p.nome}</p>
                           <div className="flex gap-2">
                             <button onClick={async () => {
                               if (!await checarPermissao(s.profissional_id)) return;
