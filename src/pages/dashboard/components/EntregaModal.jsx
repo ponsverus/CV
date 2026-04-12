@@ -2,6 +2,20 @@ import React from 'react';
 import { X } from 'lucide-react';
 import ProfissionalSelect from '../../../components/ProfissionalSelect';
 
+function ServiceFieldRow({ label, children, hint, last = false }) {
+  return (
+    <div className={`flex items-start gap-3 px-4 py-3 sm:px-5 ${last ? '' : 'border-b border-gray-800'}`}>
+      <span className="w-[110px] shrink-0 pt-2 text-[13px] text-gray-500">{label}</span>
+      <div className="min-w-0 flex-1">
+        {children}
+        {hint ? <p className="mt-1 text-[11px] text-gray-500">{hint}</p> : null}
+      </div>
+    </div>
+  );
+}
+
+const serviceInputClass = 'w-full bg-transparent px-0 py-2 text-[14px] text-white placeholder-gray-600 outline-none focus:text-white';
+
 export default function EntregaModal({
   show,
   editingEntregaId,
@@ -17,37 +31,96 @@ export default function EntregaModal({
 }) {
   if (!show) return null;
 
+  const profissionaisDisponiveis = parceiroProfissional
+    ? profissionais.filter((p) => p.id === parceiroProfissional.id)
+    : profissionais;
+
   return (
-    <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
-      <div className="bg-dark-100 border border-gray-800 rounded-custom max-w-md w-full p-8 max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4">
+      <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-custom border border-gray-800 bg-dark-100 p-8">
+        <div className="mb-6 flex items-center justify-between">
           <h3 className="text-2xl font-normal">{editingEntregaId ? modalEditLabel : modalNewLabel}</h3>
-          <button onClick={onClose}>
-            <X className="w-6 h-6" />
+          <button type="button" onClick={onClose} className="text-gray-400 hover:text-white">
+            <X className="h-6 w-6" />
           </button>
         </div>
-        <form onSubmit={onSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm mb-2">Profissional</label>
-            <ProfissionalSelect
-              value={formEntrega.profissional_id}
-              onChange={(id) => setFormEntrega({ ...formEntrega, profissional_id: id })}
-              profissionais={parceiroProfissional ? profissionais.filter((p) => p.id === parceiroProfissional.id) : profissionais}
-              placeholder="Selecione"
-              apenasAtivos={true}
-            />
+
+        <form onSubmit={onSubmit}>
+          <div className="overflow-visible rounded-custom border border-gray-800 bg-dark-200">
+            <ServiceFieldRow label="Profissional">
+              <ProfissionalSelect
+                value={formEntrega.profissional_id}
+                onChange={(id) => setFormEntrega({ ...formEntrega, profissional_id: id })}
+                profissionais={profissionaisDisponiveis}
+                placeholder="Selecione o profissional"
+                apenasAtivos={true}
+                buttonClassName="w-full flex items-center gap-3 bg-transparent px-0 py-1 text-sm font-normal transition-colors focus:outline-none"
+              />
+            </ServiceFieldRow>
+
+            <ServiceFieldRow label="Nome">
+              <input
+                type="text"
+                value={formEntrega.nome}
+                onChange={(e) => setFormEntrega({ ...formEntrega, nome: e.target.value })}
+                className={serviceInputClass}
+                placeholder="Nome do servico"
+                required
+              />
+            </ServiceFieldRow>
+
+            <ServiceFieldRow label="Duracao">
+              <input
+                type="number"
+                value={formEntrega.duracao_minutos}
+                onChange={(e) => setFormEntrega({ ...formEntrega, duracao_minutos: e.target.value })}
+                className={serviceInputClass}
+                placeholder="Tempo em minutos"
+                required
+              />
+            </ServiceFieldRow>
+
+            <ServiceFieldRow label="Preco">
+              <input
+                type="number"
+                step="0.01"
+                value={formEntrega.preco}
+                onChange={(e) => setFormEntrega({ ...formEntrega, preco: e.target.value })}
+                className={serviceInputClass}
+                placeholder="Valor normal em R$"
+                required
+              />
+            </ServiceFieldRow>
+
+            <ServiceFieldRow label="Oferta" hint="O preco de oferta deve ser menor que o preco normal." last>
+              <input
+                type="number"
+                step="0.01"
+                value={formEntrega.preco_promocional}
+                onChange={(e) => setFormEntrega({ ...formEntrega, preco_promocional: e.target.value })}
+                className={serviceInputClass}
+                placeholder="Apenas se houver oferta"
+              />
+            </ServiceFieldRow>
           </div>
-          <div><label className="block text-sm mb-2">Nome</label><input type="text" value={formEntrega.nome} onChange={(e) => setFormEntrega({ ...formEntrega, nome: e.target.value })} className="w-full px-4 py-3 bg-dark-200 border border-gray-800 rounded-custom text-white" required /></div>
-          <div><label className="block text-sm mb-2">Tempo estimado (min)</label><input type="number" value={formEntrega.duracao_minutos} onChange={(e) => setFormEntrega({ ...formEntrega, duracao_minutos: e.target.value })} className="w-full px-4 py-3 bg-dark-200 border border-gray-800 rounded-custom text-white" required /></div>
-          <div><label className="block text-sm mb-2">Preço (R$)</label><input type="number" step="0.01" value={formEntrega.preco} onChange={(e) => setFormEntrega({ ...formEntrega, preco: e.target.value })} className="w-full px-4 py-3 bg-dark-200 border border-gray-800 rounded-custom text-white" required /></div>
-          <div>
-            <label className="block text-sm mb-2">Preço de OFERTA (opcional)</label>
-            <input type="number" step="0.01" value={formEntrega.preco_promocional} onChange={(e) => setFormEntrega({ ...formEntrega, preco_promocional: e.target.value })} className="w-full px-4 py-3 bg-dark-200 border border-gray-800 rounded-custom text-white" placeholder="Apenas se houver oferta" />
-            <p className="text-[12px] text-gray-500 mt-2">O preço de oferta deve ser menor que o preço normal.</p>
+
+          <div className="mt-5 flex items-center gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={submittingEntrega}
+              className="rounded-full border border-red-500/30 px-4 py-2 text-[12px] uppercase text-red-400 disabled:opacity-50"
+            >
+              CANCELAR
+            </button>
+            <button
+              type="submit"
+              disabled={submittingEntrega}
+              className={`flex-1 rounded-button bg-gradient-to-r from-primary to-yellow-600 py-3 font-normal uppercase text-black ${submittingEntrega ? 'cursor-not-allowed opacity-60' : ''}`}
+            >
+              {submittingEntrega ? 'SALVANDO...' : 'SALVAR'}
+            </button>
           </div>
-          <button type="submit" disabled={submittingEntrega} className={`w-full py-3 bg-gradient-to-r from-primary to-yellow-600 text-black rounded-button font-normal uppercase ${submittingEntrega ? 'opacity-60 cursor-not-allowed' : ''}`}>
-            {submittingEntrega ? 'SALVANDO...' : 'SALVAR'}
-          </button>
         </form>
       </div>
     </div>
