@@ -39,7 +39,8 @@ function SettingRow({ label, value, hint, multiline = false, type = 'text', onSa
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           {multiline ? (
             <textarea
-              className="min-h-20 w-full resize-y rounded-custom border border-gray-800 bg-dark-200 px-3 py-2 text-[14px] text-white outline-none focus:border-primary/50"
+              rows={4}
+              className="w-full resize-none rounded-custom border border-gray-800 bg-dark-200 px-4 py-3 text-[14px] font-normal text-white outline-none transition-all placeholder-gray-500 focus:border-primary"
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               autoFocus
@@ -58,8 +59,8 @@ function SettingRow({ label, value, hint, multiline = false, type = 'text', onSa
             <button type="button" onClick={handleSave} disabled={saving} className="rounded-full border border-primary/30 px-3 py-1 text-[12px] uppercase text-primary disabled:opacity-50">
               {saving ? 'salvando' : 'salvar'}
             </button>
-            <button type="button" onClick={handleCancel} disabled={saving} className="text-[12px] uppercase text-gray-500 disabled:opacity-50">
-              cancelar
+            <button type="button" onClick={handleCancel} disabled={saving} className="rounded-full border border-red-500/30 px-3 py-1 text-[12px] uppercase text-red-400 disabled:opacity-50">
+              CANCELAR
             </button>
           </div>
         </div>
@@ -102,14 +103,14 @@ function PasswordRow({ onSave }) {
       <span className="w-[74px] shrink-0 pt-0.5 text-[14px] text-gray-500">Senha</span>
       {editing ? (
         <div className="flex min-w-0 flex-1 flex-col gap-2">
-          <input className="w-full rounded-full border border-gray-800 bg-dark-200 px-3 py-2 text-[14px] text-white outline-none focus:border-primary/50" type="password" placeholder="Nova senha" value={nova} onChange={(e) => setNova(e.target.value)} autoFocus />
+          <input className="w-full rounded-custom border border-gray-800 bg-dark-200 px-3 py-2 text-[14px] text-white outline-none focus:border-primary/50" type="password" placeholder="Nova senha" value={nova} onChange={(e) => setNova(e.target.value)} autoFocus />
           <input className="w-full rounded-custom border border-gray-800 bg-dark-200 px-3 py-2 text-[14px] text-white outline-none focus:border-primary/50" type="password" placeholder="Confirmar nova senha" value={confirmar} onChange={(e) => setConfirmar(e.target.value)} />
           <div className="flex items-center gap-3">
             <button type="button" onClick={handleSave} disabled={saving} className="rounded-full border border-primary/30 px-3 py-1 text-[12px] uppercase text-primary disabled:opacity-50">
               {saving ? 'salvando' : 'salvar'}
             </button>
-            <button type="button" onClick={reset} disabled={saving} className="text-[12px] uppercase text-gray-500 disabled:opacity-50">
-              cancelar
+            <button type="button" onClick={reset} disabled={saving} className="rounded-full border border-red-500/30 px-3 py-1 text-[12px] uppercase text-red-400 disabled:opacity-50">
+              CANCELAR
             </button>
           </div>
         </div>
@@ -377,7 +378,7 @@ export default function NegocioSettings({ user }) {
   if (loadError || !negocio) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center p-4 text-white">
-        <div className="w-full max-w-md rounded-full border border-red-500/40 bg-dark-100 p-8 text-center">
+        <div className="w-full max-w-md rounded-custom border border-red-500/40 bg-dark-100 p-8 text-center">
           <p className="mb-6 text-gray-400">{loadError || 'Negocio nao encontrado.'}</p>
           <button type="button" onClick={voltarDashboard} className="rounded-full border border-primary/40 px-6 py-3 text-primary">
             VOLTAR
@@ -388,10 +389,24 @@ export default function NegocioSettings({ user }) {
   }
 
   const activeGalleryItem = galeriaItems[galleryIndex] || null;
+  const negocioLogoUrl = getPublicUrl('logos', negocio.logo_path);
 
   return (
-    <div className="min-h-screen bg-black px-4 py-8 text-white">
-      <div className="mx-auto w-full max-w-[620px] overflow-hidden rounded-custom border border-gray-800 bg-dark-100">
+    <div className="relative min-h-screen overflow-hidden bg-black px-4 py-8 text-white">
+      <div className="pointer-events-none absolute inset-0 hidden overflow-hidden md:block">
+        <div className="absolute top-1/4 -left-20 h-96 w-96 rounded-full bg-primary/5 blur-[120px] animate-pulse" />
+        <div className="absolute bottom-1/4 -right-20 h-96 w-96 rounded-full bg-primary/5 blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />
+      </div>
+
+      <div className="relative z-10 mx-auto mb-6 flex h-20 w-20 items-center justify-center overflow-hidden rounded-custom border border-gray-800 bg-dark-100">
+        {negocioLogoUrl ? (
+          <img src={negocioLogoUrl} alt={negocio.nome || 'Logo'} className="h-full w-full object-cover" />
+        ) : (
+          <img src="/Comvaga Logo.png" alt="COMVAGA" className="h-14 w-auto object-contain" />
+        )}
+      </div>
+
+      <div className="relative z-10 mx-auto w-full max-w-[620px] overflow-hidden rounded-custom border border-gray-800 bg-dark-100">
         <div className="flex items-center justify-between gap-4 border-b border-gray-800 px-4 py-4 sm:px-6">
           <button type="button" onClick={voltarDashboard} className="inline-flex items-center gap-2 rounded-full border border-gray-700 px-3 py-1 text-[12px] uppercase text-gray-400 hover:border-primary hover:text-primary">
             <ArrowLeft className="h-4 w-4" />
