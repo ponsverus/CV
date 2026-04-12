@@ -68,7 +68,7 @@ export default function EntregaModal({
             />
           </ServiceFieldRow>
 
-          <ServiceFieldRow label="DUR. EM MINUTOS">
+          <ServiceFieldRow label="TEMPO">
             <input
               type="number"
               value={formEntrega.duracao_minutos}
@@ -91,7 +91,7 @@ export default function EntregaModal({
             />
           </ServiceFieldRow>
 
-          <ServiceFieldRow label="Oferta" hint="O preco de oferta deve ser menor que o preco normal." last>
+          <ServiceFieldRow label="OFERTA">
             <input
               type="number"
               step="0.01"
