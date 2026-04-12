@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { ArrowLeft, ChevronLeft, ChevronRight, ExternalLink, Plus } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../supabase';
 import { convertImageToWebp, isImageFile } from '../utils/media';
@@ -33,20 +33,20 @@ function SettingRow({ label, value, hint, multiline = false, type = 'text', onSa
 
   return (
     <div className="flex items-start gap-3 border-b border-gray-800 px-4 py-3 sm:px-6">
-      <span className="w-24 shrink-0 pt-0.5 text-[13px] text-gray-500">{label}</span>
+      <span className="w-24 shrink-0 pt-0.5 text-[14px] text-gray-500">{label}</span>
 
       {editing ? (
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           {multiline ? (
             <textarea
-              className="min-h-20 w-full resize-y rounded-custom border border-gray-800 bg-dark-200 px-3 py-2 text-[13px] text-white outline-none focus:border-primary/50"
+              className="min-h-20 w-full resize-y rounded-custom border border-gray-800 bg-dark-200 px-3 py-2 text-[14px] text-white outline-none focus:border-primary/50"
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               autoFocus
             />
           ) : (
             <input
-              className="w-full rounded-custom border border-gray-800 bg-dark-200 px-3 py-2 text-[13px] text-white outline-none focus:border-primary/50"
+              className="w-full rounded-custom border border-gray-800 bg-dark-200 px-3 py-2 text-[14px] text-white outline-none focus:border-primary/50"
               type={type}
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
@@ -55,19 +55,19 @@ function SettingRow({ label, value, hint, multiline = false, type = 'text', onSa
           )}
           {hint ? <p className="text-[10px] text-gray-500">{hint}</p> : null}
           <div className="flex items-center gap-3">
-            <button type="button" onClick={handleSave} disabled={saving} className="rounded-full border border-primary/30 px-3 py-1 text-[11px] text-primary disabled:opacity-50">
+            <button type="button" onClick={handleSave} disabled={saving} className="rounded-full border border-primary/30 px-3 py-1 text-[12px] uppercase text-primary disabled:opacity-50">
               {saving ? 'salvando' : 'salvar'}
             </button>
-            <button type="button" onClick={handleCancel} disabled={saving} className="text-[11px] text-gray-500 disabled:opacity-50">
+            <button type="button" onClick={handleCancel} disabled={saving} className="text-[12px] uppercase text-gray-500 disabled:opacity-50">
               cancelar
             </button>
           </div>
         </div>
       ) : (
         <>
-          <span className="min-w-0 flex-1 break-words text-[13px] leading-5 text-gray-300">{value || <span className="text-gray-600">-</span>}</span>
-          <button type="button" onClick={() => { setDraft(value || ''); setEditing(true); }} className="shrink-0 pt-0.5 text-[11px] text-primary">
-            editar
+          <span className="min-w-0 flex-1 break-words text-[14px] leading-5 text-gray-300">{value || <span className="text-gray-600">-</span>}</span>
+          <button type="button" onClick={() => { setDraft(value || ''); setEditing(true); }} className="shrink-0 rounded-full border border-primary/30 px-3 py-1 text-[12px] uppercase text-primary">
+            EDITAR
           </button>
         </>
       )}
@@ -99,25 +99,25 @@ function PasswordRow({ onSave }) {
 
   return (
     <div className="flex items-start gap-3 border-b border-gray-800 px-4 py-3 sm:px-6">
-      <span className="w-24 shrink-0 pt-0.5 text-[13px] text-gray-500">Senha</span>
+      <span className="w-24 shrink-0 pt-0.5 text-[14px] text-gray-500">Senha</span>
       {editing ? (
         <div className="flex min-w-0 flex-1 flex-col gap-2">
-          <input className="w-full rounded-custom border border-gray-800 bg-dark-200 px-3 py-2 text-[13px] text-white outline-none focus:border-primary/50" type="password" placeholder="Nova senha" value={nova} onChange={(e) => setNova(e.target.value)} autoFocus />
-          <input className="w-full rounded-custom border border-gray-800 bg-dark-200 px-3 py-2 text-[13px] text-white outline-none focus:border-primary/50" type="password" placeholder="Confirmar nova senha" value={confirmar} onChange={(e) => setConfirmar(e.target.value)} />
+          <input className="w-full rounded-custom border border-gray-800 bg-dark-200 px-3 py-2 text-[14px] text-white outline-none focus:border-primary/50" type="password" placeholder="Nova senha" value={nova} onChange={(e) => setNova(e.target.value)} autoFocus />
+          <input className="w-full rounded-custom border border-gray-800 bg-dark-200 px-3 py-2 text-[14px] text-white outline-none focus:border-primary/50" type="password" placeholder="Confirmar nova senha" value={confirmar} onChange={(e) => setConfirmar(e.target.value)} />
           <div className="flex items-center gap-3">
-            <button type="button" onClick={handleSave} disabled={saving} className="rounded-full border border-primary/30 px-3 py-1 text-[11px] text-primary disabled:opacity-50">
+            <button type="button" onClick={handleSave} disabled={saving} className="rounded-full border border-primary/30 px-3 py-1 text-[12px] uppercase text-primary disabled:opacity-50">
               {saving ? 'salvando' : 'salvar'}
             </button>
-            <button type="button" onClick={reset} disabled={saving} className="text-[11px] text-gray-500 disabled:opacity-50">
+            <button type="button" onClick={reset} disabled={saving} className="text-[12px] uppercase text-gray-500 disabled:opacity-50">
               cancelar
             </button>
           </div>
         </div>
       ) : (
         <>
-          <span className="min-w-0 flex-1 text-[13px] leading-5 text-gray-300">••••••••</span>
-          <button type="button" onClick={() => setEditing(true)} className="shrink-0 pt-0.5 text-[11px] text-primary">
-            editar
+          <span className="min-w-0 flex-1 text-[14px] leading-5 text-gray-300">••••••••</span>
+          <button type="button" onClick={() => setEditing(true)} className="shrink-0 rounded-full border border-primary/30 px-3 py-1 text-[12px] uppercase text-primary">
+            EDITAR
           </button>
         </>
       )}
@@ -396,9 +396,8 @@ export default function NegocioSettings({ user }) {
             voltar
           </button>
           <span className="text-[14px] font-normal text-white">Info do negócio</span>
-          <Link to={`/v/${negocio.slug}`} target="_blank" className="inline-flex items-center gap-1 text-[13px] text-gray-400 hover:text-primary">
-            vitrine
-            <ExternalLink className="h-3.5 w-3.5" />
+          <Link to={`/v/${negocio.slug}`} target="_blank" className="inline-flex items-center rounded-full border border-primary/30 px-3 py-1 text-[12px] uppercase text-primary hover:border-primary">
+            VITRINE
           </Link>
         </div>
 
@@ -414,7 +413,7 @@ export default function NegocioSettings({ user }) {
 
         <GroupLabel>Aparência</GroupLabel>
         <div className="flex items-start gap-3 border-b border-gray-800 px-4 py-3 sm:px-6">
-          <span className="w-24 shrink-0 pt-1 text-[13px] text-gray-500">Tema</span>
+          <span className="w-24 shrink-0 pt-1 text-[14px] text-gray-500">Tema</span>
           <div className="min-w-0 flex-1">
             <TemaToggle value={negocio.tema || 'dark'} onChange={salvarTema} loading={temaSaving} />
           </div>
@@ -423,7 +422,7 @@ export default function NegocioSettings({ user }) {
         <GroupLabel>Galeria</GroupLabel>
         <div className="border-b border-gray-800 px-4 py-4 sm:px-6">
           <div className="mb-4 flex items-center justify-between gap-4">
-            <span className="text-[13px] text-gray-400">{galeriaItems.length ? `${galeriaItems.length} imagem(ns)` : 'Nenhuma imagem ainda'}</span>
+            <span className="text-[14px] text-gray-400">{galeriaItems.length ? `${galeriaItems.length} imagem(ns)` : 'Nenhuma imagem ainda'}</span>
             <label>
               <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => uploadGaleria(e.target.files)} disabled={galleryUploading} />
               <span className={`inline-flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1 text-[11px] ${galleryUploading ? 'border-gray-800 text-gray-600' : 'border-primary/30 text-primary'}`}>
@@ -492,10 +491,10 @@ export default function NegocioSettings({ user }) {
 
         <GroupLabel>Zona de perigo</GroupLabel>
         <div className="flex items-start gap-3 border-b border-gray-800 px-4 py-3 sm:px-6">
-          <span className="w-24 shrink-0 pt-0.5 text-[13px] text-gray-500">Negócio</span>
-          <span className="min-w-0 flex-1 text-[13px] leading-5 text-red-400">Excluir permanentemente</span>
-          <button type="button" onClick={excluirNegocio} disabled={deletingBusiness} className="shrink-0 rounded-full border border-red-500/30 px-3 py-1 text-[11px] text-red-400 disabled:opacity-50">
-            {deletingBusiness ? 'excluindo' : 'excluir'}
+          <span className="w-24 shrink-0 pt-0.5 text-[14px] text-gray-500">Negócio</span>
+          <span className="min-w-0 flex-1 text-[14px] leading-5 text-red-400">Excluir permanentemente</span>
+          <button type="button" onClick={excluirNegocio} disabled={deletingBusiness} className="shrink-0 rounded-full border border-red-500/30 px-3 py-1 text-[12px] uppercase text-red-400 disabled:opacity-50">
+            {deletingBusiness ? 'EXCLUINDO' : 'EXCLUIR'}
           </button>
         </div>
       </div>
