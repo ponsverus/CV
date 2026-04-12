@@ -39,7 +39,7 @@ function SettingRow({ label, value, hint, multiline = false, type = 'text', onSa
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           {multiline ? (
             <textarea
-              className="min-h-20 w-full resize-y rounded-custom border border-gray-800 bg-dark-200 px-3 py-2 text-[14px] text-white outline-none focus:border-primary/50"
+              className="min-h-20 w-full resize-y rounded-full border border-gray-800 bg-dark-200 px-3 py-2 text-[14px] text-white outline-none focus:border-primary/50"
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               autoFocus
