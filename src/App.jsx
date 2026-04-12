@@ -21,6 +21,7 @@ const ClientArea                = lazy(() => import('./pages/ClientArea'));
 const CriarNegocio              = lazy(() => import('./pages/CriarNegocio'));
 const SelecionarNegocio         = lazy(() => import('./pages/SelecionarNegocio'));
 const SignupProfessionalResume  = lazy(() => import('./pages/SignupProfessionalResume'));
+const NegocioSettings           = lazy(() => import('./pages/NegocioSettings'));
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -400,6 +401,20 @@ export default function App() {
                     : accessState === 'partner_pending'
                       ? <Navigate to="/parceiro/aguardando" />
                       : <Dashboard user={user} onLogout={handleLogout} />
+                : userType ? <Navigate to="/minha-area" />
+                : <Navigate to={postLogoutRedirect || "/login"} />
+              ) : <Navigate to={postLogoutRedirect || "/login"} />
+            } />
+
+            <Route path="/dashboard/info-negocio" element={
+              isLoggedIn ? (
+                typeLoading ? <FullScreenLoading text="CARREGANDO..." />
+                : userType === 'professional'
+                  ? accessState === 'owner_resume'
+                    ? <Navigate to="/cadastro/profissional/retomada" />
+                    : accessState === 'partner_pending'
+                      ? <Navigate to="/parceiro/aguardando" />
+                      : <NegocioSettings user={user} />
                 : userType ? <Navigate to="/minha-area" />
                 : <Navigate to={postLogoutRedirect || "/login"} />
               ) : <Navigate to={postLogoutRedirect || "/login"} />
