@@ -33,7 +33,7 @@ function SettingRow({ label, value, hint, multiline = false, type = 'text', onSa
 
   return (
     <div className="flex items-start gap-3 border-b border-gray-800 px-4 py-3 sm:px-6">
-      <span className="w-24 shrink-0 pt-0.5 text-[14px] text-gray-500">{label}</span>
+      <span className="w-[74px] shrink-0 pt-0.5 text-[14px] text-gray-500">{label}</span>
 
       {editing ? (
         <div className="flex min-w-0 flex-1 flex-col gap-2">
@@ -99,7 +99,7 @@ function PasswordRow({ onSave }) {
 
   return (
     <div className="flex items-start gap-3 border-b border-gray-800 px-4 py-3 sm:px-6">
-      <span className="w-24 shrink-0 pt-0.5 text-[14px] text-gray-500">Senha</span>
+      <span className="w-[74px] shrink-0 pt-0.5 text-[14px] text-gray-500">Senha</span>
       {editing ? (
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           <input className="w-full rounded-custom border border-gray-800 bg-dark-200 px-3 py-2 text-[14px] text-white outline-none focus:border-primary/50" type="password" placeholder="Nova senha" value={nova} onChange={(e) => setNova(e.target.value)} autoFocus />
@@ -387,13 +387,15 @@ export default function NegocioSettings({ user }) {
     );
   }
 
+  const activeGalleryItem = galeriaItems[galleryIndex] || null;
+
   return (
     <div className="min-h-screen bg-black px-4 py-8 text-white">
       <div className="mx-auto w-full max-w-[620px] overflow-hidden rounded-custom border border-gray-800 bg-dark-100">
         <div className="flex items-center justify-between gap-4 border-b border-gray-800 px-4 py-4 sm:px-6">
-          <button type="button" onClick={voltarDashboard} className="inline-flex items-center gap-2 text-[13px] text-gray-400 hover:text-primary">
+          <button type="button" onClick={voltarDashboard} className="inline-flex items-center gap-2 rounded-full border border-gray-700 px-3 py-1 text-[12px] uppercase text-gray-400 hover:border-primary hover:text-primary">
             <ArrowLeft className="h-4 w-4" />
-            voltar
+            VOLTAR
           </button>
           <span className="text-[14px] font-normal text-white">Info do negócio</span>
           <Link to={`/v/${negocio.slug}`} target="_blank" className="inline-flex items-center rounded-full border border-primary/30 px-3 py-1 text-[12px] uppercase text-primary hover:border-primary">
@@ -413,7 +415,7 @@ export default function NegocioSettings({ user }) {
 
         <GroupLabel>Aparência</GroupLabel>
         <div className="flex items-start gap-3 border-b border-gray-800 px-4 py-3 sm:px-6">
-          <span className="w-24 shrink-0 pt-1 text-[14px] text-gray-500">Tema</span>
+          <span className="w-[74px] shrink-0 pt-1 text-[14px] text-gray-500">Tema</span>
           <div className="min-w-0 flex-1">
             <TemaToggle value={negocio.tema || 'dark'} onChange={salvarTema} loading={temaSaving} />
           </div>
@@ -425,50 +427,48 @@ export default function NegocioSettings({ user }) {
             <span className="text-[14px] text-gray-400">{galeriaItems.length ? `${galeriaItems.length} imagem(ns)` : 'Nenhuma imagem ainda'}</span>
             <label>
               <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => uploadGaleria(e.target.files)} disabled={galleryUploading} />
-              <span className={`inline-flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1 text-[11px] ${galleryUploading ? 'border-gray-800 text-gray-600' : 'border-primary/30 text-primary'}`}>
+              <span className={`inline-flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1 text-[12px] uppercase ${galleryUploading ? 'border-gray-800 text-gray-600' : 'border-primary/30 text-primary'}`}>
                 <Plus className="h-3.5 w-3.5" />
-                {galleryUploading ? 'enviando' : 'adicionar'}
+                {galleryUploading ? 'ENVIANDO' : 'ADICIONAR'}
               </span>
             </label>
           </div>
-          {galeriaItems.length > 0 ? (
-            <div className="relative">
-              <div className="overflow-hidden rounded-custom border border-gray-800 bg-dark-200">
-                <div
-                  className="flex transition-transform duration-300 ease-out"
-                  style={{ transform: `translateX(-${galleryIndex * 100}%)` }}
-                >
-                  {galeriaItems.map((item) => (
-                    <div key={item.id || item.path} className="relative w-full shrink-0">
-                      <img src={getPublicUrl('galerias', item.path)} alt="Galeria" className="h-auto max-h-[70vh] w-full bg-dark-200 object-contain" loading="lazy" />
-                      <button type="button" onClick={() => removerImagemGaleria(item)} className="absolute right-2 top-2 rounded-full border border-gray-700 bg-black/60 px-3 py-1 text-[12px] font-normal uppercase text-red-200 hover:border-red-400">
-                        REMOVER
+          {activeGalleryItem ? (
+            <div>
+              <div className="relative flex justify-center">
+                <div className="relative inline-flex max-w-full overflow-hidden rounded-custom border border-gray-800">
+                  <img
+                    key={activeGalleryItem.id || activeGalleryItem.path}
+                    src={getPublicUrl('galerias', activeGalleryItem.path)}
+                    alt="Galeria"
+                    className="h-auto max-h-[70vh] max-w-full object-contain"
+                    loading="lazy"
+                  />
+                  <button type="button" onClick={() => removerImagemGaleria(activeGalleryItem)} className="absolute right-2 top-2 rounded-full border border-gray-700 bg-black/60 px-3 py-1 text-[12px] font-normal uppercase text-red-200 hover:border-red-400">
+                    REMOVER
+                  </button>
+                  {galeriaItems.length > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => setGalleryIndex((current) => (current === 0 ? galeriaItems.length - 1 : current - 1))}
+                        className="absolute left-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-700 bg-black/60 text-white hover:border-primary hover:text-primary"
+                        aria-label="Imagem anterior"
+                      >
+                        <ChevronLeft className="h-5 w-5" />
                       </button>
-                    </div>
-                  ))}
+                      <button
+                        type="button"
+                        onClick={() => setGalleryIndex((current) => (current === galeriaItems.length - 1 ? 0 : current + 1))}
+                        className="absolute right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-700 bg-black/60 text-white hover:border-primary hover:text-primary"
+                        aria-label="Proxima imagem"
+                      >
+                        <ChevronRight className="h-5 w-5" />
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
-
-              {galeriaItems.length > 1 && (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => setGalleryIndex((current) => (current === 0 ? galeriaItems.length - 1 : current - 1))}
-                    className="absolute left-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-700 bg-black/60 text-white hover:border-primary hover:text-primary"
-                    aria-label="Imagem anterior"
-                  >
-                    <ChevronLeft className="h-5 w-5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setGalleryIndex((current) => (current === galeriaItems.length - 1 ? 0 : current + 1))}
-                    className="absolute right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-700 bg-black/60 text-white hover:border-primary hover:text-primary"
-                    aria-label="Proxima imagem"
-                  >
-                    <ChevronRight className="h-5 w-5" />
-                  </button>
-                </>
-              )}
 
               <div className="mt-3 flex justify-center gap-1.5">
                 {galeriaItems.map((item, index) => (
@@ -491,7 +491,7 @@ export default function NegocioSettings({ user }) {
 
         <GroupLabel>Zona de perigo</GroupLabel>
         <div className="flex items-start gap-3 border-b border-gray-800 px-4 py-3 sm:px-6">
-          <span className="w-24 shrink-0 pt-0.5 text-[14px] text-gray-500">Negócio</span>
+          <span className="w-[74px] shrink-0 pt-0.5 text-[14px] text-gray-500">Negócio</span>
           <span className="min-w-0 flex-1 text-[14px] leading-5 text-red-400">Excluir permanentemente</span>
           <button type="button" onClick={excluirNegocio} disabled={deletingBusiness} className="shrink-0 rounded-full border border-red-500/30 px-3 py-1 text-[12px] uppercase text-red-400 disabled:opacity-50">
             {deletingBusiness ? 'EXCLUINDO' : 'EXCLUIR'}
