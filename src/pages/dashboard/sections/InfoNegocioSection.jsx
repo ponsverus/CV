@@ -42,14 +42,14 @@ export default function InfoNegocioSection({
       </div>
       <div className="flex justify-start"><TemaToggle value={formInfo.tema} onChange={salvarTema} loading={temaSaving} /></div>
       <div className="grid md:grid-cols-2 gap-4">
-        <div className="bg-dark-200 border border-gray-800 rounded-custom p-5"><label className="block text-sm mb-2">Negocio</label><input value={formInfo.nome} onChange={(e) => setFormInfo((prev) => ({ ...prev, nome: e.target.value }))} className="w-full px-4 py-3 bg-dark-100 border border-gray-800 rounded-custom text-white" placeholder="Nome" /></div>
-        <div className="bg-dark-200 border border-gray-800 rounded-custom p-5"><label className="block text-sm mb-2">Telefone</label><input value={formInfo.telefone} onChange={(e) => setFormInfo((prev) => ({ ...prev, telefone: e.target.value }))} className="w-full px-4 py-3 bg-dark-100 border border-gray-800 rounded-custom text-white" placeholder="(xx) xxxxx-xxxx" /></div>
-        <div className="bg-dark-200 border border-gray-800 rounded-custom p-5 md:col-span-2"><label className="block text-sm mb-2">Endereco</label><input value={formInfo.endereco} onChange={(e) => setFormInfo((prev) => ({ ...prev, endereco: e.target.value }))} className="w-full px-4 py-3 bg-dark-100 border border-gray-800 rounded-custom text-white" placeholder='Ex.: Rua Serra do Sincora, 1038 - Belo Horizonte, Minas Gerais' /><p className="text-[12px] text-yellow-300 mt-2">Use o formato: <span className="text-gray-300">"RUA, NUMERO - CIDADE, ESTADO"</span><span className="text-gray-500"> Ex.: Rua Serra do Sincora, 1038 - Belo Horizonte, Minas Gerais</span></p></div>
-        <div className="bg-dark-200 border border-gray-800 rounded-custom p-5 md:col-span-2"><label className="block text-sm mb-2">Sobre</label><textarea value={formInfo.descricao} onChange={(e) => setFormInfo((prev) => ({ ...prev, descricao: e.target.value }))} rows={3} className="w-full px-4 py-3 bg-dark-100 border border-gray-800 rounded-custom text-white resize-none" placeholder="Sobre o negocio..." /></div>
+        <div className="bg-dark-200 border border-gray-800 rounded-custom p-5"><label className="block text-sm mb-2">Negócio</label><input value={formInfo.nome} onChange={(e) => setFormInfo((prev) => ({ ...prev, nome: e.target.value }))} className="w-full px-4 py-3 bg-dark-100 border border-gray-800 rounded-custom text-white" placeholder="Nome" /></div>
+        <div className="bg-dark-200 border border-gray-800 rounded-custom p-5"><label className="block text-sm mb-2">Telefone</label><input value={formInfo.telefone} onChange={(e) => setFormInfo((prev) => ({ ...prev, telefone: e.target.value }))} className="w-full px-4 py-3 bg-dark-100 border border-gray-800 rounded-custom text-white" placeholder="(31) 0000-0000" /></div>
+        <div className="bg-dark-200 border border-gray-800 rounded-custom p-5 md:col-span-2"><label className="block text-sm mb-2">Endereço</label><input value={formInfo.endereco} onChange={(e) => setFormInfo((prev) => ({ ...prev, endereco: e.target.value }))} className="w-full px-4 py-3 bg-dark-100 border border-gray-800 rounded-custom text-white" placeholder='Ex.: Rua Serra do Sincorá, 1038 - Belo Horizonte, MG' /><p className="text-[12px] text-yellow-300 mt-2">Use o formato: <span className="text-gray-300">"RUA, NÚMERO - CIDADE, ESTADO"</span><span className="text-gray-500"> Ex.: Rua Serra do Sincorá, 1038 - Belo Horizonte, MG</span></p></div>
+        <div className="bg-dark-200 border border-gray-800 rounded-custom p-5 md:col-span-2"><label className="block text-sm mb-2">Sobre</label><textarea value={formInfo.descricao} onChange={(e) => setFormInfo((prev) => ({ ...prev, descricao: e.target.value }))} rows={3} className="w-full px-4 py-3 bg-dark-100 border border-gray-800 rounded-custom text-white resize-none" placeholder="Sobre o negócio..." /></div>
       </div>
       <div className="bg-dark-200 border border-gray-800 rounded-custom p-6">
         <div className="text-sm font-normal text-white tracking-wide mb-1">REDES</div>
-        <p className="text-sm text-gray-500 mb-4">Seus links aparecem na vitrine publica. Deixe em branco para ocultar.</p>
+        <p className="text-sm text-gray-500 mb-4">Seus links aparecem na vitrine pública. Deixe em branco para ocultar.</p>
         <div className="grid md:grid-cols-2 gap-4">
           <div><label className="block text-sm mb-2">Instagram</label><input value={formInfo.instagram} onChange={(e) => setFormInfo((prev) => ({ ...prev, instagram: e.target.value }))} className="w-full px-4 py-3 bg-dark-100 border border-gray-800 rounded-custom text-white" placeholder="@seuinstagram" /></div>
           <div><label className="block text-sm mb-2">Facebook</label><input value={formInfo.facebook} onChange={(e) => setFormInfo((prev) => ({ ...prev, facebook: e.target.value }))} className="w-full px-4 py-3 bg-dark-100 border border-gray-800 rounded-custom text-white" placeholder="facebook.com/..." /></div>
@@ -63,7 +63,7 @@ export default function InfoNegocioSection({
             <span className={`inline-flex items-center gap-2 rounded-button font-normal border cursor-pointer transition-all uppercase ${galleryUploading ? 'bg-gray-900 border-gray-800 text-gray-600 cursor-not-allowed' : 'bg-primary/20 hover:bg-primary/30 border-primary/50 text-primary'} px-4 py-2 text-sm`}><Plus className="w-4 h-4" />{galleryUploading ? 'ENVIANDO...' : 'ADICIONAR'}</span>
           </label>
         </div>
-        <p className="text-sm text-gray-500 mb-4">Adicione fotos do seu local e do que voce oferece. Elas aparecem na sua vitrine publica para atrair novos clientes.</p>
+        <p className="text-sm text-gray-500 mb-4">Adicione fotos do seu local e do que você oferece. Elas aparecem na sua vitrine pública para atrair novos clientes.</p>
         {galeriaItems.length > 0 ? (
           <div className="columns-2 sm:columns-3 lg:columns-4 gap-3">
             {galeriaItems.map((item) => (
@@ -83,9 +83,9 @@ export default function InfoNegocioSection({
         <div className="text-xs text-gray-500 uppercase tracking-wide mb-4">CREDENCIAIS</div>
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm mb-2">EMAIL</label>
+            <label className="block text-sm mb-2">E-MAIL</label>
             <input type="email" value={novoEmail} onChange={(e) => setNovoEmail(e.target.value)} className="w-full px-4 py-3 bg-dark-100 border border-gray-800 rounded-custom text-white" placeholder="seu@email.com" />
-            <button type="button" disabled={savingDados} onClick={salvarEmail} className="mt-3 w-full py-2 bg-primary/20 hover:bg-primary/30 border border-primary/50 text-primary rounded-button text-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed uppercase font-normal">SALVAR NOVO EMAIL</button>
+            <button type="button" disabled={savingDados} onClick={salvarEmail} className="mt-3 w-full py-2 bg-primary/20 hover:bg-primary/30 border border-primary/50 text-primary rounded-button text-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed uppercase font-normal">SALVAR NOVO E-MAIL</button>
           </div>
           <div>
             <label className="block text-sm mb-2">NOVA SENHA</label>
@@ -98,7 +98,7 @@ export default function InfoNegocioSection({
       </div>
       <div className="pt-2 pb-4">
         <button type="button" onClick={() => navigate('/criar-negocio')} className="w-full py-4 rounded-full border border-primary/40 bg-primary/10 text-primary text-sm font-normal uppercase tracking-normal hover:border-primary/70 hover:bg-primary/20 transition-all">
-          + CRIAR OUTRO NEGOCIO
+          + CRIAR OUTRO NEGÓCIO
         </button>
         <button
           type="button"
