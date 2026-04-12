@@ -434,7 +434,7 @@ export default function NegocioSettings({ user }) {
         <GroupLabel>Geral</GroupLabel>
         <SettingRow label="Nome" value={negocio.nome || ''} onSave={(value) => updateNegocio('nome', String(value || '').trim())} />
         <SettingRow label="Telefone" value={negocio.telefone || ''} onSave={(value) => updateNegocio('telefone', String(value || '').trim())} />
-        <SettingRow label="Endereço" value={negocio.endereco || ''} hint="Formato: RUA, NÚMERO - CIDADE, ESTADO" onSave={(value) => updateNegocio('endereco', String(value || '').trim())} />
+        <SettingRow label="Endere." value={negocio.endereco || ''} hint="Formato: RUA, NÚMERO - CIDADE, ESTADO" onSave={(value) => updateNegocio('endereco', String(value || '').trim())} />
         <SettingRow label="Sobre" value={negocio.descricao || ''} multiline onSave={(value) => updateNegocio('descricao', String(value || '').trim())} />
 
         <GroupLabel>Redes</GroupLabel>
