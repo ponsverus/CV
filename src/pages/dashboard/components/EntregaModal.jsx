@@ -51,7 +51,7 @@ export default function EntregaModal({
               value={formEntrega.profissional_id}
               onChange={(id) => setFormEntrega({ ...formEntrega, profissional_id: id })}
               profissionais={profissionaisDisponiveis}
-              placeholder="Selecione o profissional"
+              placeholder="SELECIONE"
               apenasAtivos={true}
               buttonClassName="w-full flex items-center gap-3 bg-transparent px-0 py-1 text-sm font-normal transition-colors focus:outline-none"
             />
@@ -63,7 +63,7 @@ export default function EntregaModal({
               value={formEntrega.nome}
               onChange={(e) => setFormEntrega({ ...formEntrega, nome: e.target.value })}
               className={serviceInputClass}
-              placeholder="Nome do servico"
+              placeholder=""
               required
             />
           </ServiceFieldRow>
@@ -74,7 +74,7 @@ export default function EntregaModal({
               value={formEntrega.duracao_minutos}
               onChange={(e) => setFormEntrega({ ...formEntrega, duracao_minutos: e.target.value })}
               className={serviceInputClass}
-              placeholder="Tempo em minutos"
+              placeholder=""
               required
             />
           </ServiceFieldRow>
@@ -86,7 +86,7 @@ export default function EntregaModal({
               value={formEntrega.preco}
               onChange={(e) => setFormEntrega({ ...formEntrega, preco: e.target.value })}
               className={serviceInputClass}
-              placeholder="Valor normal em R$"
+              placeholder=""
               required
             />
           </ServiceFieldRow>
@@ -98,7 +98,6 @@ export default function EntregaModal({
               value={formEntrega.preco_promocional}
               onChange={(e) => setFormEntrega({ ...formEntrega, preco_promocional: e.target.value })}
               className={serviceInputClass}
-              placeholder="Apenas se houver oferta"
             />
           </ServiceFieldRow>
 
