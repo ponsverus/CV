@@ -8,6 +8,7 @@ export default function ProfissionalSelect({
   placeholder = 'Selecione',
   apenasAtivos = true,
   required = false,
+  buttonClassName = '',
 }) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef(null);
@@ -42,7 +43,7 @@ export default function ProfissionalSelect({
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
-        className={[
+        className={buttonClassName || [
           'w-full flex items-center gap-3 px-4 py-3 bg-dark-200 border rounded-custom text-sm font-normal transition-colors focus:outline-none',
           open ? 'border-primary/50' : 'border-gray-800 hover:border-gray-700',
           required && !value ? 'border-red-500/50' : '',
