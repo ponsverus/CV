@@ -105,7 +105,7 @@ export default function InfoNegocioSection({
         <input
           value={formInfo.nome}
           onChange={(e) => setFormInfo((prev) => ({ ...prev, nome: e.target.value }))}
-          className={inputClass}
+          className={`${inputClass} truncate pr-6 sm:pr-0`}
           placeholder="Nome publico do negocio"
         />
       </InfoRow>
@@ -124,7 +124,7 @@ export default function InfoNegocioSection({
           value={formInfo.endereco}
           onChange={(e) => setFormInfo((prev) => ({ ...prev, endereco: e.target.value }))}
           className={inputClass}
-          placeholder="Rua, numero - cidade, estado"
+          placeholder="Rua, número - cidade, estado"
         />
       </InfoRow>
 
@@ -137,7 +137,7 @@ export default function InfoNegocioSection({
           value={formInfo.descricao}
           onChange={(e) => setFormInfo((prev) => ({ ...prev, descricao: e.target.value }))}
           rows={4}
-          className="max-h-32 w-full resize-none overflow-y-auto bg-transparent px-0 py-2 text-[14px] font-normal leading-5 text-white outline-none [scrollbar-width:none] placeholder-gray-600 focus:text-white [&::-webkit-scrollbar]:hidden"
+          className="max-h-32 w-full resize-none overflow-y-auto bg-transparent py-2 pl-0 pr-6 text-[14px] font-normal leading-5 text-white outline-none [scrollbar-width:none] placeholder-gray-600 focus:text-white sm:pr-0 [&::-webkit-scrollbar]:hidden"
           placeholder="Conte sobre seu negocio, atendimento e diferenciais"
         />
       </div>
@@ -245,7 +245,7 @@ export default function InfoNegocioSection({
       </div>
 
       <InfoRow
-        label="E-mail"
+        label="E-MAIL"
         action={(
           <button type="button" disabled={savingDados} onClick={salvarEmail} className={saveButtonClass}>
             {savingDados ? 'SALVANDO' : 'SALVAR'}
@@ -261,7 +261,7 @@ export default function InfoNegocioSection({
       </InfoRow>
 
       <InfoRow
-        label="Senha"
+        label="SENHA"
         action={(
           <button type="button" disabled={savingDados} onClick={salvarSenha} className="shrink-0 rounded-full border border-green-500/40 px-3 py-1 text-[12px] font-normal uppercase text-green-300 disabled:opacity-50">
             {savingDados ? 'SALVANDO' : 'SALVAR'}
