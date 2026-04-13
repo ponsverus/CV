@@ -67,7 +67,7 @@ export default function EntregaModal({
             />
           </ServiceFieldRow>
 
-          <ServiceFieldRow label="TEMPO">
+          <ServiceFieldRow label="TEMPO EM MIN">
             <input
               type="number"
               value={formEntrega.duracao_minutos}
