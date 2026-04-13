@@ -140,7 +140,7 @@ export default function InfoNegocioSection({
       </button>
     ) : (
       <button type="button" onClick={() => revealPrivateField(field)} className={saveButtonClass}>
-        VER
+        VER ID
       </button>
     )
   );
@@ -152,7 +152,7 @@ export default function InfoNegocioSection({
       </button>
     ) : (
       <button type="button" onClick={() => revealPrivateField('email')} className={saveButtonClass}>
-        VER
+        VER E-MAIL
       </button>
     )
   );
