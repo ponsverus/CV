@@ -91,7 +91,7 @@ export default function InfoNegocioSection({
   return (
     <div className="-m-6">
       <InfoRow
-        label="Tema"
+        label="TEMA"
         action={(
           <span className="shrink-0 py-1 text-[12px] uppercase text-gray-600">
             {temaSaving ? 'SALVANDO' : ''}
@@ -101,7 +101,7 @@ export default function InfoNegocioSection({
         <TemaToggle value={formInfo.tema} onChange={salvarTema} loading={temaSaving} />
       </InfoRow>
 
-      <InfoRow label="Negocio" action={businessSaveAction}>
+      <InfoRow label="Negócio" action={businessSaveAction}>
         <input
           value={formInfo.nome}
           onChange={(e) => setFormInfo((prev) => ({ ...prev, nome: e.target.value }))}
@@ -119,7 +119,7 @@ export default function InfoNegocioSection({
         />
       </InfoRow>
 
-      <InfoRow label="Endereco" action={businessSaveAction}>
+      <InfoRow label="Endere." action={businessSaveAction}>
         <input
           value={formInfo.endereco}
           onChange={(e) => setFormInfo((prev) => ({ ...prev, endereco: e.target.value }))}
@@ -128,22 +128,26 @@ export default function InfoNegocioSection({
         />
       </InfoRow>
 
-      <InfoRow label="Sobre" action={businessSaveAction}>
+      <div className="border-b border-gray-800 px-4 py-3 sm:px-6">
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <span className="text-[14px] leading-5 text-gray-500">Sobre</span>
+          {businessSaveAction}
+        </div>
         <textarea
           value={formInfo.descricao}
           onChange={(e) => setFormInfo((prev) => ({ ...prev, descricao: e.target.value }))}
           rows={4}
-          className="w-full resize-none rounded-custom border border-gray-800 bg-transparent px-4 py-3 text-[14px] font-normal text-white outline-none placeholder-gray-600 focus:border-primary/50"
+          className="max-h-32 w-full resize-none overflow-y-auto bg-transparent px-0 py-2 text-[14px] font-normal leading-5 text-white outline-none [scrollbar-width:none] placeholder-gray-600 focus:text-white [&::-webkit-scrollbar]:hidden"
           placeholder="Conte sobre seu negocio, atendimento e diferenciais"
         />
-      </InfoRow>
+      </div>
 
       <InfoRow label="Instagram" action={businessSaveAction}>
         <input
           value={formInfo.instagram}
           onChange={(e) => setFormInfo((prev) => ({ ...prev, instagram: e.target.value }))}
           className={inputClass}
-          placeholder="@seuinstagram ou link do perfil"
+          placeholder="@seuinstagram"
         />
       </InfoRow>
 
@@ -152,13 +156,13 @@ export default function InfoNegocioSection({
           value={formInfo.facebook}
           onChange={(e) => setFormInfo((prev) => ({ ...prev, facebook: e.target.value }))}
           className={inputClass}
-          placeholder="Link da pagina do Facebook"
+          placeholder="barbearia-vikings"
         />
       </InfoRow>
 
       <div className="border-b border-gray-800 px-4 py-4 sm:px-6">
         <div className="mb-4 flex items-center justify-between gap-4">
-          <span className="text-[14px] text-gray-400">{galeriaItems.length ? `${galeriaItems.length} imagem(ns)` : 'Nenhuma imagem ainda'}</span>
+          <span className="text-[14px] text-gray-400">{galeriaItems.length ? `${galeriaItems.length} IMG` : 'Nenhuma imagem ainda'}</span>
           <label>
             <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => uploadGaleria(e.target.files)} disabled={galleryUploading} />
             <span className={`inline-flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1 text-[12px] uppercase ${galleryUploading ? 'border-gray-800 text-gray-600' : 'border-primary/30 text-primary'}`}>
@@ -168,8 +172,21 @@ export default function InfoNegocioSection({
           </label>
         </div>
 
-        {activeGalleryItem ? (
-          <div>
+        {galeriaItems.length > 0 ? (
+          <>
+            <div className="hidden columns-2 gap-3 sm:block lg:columns-3">
+              {galeriaItems.map((item) => (
+                <div key={item.id || item.path} className="relative mb-3 w-full break-inside-avoid overflow-hidden rounded-custom border border-gray-800 bg-dark-200">
+                  <img src={getPublicUrl('galerias', item.path)} alt="Galeria" className="h-auto w-full object-contain" loading="lazy" />
+                  <button type="button" onClick={() => removerImagemGaleria(item)} className="absolute right-2 top-2 rounded-full border border-gray-700 bg-black/60 px-3 py-1 text-[12px] font-normal uppercase text-red-200 hover:border-red-400">
+                    REMOVER
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {activeGalleryItem ? (
+          <div className="sm:hidden">
             <div className="relative flex justify-center">
               <div
                 className="relative inline-flex max-w-full touch-pan-y overflow-hidden rounded-custom border border-gray-800"
@@ -222,6 +239,8 @@ export default function InfoNegocioSection({
               ))}
             </div>
           </div>
+            ) : null}
+          </>
         ) : null}
       </div>
 
@@ -238,7 +257,6 @@ export default function InfoNegocioSection({
           value={novoEmail}
           onChange={(e) => setNovoEmail(e.target.value)}
           className={inputClass}
-          placeholder="E-mail de acesso"
         />
       </InfoRow>
 
@@ -256,14 +274,14 @@ export default function InfoNegocioSection({
             value={novaSenha}
             onChange={(e) => setNovaSenha(e.target.value)}
             className={pillInputClass}
-            placeholder="Nova senha"
+            placeholder="NOVA SENHA"
           />
           <input
             type="password"
             value={confirmarSenha}
             onChange={(e) => setConfirmarSenha(e.target.value)}
             className={pillInputClass}
-            placeholder="Confirmar nova senha"
+            placeholder="CONFIRMAR"
           />
         </div>
       </InfoRow>
