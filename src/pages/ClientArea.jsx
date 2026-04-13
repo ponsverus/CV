@@ -32,6 +32,8 @@ const getValorAgendamento = (a) => {
   return getPrecoFinalEntrega(a?.entregas);
 };
 
+const maskedPrivateValue = '••••••••';
+
 function HeartIcon({ filled = false, className = '', size = 20 }) {
   return (
     <svg
@@ -91,6 +93,7 @@ export default function ClientArea({ user, onLogout }) {
   const [novaSenha,      setNovaSenha]      = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const [savingDados,    setSavingDados]    = useState(false);
+  const [emailVisivel,   setEmailVisivel]   = useState(false);
 
   const [loadError, setLoadError] = useState('');
 
@@ -255,6 +258,11 @@ export default function ClientArea({ user, onLogout }) {
     } finally {
       setSavingDados(false);
     }
+  };
+
+  const salvarEmailVisivel = async () => {
+    await salvarEmail();
+    setEmailVisivel(false);
   };
 
   const salvarSenha = async () => {
@@ -593,42 +601,53 @@ export default function ClientArea({ user, onLogout }) {
                 </div>
 
                 <div className="flex items-start gap-3 border-b border-gray-800 px-4 py-3 sm:px-6">
-                  <span className="w-[74px] shrink-0 py-2 text-[14px] leading-5 text-gray-500">E-mail</span>
+                  <span className="w-[74px] shrink-0 py-2 text-[14px] leading-5 text-gray-500">E-MAIL</span>
                   <div className="min-w-0 flex-1">
                     <input
-                      type="email"
-                      value={novoEmail}
+                      type={emailVisivel ? 'email' : 'text'}
+                      value={emailVisivel ? novoEmail : maskedPrivateValue}
                       onChange={(e) => setNovoEmail(e.target.value)}
+                      readOnly={!emailVisivel}
                       className="w-full bg-transparent px-0 py-2 text-[14px] text-white placeholder-gray-600 outline-none focus:text-white"
                       placeholder="E-mail de acesso"
                     />
                   </div>
-                  <button
-                    type="button"
-                    disabled={savingDados}
-                    onClick={salvarEmail}
-                    className="shrink-0 rounded-full border border-primary/30 px-3 py-1 text-[12px] font-normal uppercase text-primary disabled:opacity-50"
-                  >
-                    {savingDados ? 'SALVANDO' : 'SALVAR'}
-                  </button>
+                  {emailVisivel ? (
+                    <button
+                      type="button"
+                      disabled={savingDados}
+                      onClick={salvarEmailVisivel}
+                      className="shrink-0 rounded-full border border-primary/30 px-3 py-1 text-[12px] font-normal uppercase text-primary disabled:opacity-50"
+                    >
+                      {savingDados ? 'SALVANDO' : 'SALVAR'}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setEmailVisivel(true)}
+                      className="shrink-0 rounded-full border border-primary/30 px-3 py-1 text-[12px] font-normal uppercase text-primary disabled:opacity-50"
+                    >
+                      VER
+                    </button>
+                  )}
                 </div>
 
                 <div className="flex items-start gap-3 px-4 py-3 sm:px-6">
-                  <span className="w-[74px] shrink-0 py-2 text-[14px] leading-5 text-gray-500">Senha</span>
+                  <span className="w-[74px] shrink-0 py-2 text-[14px] leading-5 text-gray-500">SENHA</span>
                   <div className="min-w-0 flex-1 space-y-2">
                     <input
                       type="password"
                       value={novaSenha}
                       onChange={(e) => setNovaSenha(e.target.value)}
                       className="w-full rounded-full border border-gray-800 bg-transparent px-4 py-2 text-center text-[14px] text-white placeholder-gray-600 outline-none focus:border-primary/50 focus:text-white"
-                      placeholder="Nova senha"
+                      placeholder="NOVA SENHA"
                     />
                     <input
                       type="password"
                       value={confirmarSenha}
                       onChange={(e) => setConfirmarSenha(e.target.value)}
                       className="w-full rounded-full border border-gray-800 bg-transparent px-4 py-2 text-center text-[14px] text-white placeholder-gray-600 outline-none focus:border-primary/50 focus:text-white"
-                      placeholder="Confirmar nova senha"
+                      placeholder="CONFIRMAR"
                     />
                   </div>
                   <button
