@@ -114,8 +114,8 @@ export default function ProfissionalModal({
             </div>
           </ProfessionalFieldRow>
 
-          <ProfessionalFieldRow label="DIAS" last>
-            <div className="flex flex-wrap gap-2 py-1">
+          <div className="border-b border-gray-800 px-8 py-4">
+            <div className="flex flex-wrap gap-2">
               {weekdays.map((d) => (
                 <button
                   key={d.value}
@@ -126,13 +126,13 @@ export default function ProfissionalModal({
                       : [...formProfissional.dias_trabalho, d.value].sort();
                     setFormProfissional({ ...formProfissional, dias_trabalho: dias });
                   }}
-                  className={`rounded-full border px-3 py-1.5 text-xs font-normal transition-all ${formProfissional.dias_trabalho.includes(d.value) ? 'bg-primary/20 border-primary/50 text-primary' : 'bg-transparent border-gray-800 text-gray-500'}`}
+                  className={`min-w-12 rounded-full border px-4 py-1.5 text-xs font-normal transition-all ${formProfissional.dias_trabalho.includes(d.value) ? 'bg-primary/20 border-primary/50 text-primary' : 'bg-transparent border-gray-800 text-gray-500'}`}
                 >
                   {d.label}
                 </button>
               ))}
             </div>
-          </ProfessionalFieldRow>
+          </div>
 
           <div className="flex items-center gap-3 border-t border-gray-800 px-8 py-6">
             <button
