@@ -16,6 +16,7 @@ import CanceladosSection from './dashboard/sections/CanceladosSection';
 import HistoricoSection from './dashboard/sections/HistoricoSection';
 import EntregasSection from './dashboard/sections/EntregasSection';
 import ProfissionaisSection from './dashboard/sections/ProfissionaisSection';
+import InfoNegocioSection from './dashboard/sections/InfoNegocioSection';
 import {
   NOW_RPC_SEQUENCE,
   SUPORTE_HREF,
@@ -556,15 +557,7 @@ export default function Dashboard({ user, onLogout }) {
               const notif = tab === 'agendamentos' ? notifAgendamentos : tab === 'cancelados' ? notifCancelados : 0;
               return (
                 <button key={tab}
-                  onClick={() => {
-                    if (tab === 'info-negocio') {
-                      navigate('/dashboard/info-negocio', { state: { negocioId: negocio.id } });
-                      return;
-                    }
-                    setActiveTab(tab);
-                    if (tab === 'agendamentos') setNotifAgendamentos(0);
-                    if (tab === 'cancelados') setNotifCancelados(0);
-                  }}
+                  onClick={() => { setActiveTab(tab); if (tab === 'agendamentos') setNotifAgendamentos(0); if (tab === 'cancelados') setNotifCancelados(0); }}
                   className={`relative flex-shrink-0 px-6 py-4 text-sm transition-all uppercase font-normal ${activeTab === tab ? 'bg-primary/20 text-primary border-b-2 border-primary' : 'text-gray-400 hover:text-white'}`}>
                   {TAB_LABELS[tab]}
                   {notif > 0 && (<span className="absolute top-2 right-2 min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-black text-[10px] font-bold flex items-center justify-center leading-none">{notif > 99 ? '99+' : notif}</span>)}
@@ -660,6 +653,34 @@ export default function Dashboard({ user, onLogout }) {
                 setFormProfissional={setFormProfissional}
                 setShowEditProfissional={setShowEditProfissional}
               />
+            )}
+
+            {activeTab === 'info-negocio' && souDono && (
+              <InfoNegocioSection
+                salvarInfoNegocio={salvarInfoNegocio}
+                infoSaving={infoSaving}
+                formInfo={formInfo}
+                setFormInfo={setFormInfo}
+                salvarTema={salvarTema}
+                temaSaving={temaSaving}
+                galleryUploading={galleryUploading}
+                uploadGaleria={uploadGaleria}
+                galeriaItems={galeriaItems}
+                getPublicUrl={getPublicUrl}
+                removerImagemGaleria={removerImagemGaleria}
+                novoEmail={novoEmail}
+                setNovoEmail={setNovoEmail}
+                savingDados={savingDados}
+                salvarEmail={salvarEmail}
+                novaSenha={novaSenha}
+                setNovaSenha={setNovaSenha}
+                  confirmarSenha={confirmarSenha}
+                  setConfirmarSenha={setConfirmarSenha}
+                  salvarSenha={() => salvarSenha(novaSenha, confirmarSenha)}
+                  deletingBusiness={deletingBusiness}
+                  excluirNegocio={excluirNegocio}
+                  navigate={navigate}
+                />
             )}
 
           </div>
