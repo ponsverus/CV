@@ -170,7 +170,7 @@ export default function InfoNegocioSection({
         <input
           value={formInfo.endereco}
           onChange={(e) => setFormInfo((prev) => ({ ...prev, endereco: e.target.value }))}
-          className={`${inputClass} w-[calc(100%-2.5rem)] truncate sm:w-full`}
+          className={`${inputClass} w-[calc(100%-3.5rem)] truncate sm:w-full`}
           placeholder="Rua, número - cidade, estado"
         />
       </InfoRow>
