@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
-export default function TimePicker({ value, onChange }) {
+export default function TimePicker({ value, onChange, triggerClassName = '' }) {
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState('h');
   const [hour, setHour] = useState(8);
@@ -392,7 +392,7 @@ export default function TimePicker({ value, onChange }) {
         ref={triggerRef}
         type="button"
         onClick={openPicker}
-        className="w-full flex items-center justify-between px-4 py-3 bg-dark-200 border border-gray-800 rounded-custom text-white hover:border-gray-700 focus:border-primary/50 focus:outline-none transition-colors"
+        className={triggerClassName || 'w-full flex items-center justify-between px-4 py-3 bg-dark-200 border border-gray-800 rounded-custom text-white hover:border-gray-700 focus:border-primary/50 focus:outline-none transition-colors'}
       >
         <span className="text-sm font-normal tabular-nums">{display}</span>
         <span className="pointer-events-none flex items-center justify-center w-5 h-5 rounded-full bg-dark-100 border border-gray-800 text-gray-400 text-xs shrink-0">
