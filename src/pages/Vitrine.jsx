@@ -548,7 +548,7 @@ export default function Vitrine({ user, userType }) {
         counterPlural={counterPlural}
         booking={{
           ...bookingSectionState,
-          isProfessional,
+          isProfessional: isProfessional && !bookingSectionState.isAssistedBooking,
           isLight,
         }}
       />
@@ -572,7 +572,8 @@ export default function Vitrine({ user, userType }) {
           entrega={entregaVirtual}
           todayISO={serverNow.date}
           negocioId={negocio.id}
-          clienteId={user?.id}
+          clienteId={bookingSectionState.isAssistedBooking ? bookingSectionState.assistedClienteId : user?.id}
+          assistedBooking={bookingSectionState.isAssistedBooking}
           onConfirm={handleBookingConfirm}
           onClose={closeBooking}
           temaAtivo={temaAtivo}
@@ -597,6 +598,9 @@ export default function Vitrine({ user, userType }) {
         formatDateBR={formatDateBR}
         onClose={closeBooking}
         navigate={navigate}
+        assistedBooking={bookingSectionState.isAssistedBooking}
+        assistedReturnTo={bookingSectionState.assistedReturnTo}
+        negocioId={negocio.id}
       />
 
       <DepoimentoModal
