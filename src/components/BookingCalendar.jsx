@@ -36,6 +36,7 @@ export default function BookingCalendar({
   onClose,
   negocioId,
   clienteId,
+  assistedBooking = false,
   temaAtivo = 'dark',
 }) {
   const isLight = temaAtivo === 'light';
@@ -152,14 +153,16 @@ export default function BookingCalendar({
     try {
       const isMultiplo = entregaIds.length > 1;
       const { data, error } = isMultiplo
-        ? await supabase.rpc('rpc_criar_agendamentos_multiplos', {
+        ? await supabase.rpc(assistedBooking ? 'rpc_criar_agendamentos_multiplos_assistido' : 'rpc_criar_agendamentos_multiplos', {
+            ...(assistedBooking ? { p_cliente_id: clienteId } : {}),
             p_negocio_id:      negocioId,
             p_profissional_id: profissional.id,
             p_entrega_ids:     entregaIds,
             p_data:            selectedDay,
             p_horario_inicio:  selectedSlot.hora,
           })
-        : await supabase.rpc('rpc_criar_agendamento', {
+        : await supabase.rpc(assistedBooking ? 'rpc_criar_agendamento_assistido' : 'rpc_criar_agendamento', {
+            ...(assistedBooking ? { p_cliente_id: clienteId } : {}),
             p_negocio_id:      negocioId,
             p_profissional_id: profissional.id,
             p_entrega_id:      entregaIds[0],
