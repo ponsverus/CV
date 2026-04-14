@@ -21,6 +21,7 @@ import {
   NOW_RPC_SEQUENCE,
   SUPORTE_HREF,
   WEEKDAYS,
+  compareAgendamentoDateTimeDesc,
   getAgDate,
   getAgInicio,
   getBizLabel,
@@ -382,7 +383,7 @@ export default function Dashboard({ user, onLogout }) {
       : agendamentos;
     const map = new Map();
     for (const a of fonte) { const pid = a.profissional_id || a.profissionais?.id || 'sem-prof'; const nome = a.profissionais?.nome || 'PROFISSIONAL'; if (!map.has(pid)) map.set(pid, { pid, nome, itens: [] }); map.get(pid).itens.push(a); }
-    const grupos = Array.from(map.values()).map(gr => ({ ...gr, itens: gr.itens.slice().sort((a, b) => { const d = String(getAgDate(a) || '').localeCompare(String(getAgDate(b) || '')); if (d !== 0) return d; const h = String(getAgInicio(a) || '').localeCompare(String(getAgInicio(b) || '')); if (h !== 0) return h; return String(a.id || '').localeCompare(String(b.id || '')); }) }));
+    const grupos = Array.from(map.values()).map(gr => ({ ...gr, itens: gr.itens.slice().sort(compareAgendamentoDateTimeDesc) }));
     const ordem = new Map((profissionais || []).map((p, idx) => [p.id, idx]));
     grupos.sort((a, b) => (ordem.get(a.pid) ?? 9999) - (ordem.get(b.pid) ?? 9999));
     return grupos;
