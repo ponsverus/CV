@@ -24,6 +24,14 @@ const SignupProfessionalResume  = lazy(() => import('./pages/SignupProfessionalR
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+function isAuthJwtError(error) {
+  const text = `${error?.message || ''} ${error?.details || ''} ${error?.hint || ''} ${error?.code || ''}`.toLowerCase();
+  return Number(error?.status) === 401
+    || text.includes('jwt')
+    || text.includes('invalid token')
+    || text.includes('not authenticated');
+}
+
 function FullScreenLoading({ text = 'CARREGANDO...' }) {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center">
@@ -198,6 +206,23 @@ export default function App() {
       });
       return profile;
     } catch (e) {
+      if (isAuthJwtError(e)) {
+        try {
+          await supabase.auth.signOut({ scope: 'local' });
+        } catch {
+          try { await supabase.auth.signOut(); } catch { }
+        }
+        safeSet(() => {
+          setUser(null);
+          setUserType(null);
+          setOnboardingStatus(null);
+          setAccessState('active');
+          setFatalError(null);
+          setPostLogoutRedirect('/login');
+          loadedUserRef.current = null;
+        });
+        return null;
+      }
       safeSet(() => {
         setUserType(null);
         setOnboardingStatus(null);
