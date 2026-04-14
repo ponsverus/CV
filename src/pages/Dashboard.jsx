@@ -14,6 +14,7 @@ import VisaoGeralSection from './dashboard/sections/VisaoGeralSection';
 import AgendamentosSection from './dashboard/sections/AgendamentosSection';
 import CanceladosSection from './dashboard/sections/CanceladosSection';
 import HistoricoSection from './dashboard/sections/HistoricoSection';
+import ClientesSection from './dashboard/sections/ClientesSection';
 import EntregasSection from './dashboard/sections/EntregasSection';
 import ProfissionaisSection from './dashboard/sections/ProfissionaisSection';
 import InfoNegocioSection from './dashboard/sections/InfoNegocioSection';
@@ -33,6 +34,7 @@ import {
 } from './dashboard/utils';
 import { getPublicUrl } from './dashboard/api/dashboardApi';
 import { useDashboardBootstrap } from './dashboard/hooks/useDashboardBootstrap';
+import { useDashboardClientes } from './dashboard/hooks/useDashboardClientes';
 import { useDashboardHistorico } from './dashboard/hooks/useDashboardHistorico';
 import { useDashboardMetrics } from './dashboard/hooks/useDashboardMetrics';
 import { useDashboardMutations } from './dashboard/hooks/useDashboardMutations';
@@ -270,6 +272,16 @@ export default function Dashboard({ user, onLogout }) {
     parceiroProfissionalId,
     parceiroProfissional,
   });
+  const {
+    clientes,
+    clientesLoading,
+    clientesError,
+    clientesHasMore,
+    clientesLoadingMore,
+    loadMoreClientes,
+  } = useDashboardClientes({
+    negocioId: negocio?.id,
+  });
 
   const {
     logoUploading,
@@ -401,13 +413,33 @@ export default function Dashboard({ user, onLogout }) {
   const topEntregas = metricsTopCards?.entregas || {};
   const topCardsReady = !!metricsTopCards;
 
-  const tabs = parceiroProfissional
-    ? ['visao-geral', 'agendamentos', 'cancelados', 'historico', 'entregas', 'profissionais']
-    : souDono
-      ? ['visao-geral', 'agendamentos', 'cancelados', 'historico', 'entregas', 'profissionais', 'info-negocio']
-      : ['visao-geral', 'agendamentos', 'cancelados', 'historico', 'entregas', 'profissionais'];
+  const tabs = useMemo(() => (
+    parceiroProfissional
+      ? ['visao-geral', 'agendamentos', 'cancelados', 'historico', 'clientes', 'entregas', 'profissionais']
+      : souDono
+        ? ['visao-geral', 'agendamentos', 'cancelados', 'historico', 'clientes', 'entregas', 'profissionais', 'info-negocio']
+        : ['visao-geral', 'agendamentos', 'cancelados', 'historico', 'clientes', 'entregas', 'profissionais']
+  ), [parceiroProfissional, souDono]);
 
-  const TAB_LABELS = { 'visao-geral': 'GERAL', 'agendamentos': 'AGENDAMENTOS', 'cancelados': 'CANCELADOS', 'historico': 'HISTÓRICO', 'entregas': tabEntregasLabel, 'profissionais': 'PROFISSIONAIS', 'info-negocio': 'INFO DO NEGÓCIO' };
+  const TAB_LABELS = { 'visao-geral': 'GERAL', 'agendamentos': 'AGENDAMENTOS', 'cancelados': 'CANCELADOS', 'historico': 'HISTÓRICO', 'clientes': 'CLIENTES', 'entregas': tabEntregasLabel, 'profissionais': 'PROFISSIONAIS', 'info-negocio': 'INFO DO NEGÓCIO' };
+  useEffect(() => {
+    const requestedTab = location?.state?.activeTab;
+    if (requestedTab && tabs.includes(requestedTab)) setActiveTab(requestedTab);
+  }, [location?.state?.activeTab, tabs]);
+
+  const agendarCliente = useCallback((cliente) => {
+    if (!negocio?.slug || !cliente?.cliente_id) return;
+    navigate(`/v/${negocio.slug}`, {
+      state: {
+        assistedBooking: {
+          clienteId: cliente.cliente_id,
+          clienteNome: cliente.cliente_nome || '',
+          negocioId: negocio.id,
+          returnTo: '/dashboard',
+        },
+      },
+    });
+  }, [navigate, negocio?.id, negocio?.slug]);
   const handleDashboardLogout = useCallback(() => onLogout(parceiroProfissional ? '/parceiro/login' : '/login'), [onLogout, parceiroProfissional]);
 
   if (bootstrapState === 'loading') return (
@@ -615,6 +647,18 @@ export default function Dashboard({ user, onLogout }) {
                 historicoHasMore={historicoHasMore}
                 loadMoreHistorico={loadMoreHistorico}
                 historicoLoadingMore={historicoLoadingMore}
+              />
+            )}
+
+            {activeTab === 'clientes' && (
+              <ClientesSection
+                clientes={clientes}
+                clientesLoading={clientesLoading}
+                clientesError={clientesError}
+                clientesHasMore={clientesHasMore}
+                clientesLoadingMore={clientesLoadingMore}
+                loadMoreClientes={loadMoreClientes}
+                onAgendarCliente={agendarCliente}
               />
             )}
 
