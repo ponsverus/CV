@@ -25,6 +25,8 @@ export function useVitrineBooking({
   const [selecaoProfId, setSelecaoProfId] = useState(null);
   const [servicosSelecionados, setServicosSelecionados] = useState([]);
   const rebookAppliedRef = useRef('');
+  const assistedBooking = location.state?.assistedBooking || null;
+  const isAssistedBooking = !!(user && userType === 'professional' && assistedBooking?.clienteId);
 
   const revokeCurrentIcs = useCallback(() => {
     setCalendarExport((prev) => {
@@ -71,7 +73,7 @@ export function useVitrineBooking({
       if (ok) navigate('/login');
       return false;
     }
-    if (userType !== 'client') {
+    if (userType !== 'client' && !isAssistedBooking) {
       alertKey(
         'schedule_only_client',
         'Uso restrita',
@@ -94,7 +96,7 @@ export function useVitrineBooking({
       }
     }
     return true;
-  }, [alertKey, confirmKey, fetchNowFromDb, navigate, todayISO, user, userType]);
+  }, [alertKey, confirmKey, fetchNowFromDb, isAssistedBooking, navigate, todayISO, user, userType]);
 
   const handleAgendarAgora = useCallback(async (profissional, servicos) => {
     if (!(await requireLogin())) return;
@@ -251,6 +253,10 @@ export function useVitrineBooking({
       servicosSelecionados,
       onAgendarAgora: handleAgendarAgora,
       onToggleSelecao: handleToggleSelecao,
+      isAssistedBooking,
+      assistedClienteId: assistedBooking?.clienteId || null,
+      assistedClienteNome: assistedBooking?.clienteNome || '',
+      assistedReturnTo: assistedBooking?.returnTo || '/dashboard',
     },
   };
 }
