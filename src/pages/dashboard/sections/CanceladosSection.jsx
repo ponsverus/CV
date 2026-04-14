@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatDateBRFromISO, getAgDate, getAgInicio, getValorAgendamento } from '../utils';
+import { compareAgendamentoDateTimeDesc, formatDateBRFromISO, getAgDate, getAgInicio, getValorAgendamento } from '../utils';
 
 export default function CanceladosSection({ hojeCancelados }) {
   return (
@@ -7,7 +7,7 @@ export default function CanceladosSection({ hojeCancelados }) {
       <h2 className="text-2xl font-normal mb-6">Cancelados Hoje</h2>
       {hojeCancelados.length > 0 ? (
         <div className="space-y-4">
-          {hojeCancelados.sort((a, b) => String(getAgInicio(a)).localeCompare(String(getAgInicio(b)))).map(a => {
+          {hojeCancelados.slice().sort(compareAgendamentoDateTimeDesc).map(a => {
             const valorReal = getValorAgendamento(a);
             return (
               <div key={a.id} className="bg-dark-200 border border-red-500/30 rounded-custom p-4">
