@@ -32,6 +32,8 @@ const getValorAgendamento = (a) => {
   return getPrecoFinalEntrega(a?.entregas);
 };
 
+const PAGE_SIZE = 50;
+
 const maskedPrivateValue = '••••••••';
 
 function HeartIcon({ filled = false, className = '', size = 20 }) {
@@ -81,6 +83,12 @@ export default function ClientArea({ user, onLogout }) {
   const [agendamentos,    setAgendamentos]    = useState([]);
   const [favoritos,       setFavoritos]       = useState([]);
   const [loading,         setLoading]         = useState(true);
+  const [agendamentosPage, setAgendamentosPage] = useState(0);
+  const [favoritosPage, setFavoritosPage] = useState(0);
+  const [agendamentosHasMore, setAgendamentosHasMore] = useState(false);
+  const [favoritosHasMore, setFavoritosHasMore] = useState(false);
+  const [agendamentosLoadingMore, setAgendamentosLoadingMore] = useState(false);
+  const [favoritosLoadingMore, setFavoritosLoadingMore] = useState(false);
 
   const [avatarPath,      setAvatarPath]      = useState(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -99,8 +107,12 @@ export default function ClientArea({ user, onLogout }) {
 
   useEffect(() => { setNovoEmail(user?.email || ''); }, [user?.email]);
 
-  const fetchAgendamentos = useCallback(async () => {
-    const { data, error } = await supabase.rpc('get_agendamentos_cliente', { p_cliente_id: user.id });
+  const fetchAgendamentos = useCallback(async ({ page = 0, limit = PAGE_SIZE } = {}) => {
+    const { data, error } = await supabase.rpc('get_agendamentos_cliente', {
+      p_cliente_id: user.id,
+      p_limit: limit,
+      p_offset: page * PAGE_SIZE,
+    });
     if (error) throw error;
     return (data || []).map(a => ({
       ...a,
@@ -125,8 +137,12 @@ export default function ClientArea({ user, onLogout }) {
     }));
   }, [user.id]);
 
-  const fetchFavoritos = useCallback(async () => {
-    const { data, error } = await supabase.rpc('get_favoritos_cliente', { p_cliente_id: user.id });
+  const fetchFavoritos = useCallback(async ({ page = 0, limit = PAGE_SIZE } = {}) => {
+    const { data, error } = await supabase.rpc('get_favoritos_cliente', {
+      p_cliente_id: user.id,
+      p_limit: limit,
+      p_offset: page * PAGE_SIZE,
+    });
     if (error) throw error;
     return (data || []).map(f => ({
       ...f,
@@ -163,10 +179,18 @@ export default function ClientArea({ user, onLogout }) {
       setAvatarPath(perfil.avatarPath);
       setAgendamentos(ags);
       setFavoritos(favs);
+      setAgendamentosPage(0);
+      setFavoritosPage(0);
+      setAgendamentosHasMore(ags.length === PAGE_SIZE);
+      setFavoritosHasMore(favs.length === PAGE_SIZE);
     } catch (error) {
       setLoadError(error?.message || 'Erro ao carregar dados.');
       setAgendamentos([]);
       setFavoritos([]);
+      setAgendamentosPage(0);
+      setFavoritosPage(0);
+      setAgendamentosHasMore(false);
+      setFavoritosHasMore(false);
       uiAlert('alerts.action_failed_support', 'warning');
     } finally {
       setLoading(false);
@@ -180,6 +204,9 @@ export default function ClientArea({ user, onLogout }) {
   const fetchAgendamentosRef = useRef(fetchAgendamentos);
   useEffect(() => { fetchAgendamentosRef.current = fetchAgendamentos; }, [fetchAgendamentos]);
 
+  const agendamentosPageRef = useRef(agendamentosPage);
+  useEffect(() => { agendamentosPageRef.current = agendamentosPage; }, [agendamentosPage]);
+
   useEffect(() => {
     if (!user?.id) return;
     const channel = supabase
@@ -189,8 +216,10 @@ export default function ClientArea({ user, onLogout }) {
         { event: '*', schema: 'public', table: 'agendamentos', filter: `cliente_id=eq.${user.id}` },
         async () => {
           try {
-            const ags = await fetchAgendamentosRef.current();
+            const limit = (agendamentosPageRef.current + 1) * PAGE_SIZE;
+            const ags = await fetchAgendamentosRef.current({ limit });
             setAgendamentos(ags);
+            setAgendamentosHasMore(ags.length === limit);
           } catch { }
         }
       )
@@ -291,8 +320,10 @@ export default function ClientArea({ user, onLogout }) {
       const { error } = await supabase.rpc('cancelar_agendamento', { p_agendamento_id: agendamentoId });
       if (error) throw error;
       uiAlert('clientArea.booking_canceled', 'danger');
-      const ags = await fetchAgendamentos();
+      const limit = (agendamentosPage + 1) * PAGE_SIZE;
+      const ags = await fetchAgendamentos({ limit });
       setAgendamentos(ags);
+      setAgendamentosHasMore(ags.length === limit);
     } catch {
       uiAlert('clientArea.booking_cancel_error', 'error');
     }
@@ -324,6 +355,47 @@ export default function ClientArea({ user, onLogout }) {
       uiAlert('clientArea.favorite_removed', 'success');
     } catch {
       uiAlert('clientArea.favorite_remove_error', 'error');
+    }
+  };
+
+  const mergeById = (current, incoming) => {
+    const seen = new Set();
+    return [...current, ...incoming].filter(item => {
+      if (!item?.id || seen.has(item.id)) return false;
+      seen.add(item.id);
+      return true;
+    });
+  };
+
+  const carregarMaisAgendamentos = async () => {
+    if (agendamentosLoadingMore || !agendamentosHasMore) return;
+    try {
+      setAgendamentosLoadingMore(true);
+      const nextPage = agendamentosPage + 1;
+      const rows = await fetchAgendamentos({ page: nextPage });
+      setAgendamentos(prev => mergeById(prev, rows));
+      setAgendamentosPage(nextPage);
+      setAgendamentosHasMore(rows.length === PAGE_SIZE);
+    } catch {
+      uiAlert('alerts.action_failed_support', 'warning');
+    } finally {
+      setAgendamentosLoadingMore(false);
+    }
+  };
+
+  const carregarMaisFavoritos = async () => {
+    if (favoritosLoadingMore || !favoritosHasMore) return;
+    try {
+      setFavoritosLoadingMore(true);
+      const nextPage = favoritosPage + 1;
+      const rows = await fetchFavoritos({ page: nextPage });
+      setFavoritos(prev => mergeById(prev, rows));
+      setFavoritosPage(nextPage);
+      setFavoritosHasMore(rows.length === PAGE_SIZE);
+    } catch {
+      uiAlert('alerts.action_failed_support', 'warning');
+    } finally {
+      setFavoritosLoadingMore(false);
     }
   };
 
@@ -535,6 +607,16 @@ export default function ClientArea({ user, onLogout }) {
                     </Link>
                   </div>
                 )}
+                {agendamentosHasMore && (
+                  <button
+                    type="button"
+                    onClick={carregarMaisAgendamentos}
+                    disabled={agendamentosLoadingMore}
+                    className="mt-2 w-full py-3 bg-dark-200 border border-gray-800 hover:border-primary/50 text-primary rounded-button text-sm transition-all uppercase disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {agendamentosLoadingMore ? 'CARREGANDO...' : 'CARREGAR MAIS'}
+                  </button>
+                )}
               </div>
             )}
 
@@ -574,13 +656,23 @@ export default function ClientArea({ user, onLogout }) {
                     </Link>
                   </div>
                 )}
+                {favoritosHasMore && (
+                  <button
+                    type="button"
+                    onClick={carregarMaisFavoritos}
+                    disabled={favoritosLoadingMore}
+                    className="mt-4 w-full py-3 bg-dark-200 border border-gray-800 hover:border-primary/50 text-primary rounded-button text-sm transition-all uppercase disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {favoritosLoadingMore ? 'CARREGANDO...' : 'CARREGAR MAIS'}
+                  </button>
+                )}
               </div>
             )}
 
             {activeTab === 'dados' && (
               <>
                 <div className="flex items-start gap-3 border-b border-gray-800 px-4 py-3 sm:px-6">
-                  <span className="w-[74px] shrink-0 py-2 text-[14px] leading-5 text-gray-500">NOME</span>
+                  <span className="w-[74px] shrink-0 py-2 text-[14px] leading-5 text-gray-500">Nome</span>
                   <div className="min-w-0 flex-1">
                     <input
                       type="text"
@@ -601,7 +693,7 @@ export default function ClientArea({ user, onLogout }) {
                 </div>
 
                 <div className="flex items-start gap-3 border-b border-gray-800 px-4 py-3 sm:px-6">
-                  <span className="w-[74px] shrink-0 py-2 text-[14px] leading-5 text-gray-500">E-MAIL</span>
+                  <span className="w-[74px] shrink-0 py-2 text-[14px] leading-5 text-gray-500">E-mail</span>
                   <div className="min-w-0 flex-1">
                     <input
                       type={emailVisivel ? 'email' : 'text'}
@@ -627,27 +719,27 @@ export default function ClientArea({ user, onLogout }) {
                       onClick={() => setEmailVisivel(true)}
                       className="shrink-0 rounded-full border border-primary/30 px-3 py-1 text-[12px] font-normal uppercase text-primary disabled:opacity-50"
                     >
-                      VER E-MAIL
+                      VER
                     </button>
                   )}
                 </div>
 
                 <div className="flex items-start gap-3 px-4 py-3 sm:px-6">
-                  <span className="w-[74px] shrink-0 py-2 text-[14px] leading-5 text-gray-500">SENHA</span>
+                  <span className="w-[74px] shrink-0 py-2 text-[14px] leading-5 text-gray-500">Senha</span>
                   <div className="min-w-0 flex-1 space-y-2">
                     <input
                       type="password"
                       value={novaSenha}
                       onChange={(e) => setNovaSenha(e.target.value)}
                       className="w-full rounded-full border border-gray-800 bg-transparent px-4 py-2 text-center text-[14px] text-white placeholder-gray-600 outline-none focus:border-primary/50 focus:text-white"
-                      placeholder="NOVA SENHA"
+                      placeholder="Nova senha"
                     />
                     <input
                       type="password"
                       value={confirmarSenha}
                       onChange={(e) => setConfirmarSenha(e.target.value)}
                       className="w-full rounded-full border border-gray-800 bg-transparent px-4 py-2 text-center text-[14px] text-white placeholder-gray-600 outline-none focus:border-primary/50 focus:text-white"
-                      placeholder="CONFIRMAR"
+                      placeholder="Confirmar nova senha"
                     />
                   </div>
                   <button
