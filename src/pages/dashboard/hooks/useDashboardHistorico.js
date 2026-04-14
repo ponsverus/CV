@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { AG_PAGE_SIZE } from '../utils';
+import { AG_PAGE_SIZE, compareAgendamentoDateTimeDesc } from '../utils';
 import { fetchAgendamentosNegocio, fetchHistoricoProfissionalIds } from '../api/dashboardApi';
 
 export function useDashboardHistorico({
@@ -63,7 +63,9 @@ export function useDashboardHistorico({
     setHistoricoAgendamentos((prev) => {
       const next = append ? [...prev, ...rows] : rows;
       const seen = new Set();
-      return next.filter((item) => (seen.has(item.id) ? false : (seen.add(item.id), true)));
+      return next
+        .filter((item) => (seen.has(item.id) ? false : (seen.add(item.id), true)))
+        .sort(compareAgendamentoDateTimeDesc);
     });
     setHistoricoHasMore(rows.length === AG_PAGE_SIZE);
   }, [negocioId]);
@@ -84,7 +86,7 @@ export function useDashboardHistorico({
       await fetchHistoricoPage({ profIds: historicoProfIds, date: historicoData, page: nextPage, append: true });
       setHistoricoPage(nextPage);
     } catch {
-      // Mantem o estado atual se a pagina adicional do historico falhar.
+
     } finally {
       setHistoricoLoadingMore(false);
     }
