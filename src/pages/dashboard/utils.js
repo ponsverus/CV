@@ -46,6 +46,13 @@ export function timeToMinutes(t) {
 
 export const getAgDate = (a) => String(a?.data ?? '');
 export const getAgInicio = (a) => String(a?.horario_inicio ?? '').slice(0, 5);
+export const compareAgendamentoDateTimeDesc = (a, b) => {
+  const d = getAgDate(b).localeCompare(getAgDate(a));
+  if (d !== 0) return d;
+  const h = getAgInicio(b).localeCompare(getAgInicio(a));
+  if (h !== 0) return h;
+  return String(a?.id || '').localeCompare(String(b?.id || ''));
+};
 
 export const normalizeStatus = (s) =>
   String(s || '').trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
