@@ -281,59 +281,64 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
                     </button>
                   </div>
 
-                  <div className="space-y-4">
-                    <div className="relative group">
+                  <div className="overflow-hidden rounded-custom border border-gray-800 bg-dark-100/50 backdrop-blur-sm">
+                    <div className="flex items-center gap-3 border-b border-gray-800 px-5 py-3">
+                      <label className="w-[76px] shrink-0 text-sm tracking-wide text-gray-500">E-MAIL</label>
                       <input
                         type="email"
                         placeholder="seu@email.com"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="w-full px-5 py-4 bg-dark-100/50 border border-gray-800 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all backdrop-blur-sm"
+                        className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-gray-600 outline-none focus:text-white"
                         required
                       />
                     </div>
-
-                    <div className="relative">
+                    <div className="flex items-center gap-3 px-5 py-3">
+                      <label className="w-[76px] shrink-0 text-sm tracking-wide text-gray-500">SENHA</label>
+                      <div className="relative min-w-0 flex-1">
                       <input
                         type={showPassword ? 'text' : 'password'}
                         placeholder="••••••••"
                         value={formData.password}
                         onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                        className="w-full px-5 py-4 pr-12 bg-dark-100/50 border border-gray-800 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all backdrop-blur-sm"
+                        className="w-full bg-transparent px-0 py-2 pr-10 text-sm text-white placeholder-gray-600 outline-none focus:text-white"
                         required
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+                        className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-500 transition-colors hover:text-gray-300"
                       >
                         {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                       </button>
+                      </div>
                     </div>
                   </div>
 
-                  <button
-                    disabled={loading}
-                    className="w-full py-4 bg-gradient-to-r from-primary to-yellow-600 text-black font-normal rounded-button hover:shadow-lg hover:shadow-primary/20 hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 relative overflow-hidden group"
-                  >
-                    <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-                    {loading ? (
-                      <span className="flex items-center justify-center gap-2">
-                        <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                        ENTRANDO...
-                      </span>
-                    ) : (
-                      'ENTRAR'
-                    )}
-                  </button>
+                  <div className="space-y-2">
+                    <button
+                      disabled={loading}
+                      className="w-full py-4 bg-gradient-to-r from-primary to-yellow-600 text-black font-normal rounded-button hover:shadow-lg hover:shadow-primary/20 hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 relative overflow-hidden group"
+                    >
+                      <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                      {loading ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                          ENTRANDO...
+                        </span>
+                      ) : (
+                        'ENTRAR'
+                      )}
+                    </button>
 
-                  <button
-                    type="button"
-                    onClick={() => navigate(userType === 'client' ? '/cadastro/cliente' : '/cadastro/profissional')}
-                    className="w-full rounded-button border border-primary/30 bg-transparent py-4 text-sm font-normal uppercase text-primary transition-all hover:border-primary hover:text-yellow-500"
-                  >
-                    CRIAR CONTA
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => navigate(userType === 'client' ? '/cadastro/cliente' : '/cadastro/profissional')}
+                      className="w-full rounded-button border border-primary/30 bg-transparent py-4 text-sm font-normal uppercase text-primary transition-all hover:border-primary hover:text-yellow-500"
+                    >
+                      CRIAR CONTA
+                    </button>
+                  </div>
                 </form>
               )}
             </>
