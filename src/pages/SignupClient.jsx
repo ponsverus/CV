@@ -121,7 +121,7 @@ export default function SignupClient({ onLogin }) {
                 type="text"
                 value={formData.nome}
                 onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-                placeholder="Seu nome completo"
+                placeholder="NOME COMPLETO"
                 className={fieldInputClass}
                 required
               />
@@ -133,7 +133,7 @@ export default function SignupClient({ onLogin }) {
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="seu@email.com"
+                placeholder="SEU E-MAIL"
                 className={fieldInputClass}
                 required
               />
@@ -146,7 +146,7 @@ export default function SignupClient({ onLogin }) {
                   type={showPassword ? 'text' : 'password'}
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  placeholder="Mínimo 6 caracteres"
+                  placeholder="MÍNIMO 6 CARACTERES"
                   className={`${fieldInputClass} pr-10`}
                   required
                   minLength={6}
@@ -183,11 +183,11 @@ export default function SignupClient({ onLogin }) {
           <p className="text-xs text-gray-600 font-normal">
             Ao continuar, você concorda com nossos{' '}
             <Link to="/termos" className="text-gray-500 hover:text-blue-400 transition-colors">
-              Termos de Uso
+              TERMOS DE USO
             </Link>
-            {' '}e{' '}
+            {' '}E{' '}
             <Link to="/privacidade" className="text-gray-500 hover:text-blue-400 transition-colors">
-              Política de Privacidade
+              POLÍTICA DE PRIVACIDADE
             </Link>
           </p>
         </div>
