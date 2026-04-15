@@ -328,7 +328,7 @@ export default function SignupProfessional({ onLogin }) {
 
             <SignupFieldRow label="SUA URL">
               <div className="flex min-w-0 items-center gap-2">
-                <span className="shrink-0 text-xs text-gray-600">COMVAGA.COM.BR/v/</span>
+                <span className="shrink-0 text-xs text-gray-600">COMVAGA.COM.BR/V/</span>
                 <input
                   type="text"
                   value={formData.urlNegocio}
