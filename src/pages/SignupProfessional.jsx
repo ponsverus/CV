@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Award, ArrowLeft, Eye, EyeOff, MapPin } from 'lucide-react';
+import { Award, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../supabase';
 import { useFeedback } from '../feedback/useFeedback';
 
@@ -42,6 +42,17 @@ async function clearSignupSession() {
     await supabase.auth.signOut();
   } catch {}
 }
+
+function SignupFieldRow({ label, children, last = false }) {
+  return (
+    <div className={`flex items-start gap-3 px-5 py-3 ${last ? '' : 'border-b border-gray-800/50'}`}>
+      <label className="w-[96px] shrink-0 py-2 text-xs tracking-wide text-gray-500">{label}</label>
+      <div className="min-w-0 flex-1">{children}</div>
+    </div>
+  );
+}
+
+const fieldInputClass = 'w-full bg-transparent px-0 py-2 text-sm text-white placeholder-gray-600 outline-none focus:text-white';
 
 export default function SignupProfessional({ onLogin }) {
   const [showPassword, setShowPassword] = useState(false);
@@ -150,7 +161,7 @@ export default function SignupProfessional({ onLogin }) {
       });
 
       if (authError) throw authError;
-      if (!authData?.user?.id) throw new Error('Usuário não retornado pelo Supabase.');
+      if (!authData?.user?.id) throw new Error('Usuario nao retornado pelo Supabase.');
 
       if (!authData.session) {
         showMessage('signupProfessional.confirm_email_needed');
@@ -255,11 +266,6 @@ export default function SignupProfessional({ onLogin }) {
     }
   };
 
-  const inputClass = 'w-full px-4 py-3 bg-dark-100/40 border border-gray-800/50 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none focus:bg-dark-100/60 transition-all backdrop-blur-sm text-sm';
-  const inputIconClass = 'w-full pl-10 pr-4 py-3 bg-dark-100/40 border border-gray-800/50 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none focus:bg-dark-100/60 transition-all backdrop-blur-sm text-sm';
-  const labelClass = 'block text-sm text-gray-400 mb-2 tracking-wide';
-  const labelSmClass = 'block text-xs text-gray-500 mb-2 tracking-wide';
-
   return (
     <div className="min-h-screen bg-black text-white py-8 px-4 relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -286,234 +292,184 @@ export default function SignupProfessional({ onLogin }) {
 
         <div className="text-center mb-10">
           <Award className="mx-auto mb-4 text-primary w-12 h-12" />
-          <h1 className="text-4xl font-normal mb-3 tracking-wide">Criar vitrine</h1>
-          <p className="text-gray-500 text-base font-normal">Cadastro de <span className="text-primary">Profissional</span></p>
+          <h1 className="text-4xl font-normal mb-3 tracking-wide">CRIAR VITRINE</h1>
+          <p className="text-gray-500 text-base font-normal">CADASTRO DE <span className="text-primary">PROFISSIONAL</span></p>
         </div>
 
         <form onSubmit={handleSignup} className="space-y-5">
-          <div className="grid sm:grid-cols-2 gap-5">
-            <div>
-              <label className={labelClass}>Seu Nome Completo *</label>
+          <div className="overflow-hidden rounded-custom border border-gray-800/50 bg-dark-100/40 backdrop-blur-sm">
+            <SignupFieldRow label="NOME">
               <input
                 type="text"
                 value={formData.nome}
                 onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-                placeholder="Pedro Gomes"
-                className={inputClass}
+                className={fieldInputClass}
                 required
               />
-            </div>
+            </SignupFieldRow>
 
-            <div>
-              <label className={labelClass}>Telefone (WhatsApp) *</label>
+            <SignupFieldRow label="TELEFONE">
               <input
                 type="tel"
                 value={formData.telefone}
                 onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
-                placeholder="(31) 90000 - 0000"
-                className={inputClass}
+                className={fieldInputClass}
                 required
               />
-            </div>
-          </div>
+            </SignupFieldRow>
 
-          <div>
-            <label className={labelClass}>Nome do Negócio *</label>
-            <input
-              type="text"
-              value={formData.nomeNegocio}
-              onChange={(e) => handleNegocioNameChange(e.target.value)}
-              placeholder="Ex: Elite Barbers"
-              className={inputClass}
-              required
-            />
-          </div>
-
-          <div>
-            <label className={labelClass}>URL Única *</label>
-            <div className="flex items-center gap-2">
-              <span className="text-gray-600 text-sm whitespace-nowrap">comvaga.app/v/</span>
+            <SignupFieldRow label="NEGOCIO">
               <input
                 type="text"
-                value={formData.urlNegocio}
-                onChange={(e) => setFormData({ ...formData, urlNegocio: generateSlug(e.target.value) })}
-                placeholder="elite-barbers"
-                className={inputClass}
+                value={formData.nomeNegocio}
+                onChange={(e) => handleNegocioNameChange(e.target.value)}
+                className={fieldInputClass}
                 required
-                pattern="^[a-z0-9]+(?:-[a-z0-9]+)*$"
               />
-            </div>
-            <p className="text-xs text-gray-600 mt-1">Apenas letras minúsculas, números e hífens</p>
-          </div>
+            </SignupFieldRow>
 
-          <div>
-            <label className={labelClass}>Tipo de Negócio *</label>
-            <input
-              type="text"
-              value={formData.tipoNegocio}
-              onChange={(e) => setFormData({ ...formData, tipoNegocio: e.target.value })}
-              placeholder="Ex: barbearia, estúdio, manicure..."
-              className={inputClass}
-              required
-            />
-          </div>
-
-          <div>
-            <label className={labelClass}>Anos de Experiência *</label>
-            <input
-              type="number"
-              value={formData.anosExperiencia}
-              onChange={(e) => setFormData({ ...formData, anosExperiencia: e.target.value })}
-              placeholder="5"
-              min="0"
-              max="50"
-              className={inputClass}
-              required
-            />
-          </div>
-
-          <div>
-            <label className={labelClass}>Sobre seus Serviços *</label>
-            <textarea
-              value={formData.descricao}
-              onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
-              placeholder="Ex: Oferecemos serviços completos de barbearia: do corte clássico ao degradê..."
-              rows={3}
-              className="w-full px-4 py-3 bg-dark-100/40 border border-gray-800/50 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none focus:bg-dark-100/60 transition-all backdrop-blur-sm resize-none text-sm"
-              required
-            />
-          </div>
-
-          <div>
-            <label className={labelClass}>Endereço Completo do Negócio *</label>
-            <div className="bg-dark-100/40 border border-gray-800/50 rounded-custom p-4 backdrop-blur-sm">
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div>
-                  <label className={labelSmClass}>Rua *</label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
-                    <input
-                      type="text"
-                      value={formData.rua}
-                      onChange={(e) => setFormData({ ...formData, rua: e.target.value })}
-                      placeholder="Rua Serra do Sincorá"
-                      className={inputIconClass}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className={labelSmClass}>Número *</label>
-                  <input
-                    type="text"
-                    value={formData.numero}
-                    onChange={(e) => setFormData({ ...formData, numero: e.target.value })}
-                    placeholder="1038"
-                    className={inputClass}
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className={labelSmClass}>Cidade *</label>
-                  <input
-                    type="text"
-                    value={formData.cidade}
-                    onChange={(e) => setFormData({ ...formData, cidade: e.target.value })}
-                    placeholder="Belo Horizonte"
-                    className={inputClass}
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className={labelSmClass}>Estado *</label>
-                  <input
-                    type="text"
-                    value={formData.estado}
-                    onChange={(e) => setFormData({ ...formData, estado: e.target.value })}
-                    placeholder="Minas Gerais"
-                    className={inputClass}
-                    required
-                  />
-                </div>
+            <SignupFieldRow label="URL">
+              <div className="flex min-w-0 items-center gap-2">
+                <span className="shrink-0 text-xs text-gray-600">comvaga.app/v/</span>
+                <input
+                  type="text"
+                  value={formData.urlNegocio}
+                  onChange={(e) => setFormData({ ...formData, urlNegocio: generateSlug(e.target.value) })}
+                  className={fieldInputClass}
+                  required
+                  pattern="^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                />
               </div>
+            </SignupFieldRow>
 
-              <div className="text-xs text-gray-600 mt-3">
-                Assim vai aparecer no dashboard/vitrine:
-                <span className="text-gray-400">
-                  {' '}
-                  {formData.rua || 'Rua X'}, {formData.numero || '000'} - {formData.cidade || 'Cidade'},{' '}
-                  {formData.estado || 'Estado'}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <label className={labelClass}>Email *</label>
-            <input
-              type="email"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              placeholder="seu@email.com"
-              className={inputClass}
-              required
-            />
-          </div>
-
-          <div>
-            <label className={labelClass}>Senha *</label>
-            <div className="relative">
+            <SignupFieldRow label="TIPO">
               <input
-                type={showPassword ? 'text' : 'password'}
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                placeholder="Mínimo 6 caracteres"
-                className="w-full px-4 pr-12 py-3 bg-dark-100/40 border border-gray-800/50 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none focus:bg-dark-100/60 transition-all backdrop-blur-sm text-sm"
+                type="text"
+                value={formData.tipoNegocio}
+                onChange={(e) => setFormData({ ...formData, tipoNegocio: e.target.value })}
+                className={fieldInputClass}
                 required
-                minLength={6}
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-400 transition-colors"
-              >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
-            </div>
+            </SignupFieldRow>
+
+            <SignupFieldRow label="EXPER.">
+              <input
+                type="number"
+                value={formData.anosExperiencia}
+                onChange={(e) => setFormData({ ...formData, anosExperiencia: e.target.value })}
+                min="0"
+                max="50"
+                className={fieldInputClass}
+                required
+              />
+            </SignupFieldRow>
+
+            <SignupFieldRow label="SOBRE">
+              <textarea
+                value={formData.descricao}
+                onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
+                rows={3}
+                className={`${fieldInputClass} max-h-28 resize-none overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden`}
+                required
+              />
+            </SignupFieldRow>
+
+            <SignupFieldRow label="RUA">
+              <input
+                type="text"
+                value={formData.rua}
+                onChange={(e) => setFormData({ ...formData, rua: e.target.value })}
+                className={fieldInputClass}
+                required
+              />
+            </SignupFieldRow>
+
+            <SignupFieldRow label="NUMERO">
+              <input
+                type="text"
+                value={formData.numero}
+                onChange={(e) => setFormData({ ...formData, numero: e.target.value })}
+                className={fieldInputClass}
+                required
+              />
+            </SignupFieldRow>
+
+            <SignupFieldRow label="CIDADE">
+              <input
+                type="text"
+                value={formData.cidade}
+                onChange={(e) => setFormData({ ...formData, cidade: e.target.value })}
+                className={fieldInputClass}
+                required
+              />
+            </SignupFieldRow>
+
+            <SignupFieldRow label="ESTADO">
+              <input
+                type="text"
+                value={formData.estado}
+                onChange={(e) => setFormData({ ...formData, estado: e.target.value })}
+                className={fieldInputClass}
+                required
+              />
+            </SignupFieldRow>
+
+            <SignupFieldRow label="E-MAIL">
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className={fieldInputClass}
+                required
+              />
+            </SignupFieldRow>
+
+            <SignupFieldRow label="SENHA" last>
+              <div className="relative min-w-0">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  className={`${fieldInputClass} pr-10`}
+                  required
+                  minLength={6}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-600 transition-colors hover:text-gray-400"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </SignupFieldRow>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-primary/10 border border-primary/30 hover:border-primary/60 hover:bg-primary/20 text-primary rounded-full font-normal text-sm tracking-wider transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-full rounded-full border border-yellow-500/70 bg-yellow-500 py-3 text-sm font-normal uppercase tracking-wider text-black transition-all hover:border-yellow-400 hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {loading ? 'CRIANDO VITRINE...' : 'CRIAR MINHA VITRINE'}
           </button>
 
-          <div className="text-center pt-6 border-t border-gray-800/50">
-            <p className="text-sm text-gray-500 mb-2">Já tem uma conta?</p>
-            <Link
-              to="/login"
-              className="text-primary hover:text-yellow-500 text-sm font-normal transition-colors inline-flex items-center gap-1"
-            >
-              Fazer login
-              <ArrowLeft className="w-3 h-3 rotate-180" />
-            </Link>
-          </div>
+          <Link
+            to="/login"
+            className="flex w-full items-center justify-center rounded-full border border-yellow-500/40 bg-transparent py-3 text-sm font-normal uppercase tracking-wider text-yellow-400 transition-all hover:border-yellow-500 hover:text-yellow-300"
+          >
+            FAZER LOGIN
+          </Link>
         </form>
 
         <div className="text-center mt-12">
           <p className="text-xs text-gray-600 font-normal">
-            Ao continuar, você concorda com nossos{' '}
+            AO CONTINUAR, VOCE CONCORDA COM NOSSOS{' '}
             <Link to="/termos" className="text-gray-500 hover:text-primary transition-colors">
-              Termos de Uso
+              TERMOS DE USO
             </Link>
-            {' '}e{' '}
+            {' '}E{' '}
             <Link to="/privacidade" className="text-gray-500 hover:text-primary transition-colors">
-              Política de Privacidade
+              POLITICA DE PRIVACIDADE
             </Link>
           </p>
         </div>
