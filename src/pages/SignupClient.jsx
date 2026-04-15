@@ -79,7 +79,7 @@ export default function SignupClient({ onLogin }) {
   };
 
   const fieldRowClass = 'flex items-center gap-3 px-5 py-3 border-b border-gray-800/50';
-  const fieldLabelClass = 'w-[76px] shrink-0 text-sm text-gray-500 tracking-wide';
+  const fieldLabelClass = 'w-[76px] shrink-0 text-sm text-white-500 tracking-wide';
   const fieldInputClass = 'w-full bg-transparent px-0 py-2 text-sm text-white placeholder-gray-600 outline-none focus:text-white';
 
   return (
@@ -113,7 +113,7 @@ export default function SignupClient({ onLogin }) {
             <p className="text-gray-500 text-base font-normal">CADASTRO DE <span className="text-blue-400">CLIENTE</span></p>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-5">
             <div className="overflow-hidden rounded-custom border border-gray-800/50 bg-dark-100/40 backdrop-blur-sm">
               <div className={fieldRowClass}>
               <label className={fieldLabelClass}>NOME</label>
@@ -162,20 +162,22 @@ export default function SignupClient({ onLogin }) {
             </div>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 bg-blue-500/10 border border-blue-500/30 hover:border-blue-500/60 hover:bg-blue-500/20 text-blue-400 rounded-full font-normal text-sm tracking-wider transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              {loading ? 'CRIANDO CONTA...' : 'CRIAR CONTA'}
-            </button>
+            <div className="space-y-2">
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 bg-blue-500/10 border border-blue-500/30 hover:border-blue-500/60 hover:bg-blue-500/20 text-blue-400 rounded-full font-normal text-sm tracking-wider transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {loading ? 'CRIANDO CONTA...' : 'CRIAR CONTA'}
+              </button>
 
-            <Link
-              to="/login"
-              className="flex w-full items-center justify-center rounded-full border border-blue-500/30 bg-transparent py-3 text-center text-sm font-normal uppercase tracking-wider text-blue-400 transition-all hover:border-blue-500/60 hover:text-blue-300"
-            >
-              FAZER LOGIN
-            </Link>
+              <Link
+                to="/login"
+                className="flex w-full items-center justify-center rounded-full border border-blue-500/30 bg-transparent py-3 text-center text-sm font-normal uppercase tracking-wider text-blue-400 transition-all hover:border-blue-500/60 hover:text-blue-300"
+              >
+                FAZER LOGIN
+              </Link>
+            </div>
           </div>
         </form>
 
