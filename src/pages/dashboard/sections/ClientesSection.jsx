@@ -59,8 +59,7 @@ export default function ClientesSection({
                   <div className="mb-4 space-y-3">
                     <div className="text-xs text-gray-500 uppercase mb-3">Último agendamento</div>
                     <div className="min-w-0">
-                      <div className="text-xs text-gray-500 mb-1">{itemLabelText}</div>
-                      <div className="text-white text-sm leading-snug break-words">{cliente.ultimo_entrega_nome || itemLabelText}</div>
+                      <div className="text-primary text-sm leading-snug break-words">{cliente.ultimo_entrega_nome || itemLabelText}</div>
                     </div>
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div className="min-w-0">
