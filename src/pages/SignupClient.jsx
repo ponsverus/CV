@@ -139,7 +139,7 @@ export default function SignupClient({ onLogin }) {
               />
             </div>
 
-              <div className="flex items-center gap-3 px-5 py-3">
+              <div className="flex items-center gap-3 px-5 py-1.5">
               <label className={fieldLabelClass}>SENHA</label>
               <div className="relative min-w-0 flex-1">
                 <input
