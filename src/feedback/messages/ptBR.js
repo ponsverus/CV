@@ -507,7 +507,7 @@ export const ptBR = {
     },
     account_password_too_short: {
       title: 'Senha fraca',
-      body: 'A senha deve ter no mínimo 6 caracteres.',
+      body: 'A senha deve ter no mínimo 7 caracteres.',
       variant: 'danger',
       screen: 'dark',
       buttonText: 'OK',
@@ -849,7 +849,7 @@ export const ptBR = {
     },
     password_too_short: {
       title: 'Senha muito curta',
-      body: 'A senha deve ter no mínimo 6 caracteres.',
+      body: 'A senha deve ter no mínimo 7 caracteres.',
       variant: 'danger',
       screen: 'dark',
       buttonText: 'OK',
