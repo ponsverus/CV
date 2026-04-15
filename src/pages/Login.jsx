@@ -198,7 +198,7 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
                 <div className="relative group">
                   <input
                     type="password"
-                    placeholder="Nova senha"
+                    placeholder="NOVA SENHA"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     className="w-full px-5 py-4 bg-dark-100/50 border border-gray-800 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all backdrop-blur-sm"
@@ -209,7 +209,7 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
                 <div className="relative group">
                   <input
                     type="password"
-                    placeholder="Confirmar nova senha"
+                    placeholder="CONFIRMAR"
                     value={newPassword2}
                     onChange={(e) => setNewPassword2(e.target.value)}
                     className="w-full px-5 py-4 bg-dark-100/50 border border-gray-800 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all backdrop-blur-sm"
