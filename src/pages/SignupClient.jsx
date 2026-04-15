@@ -47,7 +47,7 @@ export default function SignupClient({ onLogin }) {
 
       if (!nome) { showMessage('signupClient.name_required'); return; }
       if (!email.includes('@')) { showMessage('signupClient.email_invalid'); return; }
-      if (password.length < 6) { showMessage('signupClient.password_too_short'); return; }
+      if (password.length < 7) { showMessage('signupClient.password_too_short'); return; }
 
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
@@ -79,7 +79,7 @@ export default function SignupClient({ onLogin }) {
   };
 
   const fieldRowClass = 'flex items-center gap-3 px-5 py-3 border-b border-gray-800/50';
-  const fieldLabelClass = 'w-[76px] shrink-0 text-sm text-white-500 tracking-wide';
+  const fieldLabelClass = 'w-[76px] shrink-0 text-sm text-gray-500 tracking-wide';
   const fieldInputClass = 'w-full bg-transparent px-0 py-2 text-sm text-white placeholder-gray-600 outline-none focus:text-white';
 
   return (
@@ -149,7 +149,7 @@ export default function SignupClient({ onLogin }) {
                   placeholder="MÍNIMO 7 CARACTERES"
                   className={`${fieldInputClass} pr-10`}
                   required
-                  minLength={6}
+                  minLength={7}
                 />
                 <button
                   type="button"
