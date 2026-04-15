@@ -46,7 +46,7 @@ async function clearSignupSession() {
 function SignupFieldRow({ label, children, last = false }) {
   return (
     <div className={`flex items-start gap-3 px-5 py-3 ${last ? '' : 'border-b border-gray-800/50'}`}>
-      <label className="w-[96px] shrink-0 py-2 text-xs tracking-wide text-gray-500">{label}</label>
+      <label className="w-[96px] shrink-0 py-2 text-sm tracking-wide text-white">{label}</label>
       <div className="min-w-0 flex-1">{children}</div>
     </div>
   );
@@ -67,7 +67,6 @@ export default function SignupProfessional({ onLogin }) {
     urlNegocio: '',
     tipoNegocio: '',
     anosExperiencia: '',
-    descricao: '',
     rua: '',
     numero: '',
     cidade: '',
@@ -122,7 +121,6 @@ export default function SignupProfessional({ onLogin }) {
       const nomeNegocio = onlyTrim(formData.nomeNegocio);
       const slug = onlyTrim(formData.urlNegocio);
       const tipoNegocio = onlyTrim(formData.tipoNegocio);
-      const descricao = onlyTrim(formData.descricao);
       const anosExperiencia = parseInt(String(formData.anosExperiencia || ''), 10) || 0;
 
       if (!nome) { showMessage('signupProfessional.name_required'); return; }
@@ -132,7 +130,6 @@ export default function SignupProfessional({ onLogin }) {
       if (!nomeNegocio) { showMessage('signupProfessional.business_name_required'); return; }
       if (!slug || slug.length < 3) { showMessage('signupProfessional.business_slug_invalid'); return; }
       if (!tipoNegocio) { showMessage('signupProfessional.business_type_required'); return; }
-      if (!descricao) { showMessage('signupProfessional.description_required'); return; }
       if (anosExperiencia < 0) { showMessage('signupProfessional.experience_invalid'); return; }
 
       const enderecoKey = validarEnderecoCompleto();
@@ -182,7 +179,6 @@ export default function SignupProfessional({ onLogin }) {
           nome_usuario: nome,
           nome_negocio: nomeNegocio,
           slug,
-          descricao,
           telefone,
           endereco: enderecoUnico,
           tipo_negocio: tipoNegocio,
@@ -318,7 +314,7 @@ export default function SignupProfessional({ onLogin }) {
               />
             </SignupFieldRow>
 
-            <SignupFieldRow label="NEGOCIO">
+            <SignupFieldRow label="NEGÓCIO">
               <input
                 type="text"
                 value={formData.nomeNegocio}
@@ -364,16 +360,6 @@ export default function SignupProfessional({ onLogin }) {
               />
             </SignupFieldRow>
 
-            <SignupFieldRow label="SOBRE">
-              <textarea
-                value={formData.descricao}
-                onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
-                rows={3}
-                className={`${fieldInputClass} max-h-28 resize-none overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden`}
-                required
-              />
-            </SignupFieldRow>
-
             <SignupFieldRow label="RUA">
               <input
                 type="text"
@@ -384,7 +370,7 @@ export default function SignupProfessional({ onLogin }) {
               />
             </SignupFieldRow>
 
-            <SignupFieldRow label="NUMERO">
+            <SignupFieldRow label="NÚMERO">
               <input
                 type="text"
                 value={formData.numero}
@@ -463,13 +449,13 @@ export default function SignupProfessional({ onLogin }) {
 
         <div className="text-center mt-12">
           <p className="text-xs text-gray-600 font-normal">
-            AO CONTINUAR, VOCE CONCORDA COM NOSSOS{' '}
+            AO CONTINUAR, VOCÊ CONCORDA COM NOSSOS{' '}
             <Link to="/termos" className="text-gray-500 hover:text-primary transition-colors">
               TERMOS DE USO
             </Link>
             {' '}E{' '}
             <Link to="/privacidade" className="text-gray-500 hover:text-primary transition-colors">
-              POLITICA DE PRIVACIDADE
+              POLÍTICA DE PRIVACIDADE
             </Link>
           </p>
         </div>
