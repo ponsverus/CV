@@ -80,7 +80,7 @@ export default function SignupClient({ onLogin }) {
 
   const fieldRowClass = 'flex items-center gap-3 px-5 py-3 border-b border-gray-800/50';
   const fieldLabelClass = 'w-[76px] shrink-0 text-xs text-gray-500 tracking-wide';
-  const fieldInputClass = 'w-full bg-transparent px-0 py-2 text-sm text-white placeholder-gray-600 outline-none focus:text-white';
+  const fieldInputClass = 'w-full bg-transparent px-0 py-1 text-sm text-white placeholder-gray-600 outline-none focus:text-white';
 
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center p-4 relative overflow-hidden">
@@ -146,7 +146,7 @@ export default function SignupClient({ onLogin }) {
                   type={showPassword ? 'text' : 'password'}
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  placeholder="MÍNIMO 6 CARACTERES"
+                  placeholder="MÍNIMO 7 CARACTERES"
                   className={`${fieldInputClass} pr-10`}
                   required
                   minLength={6}
