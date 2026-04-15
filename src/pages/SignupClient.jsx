@@ -107,13 +107,13 @@ export default function SignupClient({ onLogin }) {
         <form onSubmit={handleSignup} className="relative">
           <div className="text-center mb-10">
             <User className="mx-auto mb-4 text-blue-400 w-12 h-12" />
-            <h1 className="text-4xl font-normal mb-3 tracking-wide">Criar conta</h1>
-            <p className="text-gray-500 text-base font-normal">Cadastro de <span className="text-blue-400">Cliente</span></p>
+            <h1 className="text-4xl font-normal mb-3 tracking-wide">CRIAR CONTA</h1>
+            <span className="text-blue-400">CLIENTE</span>
           </div>
 
           <div className="space-y-5">
             <div>
-              <label className="block text-sm text-gray-400 mb-2 tracking-wide">Nome Completo</label>
+              <label className="block text-sm text-gray-400 mb-2 tracking-wide">NOME</label>
               <input
                 type="text"
                 value={formData.nome}
@@ -125,7 +125,7 @@ export default function SignupClient({ onLogin }) {
             </div>
 
             <div>
-              <label className="block text-sm text-gray-400 mb-2 tracking-wide">Email</label>
+              <label className="block text-sm text-gray-400 mb-2 tracking-wide">E-MAIL</label>
               <input
                 type="email"
                 value={formData.email}
@@ -137,7 +137,7 @@ export default function SignupClient({ onLogin }) {
             </div>
 
             <div>
-              <label className="block text-sm text-gray-400 mb-2 tracking-wide">Senha</label>
+              <label className="block text-sm text-gray-400 mb-2 tracking-wide">SENHA</label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -166,16 +166,12 @@ export default function SignupClient({ onLogin }) {
               {loading ? 'CRIANDO CONTA...' : 'CRIAR CONTA'}
             </button>
 
-            <div className="text-center pt-6 mt-2 border-t border-gray-800/50">
-              <p className="text-sm text-gray-500 mb-2">Já tem uma conta?</p>
-              <Link
-                to="/login"
-                className="text-blue-400 hover:text-blue-300 text-sm font-normal transition-colors inline-flex items-center gap-1"
-              >
-                Fazer login
-                <ArrowLeft className="w-3 h-3 rotate-180" />
-              </Link>
-            </div>
+            <Link
+              to="/login"
+              className="w-full rounded-button border border-blue-500/30 bg-transparent py-3 text-center text-sm font-normal uppercase tracking-wider text-blue-400 transition-all hover:border-blue-500/60 hover:text-blue-300"
+            >
+              FAZER LOGIN
+            </Link>
           </div>
         </form>
 
