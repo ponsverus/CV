@@ -81,7 +81,7 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
 
       if (profile.accessState === 'partner_pending') {
         await supabase.auth.signOut();
-        throw new Error('Seu acesso de parceiro ainda está pendente de aprovação.');
+        throw new Error('Seu acesso de parceiro ainda está em fase de análise.');
       }
 
       onLogin?.(
@@ -158,7 +158,7 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
   const title = isRecovery
     ? 'Definir nova senha'
     : step === 1
-      ? 'BEM-VINDO DE VOLTA :)'
+      ? 'BEM-VINDO DE VOLTA'
       : `${userType === 'client' ? 'CLIENTE' : 'PROFISSIONAL'}`;
 
   return (
@@ -188,7 +188,7 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
           <div className="text-center mb-10">
             <h1 className="text-4xl font-normal mb-3 tracking-wide">{title}</h1>
             {step === 1 && !isRecovery && (
-              <p className="text-gray-500 text-base font-normal">Escolha como deseja acessar</p>
+              <p className="text-gray-500 text-base font-normal">:)</p>
             )}
           </div>
 
@@ -309,7 +309,7 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
                       disabled={resetLoading}
                       className="text-xs text-primary hover:text-yellow-500 transition-colors disabled:opacity-50"
                     >
-                      {resetLoading ? 'ENVIANDO...' : 'ESQUECI A SENHA'}
+                      {resetLoading ? 'ENVIANDO...' : 'TROCAR SENHA'}
                     </button>
                   </div>
 
