@@ -294,13 +294,14 @@ export default function SignupProfessional({ onLogin }) {
 
         <form onSubmit={handleSignup} className="space-y-5">
           <div className="overflow-hidden rounded-custom border border-gray-800/50 bg-dark-100/40 backdrop-blur-sm">
-            <SignupFieldRow label="SEU NOME">
+            <SignupFieldRow label="NOME:">
               <input
                 type="text"
                 value={formData.nome}
                 onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
                 className={fieldInputClass}
                 required
+                placeholder="NOME COMPLETO"
               />
             </SignupFieldRow>
 
@@ -314,7 +315,7 @@ export default function SignupProfessional({ onLogin }) {
               />
             </SignupFieldRow>
 
-            <SignupFieldRow label="NOME DO NEÓCIO">
+            <SignupFieldRow label="NOME COMPLETO">
               <input
                 type="text"
                 value={formData.nomeNegocio}
@@ -339,7 +340,7 @@ export default function SignupProfessional({ onLogin }) {
               </div>
             </SignupFieldRow>
 
-            <SignupFieldRow label="TIPO DE NEGÓCIO">
+            <SignupFieldRow label="TIPO">
               <input
                 type="text"
                 value={formData.tipoNegocio}
@@ -390,7 +391,6 @@ export default function SignupProfessional({ onLogin }) {
                 onChange={(e) => setFormData({ ...formData, cidade: e.target.value })}
                 className={fieldInputClass}
                 required
-                placeholder="EX: TIMÓTEO"
               />
             </SignupFieldRow>
 
@@ -401,7 +401,6 @@ export default function SignupProfessional({ onLogin }) {
                 onChange={(e) => setFormData({ ...formData, estado: e.target.value })}
                 className={fieldInputClass}
                 required
-                placeholder="EX: MG"
               />
             </SignupFieldRow>
 
