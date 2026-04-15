@@ -564,6 +564,7 @@ export const ptBR = {
     slug_required:        { body: 'Informe o slug do negócio para continuar.', variant: 'erro' },
     negocio_not_found:    { body: 'Negócio não encontrado. Verifique o slug informado e tente novamente.', variant: 'erro' },
     email_already_exists: { body: 'Este email já possui uma conta.\n\nUse a página de login de parceiro.', variant: 'erro' },
+    access_unavailable:   { body: 'Não foi possível solicitar acesso com este email.\n\nFaça login como parceiro ou fale com o responsável pelo negócio.', variant: 'erro' },
     account_create_error: { body: 'Não foi possível criar sua conta agora.\n\nTente novamente.', variant: 'erro' },
     already_pending:      { body: 'Você já tem um cadastro aguardando aprovação neste negócio.', variant: 'aviso' },
     already_active:       { body: 'Você já está cadastrado neste negócio.\n\nUse a página de login.', variant: 'aviso' },
