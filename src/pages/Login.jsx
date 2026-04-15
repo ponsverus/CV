@@ -243,8 +243,8 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
                     <div className="absolute inset-0 bg-blue-500/0 group-hover:bg-blue-500/5 transition-all" />
                     <div className="relative">
                       <User className="mx-auto mb-4 text-blue-400 w-10 h-10 group-hover:scale-110 transition-transform" />
-                      <div className="font-normal text-lg tracking-wide mb-1">Cliente</div>
-                      <div className="text-xs text-gray-500">Agendar serviços</div>
+                      <div className="font-normal text-lg tracking-wide mb-1">CLIENTE</div>
+                      <div className="text-xs text-gray-500">AGENDAR TRABALHO</div>
                     </div>
                   </button>
 
@@ -255,8 +255,8 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
                     <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/5 transition-all" />
                     <div className="relative">
                       <Award className="mx-auto mb-4 text-primary w-10 h-10 group-hover:scale-110 transition-transform" />
-                      <div className="font-normal text-lg tracking-wide mb-1">Profissional</div>
-                      <div className="text-xs text-gray-500">Gerenciar agenda</div>
+                      <div className="font-normal text-lg tracking-wide mb-1">PROFISSIONAL</div>
+                      <div className="text-xs text-gray-500">GERENCIAR AGENDA</div>
                     </div>
                   </button>
                 </div>
@@ -268,7 +268,7 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
                     className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-primary transition-colors group"
                   >
                     <ArrowLeft className="w-3 h-3 group-hover:-translate-x-0.5 transition-transform" />
-                    Trocar tipo de conta
+                    TROCAR TIPO DE CONTA
                   </button>
 
                   <div className="space-y-4">
@@ -309,7 +309,7 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
                       disabled={resetLoading}
                       className="text-xs text-primary hover:text-yellow-500 transition-colors disabled:opacity-50"
                     >
-                      {resetLoading ? 'ENVIANDO...' : 'Esqueceu a senha?'}
+                      {resetLoading ? 'ENVIANDO...' : 'ESQUECEU A SENHA?'}
                     </button>
                   </div>
 
@@ -328,17 +328,13 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
                     )}
                   </button>
 
-                  <div className="text-center pt-5 border-t border-gray-800/50">
-                    <p className="text-sm text-gray-500 mb-2">Primeira vez por aqui? Crie sua conta.</p>
-                    <button
-                      type="button"
-                      onClick={() => navigate(userType === 'client' ? '/cadastro/cliente' : '/cadastro/profissional')}
-                      className="text-primary hover:text-yellow-500 text-sm font-normal transition-colors inline-flex items-center gap-1"
-                    >
-                      Criar conta gratuita
-                      <ArrowLeft className="w-3 h-3 rotate-180" />
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => navigate(userType === 'client' ? '/cadastro/cliente' : '/cadastro/profissional')}
+                    className="w-full rounded-button border border-primary/30 bg-transparent py-4 text-sm font-normal uppercase text-primary transition-all hover:border-primary hover:text-yellow-500"
+                  >
+                    CRIAR CONTA
+                  </button>
                 </form>
               )}
             </>
@@ -347,9 +343,9 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
 
         <div className="text-center mt-12">
           <p className="text-xs text-gray-600 font-normal">
-            Ao continuar, você concorda com nossos{' '}
+            AO CONTINUAR, VOCÊ CONCORDA COM NOSSOS{' '}
             <Link to="/termos" className="text-gray-500 hover:text-primary transition-colors">
-              Termos de Uso
+              TERMOS DE USO
             </Link>
           </p>
         </div>
