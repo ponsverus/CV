@@ -262,14 +262,24 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
                 </div>
               ) : (
                 <form onSubmit={handleLogin} className="space-y-5">
-                  <button
-                    type="button"
-                    onClick={() => setStep(1)}
-                    className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-primary transition-colors group"
-                  >
-                    <ArrowLeft className="w-3 h-3 group-hover:-translate-x-0.5 transition-transform" />
-                    TROCAR TIPO
-                  </button>
+                  <div className="flex items-center justify-between gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setStep(1)}
+                      className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-primary transition-colors group"
+                    >
+                      <ArrowLeft className="w-3 h-3 group-hover:-translate-x-0.5 transition-transform" />
+                      TROCAR TIPO
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleForgotPassword}
+                      disabled={resetLoading}
+                      className="inline-flex shrink-0 items-center justify-center rounded-full border border-yellow-500/40 bg-transparent px-4 py-1.5 text-xs font-normal uppercase text-yellow-400 transition-colors hover:border-yellow-500 hover:text-yellow-300 disabled:opacity-50"
+                    >
+                      {resetLoading ? 'ENVIANDO...' : 'TROCAR SENHA'}
+                    </button>
+                  </div>
 
                   <div className="space-y-4">
                     <div className="relative group">
@@ -300,17 +310,6 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
                         {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                       </button>
                     </div>
-                  </div>
-
-                  <div className="flex justify-end">
-                    <button
-                      type="button"
-                      onClick={handleForgotPassword}
-                      disabled={resetLoading}
-                      className="text-xs text-primary hover:text-yellow-500 transition-colors disabled:opacity-50"
-                    >
-                      {resetLoading ? 'ENVIANDO...' : 'TROCAR SENHA'}
-                    </button>
                   </div>
 
                   <button
