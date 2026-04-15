@@ -126,7 +126,7 @@ export default function SignupProfessional({ onLogin }) {
       if (!nome) { showMessage('signupProfessional.name_required'); return; }
       if (!telefone) { showMessage('signupProfessional.phone_required'); return; }
       if (!email || !email.includes('@')) { showMessage('signupProfessional.email_invalid'); return; }
-      if (password.length < 6) { showMessage('signupProfessional.password_too_short'); return; }
+      if (password.length < 7) { showMessage('signupProfessional.password_too_short'); return; }
       if (!nomeNegocio) { showMessage('signupProfessional.business_name_required'); return; }
       if (!slug || slug.length < 3) { showMessage('signupProfessional.business_slug_invalid'); return; }
       if (!tipoNegocio) { showMessage('signupProfessional.business_type_required'); return; }
@@ -294,7 +294,7 @@ export default function SignupProfessional({ onLogin }) {
 
         <form onSubmit={handleSignup} className="space-y-5">
           <div className="overflow-hidden rounded-custom border border-gray-800/50 bg-dark-100/40 backdrop-blur-sm">
-            <SignupFieldRow label="NOME">
+            <SignupFieldRow label="SEU NOME">
               <input
                 type="text"
                 value={formData.nome}
@@ -314,17 +314,18 @@ export default function SignupProfessional({ onLogin }) {
               />
             </SignupFieldRow>
 
-            <SignupFieldRow label="NEGÓCIO">
+            <SignupFieldRow label="NOME DO NEÓCIO">
               <input
                 type="text"
                 value={formData.nomeNegocio}
                 onChange={(e) => handleNegocioNameChange(e.target.value)}
                 className={fieldInputClass}
                 required
+                placeholder="EX: VIKINGS BARBER"
               />
             </SignupFieldRow>
 
-            <SignupFieldRow label="URL">
+            <SignupFieldRow label="SUA URL">
               <div className="flex min-w-0 items-center gap-2">
                 <span className="shrink-0 text-xs text-gray-600">comvaga.app/v/</span>
                 <input
@@ -338,17 +339,18 @@ export default function SignupProfessional({ onLogin }) {
               </div>
             </SignupFieldRow>
 
-            <SignupFieldRow label="TIPO">
+            <SignupFieldRow label="TIPO DE NEGÓCIO">
               <input
                 type="text"
                 value={formData.tipoNegocio}
                 onChange={(e) => setFormData({ ...formData, tipoNegocio: e.target.value })}
                 className={fieldInputClass}
                 required
+                placeholder="EX: BARBEARIA, CLÍNICA...."
               />
             </SignupFieldRow>
 
-            <SignupFieldRow label="EXPER.">
+            <SignupFieldRow label="EXPERIÊNCIA">
               <input
                 type="number"
                 value={formData.anosExperiencia}
@@ -357,6 +359,7 @@ export default function SignupProfessional({ onLogin }) {
                 max="50"
                 className={fieldInputClass}
                 required
+                placeholder="ANOS"
               />
             </SignupFieldRow>
 
@@ -370,7 +373,7 @@ export default function SignupProfessional({ onLogin }) {
               />
             </SignupFieldRow>
 
-            <SignupFieldRow label="NÚMERO">
+            <SignupFieldRow label="NUMERO">
               <input
                 type="text"
                 value={formData.numero}
@@ -387,6 +390,7 @@ export default function SignupProfessional({ onLogin }) {
                 onChange={(e) => setFormData({ ...formData, cidade: e.target.value })}
                 className={fieldInputClass}
                 required
+                placeholder="EX: TIMÓTEO"
               />
             </SignupFieldRow>
 
@@ -397,6 +401,7 @@ export default function SignupProfessional({ onLogin }) {
                 onChange={(e) => setFormData({ ...formData, estado: e.target.value })}
                 className={fieldInputClass}
                 required
+                placeholder="EX: MG"
               />
             </SignupFieldRow>
 
@@ -407,6 +412,7 @@ export default function SignupProfessional({ onLogin }) {
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 className={fieldInputClass}
                 required
+                placeholder="SEU E-MAIL"
               />
             </SignupFieldRow>
 
@@ -418,7 +424,8 @@ export default function SignupProfessional({ onLogin }) {
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   className={`${fieldInputClass} pr-10`}
                   required
-                  minLength={6}
+                  minLength={7}
+                  placeholder="MÍNIMO 7 CARACTERES"
                 />
                 <button
                   type="button"
@@ -431,20 +438,22 @@ export default function SignupProfessional({ onLogin }) {
             </SignupFieldRow>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-full border border-yellow-500/70 bg-yellow-500 py-3 text-sm font-normal uppercase tracking-wider text-black transition-all hover:border-yellow-400 hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            {loading ? 'CRIANDO VITRINE...' : 'CRIAR MINHA VITRINE'}
-          </button>
+          <div className="space-y-2">
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-full border border-yellow-500/70 bg-yellow-500 py-3 text-sm font-normal uppercase tracking-wider text-black transition-all hover:border-yellow-400 hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {loading ? 'CRIANDO VITRINE...' : 'CRIAR MINHA VITRINE'}
+            </button>
 
-          <Link
-            to="/login"
-            className="flex w-full items-center justify-center rounded-full border border-yellow-500/40 bg-transparent py-3 text-sm font-normal uppercase tracking-wider text-yellow-400 transition-all hover:border-yellow-500 hover:text-yellow-300"
-          >
-            FAZER LOGIN
-          </Link>
+            <Link
+              to="/login"
+              className="flex w-full items-center justify-center rounded-full border border-yellow-500/40 bg-transparent py-3 text-sm font-normal uppercase tracking-wider text-yellow-400 transition-all hover:border-yellow-500 hover:text-yellow-300"
+            >
+              FAZER LOGIN
+            </Link>
+          </div>
         </form>
 
         <div className="text-center mt-12">
