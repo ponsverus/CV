@@ -110,7 +110,7 @@ export default function SignupClient({ onLogin }) {
           <div className="text-center mb-10">
             <User className="mx-auto mb-4 text-blue-400 w-12 h-12" />
             <h1 className="text-4xl font-normal mb-3 tracking-wide">CRIAR CONTA</h1>
-            <span className="text-blue-400">CLIENTE</span>
+            <p className="text-gray-500 text-base font-normal">CADASTRO DE <span className="text-blue-400">CLIENTE</span></p>
           </div>
 
           <div className="space-y-5">
@@ -181,7 +181,7 @@ export default function SignupClient({ onLogin }) {
 
         <div className="text-center mt-12">
           <p className="text-xs text-gray-600 font-normal">
-            Ao continuar, você concorda com nossos{' '}
+            AO CONTINUAR, VOCÊ CONCORDA COM NOSSOS{' '}
             <Link to="/termos" className="text-gray-500 hover:text-blue-400 transition-colors">
               TERMOS DE USO
             </Link>
