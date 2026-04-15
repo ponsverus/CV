@@ -17,7 +17,10 @@ export default function ClientesSection({
   clientesLoadingMore,
   loadMoreClientes,
   onAgendarCliente,
+  itemLabel = 'SERV',
 }) {
+  const itemLabelText = String(itemLabel || 'SERV').toUpperCase();
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -32,13 +35,13 @@ export default function ClientesSection({
         </div>
       ) : clientes.length > 0 ? (
         <>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {clientes.map((cliente) => {
               const avatarUrl = getPublicUrl('avatars', cliente.cliente_avatar_path);
               const nome = String(cliente.cliente_nome || 'Cliente').trim();
               const inicial = nome?.[0]?.toUpperCase() || '?';
               return (
-                <div key={cliente.cliente_id} className="bg-dark-200 border border-gray-800 rounded-custom p-4">
+                <div key={cliente.cliente_id} className="bg-dark-200 border border-gray-800 rounded-custom p-4 h-full flex flex-col">
                   <div className="flex items-start gap-3 mb-4">
                     <div className="w-12 h-12 rounded-full overflow-hidden border border-gray-700 bg-dark-100 flex items-center justify-center shrink-0">
                       {avatarUrl ? (
@@ -53,16 +56,16 @@ export default function ClientesSection({
                     </div>
                   </div>
 
-                  <div className="mb-4">
+                  <div className="mb-4 space-y-3">
                     <div className="text-xs text-gray-500 uppercase mb-3">Último agendamento</div>
-                    <div className="grid grid-cols-3 gap-3 text-sm">
+                    <div className="min-w-0">
+                      <div className="text-xs text-gray-500 mb-1">{itemLabelText}</div>
+                      <div className="text-white text-sm leading-snug break-words">{cliente.ultimo_entrega_nome || itemLabelText}</div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
                       <div className="min-w-0">
                         <div className="text-xs text-gray-500 mb-1">DATA</div>
                         <div className="text-white truncate">{formatDateBRFromISO(cliente.ultimo_data)}</div>
-                      </div>
-                      <div className="min-w-0">
-                        <div className="text-xs text-gray-500 mb-1">SERVIÇO</div>
-                        <div className="text-white truncate">{cliente.ultimo_entrega_nome || 'Serviço'}</div>
                       </div>
                       <div className="min-w-0">
                         <div className="text-xs text-gray-500 mb-1">VALOR</div>
@@ -74,7 +77,7 @@ export default function ClientesSection({
                   <button
                     type="button"
                     onClick={() => onAgendarCliente(cliente)}
-                    className="w-full py-2 bg-primary/20 hover:bg-primary/30 border border-primary/50 text-primary rounded-button text-sm font-normal uppercase transition-all flex items-center justify-center gap-2"
+                    className="mt-auto w-full py-2 bg-primary/20 hover:bg-primary/30 border border-primary/50 text-primary rounded-button text-sm font-normal uppercase transition-all flex items-center justify-center gap-2"
                   >
                     <Calendar className="w-4 h-4" />
                     AGENDAR CLIENTE
