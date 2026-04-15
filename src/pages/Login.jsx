@@ -158,8 +158,8 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
   const title = isRecovery
     ? 'Definir nova senha'
     : step === 1
-      ? 'Bem-vindo de volta'
-      : `Entrar como ${userType === 'client' ? 'Cliente' : 'Profissional'}`;
+      ? 'BEM-VINDO DE VOLTA :)'
+      : `${userType === 'client' ? 'CLIENTE' : 'PROFISSIONAL'}`;
 
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center p-4 relative overflow-hidden">
@@ -268,7 +268,7 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
                     className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-primary transition-colors group"
                   >
                     <ArrowLeft className="w-3 h-3 group-hover:-translate-x-0.5 transition-transform" />
-                    TROCAR TIPO DE CONTA
+                    TROCAR TIPO
                   </button>
 
                   <div className="space-y-4">
@@ -309,7 +309,7 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
                       disabled={resetLoading}
                       className="text-xs text-primary hover:text-yellow-500 transition-colors disabled:opacity-50"
                     >
-                      {resetLoading ? 'ENVIANDO...' : 'ESQUECEU A SENHA?'}
+                      {resetLoading ? 'ENVIANDO...' : 'ESQUECI A SENHA'}
                     </button>
                   </div>
 
