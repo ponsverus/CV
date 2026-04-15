@@ -347,7 +347,7 @@ export default function SignupProfessional({ onLogin }) {
                 onChange={(e) => setFormData({ ...formData, tipoNegocio: e.target.value })}
                 className={fieldInputClass}
                 required
-                placeholder="EX: BARBEARIA, CLÍNICA...."
+                placeholder="EX: BARBEARIA, CLÍNICA..."
               />
             </SignupFieldRow>
 
