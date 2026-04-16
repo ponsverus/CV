@@ -41,8 +41,7 @@ export default function SignupChoice() {
 
         <div className="relative">
           <div className="text-center mb-10">
-            <h1 className="text-4xl font-normal mb-3 tracking-wide">Quem é você?</h1>
-            <p className="text-gray-500 text-base font-normal">Escolha o tipo de conta que deseja criar</p>
+            <h1 className="text-4xl font-normal mb-3 tracking-wide">QUEM É VOCÊ</h1>
           </div>
 
           <div className="grid grid-cols-2 gap-5">
@@ -53,8 +52,8 @@ export default function SignupChoice() {
               <div className="absolute inset-0 bg-blue-500/0 group-hover:bg-blue-500/5 transition-all"></div>
               <div className="relative">
                 <User className="mx-auto mb-4 text-blue-400 w-10 h-10 group-hover:scale-110 transition-transform" />
-                <div className="font-normal text-lg tracking-wide mb-1">Cliente</div>
-                <div className="text-xs text-gray-500">Agendar serviços</div>
+                <div className="font-normal text-lg tracking-wide mb-1">CLIENTE</div>
+                <div className="text-xs text-gray-500">AGENDAR TRABALHO</div>
               </div>
             </button>
 
@@ -65,14 +64,13 @@ export default function SignupChoice() {
               <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/5 transition-all"></div>
               <div className="relative">
                 <Award className="mx-auto mb-4 text-primary w-10 h-10 group-hover:scale-110 transition-transform" />
-                <div className="font-normal text-lg tracking-wide mb-1">Profissional</div>
-                <div className="text-xs text-gray-500">Gerenciar negócio</div>
+                <div className="font-normal text-lg tracking-wide mb-1">PROFISSIONAL</div>
+                <div className="text-xs text-gray-500">GERENCIAR NEGÓCIO</div>
               </div>
             </button>
           </div>
 
           <div className="mt-5">
-            <p className="hidden">Já tem uma conta?</p>
             <Link
               to="/login"
               className="flex w-full items-center justify-center rounded-full border border-primary/30 bg-transparent py-3 text-sm font-normal uppercase tracking-wider text-primary transition-all hover:border-primary hover:text-yellow-500"
