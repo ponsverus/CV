@@ -15,7 +15,8 @@ export const supabase = createClient(
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
-      storageKey: 'comvaga-auth'
+      storageKey: 'comvaga-auth',
+      lock: async (_name, _timeout, fn) => fn()
     },
     global: {
       headers: {
