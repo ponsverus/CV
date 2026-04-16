@@ -256,7 +256,7 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
                     <div className="relative">
                       <Award className="mx-auto mb-4 text-primary w-10 h-10 group-hover:scale-110 transition-transform" />
                       <div className="font-normal text-lg tracking-wide mb-1">PROFISSIONAL</div>
-                      <div className="text-xs text-gray-500">GERENCIAR AGENDA</div>
+                      <div className="text-xs text-gray-500">GERENCIAR NEGÓCIO</div>
                     </div>
                   </button>
                 </div>
@@ -283,7 +283,7 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
 
                   <div className="overflow-hidden rounded-custom border border-gray-800 bg-dark-100/50 backdrop-blur-sm">
                     <div className="flex items-center gap-3 border-b border-gray-800 px-5 py-3">
-                      <label className="w-[76px] shrink-0 text-sm tracking-wide text-gray-500">E-MAIL</label>
+                      <label className="w-[76px] shrink-0 text-sm tracking-wide text-white-500">E-MAIL</label>
                       <input
                         type="email"
                         placeholder="seu@email.com"
@@ -294,7 +294,7 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
                       />
                     </div>
                     <div className="flex items-center gap-3 px-5 py-3">
-                      <label className="w-[76px] shrink-0 text-sm tracking-wide text-gray-500">SENHA</label>
+                      <label className="w-[76px] shrink-0 text-sm tracking-wide text-white-500">SENHA</label>
                       <div className="relative min-w-0 flex-1">
                       <input
                         type={showPassword ? 'text' : 'password'}
