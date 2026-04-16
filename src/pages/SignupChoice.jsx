@@ -71,27 +71,26 @@ export default function SignupChoice() {
             </button>
           </div>
 
-          <div className="text-center pt-6 mt-6 border-t border-gray-800/50">
-            <p className="text-sm text-gray-500 mb-2">Já tem uma conta?</p>
+          <div className="mt-5">
+            <p className="hidden">Já tem uma conta?</p>
             <Link
               to="/login"
-              className="text-primary hover:text-yellow-500 text-sm font-normal transition-colors inline-flex items-center gap-1"
+              className="flex w-full items-center justify-center rounded-full border border-primary/30 bg-transparent py-3 text-sm font-normal uppercase tracking-wider text-primary transition-all hover:border-primary hover:text-yellow-500"
             >
-              Fazer login
-              <ArrowLeft className="w-3 h-3 rotate-180" />
+              FAZER LOGIN
             </Link>
           </div>
         </div>
 
         <div className="text-center mt-12">
           <p className="text-xs text-gray-600 font-normal">
-            Ao continuar, você concorda com nossos{' '}
+            AO CONTINUAR, VOCÊ CONCORDA COM NOSSOS{' '}
             <Link to="/termos" className="text-gray-500 hover:text-primary transition-colors">
-              Termos de Uso
+              TERMOS DE USO
             </Link>
-            {' '}e{' '}
+            {' '}E{' '}
             <Link to="/privacidade" className="text-gray-500 hover:text-primary transition-colors">
-              Política de Privacidade
+              POLÍTICA DE PRIVACIDADE
             </Link>
           </p>
         </div>
