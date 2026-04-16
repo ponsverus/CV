@@ -51,7 +51,11 @@ export async function fetchOfficialDate(rpcSequence) {
 
 export async function fetchVitrineNegocioBySlug(slug) {
   const { data, error } = await withTimeout(
-    supabase.from('negocios').select('*').eq('slug', slug).maybeSingle(),
+    supabase
+      .from('negocios')
+      .select('id, nome, slug, descricao, telefone, endereco, tipo_negocio, instagram, facebook, logo_path, tema')
+      .eq('slug', slug)
+      .maybeSingle(),
     7000,
     'negocio'
   );
@@ -72,7 +76,11 @@ export async function fetchVitrineProfissionais(negocioId) {
 export async function fetchVitrineEntregas(profissionalIds) {
   if (!profissionalIds.length) return [];
   const { data, error } = await withTimeout(
-    supabase.from('entregas').select('*').in('profissional_id', profissionalIds).eq('ativo', true),
+    supabase
+      .from('entregas')
+      .select('id, negocio_id, profissional_id, nome, duracao_minutos, preco, preco_promocional, ativo')
+      .in('profissional_id', profissionalIds)
+      .eq('ativo', true),
     7000,
     'entregas'
   );
