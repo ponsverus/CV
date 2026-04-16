@@ -99,9 +99,9 @@ export function useDashboardMutations({
       const filePath = `${negocio.id}/logo.webp`;
       const { error: upErr } = await supabase.storage.from('logos').upload(filePath, convertedFile, { upsert: true, contentType: convertedFile.type });
       if (upErr) throw upErr;
-      const { error: dbErr } = await supabase.from('negocios').update({ logo_path: `logos/${filePath}` }).eq('id', negocio.id).eq('owner_id', userId);
+      const { error: dbErr } = await supabase.from('negocios').update({ logo_path: filePath }).eq('id', negocio.id).eq('owner_id', userId);
       if (dbErr) throw dbErr;
-      if (oldPath && oldPath !== `logos/${filePath}`) {
+      if (oldPath && String(oldPath).replace(/^logos\//, '') !== filePath) {
         const normalizedOldPath = String(oldPath).replace(/^logos\//, '');
         await supabase.storage.from('logos').remove([normalizedOldPath]);
       }
@@ -215,7 +215,7 @@ export function useDashboardMutations({
           await uiAlert('dashboard.gallery_upload_error', 'error');
           continue;
         }
-        const { error: dbErr } = await supabase.from('galerias').insert({ negocio_id: negocio.id, path: `galerias/${filePath}` });
+        const { error: dbErr } = await supabase.from('galerias').insert({ negocio_id: negocio.id, path: filePath });
         if (dbErr) {
           await supabase.storage.from('galerias').remove([filePath]);
           await uiAlert('dashboard.gallery_upload_error', 'error');
