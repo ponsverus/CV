@@ -286,7 +286,7 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
                       <label className="w-[76px] shrink-0 text-sm tracking-wide text-white-500">E-MAIL</label>
                       <input
                         type="email"
-                        placeholder="seu@email.com"
+                        placeholder="SEU E-MAIL"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-gray-600 outline-none focus:text-white"
