@@ -52,6 +52,23 @@ function SignupFieldRow({ label, children, last = false }) {
   );
 }
 
+function SplitRow({ children, last = false }) {
+  return (
+    <div className={`grid grid-cols-2 ${last ? '' : 'border-b border-gray-800/50'}`}>
+      {children}
+    </div>
+  );
+}
+
+function SplitField({ label, children, divider = false }) {
+  return (
+    <div className={`flex items-center gap-3 px-5 py-3 ${divider ? 'border-r border-gray-800/50' : ''}`}>
+      <label className="w-[62px] shrink-0 text-sm tracking-wide text-white">{label}</label>
+      <div className="min-w-0 flex-1">{children}</div>
+    </div>
+  );
+}
+
 const fieldInputClass = 'w-full bg-transparent px-0 py-2 text-sm text-white placeholder-gray-600 outline-none focus:text-white';
 
 export default function SignupProfessional({ onLogin }) {
@@ -363,45 +380,49 @@ export default function SignupProfessional({ onLogin }) {
               </div>
             </SignupFieldRow>
 
-            <SignupFieldRow label="RUA">
-              <input
-                type="text"
-                value={formData.rua}
-                onChange={(e) => setFormData({ ...formData, rua: e.target.value })}
-                className={fieldInputClass}
-                required
-              />
-            </SignupFieldRow>
+            <SplitRow>
+              <SplitField label="RUA" divider>
+                <input
+                  type="text"
+                  value={formData.rua}
+                  onChange={(e) => setFormData({ ...formData, rua: e.target.value })}
+                  className={fieldInputClass}
+                  required
+                />
+              </SplitField>
 
-            <SignupFieldRow label="NÚMERO">
-              <input
-                type="text"
-                value={formData.numero}
-                onChange={(e) => setFormData({ ...formData, numero: e.target.value })}
-                className={fieldInputClass}
-                required
-              />
-            </SignupFieldRow>
+              <SplitField label="NÚM.">
+                <input
+                  type="text"
+                  value={formData.numero}
+                  onChange={(e) => setFormData({ ...formData, numero: e.target.value })}
+                  className={fieldInputClass}
+                  required
+                />
+              </SplitField>
+            </SplitRow>
 
-            <SignupFieldRow label="CIDADE">
-              <input
-                type="text"
-                value={formData.cidade}
-                onChange={(e) => setFormData({ ...formData, cidade: e.target.value })}
-                className={fieldInputClass}
-                required
-              />
-            </SignupFieldRow>
+            <SplitRow>
+              <SplitField label="CIDADE" divider>
+                <input
+                  type="text"
+                  value={formData.cidade}
+                  onChange={(e) => setFormData({ ...formData, cidade: e.target.value })}
+                  className={fieldInputClass}
+                  required
+                />
+              </SplitField>
 
-            <SignupFieldRow label="ESTADO">
-              <input
-                type="text"
-                value={formData.estado}
-                onChange={(e) => setFormData({ ...formData, estado: e.target.value })}
-                className={fieldInputClass}
-                required
-              />
-            </SignupFieldRow>
+              <SplitField label="ESTADO">
+                <input
+                  type="text"
+                  value={formData.estado}
+                  onChange={(e) => setFormData({ ...formData, estado: e.target.value })}
+                  className={fieldInputClass}
+                  required
+                />
+              </SplitField>
+            </SplitRow>
 
             <SignupFieldRow label="E-MAIL">
               <input
