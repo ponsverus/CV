@@ -10,9 +10,9 @@ const msgs = ptBR.parceiroCadastro;
 function Alerta({ msg }) {
   if (!msg) return null;
   const estilos = {
-    erro:   'bg-red-500/10 border-red-500/30 text-red-400',
-    aviso:  'bg-yellow-500/10 border-yellow-500/30 text-yellow-300',
-    sucesso:'bg-green-500/10 border-green-500/30 text-green-400',
+    erro: 'bg-red-500/10 border-red-500/30 text-red-400',
+    aviso: 'bg-yellow-500/10 border-yellow-500/30 text-yellow-300',
+    sucesso: 'bg-green-500/10 border-green-500/30 text-green-400',
   };
   const classe = estilos[msg.variant] || estilos.erro;
   return (
@@ -22,29 +22,40 @@ function Alerta({ msg }) {
   );
 }
 
+function FieldRow({ label, children, last = false }) {
+  return (
+    <div className={`flex items-center gap-3 px-5 py-3 ${last ? '' : 'border-b border-gray-800'}`}>
+      <label className="w-[82px] shrink-0 text-sm tracking-wide text-gray-500">{label}</label>
+      <div className="min-w-0 flex-1">{children}</div>
+    </div>
+  );
+}
+
+const fieldInputClass = 'w-full bg-transparent px-0 py-2 text-sm text-white placeholder-gray-600 outline-none focus:text-white';
+
 export default function ParceiroCadastro({ suppressAuthRef }) {
   const navigate = useNavigate();
 
-  const [nome,      setNome]      = useState('');
-  const [email,     setEmail]     = useState('');
-  const [senha,     setSenha]     = useState('');
-  const [slug,      setSlug]      = useState('');
-  const [loading,   setLoading]   = useState(false);
-  const [alerta,    setAlerta]    = useState(null);
+  const [nome, setNome] = useState('');
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+  const [slug, setSlug] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [alerta, setAlerta] = useState(null);
   const [showAlert, setShowAlert] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setAlerta(null);
 
-    const nomeClean  = nome.trim().toUpperCase().replace(/\s+/g, ' ');
+    const nomeClean = nome.trim().toUpperCase().replace(/\s+/g, ' ');
     const emailClean = email.trim().toLowerCase();
-    const slugClean  = slug.trim().toLowerCase();
+    const slugClean = slug.trim().toLowerCase();
 
-    if (!nomeClean)                               return setAlerta(msgs.nome_required);
+    if (!nomeClean) return setAlerta(msgs.nome_required);
     if (!emailClean || !emailClean.includes('@')) return setAlerta(msgs.email_invalid);
-    if (senha.length < 6)                         return setAlerta(msgs.senha_too_short);
-    if (!slugClean)                               return setAlerta(msgs.slug_required);
+    if (senha.length < 6) return setAlerta(msgs.senha_too_short);
+    if (!slugClean) return setAlerta(msgs.slug_required);
 
     setLoading(true);
     if (suppressAuthRef) suppressAuthRef.current = true;
@@ -93,13 +104,13 @@ export default function ParceiroCadastro({ suppressAuthRef }) {
       }
 
       const { error: profErr } = await supabase.from('profissionais').insert({
-        negocio_id:     signupStatus.negocio_id,
-        user_id:        uid,
-        nome:           nomeClean,
-        status:         'pendente',
+        negocio_id: signupStatus.negocio_id,
+        user_id: uid,
+        nome: nomeClean,
+        status: 'pendente',
         horario_inicio: '08:00',
-        horario_fim:    '18:00',
-        dias_trabalho:  [1, 2, 3, 4, 5, 6],
+        horario_fim: '18:00',
+        dias_trabalho: [1, 2, 3, 4, 5, 6],
       });
 
       if (profErr) {
@@ -117,7 +128,6 @@ export default function ParceiroCadastro({ suppressAuthRef }) {
 
       await supabase.auth.signOut();
       setShowAlert(true);
-
     } catch (e) {
       setAlerta({ body: e?.message || msgs.unexpected_error.body, variant: 'erro' });
       await supabase.auth.signOut();
@@ -132,7 +142,7 @@ export default function ParceiroCadastro({ suppressAuthRef }) {
       <div className="min-h-screen bg-black flex items-center justify-center p-4">
         <div className="w-full max-w-md text-center">
           <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-            <span className="text-green-400 text-4xl">✓</span>
+            <span className="text-green-400 text-2xl font-normal">OK</span>
           </div>
           <h1 className="text-3xl font-normal text-white uppercase mb-4">{msgs.success_title}</h1>
           <p className="text-gray-400 font-normal mb-8">{msgs.success_body}</p>
@@ -150,58 +160,78 @@ export default function ParceiroCadastro({ suppressAuthRef }) {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-
         <div className="text-center mb-8">
           <img src="/Comvaga Logo.png" alt="COMVAGA" className="h-20 w-auto object-contain mx-auto mb-4" />
-          <h1 className="text-3xl font-normal text-white uppercase">Cadastro Parceiro</h1>
-          <p className="text-gray-500 text-sm mt-2 font-normal">Solicite acesso ao negócio</p>
+          <h1 className="text-3xl font-normal text-white uppercase">CADASTRO PARCEIRO</h1>
+          <p className="text-gray-500 text-sm mt-2 font-normal">SOLICITE ACESSO AO NEGOCIO</p>
         </div>
 
-        <div className="bg-dark-100 border border-gray-800 rounded-custom p-8">
-          <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="overflow-hidden rounded-custom border border-gray-800 bg-dark-100">
+            <FieldRow label="NOME">
+              <input
+                type="text"
+                value={nome}
+                onChange={(e) => setNome(e.target.value)}
+                placeholder="NOME COMPLETO"
+                className={fieldInputClass}
+                required
+              />
+            </FieldRow>
 
-            <div>
-              <label className="block text-xs text-gray-400 uppercase mb-2">Seu nome</label>
-              <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Nome completo"
-                className="w-full px-4 py-3 bg-dark-200 border border-gray-800 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none transition-colors font-normal" required />
-            </div>
+            <FieldRow label="E-MAIL">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="SEU E-MAIL"
+                className={fieldInputClass}
+                required
+              />
+            </FieldRow>
 
-            <div>
-              <label className="block text-xs text-gray-400 uppercase mb-2">Email</label>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="seu@email.com"
-                className="w-full px-4 py-3 bg-dark-200 border border-gray-800 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none transition-colors font-normal" required />
-            </div>
+            <FieldRow label="SENHA">
+              <input
+                type="password"
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+                placeholder="MINIMO 6 CARACTERES"
+                className={fieldInputClass}
+                required
+              />
+            </FieldRow>
 
-            <div>
-              <label className="block text-xs text-gray-400 uppercase mb-2">Crie uma senha</label>
-              <input type="password" value={senha} onChange={(e) => setSenha(e.target.value)} placeholder="Mínimo 6 caracteres"
-                className="w-full px-4 py-3 bg-dark-200 border border-gray-800 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none transition-colors font-normal" required />
-            </div>
+            <FieldRow label="SLUG" last>
+              <input
+                type="text"
+                value={slug}
+                onChange={(e) => setSlug(e.target.value)}
+                placeholder="SLUG DO NEGOCIO"
+                className={fieldInputClass}
+                required
+              />
+            </FieldRow>
+          </div>
 
-            <div>
-              <label className="block text-xs text-gray-400 uppercase mb-2">Slug do negócio</label>
-              <input type="text" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="ex: barbearia-do-ze"
-                className="w-full px-4 py-3 bg-dark-200 border border-gray-800 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none transition-colors font-normal" required />
-              <p className="text-xs text-gray-600 mt-1 font-normal">Fornecido pelo responsável do negócio</p>
-            </div>
+          <Alerta msg={alerta} />
 
-            <Alerta msg={alerta} />
-
-            <button type="submit" disabled={loading}
-              className="w-full py-3 bg-gradient-to-r from-primary to-yellow-600 text-black rounded-button font-normal uppercase disabled:opacity-60 disabled:cursor-not-allowed">
+          <div className="space-y-2">
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 bg-gradient-to-r from-primary to-yellow-600 text-black rounded-button font-normal uppercase disabled:opacity-60 disabled:cursor-not-allowed"
+            >
               {loading ? 'ENVIANDO...' : 'SOLICITAR ACESSO'}
             </button>
 
-          </form>
-        </div>
-
-        <p className="text-center text-sm text-gray-600 mt-6 font-normal">
-          Já aprovado?{' '}
-          <Link to="/parceiro/login" className="text-primary hover:text-yellow-500 transition-colors">
-            Fazer login
-          </Link>
-        </p>
-
+            <Link
+              to="/parceiro/login"
+              className="flex w-full items-center justify-center rounded-button border border-primary/30 bg-transparent py-3 text-sm font-normal uppercase tracking-wider text-primary transition-all hover:border-primary hover:text-yellow-500"
+            >
+              FAZER LOGIN
+            </Link>
+          </div>
+        </form>
       </div>
     </div>
   );
