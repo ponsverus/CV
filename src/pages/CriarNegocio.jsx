@@ -144,7 +144,6 @@ export default function CriarNegocio({ user }) {
         nome: nomeNegocio,
         slug,
         tipo_negocio: tipoNegocio,
-        descricao: null,
         telefone,
         endereco,
       }]);
