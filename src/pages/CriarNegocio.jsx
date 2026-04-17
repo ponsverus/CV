@@ -34,7 +34,7 @@ function SplitRow({ children, last = false }) {
 function SplitField({ label, children, divider = false }) {
   return (
     <div className={`flex items-center gap-3 px-5 py-3 ${divider ? 'border-r border-gray-800' : ''}`}>
-      <label className="w-[62px] shrink-0 text-sm tracking-wide text-gray-500">{label}</label>
+      <label className="w-[62px] shrink-0 text-sm tracking-wide text-white-500">{label}</label>
       <div className="min-w-0 flex-1">{children}</div>
     </div>
   );
@@ -198,20 +198,20 @@ export default function CriarNegocio({ user }) {
                 type="text"
                 value={formData.nomeNegocio}
                 onChange={(e) => handleNomeChange(e.target.value)}
-                placeholder="EX: CLÍNICA VIDA"
+                placeholder="EX: EQUINOX TATOO"
                 className={fieldInputClass}
                 required
               />
             </FieldRow>
 
-            <FieldRow label="URL">
+            <FieldRow label="SUA URL">
               <div className="flex min-w-0 items-center gap-2">
-                <span className="shrink-0 text-sm text-gray-600">comvaga.app/v/</span>
+                <span className="shrink-0 text-sm text-gray-600">COMVAGA.COM.BR/V/</span>
                 <input
                   type="text"
                   value={formData.urlNegocio}
                   onChange={(e) => setFormData(prev => ({ ...prev, urlNegocio: generateSlug(e.target.value) }))}
-                  placeholder="clinica-vida"
+                  placeholder="EQUINOX-TATTOO"
                   className={fieldInputClass}
                   required
                   pattern="^[a-z0-9]+(?:-[a-z0-9]+)*$"
@@ -224,7 +224,7 @@ export default function CriarNegocio({ user }) {
                 type="text"
                 value={formData.tipoNegocio}
                 onChange={(e) => setFormData(prev => ({ ...prev, tipoNegocio: e.target.value }))}
-                placeholder="EX: CLÍNICA, ESCRITÓRIO, PET SHOP"
+                placeholder="EX: ESTÚDIO, PET SHOP..."
                 className={fieldInputClass}
                 required
               />
@@ -235,7 +235,6 @@ export default function CriarNegocio({ user }) {
                 type="tel"
                 value={formData.telefone}
                 onChange={(e) => setFormData(prev => ({ ...prev, telefone: e.target.value }))}
-                placeholder="(31) 90000 - 0000"
                 className={fieldInputClass}
                 required
               />
@@ -247,18 +246,16 @@ export default function CriarNegocio({ user }) {
                   type="text"
                   value={formData.rua}
                   onChange={(e) => setFormData(prev => ({ ...prev, rua: e.target.value }))}
-                  placeholder="RUA DOS CAETÉS"
                   className={fieldInputClass}
                   required
                 />
               </SplitField>
 
-              <SplitField label="NUM.">
+              <SplitField label="NÚMERO">
                 <input
                   type="text"
                   value={formData.numero}
                   onChange={(e) => setFormData(prev => ({ ...prev, numero: e.target.value }))}
-                  placeholder="200"
                   className={fieldInputClass}
                   required
                 />
@@ -271,7 +268,6 @@ export default function CriarNegocio({ user }) {
                   type="text"
                   value={formData.cidade}
                   onChange={(e) => setFormData(prev => ({ ...prev, cidade: e.target.value }))}
-                  placeholder="BELO HORIZONTE"
                   className={fieldInputClass}
                   required
                 />
@@ -282,7 +278,6 @@ export default function CriarNegocio({ user }) {
                   type="text"
                   value={formData.estado}
                   onChange={(e) => setFormData(prev => ({ ...prev, estado: e.target.value }))}
-                  placeholder="MINAS GERAIS"
                   className={fieldInputClass}
                   required
                 />
