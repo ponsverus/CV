@@ -294,7 +294,7 @@ export default function SignupProfessional({ onLogin }) {
 
         <form onSubmit={handleSignup} className="space-y-5">
           <div className="overflow-hidden rounded-custom border border-gray-800/50 bg-dark-100/40 backdrop-blur-sm">
-            <SignupFieldRow label="NOME">
+            <SignupFieldRow label="SEU NOME">
               <input
                 type="text"
                 value={formData.nome}
@@ -315,7 +315,7 @@ export default function SignupProfessional({ onLogin }) {
               />
             </SignupFieldRow>
 
-            <SignupFieldRow label="NOME">
+            <SignupFieldRow label="NOME DO NEGÓCIO">
               <input
                 type="text"
                 value={formData.nomeNegocio}
