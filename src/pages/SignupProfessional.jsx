@@ -298,55 +298,9 @@ export default function SignupProfessional({ onLogin }) {
               <input
                 type="text"
                 value={formData.nome}
-                onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-                className={fieldInputClass}
+                onChange={(e) => setFormData({ ...formData, nome: e.target.value.toUpperCase() })}
+                className={`${fieldInputClass} uppercase`}
                 required
-              />
-            </SignupFieldRow>
-
-            <SignupFieldRow label="TELEFONE">
-              <input
-                type="tel"
-                value={formData.telefone}
-                onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
-                className={fieldInputClass}
-                required
-              />
-            </SignupFieldRow>
-
-            <SignupFieldRow label="NOME">
-              <input
-                type="text"
-                value={formData.nomeNegocio}
-                onChange={(e) => handleNegocioNameChange(e.target.value)}
-                className={fieldInputClass}
-                required
-                placeholder="NOME DO NEGÓCIO"
-              />
-            </SignupFieldRow>
-
-            <SignupFieldRow label="SUA URL">
-              <div className="flex min-w-0 items-center gap-2">
-                <span className="shrink-0 text-sm text-gray-600">COMVAGA.COM.BR/V/</span>
-                <input
-                  type="text"
-                  value={formData.urlNegocio}
-                  onChange={(e) => setFormData({ ...formData, urlNegocio: generateSlug(e.target.value) })}
-                  className={fieldInputClass}
-                  required
-                  pattern="^[a-z0-9]+(?:-[a-z0-9]+)*$"
-                />
-              </div>
-            </SignupFieldRow>
-
-            <SignupFieldRow label="TIPO">
-              <input
-                type="text"
-                value={formData.tipoNegocio}
-                onChange={(e) => setFormData({ ...formData, tipoNegocio: e.target.value })}
-                className={fieldInputClass}
-                required
-                placeholder="EX: BARBEARIA, CLÍNICA..."
               />
             </SignupFieldRow>
 
@@ -361,6 +315,52 @@ export default function SignupProfessional({ onLogin }) {
                 required
                 placeholder="ANOS"
               />
+            </SignupFieldRow>
+
+            <SignupFieldRow label="NOME">
+              <input
+                type="text"
+                value={formData.nomeNegocio}
+                onChange={(e) => handleNegocioNameChange(e.target.value.toUpperCase())}
+                className={`${fieldInputClass} uppercase`}
+                required
+                placeholder="NOME DO NEGÓCIO"
+              />
+            </SignupFieldRow>
+
+            <SignupFieldRow label="TELEFONE">
+              <input
+                type="tel"
+                value={formData.telefone}
+                onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
+                className={fieldInputClass}
+                required
+              />
+            </SignupFieldRow>
+
+            <SignupFieldRow label="TIPO">
+              <input
+                type="text"
+                value={formData.tipoNegocio}
+                onChange={(e) => setFormData({ ...formData, tipoNegocio: e.target.value.toUpperCase() })}
+                className={`${fieldInputClass} uppercase`}
+                required
+                placeholder="EX: BARBEARIA, CLÍNICA..."
+              />
+            </SignupFieldRow>
+
+            <SignupFieldRow label="SUA URL">
+              <div className="flex min-w-0 items-center gap-2">
+                <span className="shrink-0 text-sm text-gray-600">COMVAGA.COM.BR/V/</span>
+                <input
+                  type="text"
+                  value={formData.urlNegocio}
+                  onChange={(e) => setFormData({ ...formData, urlNegocio: generateSlug(e.target.value) })}
+                  className={`${fieldInputClass} uppercase`}
+                  required
+                  pattern="^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                />
+              </div>
             </SignupFieldRow>
 
             <SignupFieldRow label="RUA">
