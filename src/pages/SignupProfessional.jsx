@@ -301,7 +301,6 @@ export default function SignupProfessional({ onLogin }) {
                 onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
                 className={fieldInputClass}
                 required
-                placeholder="EX: JONAS CAMPOS"
               />
             </SignupFieldRow>
 
@@ -315,7 +314,7 @@ export default function SignupProfessional({ onLogin }) {
               />
             </SignupFieldRow>
 
-            <SignupFieldRow label="NOME DO NEGÓCIO">
+            <SignupFieldRow label="NOME">
               <input
                 type="text"
                 value={formData.nomeNegocio}
