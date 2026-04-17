@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, MapPin } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { supabase } from '../supabase';
 import { useFeedback } from '../feedback/useFeedback';
 
@@ -13,6 +13,35 @@ function onlyTrim(v) {
 function montarEnderecoUnico({ rua, numero, cidade, estado }) {
   return `${onlyTrim(rua)}, ${onlyTrim(numero)} - ${onlyTrim(cidade)}, ${onlyTrim(estado)}`;
 }
+
+function FieldRow({ label, children, last = false, alignStart = false }) {
+  return (
+    <div className={`flex ${alignStart ? 'items-start' : 'items-center'} gap-3 px-5 py-3 ${last ? '' : 'border-b border-gray-800'}`}>
+      <label className="w-[96px] shrink-0 pt-2 text-sm tracking-wide text-gray-500">{label}</label>
+      <div className="min-w-0 flex-1">{children}</div>
+    </div>
+  );
+}
+
+function SplitRow({ children, last = false }) {
+  return (
+    <div className={`grid grid-cols-2 ${last ? '' : 'border-b border-gray-800'}`}>
+      {children}
+    </div>
+  );
+}
+
+function SplitField({ label, children, divider = false }) {
+  return (
+    <div className={`flex items-center gap-3 px-5 py-3 ${divider ? 'border-r border-gray-800' : ''}`}>
+      <label className="w-[62px] shrink-0 text-sm tracking-wide text-gray-500">{label}</label>
+      <div className="min-w-0 flex-1">{children}</div>
+    </div>
+  );
+}
+
+const fieldInputClass = 'w-full bg-transparent px-0 py-2 text-sm text-white placeholder-gray-600 outline-none focus:text-white';
+const fieldTextareaClass = 'max-h-28 min-h-[72px] w-full resize-none overflow-y-auto bg-transparent px-0 py-2 text-sm text-white placeholder-gray-600 outline-none focus:text-white';
 
 export default function CriarNegocio({ user }) {
   const navigate = useNavigate();
@@ -65,7 +94,7 @@ export default function CriarNegocio({ user }) {
   };
 
   const validarEndereco = () => {
-    if (!onlyTrim(formData.rua))    return 'signupProfessional.address_street_required';
+    if (!onlyTrim(formData.rua)) return 'signupProfessional.address_street_required';
     if (!onlyTrim(formData.numero)) return 'signupProfessional.address_number_required';
     if (!onlyTrim(formData.cidade)) return 'signupProfessional.address_city_required';
     if (!onlyTrim(formData.estado)) return 'signupProfessional.address_state_required';
@@ -77,32 +106,42 @@ export default function CriarNegocio({ user }) {
     if (loading) return;
 
     const nomeNegocio = onlyTrim(formData.nomeNegocio);
-    const slug        = onlyTrim(formData.urlNegocio);
+    const slug = onlyTrim(formData.urlNegocio);
     const tipoNegocio = onlyTrim(formData.tipoNegocio);
-    const descricao   = onlyTrim(formData.descricao);
-    const telefone    = onlyTrim(formData.telefone);
+    const descricao = onlyTrim(formData.descricao);
+    const telefone = onlyTrim(formData.telefone);
 
-    if (!nomeNegocio)             { showMessage('signupProfessional.business_name_required'); return; }
-    if (!slug || slug.length < 3) { showMessage('signupProfessional.business_slug_invalid');  return; }
-    if (!tipoNegocio)             { showMessage('signupProfessional.business_type_required'); return; }
-    if (!descricao)               { showMessage('signupProfessional.description_required');   return; }
-    if (!telefone)                { showMessage('signupProfessional.phone_required');         return; }
+    if (!nomeNegocio) { showMessage('signupProfessional.business_name_required'); return; }
+    if (!slug || slug.length < 3) { showMessage('signupProfessional.business_slug_invalid'); return; }
+    if (!tipoNegocio) { showMessage('signupProfessional.business_type_required'); return; }
+    if (!descricao) { showMessage('signupProfessional.description_required'); return; }
+    if (!telefone) { showMessage('signupProfessional.phone_required'); return; }
 
     const enderecoKey = validarEndereco();
     if (enderecoKey) { showMessage(enderecoKey); return; }
 
     const endereco = montarEnderecoUnico({
-      rua: formData.rua, numero: formData.numero,
-      cidade: formData.cidade, estado: formData.estado,
+      rua: formData.rua,
+      numero: formData.numero,
+      cidade: formData.cidade,
+      estado: formData.estado,
     });
 
     setLoading(true);
 
     try {
       const { data: slugExiste, error: slugErr } = await supabase
-        .from('negocios').select('id').eq('slug', slug).maybeSingle();
+        .from('negocios')
+        .select('id')
+        .eq('slug', slug)
+        .maybeSingle();
+
       if (slugErr) throw slugErr;
-      if (slugExiste) { showMessage('signupProfessional.business_slug_taken'); setLoading(false); return; }
+      if (slugExiste) {
+        showMessage('signupProfessional.business_slug_taken');
+        setLoading(false);
+        return;
+      }
 
       const { error: insErr } = await supabase.from('negocios').insert([{
         owner_id: user.id,
@@ -113,6 +152,7 @@ export default function CriarNegocio({ user }) {
         telefone,
         endereco,
       }]);
+
       if (insErr) throw insErr;
 
       await sleep(300);
@@ -125,10 +165,6 @@ export default function CriarNegocio({ user }) {
     }
   };
 
-  const inputClass = 'w-full px-4 py-3 bg-dark-100/40 border border-gray-800/50 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none focus:bg-dark-100/60 transition-all backdrop-blur-sm text-sm';
-  const inputIconClass = 'w-full pl-10 pr-4 py-3 bg-dark-100/40 border border-gray-800/50 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none focus:bg-dark-100/60 transition-all backdrop-blur-sm text-sm';
-  const labelClass = 'block text-sm text-gray-400 mb-2 tracking-wide';
-  const labelSmClass = 'block text-xs text-gray-500 mb-2 tracking-wide';
   const backTarget = ownerBusinessCount > 1 ? '/selecionar-negocio' : '/dashboard';
 
   return (
@@ -153,136 +189,120 @@ export default function CriarNegocio({ user }) {
         </div>
 
         <div className="text-center mb-10">
-          <h1 className="text-4xl font-normal mb-3 tracking-wide">Novo negócio</h1>
-          <p className="text-gray-500 text-base font-normal">Agora, preencha os dados do seu <span className="text-primary">segundo negócio</span></p>
+          <h1 className="text-4xl font-normal mb-3 tracking-wide">NOVO NEGOCIO</h1>
+          <p className="text-gray-500 text-base font-normal">
+            AGORA, PREENCHA OS DADOS DO SEU <span className="text-primary">SEGUNDO NEGOCIO</span>
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-
-          <div>
-            <label className={labelClass}>Nome do Negócio *</label>
-            <input
-              type="text"
-              value={formData.nomeNegocio}
-              onChange={(e) => handleNomeChange(e.target.value)}
-              placeholder="Ex: Clínica Vida"
-              className={inputClass}
-              required
-            />
-          </div>
-
-          <div>
-            <label className={labelClass}>URL Única *</label>
-            <div className="flex items-center gap-2">
-              <span className="text-gray-600 text-sm whitespace-nowrap">comvaga.app/v/</span>
+          <div className="overflow-hidden rounded-custom border border-gray-800 bg-dark-100">
+            <FieldRow label="NOME">
               <input
                 type="text"
-                value={formData.urlNegocio}
-                onChange={(e) => setFormData(prev => ({ ...prev, urlNegocio: generateSlug(e.target.value) }))}
-                placeholder="clinica-vida"
-                className={inputClass}
+                value={formData.nomeNegocio}
+                onChange={(e) => handleNomeChange(e.target.value)}
+                placeholder="EX: CLINICA VIDA"
+                className={fieldInputClass}
                 required
-                pattern="^[a-z0-9]+(?:-[a-z0-9]+)*$"
               />
-            </div>
-            <p className="text-xs text-gray-600 mt-1">Apenas letras minúsculas, números e hífens</p>
-          </div>
+            </FieldRow>
 
-          <div>
-            <label className={labelClass}>Tipo de Negócio *</label>
-            <input
-              type="text"
-              value={formData.tipoNegocio}
-              onChange={(e) => setFormData(prev => ({ ...prev, tipoNegocio: e.target.value }))}
-              placeholder="Ex: clínica, escritório, pet shop..."
-              className={inputClass}
-              required
-            />
-          </div>
-
-          <div>
-            <label className={labelClass}>Sobre o Negócio *</label>
-            <textarea
-              value={formData.descricao}
-              onChange={(e) => setFormData(prev => ({ ...prev, descricao: e.target.value }))}
-              placeholder="Descreva brevemente os serviços oferecidos..."
-              rows={3}
-              className="w-full px-4 py-3 bg-dark-100/40 border border-gray-800/50 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none focus:bg-dark-100/60 transition-all backdrop-blur-sm resize-none text-sm"
-              required
-            />
-          </div>
-
-          <div>
-            <label className={labelClass}>Telefone (WhatsApp) *</label>
-            <input
-              type="tel"
-              value={formData.telefone}
-              onChange={(e) => setFormData(prev => ({ ...prev, telefone: e.target.value }))}
-              placeholder="(31) 90000 - 0000"
-              className={inputClass}
-              required
-            />
-          </div>
-
-          <div>
-            <label className={labelClass}>Endereço Completo *</label>
-            <div className="bg-dark-100/40 border border-gray-800/50 rounded-custom p-4 backdrop-blur-sm">
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div>
-                  <label className={labelSmClass}>Rua *</label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
-                    <input
-                      type="text"
-                      value={formData.rua}
-                      onChange={(e) => setFormData(prev => ({ ...prev, rua: e.target.value }))}
-                      placeholder="Rua dos Caetés"
-                      className={inputIconClass}
-                      required
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className={labelSmClass}>Número *</label>
-                  <input
-                    type="text"
-                    value={formData.numero}
-                    onChange={(e) => setFormData(prev => ({ ...prev, numero: e.target.value }))}
-                    placeholder="200"
-                    className={inputClass}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className={labelSmClass}>Cidade *</label>
-                  <input
-                    type="text"
-                    value={formData.cidade}
-                    onChange={(e) => setFormData(prev => ({ ...prev, cidade: e.target.value }))}
-                    placeholder="Belo Horizonte"
-                    className={inputClass}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className={labelSmClass}>Estado *</label>
-                  <input
-                    type="text"
-                    value={formData.estado}
-                    onChange={(e) => setFormData(prev => ({ ...prev, estado: e.target.value }))}
-                    placeholder="Minas Gerais"
-                    className={inputClass}
-                    required
-                  />
-                </div>
+            <FieldRow label="URL">
+              <div className="flex min-w-0 items-center gap-2">
+                <span className="shrink-0 text-sm text-gray-600">comvaga.app/v/</span>
+                <input
+                  type="text"
+                  value={formData.urlNegocio}
+                  onChange={(e) => setFormData(prev => ({ ...prev, urlNegocio: generateSlug(e.target.value) }))}
+                  placeholder="clinica-vida"
+                  className={fieldInputClass}
+                  required
+                  pattern="^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                />
               </div>
-              <div className="text-xs text-gray-600 mt-3">
-                Assim vai aparecer na vitrine:
-                <span className="text-gray-400">
-                  {' '}{formData.rua || 'Rua X'}, {formData.numero || '000'} - {formData.cidade || 'Cidade'}, {formData.estado || 'Estado'}
-                </span>
-              </div>
-            </div>
+            </FieldRow>
+
+            <FieldRow label="TIPO">
+              <input
+                type="text"
+                value={formData.tipoNegocio}
+                onChange={(e) => setFormData(prev => ({ ...prev, tipoNegocio: e.target.value }))}
+                placeholder="EX: CLINICA, ESCRITORIO, PET SHOP"
+                className={fieldInputClass}
+                required
+              />
+            </FieldRow>
+
+            <FieldRow label="SOBRE" alignStart>
+              <textarea
+                value={formData.descricao}
+                onChange={(e) => setFormData(prev => ({ ...prev, descricao: e.target.value }))}
+                placeholder="DESCREVA BREVEMENTE OS SERVICOS OFERECIDOS"
+                rows={3}
+                className={fieldTextareaClass}
+                required
+              />
+            </FieldRow>
+
+            <FieldRow label="TELEFONE">
+              <input
+                type="tel"
+                value={formData.telefone}
+                onChange={(e) => setFormData(prev => ({ ...prev, telefone: e.target.value }))}
+                placeholder="(31) 90000 - 0000"
+                className={fieldInputClass}
+                required
+              />
+            </FieldRow>
+
+            <SplitRow>
+              <SplitField label="RUA" divider>
+                <input
+                  type="text"
+                  value={formData.rua}
+                  onChange={(e) => setFormData(prev => ({ ...prev, rua: e.target.value }))}
+                  placeholder="RUA DOS CAETES"
+                  className={fieldInputClass}
+                  required
+                />
+              </SplitField>
+
+              <SplitField label="NUM.">
+                <input
+                  type="text"
+                  value={formData.numero}
+                  onChange={(e) => setFormData(prev => ({ ...prev, numero: e.target.value }))}
+                  placeholder="200"
+                  className={fieldInputClass}
+                  required
+                />
+              </SplitField>
+            </SplitRow>
+
+            <SplitRow last>
+              <SplitField label="CIDADE" divider>
+                <input
+                  type="text"
+                  value={formData.cidade}
+                  onChange={(e) => setFormData(prev => ({ ...prev, cidade: e.target.value }))}
+                  placeholder="BELO HORIZONTE"
+                  className={fieldInputClass}
+                  required
+                />
+              </SplitField>
+
+              <SplitField label="ESTADO">
+                <input
+                  type="text"
+                  value={formData.estado}
+                  onChange={(e) => setFormData(prev => ({ ...prev, estado: e.target.value }))}
+                  placeholder="MINAS GERAIS"
+                  className={fieldInputClass}
+                  required
+                />
+              </SplitField>
+            </SplitRow>
           </div>
 
           <button
@@ -290,7 +310,7 @@ export default function CriarNegocio({ user }) {
             disabled={loading}
             className="w-full py-3 bg-primary/10 border border-primary/30 hover:border-primary/60 hover:bg-primary/20 text-primary rounded-full font-normal text-sm tracking-wider transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {loading ? 'CRIANDO...' : 'CRIAR NEGÓCIO'}
+            {loading ? 'CRIANDO...' : 'CRIAR NEGOCIO'}
           </button>
         </form>
       </div>
