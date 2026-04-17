@@ -41,7 +41,6 @@ function SplitField({ label, children, divider = false }) {
 }
 
 const fieldInputClass = 'w-full bg-transparent px-0 py-2 text-sm text-white placeholder-gray-600 outline-none focus:text-white';
-const fieldTextareaClass = 'max-h-28 min-h-[72px] w-full resize-none overflow-y-auto bg-transparent px-0 py-2 text-sm text-white placeholder-gray-600 outline-none focus:text-white';
 
 export default function CriarNegocio({ user }) {
   const navigate = useNavigate();
@@ -53,7 +52,6 @@ export default function CriarNegocio({ user }) {
     nomeNegocio: '',
     urlNegocio: '',
     tipoNegocio: '',
-    descricao: '',
     telefone: '',
     rua: '',
     numero: '',
@@ -108,13 +106,11 @@ export default function CriarNegocio({ user }) {
     const nomeNegocio = onlyTrim(formData.nomeNegocio);
     const slug = onlyTrim(formData.urlNegocio);
     const tipoNegocio = onlyTrim(formData.tipoNegocio);
-    const descricao = onlyTrim(formData.descricao);
     const telefone = onlyTrim(formData.telefone);
 
     if (!nomeNegocio) { showMessage('signupProfessional.business_name_required'); return; }
     if (!slug || slug.length < 3) { showMessage('signupProfessional.business_slug_invalid'); return; }
     if (!tipoNegocio) { showMessage('signupProfessional.business_type_required'); return; }
-    if (!descricao) { showMessage('signupProfessional.description_required'); return; }
     if (!telefone) { showMessage('signupProfessional.phone_required'); return; }
 
     const enderecoKey = validarEndereco();
@@ -148,7 +144,7 @@ export default function CriarNegocio({ user }) {
         nome: nomeNegocio,
         slug,
         tipo_negocio: tipoNegocio,
-        descricao,
+        descricao: null,
         telefone,
         endereco,
       }]);
@@ -189,9 +185,10 @@ export default function CriarNegocio({ user }) {
         </div>
 
         <div className="text-center mb-10">
-          <h1 className="text-4xl font-normal mb-3 tracking-wide">NOVO NEGOCIO</h1>
+          <h1 className="text-4xl font-normal mb-3 tracking-wide">NOVO NEGÓCIO</h1>
           <p className="text-gray-500 text-base font-normal">
-            AGORA, PREENCHA OS DADOS DO SEU <span className="text-primary">SEGUNDO NEGOCIO</span>
+            <span>AGORA, PREENCHA OS DADOS DO SEU</span>
+            <span className="block text-primary sm:inline"> SEGUNDO NEGÓCIO</span>
           </p>
         </div>
 
@@ -202,7 +199,7 @@ export default function CriarNegocio({ user }) {
                 type="text"
                 value={formData.nomeNegocio}
                 onChange={(e) => handleNomeChange(e.target.value)}
-                placeholder="EX: CLINICA VIDA"
+                placeholder="EX: CLÍNICA VIDA"
                 className={fieldInputClass}
                 required
               />
@@ -228,19 +225,8 @@ export default function CriarNegocio({ user }) {
                 type="text"
                 value={formData.tipoNegocio}
                 onChange={(e) => setFormData(prev => ({ ...prev, tipoNegocio: e.target.value }))}
-                placeholder="EX: CLINICA, ESCRITORIO, PET SHOP"
+                placeholder="EX: CLÍNICA, ESCRITÓRIO, PET SHOP"
                 className={fieldInputClass}
-                required
-              />
-            </FieldRow>
-
-            <FieldRow label="SOBRE" alignStart>
-              <textarea
-                value={formData.descricao}
-                onChange={(e) => setFormData(prev => ({ ...prev, descricao: e.target.value }))}
-                placeholder="DESCREVA BREVEMENTE OS SERVICOS OFERECIDOS"
-                rows={3}
-                className={fieldTextareaClass}
                 required
               />
             </FieldRow>
@@ -262,7 +248,7 @@ export default function CriarNegocio({ user }) {
                   type="text"
                   value={formData.rua}
                   onChange={(e) => setFormData(prev => ({ ...prev, rua: e.target.value }))}
-                  placeholder="RUA DOS CAETES"
+                  placeholder="RUA DOS CAETÉS"
                   className={fieldInputClass}
                   required
                 />
@@ -310,7 +296,7 @@ export default function CriarNegocio({ user }) {
             disabled={loading}
             className="w-full py-3 bg-primary/10 border border-primary/30 hover:border-primary/60 hover:bg-primary/20 text-primary rounded-full font-normal text-sm tracking-wider transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {loading ? 'CRIANDO...' : 'CRIAR NEGOCIO'}
+            {loading ? 'CRIANDO...' : 'CRIAR NEGÓCIO'}
           </button>
         </form>
       </div>
