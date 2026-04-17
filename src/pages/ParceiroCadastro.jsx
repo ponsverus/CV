@@ -163,7 +163,7 @@ export default function ParceiroCadastro({ suppressAuthRef }) {
         <div className="text-center mb-8">
           <img src="/Comvaga Logo.png" alt="COMVAGA" className="h-20 w-auto object-contain mx-auto mb-4" />
           <h1 className="text-3xl font-normal text-white uppercase">CADASTRO PARCEIRO</h1>
-          <p className="text-gray-500 text-sm mt-2 font-normal">SOLICITE ACESSO AO NEGOCIO</p>
+          <p className="text-gray-500 text-sm mt-2 font-normal">SOLICITE ACESSO AO NEGÓCIO</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -195,7 +195,7 @@ export default function ParceiroCadastro({ suppressAuthRef }) {
                 type="password"
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
-                placeholder="MINIMO 6 CARACTERES"
+                placeholder="MÍNIMO 6 CARACTERES"
                 className={fieldInputClass}
                 required
               />
@@ -206,7 +206,7 @@ export default function ParceiroCadastro({ suppressAuthRef }) {
                 type="text"
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
-                placeholder="SLUG DO NEGOCIO"
+                placeholder="SLUG DO NEGÓCIO"
                 className={fieldInputClass}
                 required
               />
