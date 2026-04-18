@@ -41,7 +41,6 @@ export default function SignupProfessionalResume({ user, onLogin }) {
     urlNegocio: '',
     tipoNegocio: '',
     anosExperiencia: '',
-    descricao: '',
     telefone: '',
     rua: '',
     numero: '',
@@ -63,7 +62,7 @@ export default function SignupProfessionalResume({ user, onLogin }) {
         ] = await Promise.all([
           supabase.from('users').select('nome').eq('id', user.id).maybeSingle(),
           supabase.from('negocios')
-            .select('id, nome, slug, tipo_negocio, descricao, telefone, endereco, created_at')
+            .select('id, nome, slug, tipo_negocio, telefone, endereco, created_at')
             .eq('owner_id', user.id)
             .order('created_at', { ascending: true }),
           supabase.from('profissionais')
@@ -101,7 +100,6 @@ export default function SignupProfessionalResume({ user, onLogin }) {
           urlNegocio: onlyTrim(initialContext?.negocio?.slug),
           tipoNegocio: onlyTrim(initialContext?.negocio?.tipo_negocio),
           anosExperiencia: initialContext?.profissional?.anos_experiencia != null ? String(initialContext.profissional.anos_experiencia) : '',
-          descricao: onlyTrim(initialContext?.negocio?.descricao),
           telefone: onlyTrim(initialContext?.negocio?.telefone),
           rua: endereco.rua,
           numero: endereco.numero,
@@ -130,7 +128,6 @@ export default function SignupProfessionalResume({ user, onLogin }) {
       urlNegocio: onlyTrim(selectedContext.negocio?.slug),
       tipoNegocio: onlyTrim(selectedContext.negocio?.tipo_negocio),
       anosExperiencia: selectedContext.profissional?.anos_experiencia != null ? String(selectedContext.profissional.anos_experiencia) : '',
-      descricao: onlyTrim(selectedContext.negocio?.descricao),
       telefone: onlyTrim(selectedContext.negocio?.telefone),
       rua: endereco.rua,
       numero: endereco.numero,
@@ -176,7 +173,6 @@ export default function SignupProfessionalResume({ user, onLogin }) {
       const nomeNegocio = onlyTrim(formData.nomeNegocio);
       const slug = onlyTrim(formData.urlNegocio);
       const tipoNegocio = onlyTrim(formData.tipoNegocio);
-      const descricao = onlyTrim(formData.descricao);
       const telefone = onlyTrim(formData.telefone);
       const anosExperiencia = parseInt(String(formData.anosExperiencia || ''), 10) || 0;
 
@@ -186,7 +182,6 @@ export default function SignupProfessionalResume({ user, onLogin }) {
       if (!nomeNegocio) { showMessage('signupProfessional.business_name_required'); return; }
       if (!slug || slug.length < 3) { showMessage('signupProfessional.business_slug_invalid'); return; }
       if (!tipoNegocio) { showMessage('signupProfessional.business_type_required'); return; }
-      if (!descricao) { showMessage('signupProfessional.description_required'); return; }
       if (anosExperiencia < 0) { showMessage('signupProfessional.experience_invalid'); return; }
 
       const enderecoKey = validarEnderecoCompleto();
@@ -204,7 +199,6 @@ export default function SignupProfessionalResume({ user, onLogin }) {
         p_nome_usuario: nome,
         p_nome_negocio: nomeNegocio,
         p_slug: slug,
-        p_descricao: descricao,
         p_telefone: telefone,
         p_endereco: enderecoUnico,
         p_tipo_negocio: tipoNegocio,
@@ -398,18 +392,6 @@ export default function SignupProfessionalResume({ user, onLogin }) {
               min="0"
               max="50"
               className={inputClass}
-              required
-            />
-          </div>
-
-          <div>
-            <label className={labelClass}>Sobre seus Serviços *</label>
-            <textarea
-              value={formData.descricao}
-              onChange={(e) => setFormData((prev) => ({ ...prev, descricao: e.target.value }))}
-              placeholder="Descreva brevemente seus serviços..."
-              rows={3}
-              className="w-full px-4 py-3 bg-dark-100/40 border border-gray-800/50 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none focus:bg-dark-100/60 transition-all backdrop-blur-sm resize-none text-sm"
               required
             />
           </div>
