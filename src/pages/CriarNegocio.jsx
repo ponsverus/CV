@@ -88,7 +88,8 @@ export default function CriarNegocio({ user }) {
       .replace(/^-+|-+$/g, '');
 
   const handleNomeChange = (value) => {
-    setFormData(prev => ({ ...prev, nomeNegocio: value, urlNegocio: generateSlug(value) }));
+    const nomeUpper = value.toUpperCase();
+    setFormData(prev => ({ ...prev, nomeNegocio: nomeUpper, urlNegocio: generateSlug(nomeUpper) }));
   };
 
   const validarEndereco = () => {
@@ -199,7 +200,7 @@ export default function CriarNegocio({ user }) {
                 value={formData.nomeNegocio}
                 onChange={(e) => handleNomeChange(e.target.value)}
                 placeholder="EX: EQUINOX TATOO"
-                className={fieldInputClass}
+                className={`${fieldInputClass} uppercase`}
                 required
               />
             </FieldRow>
@@ -218,9 +219,9 @@ export default function CriarNegocio({ user }) {
               <input
                 type="text"
                 value={formData.tipoNegocio}
-                onChange={(e) => setFormData(prev => ({ ...prev, tipoNegocio: e.target.value }))}
+                onChange={(e) => setFormData(prev => ({ ...prev, tipoNegocio: e.target.value.toUpperCase() }))}
                 placeholder="EX: ESTÚDIO, PET SHOP..."
-                className={fieldInputClass}
+                className={`${fieldInputClass} uppercase`}
                 required
               />
             </FieldRow>
@@ -233,7 +234,7 @@ export default function CriarNegocio({ user }) {
                   value={formData.urlNegocio}
                   onChange={(e) => setFormData(prev => ({ ...prev, urlNegocio: generateSlug(e.target.value) }))}
                   placeholder="EQUINOX-TATTOO"
-                  className={fieldInputClass}
+                  className={`${fieldInputClass} uppercase`}
                   required
                   pattern="^[a-z0-9]+(?:-[a-z0-9]+)*$"
                 />
