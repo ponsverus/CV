@@ -391,7 +391,7 @@ export default function SignupProfessional({ onLogin }) {
                 />
               </SplitField>
 
-              <SplitField label="NÚM.">
+              <SplitField label="NÚMERO">
                 <input
                   type="text"
                   value={formData.numero}
