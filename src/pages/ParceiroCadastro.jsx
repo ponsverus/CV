@@ -61,14 +61,12 @@ export default function ParceiroCadastro({ suppressAuthRef }) {
     if (suppressAuthRef) suppressAuthRef.current = true;
 
     try {
-      const { data: signupStatus, error: signupStatusErr } = await supabase.rpc('get_partner_signup_status', {
+      const { data: signupStatus, error: signupStatusErr } = await supabase.rpc('get_partner_signup_context', {
         p_slug: slugClean,
-        p_email: emailClean,
       });
 
       if (signupStatusErr) throw signupStatusErr;
       if (signupStatus?.status === 'negocio_not_found') return setAlerta(msgs.negocio_not_found);
-      if (signupStatus?.status === 'unavailable') return setAlerta(msgs.access_unavailable);
       if (signupStatus?.status !== 'available' || !signupStatus?.negocio_id) {
         throw new Error(msgs.unexpected_error.body);
       }
@@ -115,13 +113,6 @@ export default function ParceiroCadastro({ suppressAuthRef }) {
 
       if (profErr) {
         await supabase.auth.signOut();
-
-        const { data: retryStatus } = await supabase.rpc('get_partner_signup_status', {
-          p_slug: slugClean,
-          p_email: emailClean,
-        });
-
-        if (retryStatus?.status === 'unavailable') return setAlerta(msgs.access_unavailable);
 
         throw profErr;
       }
