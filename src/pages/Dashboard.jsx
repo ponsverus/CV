@@ -353,8 +353,14 @@ export default function Dashboard({ user, onLogout }) {
 
   useEffect(() => {
     if (!negocio?.id || !agProfIdsKey || !hoje) return;
-    const channel = supabase.channel(`agendamentos:${negocio.id}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'agendamentos', filter: `negocio_id=eq.${negocio.id}` }, (payload) => {
+    const channelName = parceiroProfissionalId
+      ? `agendamentos:${negocio.id}:${parceiroProfissionalId}`
+      : `agendamentos:${negocio.id}`;
+    const channelFilter = parceiroProfissionalId
+      ? `profissional_id=eq.${parceiroProfissionalId}`
+      : `negocio_id=eq.${negocio.id}`;
+    const channel = supabase.channel(channelName)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'agendamentos', filter: channelFilter }, (payload) => {
         const ev = payload?.eventType;
         const novo = payload?.new;
         const profIdEvento = novo?.profissional_id;
@@ -659,6 +665,7 @@ export default function Dashboard({ user, onLogout }) {
                 clientesLoadingMore={clientesLoadingMore}
                 loadMoreClientes={loadMoreClientes}
                 onAgendarCliente={agendarCliente}
+                itemLabel={counterSingular}
               />
             )}
 
