@@ -12,6 +12,23 @@ function ProfessionalFieldRow({ label, children, last = false }) {
   );
 }
 
+function ProfessionalSplitRow({ children, last = false }) {
+  return (
+    <div className={`grid grid-cols-2 ${last ? '' : 'border-b border-gray-800'}`}>
+      {children}
+    </div>
+  );
+}
+
+function ProfessionalSplitField({ label, children, divider = false }) {
+  return (
+    <div className={`flex items-start gap-3 px-8 py-3 ${divider ? 'border-r border-gray-800' : ''}`}>
+      <span className="w-[58px] shrink-0 py-2 text-[13px] leading-5 text-gray-500">{label}</span>
+      <div className="min-w-0 flex-1">{children}</div>
+    </div>
+  );
+}
+
 function TimeCell({ label, children }) {
   return (
     <div className="min-w-0">
@@ -56,26 +73,27 @@ export default function ProfissionalModal({
             />
           </ProfessionalFieldRow>
 
-          <ProfessionalFieldRow label="PROFISS.">
-            <input
-              type="text"
-              value={formProfissional.profissao}
-              onChange={(e) => setFormProfissional({ ...formProfissional, profissao: toUpperClean(e.target.value) })}
-              className={professionalInputClass}
-              placeholder="EX: BARBEIRO, MANICURE..."
-            />
-          </ProfessionalFieldRow>
+          <ProfessionalSplitRow>
+            <ProfessionalSplitField label="PROFISS." divider>
+              <input
+                type="text"
+                value={formProfissional.profissao}
+                onChange={(e) => setFormProfissional({ ...formProfissional, profissao: toUpperClean(e.target.value) })}
+                className={professionalInputClass}
+                placeholder="EX: BARBEIRO"
+              />
+            </ProfessionalSplitField>
 
-          <ProfessionalFieldRow label="TEMPO">
-            <input
-              type="number"
-              value={formProfissional.anos_experiencia}
-              onChange={(e) => setFormProfissional({ ...formProfissional, anos_experiencia: e.target.value })}
-              className={professionalInputClass}
-              placeholder="Anos de experiencia"
-              placeholder="ANOS DE EXPERIÊNCIA"
-            />
-          </ProfessionalFieldRow>
+            <ProfessionalSplitField label="TEMPO">
+              <input
+                type="number"
+                value={formProfissional.anos_experiencia}
+                onChange={(e) => setFormProfissional({ ...formProfissional, anos_experiencia: e.target.value })}
+                className={professionalInputClass}
+                placeholder="ANOS"
+              />
+            </ProfessionalSplitField>
+          </ProfessionalSplitRow>
 
           <ProfessionalFieldRow label="HORÁRIO">
             <div className="grid grid-cols-2 gap-4">
