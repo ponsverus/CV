@@ -79,13 +79,11 @@ export default function ParceiroLogin({ onLogin, suppressAuthRef, inRecovery: in
     if (suppressAuthRef) suppressAuthRef.current = true;
 
     try {
-      const { data: negocio, error: negErr } = await supabase
-        .from('negocios')
-        .select('id')
-        .eq('slug', slugClean)
-        .maybeSingle();
+      const { data: negocioRows, error: negErr } = await supabase
+        .rpc('get_negocio_vitrine_by_slug', { p_slug: slugClean });
 
       if (negErr) throw negErr;
+      const negocio = negocioRows?.[0] || null;
       if (!negocio) return setAlerta(msgs.negocio_not_found);
 
       const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({
@@ -239,7 +237,7 @@ export default function ParceiroLogin({ onLogin, suppressAuthRef, inRecovery: in
         <div className="text-center mb-8">
           <img src="/Comvaga Logo.png" alt="COMVAGA" className="h-20 w-auto object-contain mx-auto mb-4" />
           <h1 className="text-3xl font-normal text-white uppercase">LOGIN PARCEIRO</h1>
-          <p className="text-gray-500 text-sm mt-2 font-normal">ACESSE O PAINEL DO SEU NEGÓCIO AGORA</p>
+          <p className="text-gray-500 text-sm mt-2 font-normal">ACESSE O PAINEL DO SEU NEGOCIO AGORA</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -290,8 +288,8 @@ export default function ParceiroLogin({ onLogin, suppressAuthRef, inRecovery: in
               <input
                 type="text"
                 value={slug}
-                onChange={(e) => setSlug(e.target.value.toLowerCase())}
-                placeholder="SLUG DO NEGÓCIO"
+                onChange={(e) => setSlug(e.target.value)}
+                placeholder="SLUG DO NEGOCIO"
                 className={fieldInputClass}
                 required
               />
