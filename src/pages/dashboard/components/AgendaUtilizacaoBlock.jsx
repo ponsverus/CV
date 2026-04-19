@@ -112,7 +112,7 @@ export default function AgendaUtilizacaoBlock({
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-3 items-start">
         <MetricCard
-          label="TEMPO DISPONIVEL"
+          label="TEMPO DISPONÍVEL"
           tone="text-yellow-400"
           value={metricsUtilizacaoLoading ? '...' : formatDurationFromMinutes(data?.minutos_ociosos)}
         />
