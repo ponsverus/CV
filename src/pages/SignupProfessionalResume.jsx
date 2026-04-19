@@ -175,9 +175,9 @@ export default function SignupProfessionalResume({ user, onLogin }) {
       const tipoNegocio = onlyTrim(formData.tipoNegocio);
       const telefone = onlyTrim(formData.telefone);
       const anosExperiencia = parseInt(String(formData.anosExperiencia || ''), 10) || 0;
+      const isWaitingRoom = !resumeContexts.length;
 
       if (!nome) { showMessage('signupProfessional.name_required'); return; }
-      if (!negocioId) { showMessage('signupProfessional.profile_not_created'); return; }
       if (!telefone) { showMessage('signupProfessional.phone_required'); return; }
       if (!nomeNegocio) { showMessage('signupProfessional.business_name_required'); return; }
       if (!slug || slug.length < 3) { showMessage('signupProfessional.business_slug_invalid'); return; }
@@ -193,6 +193,80 @@ export default function SignupProfessionalResume({ user, onLogin }) {
         cidade: formData.cidade,
         estado: formData.estado,
       });
+
+      if (isWaitingRoom) {
+        const { data: existingNegocio, error: slugError } = await supabase
+          .rpc('get_negocio_vitrine_by_slug', { p_slug: slug });
+
+        if (slugError) throw slugError;
+        if (existingNegocio?.[0]) { showMessage('signupProfessional.business_slug_taken'); return; }
+
+        const { data: fnData, error: fnError } = await supabase.functions.invoke('signup-professional', {
+          body: {
+            source: 'waiting_room',
+            preserve_auth_user: true,
+            nome_usuario: nome,
+            nome_negocio: nomeNegocio,
+            slug,
+            telefone,
+            endereco: enderecoUnico,
+            tipo_negocio: tipoNegocio,
+            nome_prof: nome,
+            profissao: tipoNegocio,
+            horario_inicio: '08:00',
+            horario_fim: '18:00',
+            dias_trabalho: [1, 2, 3, 4, 5, 6],
+          },
+        });
+
+        if (fnError) {
+          const payload = await fnError.context?.json?.().catch(() => null);
+          const code = payload?.error || '';
+
+          if (code === 'slug_indisponivel') {
+            showMessage('signupProfessional.business_slug_taken');
+            return;
+          }
+          if (code === 'slug_invalido') {
+            showMessage('signupProfessional.business_slug_invalid');
+            return;
+          }
+          if (code === 'usuario_nao_encontrado') {
+            showMessage('signupProfessional.profile_not_created');
+            return;
+          }
+          if (code === 'horario_invalido' || code === 'dias_trabalho_invalidos') {
+            showMessage('signupProfessional.professional_create_error');
+            return;
+          }
+
+          console.error('signup-professional waiting room error:', fnError, payload);
+          showMessage('signupProfessional.business_create_error');
+          return;
+        }
+
+        if (!fnData?.negocio_id || !fnData?.profissional_id) {
+          console.error('signup-professional waiting room incomplete payload:', fnData);
+          showMessage('signupProfessional.business_create_error');
+          return;
+        }
+
+        const { error: expErr } = await supabase
+          .from('profissionais')
+          .update({ anos_experiencia: anosExperiencia })
+          .eq('id', fnData.profissional_id)
+          .eq('user_id', user.id);
+
+        if (expErr) {
+          console.error('signup-professional waiting room experience update error:', expErr);
+        }
+
+        onLogin(user, 'professional', 'completed');
+        navigate('/dashboard');
+        return;
+      }
+
+      if (!negocioId) { showMessage('signupProfessional.profile_not_created'); return; }
 
       const { data, error } = await supabase.rpc('resume_professional_onboarding', {
         p_negocio_id: negocioId,
@@ -259,29 +333,11 @@ export default function SignupProfessionalResume({ user, onLogin }) {
     );
   }
 
-  if (!resumeContexts.length) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-dark-100 border border-gray-800 rounded-custom p-8 text-center">
-          <Award className="mx-auto mb-4 text-primary w-12 h-12" />
-          <h1 className="text-2xl font-normal text-white mb-3">Nenhum cadastro para retomar</h1>
-          <p className="text-gray-400 mb-6">Falta o contexto de retomada vinculado à sua conta.</p>
-          <button
-            type="button"
-            onClick={() => navigate('/dashboard')}
-            className="w-full px-6 py-3 bg-primary/20 border border-primary/50 text-primary rounded-button font-normal uppercase"
-          >
-            IR PARA O DASHBOARD
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   const inputClass = 'w-full px-4 py-3 bg-dark-100/40 border border-gray-800/50 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none focus:bg-dark-100/60 transition-all backdrop-blur-sm text-sm';
   const inputIconClass = 'w-full pl-10 pr-4 py-3 bg-dark-100/40 border border-gray-800/50 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none focus:bg-dark-100/60 transition-all backdrop-blur-sm text-sm';
   const labelClass = 'block text-sm text-gray-400 mb-2 tracking-wide';
   const labelSmClass = 'block text-xs text-gray-500 mb-2 tracking-wide';
+  const isWaitingRoom = !resumeContexts.length;
   const hasMultipleContexts = resumeContexts.length > 1;
 
   return (
@@ -306,8 +362,10 @@ export default function SignupProfessionalResume({ user, onLogin }) {
 
         <div className="text-center mb-10">
           <Award className="mx-auto mb-4 text-primary w-12 h-12" />
-          <h1 className="text-4xl font-normal mb-3 tracking-wide">Retomar vitrine</h1>
-          <p className="text-gray-500 text-base font-normal">Seu cadastro ficou incompleto. Finalize os dados para liberar o dashboard.</p>
+          <h1 className="text-4xl font-normal mb-3 tracking-wide">{isWaitingRoom ? 'Criar vitrine' : 'Retomar vitrine'}</h1>
+          <p className="text-gray-500 text-base font-normal">
+            {isWaitingRoom ? 'Finalize os dados do seu negócio para liberar o dashboard.' : 'Seu cadastro ficou incompleto. Finalize os dados para liberar o dashboard.'}
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -479,7 +537,7 @@ export default function SignupProfessionalResume({ user, onLogin }) {
             disabled={loading}
             className="w-full py-3 bg-primary/10 border border-primary/30 hover:border-primary/60 hover:bg-primary/20 text-primary rounded-full font-normal text-sm tracking-wider transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {loading ? 'FINALIZANDO...' : 'FINALIZAR CADASTRO'}
+            {loading ? 'FINALIZANDO...' : isWaitingRoom ? 'CRIAR VITRINE' : 'FINALIZAR CADASTRO'}
           </button>
         </form>
       </div>
