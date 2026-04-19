@@ -330,15 +330,15 @@ export default function InfoNegocioSection({
         />
       </InfoRow>
 
-      <InfoRow
-        label="SENHA"
-        action={(
+      <div className="border-b border-gray-800 px-4 py-3 sm:px-6">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <span className="text-[14px] leading-5 text-gray-500">SENHA</span>
           <button type="button" disabled={savingDados} onClick={savePasswordField} className="shrink-0 rounded-full border border-green-500/40 px-3 py-1 text-[12px] font-normal uppercase text-green-300 disabled:opacity-50">
             {savingAccountField === 'password' ? 'SALVANDO' : 'SALVAR'}
           </button>
-        )}
-      >
-        <div className="space-y-2">
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
           <input
             type="password"
             value={novaSenha}
@@ -354,7 +354,7 @@ export default function InfoNegocioSection({
             placeholder="CONFIRMAR"
           />
         </div>
-      </InfoRow>
+      </div>
 
       <div className="flex items-center gap-3 px-4 py-4 sm:px-6">
         <button type="button" onClick={() => navigate('/criar-negocio')} className="flex-1 rounded-button border border-primary/30 py-3 text-[12px] font-normal uppercase text-primary hover:border-primary">
