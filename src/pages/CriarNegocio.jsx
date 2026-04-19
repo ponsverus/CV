@@ -128,13 +128,10 @@ export default function CriarNegocio({ user }) {
 
     try {
       const { data: slugExiste, error: slugErr } = await supabase
-        .from('negocios')
-        .select('id')
-        .eq('slug', slug)
-        .maybeSingle();
+        .rpc('get_negocio_vitrine_by_slug', { p_slug: slug });
 
       if (slugErr) throw slugErr;
-      if (slugExiste) {
+      if (slugExiste?.[0]) {
         showMessage('signupProfessional.business_slug_taken');
         setLoading(false);
         return;
