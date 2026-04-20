@@ -276,16 +276,16 @@ export function useDashboardMutations({
       if (!payload.duracao_minutos) throw new Error('Duracao invalida.');
       const { error: insErr } = await supabase.from('entregas').insert([payload]);
       if (insErr) throw insErr;
-      await uiAlert(`dashboard.business.${businessGroup}.service_created`, 'success');
+      await uiAlert(`dashboard.business.${businessGroup}.entrega_created`, 'success');
       resetEntregaForm();
       await reloadEntregas();
     } catch (e2) {
       const msg = String(e2?.message || '');
-      if (msg.includes('oferta')) await uiAlert('dashboard.service_promo_invalid', 'error');
-      else if (msg.includes('invalido')) await uiAlert('dashboard.service_price_invalid', 'error');
-      else if (msg.includes('Duracao')) await uiAlert('dashboard.service_duration_invalid', 'error');
-      else if (msg.includes('Selecione')) await uiAlert(`dashboard.business.${businessGroup}.service_prof_required`, 'error');
-      else await uiAlert(`dashboard.business.${businessGroup}.service_create_error`, 'error');
+      if (msg.includes('oferta')) await uiAlert('dashboard.entrega_promo_invalid', 'error');
+      else if (msg.includes('invalido')) await uiAlert('dashboard.entrega_price_invalid', 'error');
+      else if (msg.includes('Duracao')) await uiAlert('dashboard.entrega_duration_invalid', 'error');
+      else if (msg.includes('Selecione')) await uiAlert(`dashboard.business.${businessGroup}.entrega_prof_required`, 'error');
+      else await uiAlert(`dashboard.business.${businessGroup}.entrega_create_error`, 'error');
     } finally {
       setSubmittingEntrega(false);
     }
@@ -314,16 +314,16 @@ export function useDashboardMutations({
       };
       const { error: updErr } = await supabase.from('entregas').update(payload).eq('id', editingEntregaId).eq('negocio_id', negocio.id);
       if (updErr) throw updErr;
-      await uiAlert(`dashboard.business.${businessGroup}.service_updated`, 'success');
+      await uiAlert(`dashboard.business.${businessGroup}.entrega_updated`, 'success');
       resetEntregaForm();
       await reloadEntregas();
     } catch (e2) {
       const msg = String(e2?.message || '');
-      if (msg.includes('oferta')) await uiAlert('dashboard.service_promo_invalid', 'error');
-      else if (msg.includes('invalido')) await uiAlert('dashboard.service_price_invalid', 'error');
-      else if (msg.includes('Duracao')) await uiAlert('dashboard.service_duration_invalid', 'error');
-      else if (msg.includes('Selecione')) await uiAlert(`dashboard.business.${businessGroup}.service_prof_required`, 'error');
-      else await uiAlert(`dashboard.business.${businessGroup}.service_update_error`, 'error');
+      if (msg.includes('oferta')) await uiAlert('dashboard.entrega_promo_invalid', 'error');
+      else if (msg.includes('invalido')) await uiAlert('dashboard.entrega_price_invalid', 'error');
+      else if (msg.includes('Duracao')) await uiAlert('dashboard.entrega_duration_invalid', 'error');
+      else if (msg.includes('Selecione')) await uiAlert(`dashboard.business.${businessGroup}.entrega_prof_required`, 'error');
+      else await uiAlert(`dashboard.business.${businessGroup}.entrega_update_error`, 'error');
     } finally {
       setSubmittingEntrega(false);
     }
@@ -331,15 +331,15 @@ export function useDashboardMutations({
 
   const deleteEntrega = async (entrega) => {
     if (!await checarPermissao(entrega.profissional_id)) return;
-    const ok = await uiConfirm(`dashboard.business.${businessGroup}.service_delete_confirm`, 'warning');
+    const ok = await uiConfirm(`dashboard.business.${businessGroup}.entrega_delete_confirm`, 'warning');
     if (!ok) return;
     try {
       const { error: delErr } = await supabase.from('entregas').delete().eq('id', entrega.id).eq('negocio_id', negocio.id);
       if (delErr) throw delErr;
-      await uiAlert(`dashboard.business.${businessGroup}.service_deleted`, 'success');
+      await uiAlert(`dashboard.business.${businessGroup}.entrega_deleted`, 'success');
       await reloadEntregas();
     } catch {
-      await uiAlert(`dashboard.business.${businessGroup}.service_delete_error`, 'error');
+      await uiAlert(`dashboard.business.${businessGroup}.entrega_delete_error`, 'error');
     }
   };
 
