@@ -10,9 +10,9 @@ export default function PartnerPendingApproval({ onLogout }) {
           <Clock className="w-9 h-9 text-yellow-300" />
         </div>
 
-        <h1 className="text-3xl font-normal mb-4">Aguardando aprovação</h1>
+        <h1 className="text-3xl font-normal mb-4">Aguardando aval</h1>
         <p className="text-gray-400 mb-8">
-          Seu cadastro de parceiro foi enviado com sucesso. Agora é preciso aguardar o responsável pelo negócio aprovar seu acesso.
+          Seu cadastro de parceiro foi enviado com sucesso. Aguarde o aval do responsável pelo negócio para obter acesso.
         </p>
 
         <div className="space-y-3">
