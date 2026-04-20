@@ -83,7 +83,7 @@ export const ptBR = {
     },
     business_info_update_error: {
       title: 'Erro ao salvar',
-      body: 'Não foi possível salvar os dados do negócio agora.\n\nTente novamente.',
+      body: 'Erro ao salvar os dados do negócio agora.\n\nTente novamente.',
       variant: 'danger',
       screen: 'dark',
       buttonText: 'OK',
@@ -105,7 +105,7 @@ export const ptBR = {
     },
     gallery_upload_error: {
       title: 'Erro no upload',
-      body: 'Não foi possível enviar uma das imagens.\n\nTente novamente.',
+      body: 'Erro ao enviar uma das imagens.\n\nTente novamente.',
       variant: 'danger',
       screen: 'dark',
       buttonText: 'OK',
@@ -119,7 +119,7 @@ export const ptBR = {
     },
     gallery_update_error: {
       title: 'Erro',
-      body: 'Não foi possível concluir o envio das imagens.\n\nTente novamente.',
+      body: 'Erro ao concluir o envio das imagens.\n\nTente novamente.',
       variant: 'danger',
       screen: 'dark',
       buttonText: 'OK',
@@ -127,7 +127,7 @@ export const ptBR = {
     gallery_load_warning: {
       title: 'Galeria indisponível no momento',
       body:
-        'Não foi possível carregar as imagens da galeria agora.\n\n' +
+        'Erro ao carregar as imagens da galeria agora.\n\n' +
         'O restante do painel continua disponível.\n\n' +
         'Tente novamente em instantes.',
       variant: 'warning',
@@ -152,7 +152,7 @@ export const ptBR = {
     },
     gallery_remove_error: {
       title: 'Erro',
-      body: 'Não foi possível remover esta imagem agora.\n\nTente novamente.',
+      body: 'Erro ao remover esta imagem agora.\n\nTente novamente.',
       variant: 'danger',
       screen: 'dark',
       buttonText: 'OK',
@@ -174,7 +174,7 @@ export const ptBR = {
     },
     entrega_duration_invalid: {
       title: 'Tempo inválido',
-      body: 'Informe a duração em minutos.',
+      body: 'Informe o tempo em minutos.',
       variant: 'danger',
       screen: 'dark',
       buttonText: 'OK',
@@ -365,7 +365,7 @@ export const ptBR = {
     },
     professional_update_error: {
       title: 'Erro',
-      body: 'Não foi possível atualizar o profissional agora.\n\nTente novamente.',
+      body: 'Erro ao atualizar o profissional agora.\n\nTente novamente.',
       variant: 'danger',
       screen: 'dark',
       buttonText: 'OK',
@@ -388,7 +388,7 @@ export const ptBR = {
     },
     professional_delete_error: {
       title: 'Erro',
-      body: 'Não foi possível excluir o profissional agora.\n\nTente novamente.',
+      body: 'Erro ao excluir o profissional agora.\n\nTente novamente.',
       variant: 'danger',
       screen: 'dark',
       buttonText: 'OK',
@@ -419,7 +419,7 @@ export const ptBR = {
     },
     professional_toggle_error: {
       title: 'Erro',
-      body: 'Não foi possível alterar o status agora.\n\nTente novamente.',
+      body: 'Erro ao alterar o status agora.\n\nTente novamente.',
       variant: 'danger',
       screen: 'dark',
       buttonText: 'OK',
@@ -455,7 +455,7 @@ export const ptBR = {
     },
     booking_confirm_error: {
       title: 'Erro',
-      body: 'Não foi possível concluir o atendimento agora.\n\nTente novamente.',
+      body: 'Erro ao concluir o atendimento agora.\n\nTente novamente.',
       variant: 'danger',
       screen: 'dark',
       buttonText: 'OK',
@@ -478,7 +478,7 @@ export const ptBR = {
     },
     booking_cancel_error: {
       title: 'Erro',
-      body: 'Não foi possível cancelar o agendamento agora.\n\nTente novamente.',
+      body: 'Erro ao cancelar o agendamento agora.\n\nTente novamente.',
       variant: 'danger',
       screen: 'dark',
       buttonText: 'OK',
@@ -493,14 +493,14 @@ export const ptBR = {
     },
     account_email_update_sent: {
       title: 'Acesso enviado',
-      body: 'Confira seu email para confirmar a alteração.',
+      body: 'Confira seu email para confirmar a troca.',
       variant: 'success',
       screen: 'light',
       buttonText: 'OK',
     },
     account_email_update_error: {
       title: 'Erro',
-      body: 'Não foi possível solicitar a troca de email agora.\n\nTente novamente.',
+      body: 'Erro ao solicitar a troca de email agora.\n\nTente novamente.',
       variant: 'danger',
       screen: 'dark',
       buttonText: 'OK',
@@ -514,7 +514,7 @@ export const ptBR = {
     },
     account_password_mismatch: {
       title: 'Senhas diferentes',
-      body: 'As senhas digitadas não coincidem. Revise e tente novamente.',
+      body: 'As senhas digitadas divergem. Revise e tente novamente.',
       variant: 'danger',
       screen: 'dark',
       buttonText: 'OK',
@@ -528,15 +528,15 @@ export const ptBR = {
     },
     account_password_update_error: {
       title: 'Erro',
-      body: 'Não foi possível alterar a senha agora.\n\nTente novamente.',
+      body: 'Erro ao alterar a senha agora.\n\nTente novamente.',
       variant: 'danger',
       screen: 'dark',
       buttonText: 'OK',
     },
 
     parceiro_acao_proibida: {
-      title: 'Ação não permitida',
-      body: 'Você só pode gerenciar itens referentes a você.',
+      title: 'Acesso restrito',
+      body: 'Gerencie apenas itens referentes a você.',
       variant: 'warning',
       screen: 'dark',
       buttonText: 'ENTENDI',
@@ -550,7 +550,7 @@ export const ptBR = {
     },
     partner_approve_error: {
       title: 'Erro ao aprovar',
-      body: 'Não foi possível aprovar o parceiro agora.\n\nTente novamente.',
+      body: 'Erro ao aprovar o parceiro agora.\n\nTente novamente.',
       variant: 'danger',
       screen: 'dark',
       buttonText: 'OK',
@@ -562,36 +562,36 @@ export const ptBR = {
     email_invalid:        { body: 'Informe um email válido para continuar.', variant: 'erro' },
     senha_too_short:      { body: 'A senha deve ter pelo menos 6 caracteres.', variant: 'erro' },
     slug_required:        { body: 'Informe o slug do negócio para continuar.', variant: 'erro' },
-    negocio_not_found:    { body: 'Negócio não encontrado. Verifique o slug informado e tente novamente.', variant: 'erro' },
+    negocio_not_found:    { body: 'Negócio ausente. Verifique o slug informado e tente novamente.', variant: 'erro' },
     email_already_exists: { body: 'Este email já possui uma conta.\n\nUse a página de login de parceiro.', variant: 'erro' },
-    access_unavailable:   { body: 'Não foi possível solicitar acesso com este email.\n\nFaça login como parceiro ou fale com o responsável pelo negócio.', variant: 'erro' },
-    account_create_error: { body: 'Não foi possível criar sua conta agora.\n\nTente novamente.', variant: 'erro' },
-    already_pending:      { body: 'Você já tem um cadastro aguardando aprovação neste negócio.', variant: 'aviso' },
+    access_unavailable:   { body: 'Erro ao solicitar acesso com este email.\n\nFaça login como parceiro ou fale com o responsável pelo negócio.', variant: 'erro' },
+    account_create_error: { body: 'Erro ao criar sua conta agora.\n\nTente novamente.', variant: 'erro' },
+    already_pending:      { body: 'Seu cadastro aguarda aval neste negócio.', variant: 'aviso' },
     already_active:       { body: 'Você já está cadastrado neste negócio.\n\nUse a página de login.', variant: 'aviso' },
     access_inactive:      { body: 'Seu acesso está inativo.\n\nEntre em contato com o responsável pelo negócio.', variant: 'erro' },
     unexpected_error:     { body: 'Ocorreu um erro inesperado.\n\nTente novamente.', variant: 'erro' },
     success_title:        'Cadastro enviado!',
-    success_body:         'Aguarde a aprovação do responsável pelo negócio para acessar o painel.',
+    success_body:         'Aguarde o aval do responsável pelo negócio para acessar o painel.',
   },
 
   parceiroLogin: {
     email_invalid:                  { body: 'Informe um email válido para continuar.', variant: 'erro' },
     senha_too_short:                { body: 'A senha deve ter pelo menos 6 caracteres.', variant: 'erro' },
     slug_required:                  { body: 'Informe o slug do negócio para continuar.', variant: 'erro' },
-    negocio_not_found:              { body: 'Negócio não encontrado. Verifique o slug informado e tente novamente.', variant: 'erro' },
+    negocio_not_found:              { body: 'Negócio ausente. Verifique o slug informado e tente novamente.', variant: 'erro' },
     credentials_invalid:            { body: 'Email ou senha incorretos.', variant: 'erro' },
-    auth_error:                     { body: 'Não foi possível autenticar agora.\n\nTente novamente.', variant: 'erro' },
-    not_partner:                    { body: 'Você não é parceiro deste negócio.', variant: 'erro' },
-    pending_approval:               { body: 'Seu acesso ainda não foi aprovado pelo responsável do negócio.', variant: 'aviso' },
+    auth_error:                     { body: 'Erro ao autenticar agora.\n\nTente novamente.', variant: 'erro' },
+    not_partner:                    { body: 'Este login pertence a outro tipo de conta para este negócio.', variant: 'erro' },
+    pending_approval:               { body: 'Seu acesso ainda aguarda aval do responsável do negócio.', variant: 'aviso' },
     access_inactive:                { body: 'Seu acesso está inativo.\n\nEntre em contato com o responsável pelo negócio.', variant: 'erro' },
     unexpected_error:               { body: 'Ocorreu um erro inesperado.\n\nTente novamente.', variant: 'erro' },
-    reset_email_required:           { body: 'Digite seu email antes de solicitar a recuperação.', variant: 'aviso' },
+    reset_email_required:           { body: 'Digite seu email antes de solicitar o resgate de senha.', variant: 'aviso' },
     reset_sent:                     { body: 'Link enviado.\n\nConfira sua caixa de entrada para redefinir a senha.', variant: 'sucesso' },
-    reset_error:                    { body: 'Não foi possível enviar o link agora.\n\nTente novamente.', variant: 'erro' },
+    reset_error:                    { body: 'Erro ao enviar o link agora.\n\nTente novamente.', variant: 'erro' },
     recovery_password_too_short:    { body: 'A nova senha deve ter pelo menos 6 caracteres.', variant: 'erro' },
-    recovery_password_mismatch:     { body: 'As senhas não coincidem. Revise e tente novamente.', variant: 'erro' },
+    recovery_password_mismatch:     { body: 'As senhas divergem. Revise e tente novamente.', variant: 'erro' },
     recovery_password_updated:      { body: 'Senha atualizada com sucesso.\n\nFaça login com a nova senha.', variant: 'sucesso' },
-    recovery_password_update_error: { body: 'Não foi possível atualizar a senha agora.\n\nTente novamente.', variant: 'erro' },
+    recovery_password_update_error: { body: 'Erro ao atualizar a senha agora.\n\nTente novamente.', variant: 'erro' },
   },
 
   clientArea: {
@@ -618,7 +618,7 @@ export const ptBR = {
     },
     avatar_update_error: {
       title: 'Erro ao atualizar foto',
-      body: 'Não foi possível atualizar sua foto agora.\n\nTente novamente em instantes.',
+      body: 'Erro ao atualizar sua foto agora.\n\nTente novamente em instantes.',
       variant: 'danger',
       screen: 'dark',
       buttonText: 'OK',
@@ -639,7 +639,7 @@ export const ptBR = {
     },
     profile_name_update_error: {
       title: 'Erro ao salvar nome',
-      body: 'Não foi possível salvar seu nome agora.\n\nTente novamente.',
+      body: 'Erro ao salvar seu nome agora.\n\nTente novamente.',
       variant: 'danger',
       screen: 'dark',
       buttonText: 'OK',
@@ -653,14 +653,14 @@ export const ptBR = {
     },
     account_email_update_sent: {
       title: 'Código de acesso enviado',
-      body: 'Confira seu email para validar a alteração.',
+      body: 'Confira seu email para validar a troca.',
       variant: 'success',
       screen: 'light',
       buttonText: 'OK',
     },
     account_email_update_error: {
       title: 'Erro ao alterar email',
-      body: 'Não foi possível alterar seu email agora.\n\nTente novamente.',
+      body: 'Erro ao alterar seu email agora.\n\nTente novamente.',
       variant: 'danger',
       screen: 'dark',
       buttonText: 'OK',
@@ -688,7 +688,7 @@ export const ptBR = {
     },
     account_password_update_error: {
       title: 'Erro ao alterar senha',
-      body: 'Não foi possível alterar sua senha agora.\n\nTente novamente em alguns instantes.',
+      body: 'Erro ao alterar sua senha agora.\n\nTente novamente em alguns instantes.',
       variant: 'danger',
       screen: 'dark',
       buttonText: 'OK',
@@ -711,7 +711,7 @@ export const ptBR = {
     },
     booking_cancel_error: {
       title: 'Erro ao cancelar',
-      body: 'Não foi possível concluir o cancelamento agora.\n\nTente novamente.',
+      body: 'Erro ao concluir o cancelamento agora.\n\nTente novamente.',
       variant: 'danger',
       screen: 'dark',
       buttonText: 'OK',
@@ -725,7 +725,7 @@ export const ptBR = {
     },
     favorite_remove_error: {
       title: 'Erro ao remover',
-      body: 'Não foi possível remover o favorito agora.\n\nTente novamente.',
+      body: 'Erro ao remover o favorito agora.\n\nTente novamente.',
       variant: 'danger',
       screen: 'dark',
       buttonText: 'OK',
@@ -1007,7 +1007,7 @@ export const ptBR = {
     business_create_error: {
       title: 'Erro ao criar negócio',
       body:
-        'Não foi possível criar o negócio agora.\n\n' +
+        'Erro ao criar o negócio agora.\n\n' +
         'Tente novamente em alguns instantes.\n\n' +
         'Se persistir, clique em SUPORTE na faixa amarela.',
       variant: 'danger',
@@ -1026,7 +1026,7 @@ export const ptBR = {
     professional_create_error: {
       title: 'Erro ao criar profissional',
       body:
-        'Não foi possível concluir o cadastro do profissional.\n\n' +
+        'Erro ao concluir o cadastro do profissional.\n\n' +
         'Tente novamente.\n\n' +
         'Se persistir, clique em SUPORTE na faixa amarela.',
       variant: 'danger',
@@ -1040,7 +1040,7 @@ export const ptBR = {
     common_ok: 'ENTENDI',
 
     load_timeout: 'A vitrine demorou demais para carregar. Tente novamente.',
-    load_error: 'Não foi possível carregar a vitrine.',
+    load_error: 'Erro ao carregar a vitrine.',
 
     favorite_need_login: {
       title: 'Login necessário',
@@ -1059,7 +1059,7 @@ export const ptBR = {
     },
     favorite_toggle_error: {
       title: 'Erro',
-      body: 'Não foi possível atualizar o favorito agora.\n\nTente novamente.',
+      body: 'Erro ao atualizar o favorito agora.\n\nTente novamente.',
       buttonText: 'OK',
     },
     schedule_need_login_confirm: {
@@ -1119,6 +1119,6 @@ export const ptBR = {
       buttonText: 'OK',
     },
     depoimento_send_error_title: 'Erro ao enviar depoimento',
-    depoimento_send_error_body: 'Não foi possível enviar seu depoimento:',
+    depoimento_send_error_body: 'Erro ao enviar seu depoimento:',
   },
 };
