@@ -570,7 +570,7 @@ export const ptBR = {
     already_active:       { body: 'Você já está cadastrado neste negócio.\n\nUse a página de login.', variant: 'aviso' },
     access_inactive:      { body: 'Seu acesso está inativo.\n\nEntre em contato com o responsável pelo negócio.', variant: 'erro' },
     unexpected_error:     { body: 'Ocorreu um erro inesperado.\n\nTente novamente.', variant: 'erro' },
-    success_title:        'Cadastro enviado!',
+    success_title:        'Cadastro enviado',
     success_body:         'Aguarde o aval do responsável pelo negócio para acessar o painel.',
   },
 
