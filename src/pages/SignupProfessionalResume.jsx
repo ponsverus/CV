@@ -242,6 +242,7 @@ export default function SignupProfessionalResume({ user, onLogin }) {
             tipo_negocio: tipoNegocio,
             nome_prof: nome,
             profissao: tipoNegocio,
+            anos_experiencia: anosExperiencia,
             horario_inicio: '08:00',
             horario_fim: '18:00',
             dias_trabalho: [1, 2, 3, 4, 5, 6],
@@ -278,16 +279,6 @@ export default function SignupProfessionalResume({ user, onLogin }) {
           console.error('signup-professional waiting room incomplete payload:', fnData);
           showMessage('signupProfessional.business_create_error');
           return;
-        }
-
-        const { error: expErr } = await supabase
-          .from('profissionais')
-          .update({ anos_experiencia: anosExperiencia })
-          .eq('id', fnData.profissional_id)
-          .eq('user_id', user.id);
-
-        if (expErr) {
-          console.error('signup-professional waiting room experience update error:', expErr);
         }
 
         onLogin(user, 'professional', 'completed');
