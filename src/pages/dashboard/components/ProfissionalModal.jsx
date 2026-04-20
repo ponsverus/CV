@@ -72,7 +72,6 @@ export default function ProfissionalModal({
               value={formProfissional.anos_experiencia}
               onChange={(e) => setFormProfissional({ ...formProfissional, anos_experiencia: e.target.value })}
               className={professionalInputClass}
-              placeholder="Anos de experiencia"
               placeholder="ANOS DE EXPERIÊNCIA"
             />
           </ProfessionalFieldRow>
