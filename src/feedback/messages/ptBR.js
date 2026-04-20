@@ -158,21 +158,21 @@ export const ptBR = {
       buttonText: 'OK',
     },
 
-    service_promo_invalid: {
+    entrega_promo_invalid: {
       title: 'Oferta inválida',
       body: 'O preço de oferta precisa ser menor que o preço normal.',
       variant: 'danger',
       screen: 'dark',
       buttonText: 'OK',
     },
-    service_price_invalid: {
+    entrega_price_invalid: {
       title: 'Preço inválido',
       body: 'Informe um valor válido para continuar.',
       variant: 'danger',
       screen: 'dark',
       buttonText: 'OK',
     },
-    service_duration_invalid: {
+    entrega_duration_invalid: {
       title: 'Tempo inválido',
       body: 'Informe a duração em minutos.',
       variant: 'danger',
@@ -224,43 +224,43 @@ export const ptBR = {
       },
 
       servicos: {
-        service_created: {
+        entrega_created: {
           title: 'Serviço criado',
           body: 'O novo serviço já está disponível para agendamento.',
           variant: 'success', screen: 'light', buttonText: 'OK',
         },
-        service_updated: {
+        entrega_updated: {
           title: 'Serviço atualizado',
           body: 'Os ajustes foram salvos com sucesso.',
           variant: 'success', screen: 'light', buttonText: 'OK',
         },
-        service_create_error: {
+        entrega_create_error: {
           title: 'Erro ao criar',
           body: 'Ocorreu uma falha ao criar este serviço. Tente novamente.',
           variant: 'danger', screen: 'dark', buttonText: 'OK',
         },
-        service_update_error: {
+        entrega_update_error: {
           title: 'Erro ao salvar',
           body: 'Ocorreu uma falha ao atualizar este serviço. Tente novamente.',
           variant: 'danger', screen: 'dark', buttonText: 'OK',
         },
-        service_delete_confirm: {
+        entrega_delete_confirm: {
           title: 'Excluir serviço?',
           body: 'Tem certeza que deseja excluir este serviço?',
           variant: 'warning', screen: 'dark',
           confirmText: 'EXCLUIR', cancelText: 'CANCELAR', buttonText: 'EXCLUIR',
         },
-        service_deleted: {
+        entrega_deleted: {
           title: 'Serviço excluído',
           body: 'O serviço foi removido da lista.',
           variant: 'success', screen: 'light', buttonText: 'OK',
         },
-        service_delete_error: {
+        entrega_delete_error: {
           title: 'Erro',
           body: 'Houve um erro ao excluir o serviço. Tente novamente.',
           variant: 'danger', screen: 'dark', buttonText: 'OK',
         },
-        service_prof_required: {
+        entrega_prof_required: {
           title: 'Selecione um profissional',
           body: 'Escolha um profissional para o serviço.',
           variant: 'danger', screen: 'dark', buttonText: 'OK',
@@ -268,43 +268,43 @@ export const ptBR = {
       },
 
       consultas: {
-        service_created: {
+        entrega_created: {
           title: 'Consulta criada',
           body: 'A nova consulta já está disponível para agendamento.',
           variant: 'success', screen: 'light', buttonText: 'OK',
         },
-        service_updated: {
+        entrega_updated: {
           title: 'Consulta atualizada',
           body: 'Os ajustes foram salvos com sucesso.',
           variant: 'success', screen: 'light', buttonText: 'OK',
         },
-        service_create_error: {
+        entrega_create_error: {
           title: 'Erro ao criar',
           body: 'Ocorreu uma falha ao criar esta consulta. Tente novamente.',
           variant: 'danger', screen: 'dark', buttonText: 'OK',
         },
-        service_update_error: {
+        entrega_update_error: {
           title: 'Erro ao salvar',
           body: 'Ocorreu uma falha ao atualizar esta consulta. Tente novamente.',
           variant: 'danger', screen: 'dark', buttonText: 'OK',
         },
-        service_delete_confirm: {
+        entrega_delete_confirm: {
           title: 'Excluir consulta?',
           body: 'Tem certeza que deseja excluir esta consulta?',
           variant: 'warning', screen: 'dark',
           confirmText: 'EXCLUIR', cancelText: 'CANCELAR', buttonText: 'EXCLUIR',
         },
-        service_deleted: {
+        entrega_deleted: {
           title: 'Consulta excluída',
           body: 'A consulta foi removida da lista.',
           variant: 'success', screen: 'light', buttonText: 'OK',
         },
-        service_delete_error: {
+        entrega_delete_error: {
           title: 'Erro',
           body: 'Houve um erro ao excluir a consulta. Tente novamente.',
           variant: 'danger', screen: 'dark', buttonText: 'OK',
         },
-        service_prof_required: {
+        entrega_prof_required: {
           title: 'Selecione um profissional',
           body: 'Escolha um profissional para esta consulta.',
           variant: 'danger', screen: 'dark', buttonText: 'OK',
@@ -312,43 +312,43 @@ export const ptBR = {
       },
 
       aulas: {
-        service_created: {
+        entrega_created: {
           title: 'Aula criada',
           body: 'A nova aula já está disponível para agendamento.',
           variant: 'success', screen: 'light', buttonText: 'OK',
         },
-        service_updated: {
+        entrega_updated: {
           title: 'Aula atualizada',
           body: 'Os ajustes foram salvos com sucesso.',
           variant: 'success', screen: 'light', buttonText: 'OK',
         },
-        service_create_error: {
+        entrega_create_error: {
           title: 'Erro ao criar',
           body: 'Ocorreu uma falha ao criar esta aula. Tente novamente.',
           variant: 'danger', screen: 'dark', buttonText: 'OK',
         },
-        service_update_error: {
+        entrega_update_error: {
           title: 'Erro ao salvar',
           body: 'Ocorreu uma falha ao atualizar esta aula. Tente novamente.',
           variant: 'danger', screen: 'dark', buttonText: 'OK',
         },
-        service_delete_confirm: {
+        entrega_delete_confirm: {
           title: 'Excluir aula?',
           body: 'Tem certeza que deseja excluir esta aula?',
           variant: 'warning', screen: 'dark',
           confirmText: 'EXCLUIR', cancelText: 'CANCELAR', buttonText: 'EXCLUIR',
         },
-        service_deleted: {
+        entrega_deleted: {
           title: 'Aula excluída',
           body: 'A aula foi removida da lista.',
           variant: 'success', screen: 'light', buttonText: 'OK',
         },
-        service_delete_error: {
+        entrega_delete_error: {
           title: 'Erro',
           body: 'Houve um erro ao excluir a aula. Tente novamente.',
           variant: 'danger', screen: 'dark', buttonText: 'OK',
         },
-        service_prof_required: {
+        entrega_prof_required: {
           title: 'Selecione um profissional',
           body: 'Escolha um profissional para esta aula.',
           variant: 'danger', screen: 'dark', buttonText: 'OK',
