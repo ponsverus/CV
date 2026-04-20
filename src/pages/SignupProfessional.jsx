@@ -198,6 +198,7 @@ export default function SignupProfessional({ onLogin }) {
           tipo_negocio: tipoNegocio,
           nome_prof: nome,
           profissao: tipoNegocio,
+          anos_experiencia: anosExperiencia,
           horario_inicio: '08:00',
           horario_fim: '18:00',
           dias_trabalho: [1, 2, 3, 4, 5, 6],
@@ -253,16 +254,6 @@ export default function SignupProfessional({ onLogin }) {
         await clearSignupSession();
         showMessage('signupProfessional.business_create_error');
         return;
-      }
-
-      const { error: expErr } = await supabase
-        .from('profissionais')
-        .update({ anos_experiencia: anosExperiencia })
-        .eq('id', fnData.profissional_id)
-        .eq('user_id', userId);
-
-      if (expErr) {
-        console.error('signup-professional experience update error:', expErr);
       }
 
       onLogin(sessionUser, 'professional', 'completed');
