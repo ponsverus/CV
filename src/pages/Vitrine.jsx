@@ -236,7 +236,7 @@ function SelectionBar({ itens, counterSingular, counterPlural, onConfirm, onClea
             <div className={`text-sm font-normal truncate ${textMain}`}>{qtd} {label} selecionado{qtd > 1 ? 's' : ''}</div>
             <div className={`text-xs font-normal ${textSub}`}>{durTotal} min • R$ {valTotal.toFixed(2)}</div>
           </div>
-          <button type="button" onClick={onClear} className={`shrink-0 ml-1 ${clearBtn}`} title="Limpar seleção"><X className="w-4 h-4" /></button>
+          <button type="button" onClick={onClear} className={`shrink-0 ml-1 ${clearBtn}`} title="Limpar"><X className="w-4 h-4" /></button>
         </div>
         <button type="button" onClick={onConfirm} className="shrink-0 flex items-center gap-2 px-5 py-2.5 bg-vprimary text-vprimary-text rounded-full text-sm font-normal uppercase whitespace-nowrap transition-opacity hover:opacity-80">
           <Calendar className="w-4 h-4" />
@@ -372,7 +372,7 @@ export default function Vitrine({ user, userType }) {
       return;
     }
     if (userType !== 'client') {
-      alertKey('favorite_only_client', 'Ação restrita', 'Apenas CLIENTE pode favoritar negócios.', 'ENTENDI');
+      alertKey('favorite_only_client', 'Acesso exclusivo', 'Apenas CLIENTE pode favoritar negócios.', 'ENTENDI');
       return;
     }
     if (!negocio?.id) {
@@ -399,7 +399,7 @@ export default function Vitrine({ user, userType }) {
       return;
     }
     if (userType !== 'client') {
-      alertKey('depoimento_only_client', 'Ação restrita', 'Apenas CLIENTE pode deixar depoimentos.', 'ENTENDI');
+      alertKey('depoimento_only_client', 'Acesso exclusivo', 'Apenas CLIENTE pode deixar depoimentos.', 'ENTENDI');
       return;
     }
     setDepoimentoNota(5);
