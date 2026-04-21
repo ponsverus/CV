@@ -84,8 +84,8 @@ export default function SelecionarNegocio({ user, onLogout }) {
         </div>
 
         <div className="text-center mb-10">
-          <h1 className="text-3xl font-normal mb-2 tracking-wide">Qual negocio?</h1>
-          <p className="text-gray-500 text-sm font-normal">Selecione o negocio que deseja gerenciar</p>
+          <h1 className="text-3xl font-normal mb-2 tracking-wide">QUAL NEGÓCIO</h1>
+          <p className="text-gray-500 text-sm font-normal">SELECIONE O NEGÓCIO QUE DESEJA GERENCIAR</p>
         </div>
 
         <div className="space-y-3 mb-6">
@@ -113,7 +113,7 @@ export default function SelecionarNegocio({ user, onLogout }) {
                     <div className="text-xs text-gray-500 uppercase mt-0.5">{neg.tipo_negocio}</div>
                   )}
                   {neg.endereco && (
-                    <div className="text-xs text-gray-600 truncate mt-0.5">{neg.endereco}</div>
+                    <div className="text-xs text-gray-600 uppercase mt-0.5">{neg.endereco}</div>
                   )}
                 </div>
                 <div className="text-gray-600 group-hover:text-primary transition-colors shrink-0">
