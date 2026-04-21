@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Check, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
-import agendarIcon from '../../../assets/icons/agendar.png';
 import selecionarIcon from '../../../assets/icons/selecionar.png';
 
 const ENTREGAS_POR_PAGINA = 4;
@@ -50,19 +49,6 @@ function EntregaButtons({
         disabled={agendarDesabilitado}
         className={`flex-1 py-2.5 rounded-button text-sm font-normal uppercase transition-all flex items-center justify-center gap-1.5 ${agendarClass}`}
       >
-        <img
-          src={agendarIcon}
-          alt=""
-          className={[
-            'w-3.5 h-3.5 object-contain',
-            agendarDesabilitado
-              ? 'opacity-40'
-              : isLight
-                ? 'brightness-0 invert opacity-90'
-                : 'brightness-0 opacity-90',
-          ].join(' ')}
-          aria-hidden="true"
-        />
         Agendar
       </button>
       <button
