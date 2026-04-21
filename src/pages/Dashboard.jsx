@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import agendamentosIcon from '../assets/icons/agendamentos.png';
-import usersIcon from '../assets/icons/users.png';
+import { AgendamentosIcon, UsersIcon } from '../components/icons';
 import {
   X, Eye,
   TrendingUp, Award, LogOut, AlertCircle,
@@ -536,7 +535,7 @@ export default function Dashboard({ user, onLogout }) {
           </DashboardTopCard>
 
           <DashboardTopCard
-            icon={<img src={agendamentosIcon} alt="" className="w-8 h-8 object-contain opacity-90" aria-hidden="true" />}
+            icon={<AgendamentosIcon className="w-8 h-8 text-blue-400" />}
             label="AGENDAMENTOS HOJE"
             value={metricsTopCardsLoading ? '...' : topCardsReady ? Number(topAgendamentos.total || 0) : '--'}
           >
@@ -546,7 +545,7 @@ export default function Dashboard({ user, onLogout }) {
           </DashboardTopCard>
 
           <DashboardTopCard
-            icon={<img src={usersIcon} alt="" className="w-8 h-8 object-contain opacity-90" aria-hidden="true" />}
+            icon={<UsersIcon className="w-8 h-8 text-purple-400" />}
             label="PROFISSIONAIS"
             value={metricsTopCardsLoading ? '...' : topCardsReady ? Number(topProfissionais.total || 0) : '--'}
           >
