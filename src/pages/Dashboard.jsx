@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import agendamentosIcon from '../assets/icons/agendamentos.png';
+import usersIcon from '../assets/icons/users.png';
 import {
-  X, Eye, Calendar,
-  Users, TrendingUp, Award, LogOut, AlertCircle,
+  X, Eye,
+  TrendingUp, Award, LogOut, AlertCircle,
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import { useFeedback } from '../feedback/useFeedback';
@@ -535,7 +536,7 @@ export default function Dashboard({ user, onLogout }) {
           </DashboardTopCard>
 
           <DashboardTopCard
-            icon={<img src={agendamentosIcon} alt="" className="w-8 h-8 object-contain brightness-0 invert opacity-90" aria-hidden="true" />}
+            icon={<img src={agendamentosIcon} alt="" className="w-8 h-8 object-contain opacity-90" aria-hidden="true" />}
             label="AGENDAMENTOS HOJE"
             value={metricsTopCardsLoading ? '...' : topCardsReady ? Number(topAgendamentos.total || 0) : '--'}
           >
@@ -545,7 +546,7 @@ export default function Dashboard({ user, onLogout }) {
           </DashboardTopCard>
 
           <DashboardTopCard
-            icon={<Users className="w-8 h-8 text-purple-400" />}
+            icon={<img src={usersIcon} alt="" className="w-8 h-8 object-contain opacity-90" aria-hidden="true" />}
             label="PROFISSIONAIS"
             value={metricsTopCardsLoading ? '...' : topCardsReady ? Number(topProfissionais.total || 0) : '--'}
           >
