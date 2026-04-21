@@ -4,7 +4,7 @@ import { compareAgendamentoDateTimeDesc, formatDateBRFromISO, getAgDate, getAgIn
 export default function CanceladosSection({ hojeCancelados }) {
   return (
     <div>
-      <h2 className="text-2xl font-normal mb-6">Cancelados Hoje</h2>
+      <h2 className="text-2xl font-normal mb-6">CANCELADOS HOJE</h2>
       {hojeCancelados.length > 0 ? (
         <div className="space-y-4">
           {hojeCancelados.slice().sort(compareAgendamentoDateTimeDesc).map(a => {
@@ -23,7 +23,7 @@ export default function CanceladosSection({ hojeCancelados }) {
             );
           })}
         </div>
-      ) : <p className="text-gray-500 text-center py-12">Nenhum cancelamento hoje.</p>}
+      ) : <p className="text-gray-500 text-center py-12">NADA AQUI :)</p>}
     </div>
   );
 }
