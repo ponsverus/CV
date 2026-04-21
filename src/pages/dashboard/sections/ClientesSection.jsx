@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, Users } from 'lucide-react';
+import { Users } from 'lucide-react';
 import { formatDateBRFromISO } from '../utils';
 import { getPublicUrl } from '../api/dashboardApi';
 
@@ -78,7 +78,7 @@ export default function ClientesSection({
                     onClick={() => onAgendarCliente(cliente)}
                     className="mt-auto w-full py-2 bg-primary/20 hover:bg-primary/30 border border-primary/50 text-primary rounded-button text-sm font-normal uppercase transition-all flex items-center justify-center gap-2"
                   >
-                    <Calendar className="w-4 h-4" />
+                    <Users className="w-4 h-4" />
                     AGENDAR CLIENTE
                   </button>
                 </div>
