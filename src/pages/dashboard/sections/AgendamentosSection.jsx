@@ -18,7 +18,7 @@ export default function AgendamentosSection({
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-normal">Agendamentos</h2>
+        <h2 className="text-2xl font-normal">AGENDAMENTOS</h2>
       </div>
       {agendamentosAgrupadosPorProfissional.length > 0 ? (
         <div className="space-y-8">
@@ -69,7 +69,7 @@ export default function AgendamentosSection({
             </div>
           ))}
         </div>
-      ) : <p className="text-gray-500 text-center py-12">Nenhum agendamento hoje ou futuro.</p>}
+      ) : <p className="text-gray-500 text-center py-12">NADA AQUI :(</p>}
     </div>
   );
 }
