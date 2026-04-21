@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Check, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
-import selecionarIcon from '../../../assets/icons/selecionar.png';
+import { SelecionarIcon } from '../../../components/icons';
 
 const ENTREGAS_POR_PAGINA = 4;
 
@@ -64,18 +64,11 @@ function EntregaButtons({
           </>
         ) : (
           <>
-            <img
-              src={selecionarIcon}
-              alt=""
+            <SelecionarIcon
               className={[
-                'w-3.5 h-3.5 object-contain',
-                selecionarDesabilitado
-                  ? 'opacity-40'
-                  : isLight
-                    ? 'opacity-80'
-                    : 'brightness-0 invert opacity-80',
+                'w-3.5 h-3.5',
+                selecionarDesabilitado ? 'opacity-40' : 'opacity-80',
               ].join(' ')}
-              aria-hidden="true"
             />
             Selecionar
           </>
