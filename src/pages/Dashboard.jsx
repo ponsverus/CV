@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import agendamentosIcon from '../assets/icons/agendamentos.png';
 import {
   X, Eye, Calendar,
   Users, TrendingUp, Award, LogOut, AlertCircle,
@@ -534,7 +535,7 @@ export default function Dashboard({ user, onLogout }) {
           </DashboardTopCard>
 
           <DashboardTopCard
-            icon={<Calendar className="w-8 h-8 text-blue-400" />}
+            icon={<img src={agendamentosIcon} alt="" className="w-8 h-8 object-contain brightness-0 invert opacity-90" aria-hidden="true" />}
             label="AGENDAMENTOS HOJE"
             value={metricsTopCardsLoading ? '...' : topCardsReady ? Number(topAgendamentos.total || 0) : '--'}
           >
