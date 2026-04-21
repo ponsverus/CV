@@ -1,27 +1,24 @@
 import React from 'react';
-import usersSvg from '../../assets/icons/users.svg';
 
 export default function UsersIcon({ className = '', title, style = {}, ...props }) {
   return (
-    <span
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
       className={className}
+      style={{ display: 'inline-block', ...style }}
       aria-hidden={title ? undefined : 'true'}
       role={title ? 'img' : 'presentation'}
-      title={title}
-      style={{
-        display: 'inline-block',
-        backgroundColor: 'currentColor',
-        maskImage: `url(${usersSvg})`,
-        WebkitMaskImage: `url(${usersSvg})`,
-        maskRepeat: 'no-repeat',
-        WebkitMaskRepeat: 'no-repeat',
-        maskPosition: 'center',
-        WebkitMaskPosition: 'center',
-        maskSize: 'contain',
-        WebkitMaskSize: 'contain',
-        ...style,
-      }}
       {...props}
-    />
+    >
+      {title && <title>{title}</title>}
+
+      <circle cx="17" cy="8" r="3.2" opacity="0.4" />
+      <ellipse cx="17" cy="17.5" rx="5" ry="3" opacity="0.4" />
+
+      <circle cx="10" cy="9" r="4" opacity="1" />
+      <ellipse cx="10" cy="19" rx="6.5" ry="3.2" opacity="1" />
+    </svg>
   );
 }
