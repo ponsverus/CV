@@ -1,5 +1,6 @@
 import React from 'react';
-import { ArrowLeft, MapPin, Phone } from 'lucide-react';
+import { ArrowLeft, Phone } from 'lucide-react';
+import enderecoIcon from '../../../assets/icons/endere.png';
 
 function FacebookIcon({ className = '', size = 16 }) {
   return (
@@ -104,7 +105,7 @@ export default function VitrineTopSection({ header, business, actions }) {
                 </div>
                 {business.negocio.endereco && (
                   <div className={`flex items-center gap-2 text-sm ${business.addrClass}`}>
-                    <MapPin className="w-4 h-4" strokeWidth={1.5} />
+                    <img src={enderecoIcon} alt="" className="w-4 h-4 object-contain" aria-hidden="true" />
                     <span className="font-normal">{business.negocio.endereco}</span>
                   </div>
                 )}
