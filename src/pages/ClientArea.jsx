@@ -679,7 +679,7 @@ export default function ClientArea({ user, onLogout }) {
                       value={nomePerfil}
                       onChange={(e) => setNomePerfil(e.target.value)}
                       className="w-full bg-transparent px-0 py-2 text-[14px] text-white placeholder-gray-600 outline-none focus:text-white"
-                      placeholder="Nome do perfil"
+                      placeholder="NOME COMPLETO"
                     />
                   </div>
                   <button
@@ -701,7 +701,7 @@ export default function ClientArea({ user, onLogout }) {
                       onChange={(e) => setNovoEmail(e.target.value)}
                       readOnly={!emailVisivel}
                       className="w-full bg-transparent px-0 py-2 text-[14px] text-white placeholder-gray-600 outline-none focus:text-white"
-                      placeholder="E-mail de acesso"
+                      placeholder="E-MAIL DE ACESSO"
                     />
                   </div>
                   {emailVisivel ? (
