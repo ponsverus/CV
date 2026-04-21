@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArrowLeft, Phone } from 'lucide-react';
-import enderecoIcon from '../../../assets/icons/endere.png';
+import { EnderecoIcon, NegocioVerificadoIcon } from '../../../components/icons';
 
 function FacebookIcon({ className = '', size = 16 }) {
   return (
@@ -95,7 +95,7 @@ export default function VitrineTopSection({ header, business, actions }) {
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-3">
                 <h1 className="text-3xl sm:text-4xl md:text-5xl font-normal">{business.negocio.nome}</h1>
-                <img src={business.negocioVerificadoIcon} alt="Negócio verificado" className="w-6 h-6 sm:w-7 sm:h-7 shrink-0" />
+                <NegocioVerificadoIcon title="Negócio verificado" className="w-6 h-6 sm:w-7 sm:h-7 shrink-0 text-vprimary" />
               </div>
               <p className="text-base sm:text-lg text-vsub mb-4 font-normal">{business.negocio.descricao}</p>
               <div className="flex flex-wrap items-center gap-4 sm:gap-6">
@@ -105,15 +105,7 @@ export default function VitrineTopSection({ header, business, actions }) {
                 </div>
                 {business.negocio.endereco && (
                   <div className={`flex items-center gap-2 text-sm ${business.addrClass}`}>
-                    <img
-                      src={enderecoIcon}
-                      alt=""
-                      className={[
-                        'w-4 h-4 object-contain',
-                        business.isLight ? 'opacity-80' : 'brightness-0 invert opacity-80',
-                      ].join(' ')}
-                      aria-hidden="true"
-                    />
+                    <EnderecoIcon className="w-4 h-4 opacity-80" />
                     <span className="font-normal">{business.negocio.endereco}</span>
                   </div>
                 )}
