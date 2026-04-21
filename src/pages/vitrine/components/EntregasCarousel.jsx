@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Check, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
-import agendarIcon from '../../../assets/icons/agendamentos.png';
+import agendarIcon from '../../../assets/icons/agendar.png';
 import selecionarIcon from '../../../assets/icons/selecionar.png';
 
 const ENTREGAS_POR_PAGINA = 4;
