@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AlertCircle, Calendar, ChevronRight, X } from 'lucide-react';
+import { AlertCircle, ChevronRight, X } from 'lucide-react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import BookingCalendar from '../components/BookingCalendar';
+import selecionarIcon from '../assets/icons/selecionar.png';
 import negocioVerificadoIcon from '../assets/icons/negocio-verificado.png';
 import { ptBR } from '../feedback/messages/ptBR';
 import { getBusinessGroup } from '../businessTerms';
@@ -239,7 +240,15 @@ function SelectionBar({ itens, counterSingular, counterPlural, onConfirm, onClea
           <button type="button" onClick={onClear} className={`shrink-0 ml-1 ${clearBtn}`} title="Limpar"><X className="w-4 h-4" /></button>
         </div>
         <button type="button" onClick={onConfirm} className="shrink-0 flex items-center gap-2 px-5 py-2.5 bg-vprimary text-vprimary-text rounded-full text-sm font-normal uppercase whitespace-nowrap transition-opacity hover:opacity-80">
-          <Calendar className="w-4 h-4" />
+          <img
+            src={selecionarIcon}
+            alt=""
+            className={[
+              'w-4 h-4 object-contain',
+              isLight ? 'opacity-90' : 'brightness-0 opacity-90',
+            ].join(' ')}
+            aria-hidden="true"
+          />
           Escolher data
           <ChevronRight className="w-4 h-4" />
         </button>
@@ -516,6 +525,7 @@ export default function Vitrine({ user, userType }) {
           logoUrl,
           negocioVerificadoIcon,
           mediaDepoimentos,
+          isLight,
           mediaColor: styles.mediaColor,
           addrClass: styles.addrClass,
           telClass: styles.telClass,
