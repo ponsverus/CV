@@ -174,7 +174,7 @@ export default function InfoNegocioSection({
           value={formInfo.nome}
           onChange={(e) => setFormInfo((prev) => ({ ...prev, nome: e.target.value }))}
           className={`${inputClass} truncate pr-10 sm:pr-0`}
-          placeholder="Nome publico do negocio"
+          placeholder="NOME DO NEGÓCIO"
         />
       </InfoRow>
 
@@ -183,7 +183,7 @@ export default function InfoNegocioSection({
           value={formInfo.telefone}
           onChange={(e) => setFormInfo((prev) => ({ ...prev, telefone: e.target.value }))}
           className={inputClass}
-          placeholder="Telefone de contato"
+          placeholder="CONTATO"
         />
       </InfoRow>
 
@@ -192,7 +192,7 @@ export default function InfoNegocioSection({
           value={formInfo.endereco}
           onChange={(e) => setFormInfo((prev) => ({ ...prev, endereco: e.target.value }))}
           className={`${inputClass} max-w-[calc(100vw-13.75rem)] truncate pr-4 sm:max-w-none sm:pr-0`}
-          placeholder="Rua, número - cidade, estado"
+          placeholder="RUA, NÚMERO - CIDADE, ESTADO"
         />
       </InfoRow>
 
@@ -206,7 +206,7 @@ export default function InfoNegocioSection({
           onChange={(e) => setFormInfo((prev) => ({ ...prev, descricao: e.target.value }))}
           rows={4}
           className="max-h-32 w-full resize-none overflow-y-auto bg-transparent py-2 pl-0 pr-6 text-[14px] font-normal leading-5 text-white outline-none [scrollbar-width:none] placeholder-gray-600 focus:text-white sm:pr-0 [&::-webkit-scrollbar]:hidden"
-          placeholder="Conte sobre seu negocio, atendimento e diferenciais"
+          placeholder="Conte sobre seu negócio, atendimento e diferenciais"
         />
       </div>
 
