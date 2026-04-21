@@ -1,5 +1,5 @@
 import React from 'react';
-import usersIcon from '../../../assets/icons/users.png';
+import { UsersIcon } from '../../../components/icons';
 import { formatDateBRFromISO } from '../utils';
 import { getPublicUrl } from '../api/dashboardApi';
 
@@ -78,7 +78,7 @@ export default function ClientesSection({
                     onClick={() => onAgendarCliente(cliente)}
                     className="mt-auto w-full py-2 bg-primary/20 hover:bg-primary/30 border border-primary/50 text-primary rounded-button text-sm font-normal uppercase transition-all flex items-center justify-center gap-2"
                   >
-                    <img src={usersIcon} alt="" className="w-4 h-4 object-contain opacity-90" aria-hidden="true" />
+                    <UsersIcon className="w-4 h-4" />
                     AGENDAR CLIENTE
                   </button>
                 </div>
@@ -99,7 +99,7 @@ export default function ClientesSection({
         </>
       ) : (
         <div className="text-center py-12">
-          <img src={usersIcon} alt="" className="w-16 h-16 mx-auto mb-4 object-contain opacity-40" aria-hidden="true" />
+          <UsersIcon className="w-16 h-16 mx-auto mb-4 text-gray-500 opacity-40" />
           <p className="text-gray-500">Nenhum cliente encontrado.</p>
         </div>
       )}
