@@ -58,7 +58,7 @@ function EntregaButtons({
             agendarDesabilitado
               ? 'opacity-40'
               : isLight
-                ? 'opacity-90'
+                ? 'brightness-0 invert opacity-90'
                 : 'brightness-0 opacity-90',
           ].join(' ')}
           aria-hidden="true"
