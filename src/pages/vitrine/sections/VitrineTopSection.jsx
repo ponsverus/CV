@@ -105,7 +105,15 @@ export default function VitrineTopSection({ header, business, actions }) {
                 </div>
                 {business.negocio.endereco && (
                   <div className={`flex items-center gap-2 text-sm ${business.addrClass}`}>
-                    <img src={enderecoIcon} alt="" className="w-4 h-4 object-contain" aria-hidden="true" />
+                    <img
+                      src={enderecoIcon}
+                      alt=""
+                      className={[
+                        'w-4 h-4 object-contain',
+                        business.isLight ? 'opacity-80' : 'brightness-0 invert opacity-80',
+                      ].join(' ')}
+                      aria-hidden="true"
+                    />
                     <span className="font-normal">{business.negocio.endereco}</span>
                   </div>
                 )}
