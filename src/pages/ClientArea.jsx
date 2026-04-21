@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import agendamentosIcon from '../assets/icons/agendamentos.png';
 import { Calendar, History, LogOut, X } from 'lucide-react';
+import { AgendamentosIcon } from '../components/icons';
 import { supabase } from '../supabase';
 import { useFeedback } from '../feedback/useFeedback';
 import { convertImageToWebp, isImageFile } from '../utils/media';
@@ -562,7 +562,7 @@ export default function ClientArea({ user, onLogout }) {
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8 items-start">
           <Link to="/" className="bg-gradient-to-r from-primary to-yellow-600 rounded-custom p-6 hover:shadow-lg hover:shadow-primary/50 transition-all">
-            <img src={agendamentosIcon} alt="" className="w-8 h-8 object-contain brightness-0 mb-3" aria-hidden="true" />
+            <AgendamentosIcon className="w-8 h-8 text-black mb-3" />
             <h3 className="text-lg font-normal text-black mb-1">NOVO AGENDAMENTO</h3>
           </Link>
           <button onClick={() => setActiveTab('favoritos')} className="bg-dark-100 border border-gray-800 rounded-custom p-6 hover:border-primary/50 transition-all text-left">
@@ -602,7 +602,7 @@ export default function ClientArea({ user, onLogout }) {
                   </>
                 ) : (
                   <div className="text-center py-12">
-                    <img src={agendamentosIcon} alt="" className="w-16 h-16 mx-auto mb-4 object-contain opacity-40" aria-hidden="true" />
+                    <AgendamentosIcon className="w-16 h-16 mx-auto mb-4 text-gray-500 opacity-40" />
                     <Link to="/" className="inline-block px-6 py-3 bg-gradient-to-r from-primary to-yellow-600 text-black rounded-button hover:shadow-lg transition-all">
                       AGENDAR
                     </Link>
