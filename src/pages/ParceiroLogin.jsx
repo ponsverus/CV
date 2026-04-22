@@ -101,26 +101,27 @@ export default function ParceiroLogin({ onLogin, suppressAuthRef, inRecovery: in
       const uid = signInData?.user?.id;
       if (!uid) throw new Error(msgs.auth_error.body);
 
-      const { data: prof, error: profErr } = await supabase
-        .from('profissionais')
-        .select('id, status, negocio_id')
-        .eq('negocio_id', negocio.id)
-        .eq('user_id', uid)
-        .maybeSingle();
+      const { data: partnerContext, error: partnerErr } = await supabase.rpc('get_partner_login_context', {
+        p_slug: slugClean,
+      });
 
-      if (profErr) throw profErr;
+      if (partnerErr) throw partnerErr;
 
-      if (!prof) {
+      if (partnerContext?.status === 'not_partner') {
         await supabase.auth.signOut();
         return setAlerta(msgs.not_partner);
       }
-      if (prof.status === 'pendente') {
+      if (partnerContext?.status === 'pending_approval') {
         await supabase.auth.signOut();
         return setAlerta(msgs.pending_approval);
       }
-      if (prof.status === 'inativo') {
+      if (partnerContext?.status === 'access_inactive') {
         await supabase.auth.signOut();
         return setAlerta(msgs.access_inactive);
+      }
+      if (partnerContext?.status !== 'ok') {
+        await supabase.auth.signOut();
+        return setAlerta(msgs.not_partner);
       }
 
       if (suppressAuthRef) suppressAuthRef.current = false;
