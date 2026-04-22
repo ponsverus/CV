@@ -25,9 +25,10 @@ export async function fetchUserAccessProfile(userId) {
   try {
     const { data, error } = await supabase.rpc('get_user_access_profile');
     if (!error && data && isValidType(data.type)) {
+      const onboardingStatus = data.onboardingStatus ?? data.onboarding_status;
       return {
         type: data.type,
-        onboardingStatus: normalizeOnboardingStatus(data.type, data.onboardingStatus),
+        onboardingStatus: normalizeOnboardingStatus(data.type, onboardingStatus),
         accessState: data.accessState || 'active',
       };
     }
