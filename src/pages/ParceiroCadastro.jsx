@@ -92,28 +92,28 @@ export default function ParceiroCadastro({ suppressAuthRef }) {
       const uid = signUpData?.user?.id;
       if (!uid) throw new Error(msgs.account_create_error.body);
 
+      let userReady = false;
       for (let i = 0; i < 6; i++) {
         const { data } = await supabase.from('users').select('id').eq('id', uid).maybeSingle();
         if (data?.id) {
-          await supabase.from('users').update({ nome: nomeClean }).eq('id', uid);
+          userReady = true;
           break;
         }
         await sleep(400);
       }
 
-      const { error: profErr } = await supabase.from('profissionais').insert({
-        negocio_id: signupStatus.negocio_id,
-        user_id: uid,
-        nome: nomeClean,
-        status: 'pendente',
-        horario_inicio: '08:00',
-        horario_fim: '18:00',
-        dias_trabalho: [1, 2, 3, 4, 5, 6],
+      if (!userReady) {
+        await supabase.auth.signOut();
+        throw new Error(msgs.account_create_error.body);
+      }
+
+      const { error: profErr } = await supabase.rpc('solicitar_acesso_parceiro', {
+        p_negocio_id: signupStatus.negocio_id,
+        p_nome: nomeClean,
       });
 
       if (profErr) {
         await supabase.auth.signOut();
-
         throw profErr;
       }
 
