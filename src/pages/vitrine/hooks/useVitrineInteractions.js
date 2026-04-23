@@ -10,10 +10,8 @@ export function useVitrineInteractions({
   user,
   userType,
   negocioId,
-  depoimentoTipo,
   depoimentoNota,
   depoimentoTexto,
-  depoimentoProfissionalId,
   refreshDepoimentos,
 }) {
   const [isFavorito, setIsFavorito] = useState(false);
@@ -58,11 +56,11 @@ export function useVitrineInteractions({
     try {
       const payload = {
         cliente_id: user.id,
-        tipo: depoimentoTipo,
+        tipo: 'negocio',
         nota: depoimentoNota,
         comentario: depoimentoTexto || null,
-        negocio_id: depoimentoTipo === 'negocio' ? negocioId : null,
-        profissional_id: depoimentoTipo === 'profissional' ? depoimentoProfissionalId : null,
+        negocio_id: negocioId,
+        profissional_id: null,
       };
       await createDepoimento(payload);
       await refreshDepoimentos(negocioId);
@@ -72,9 +70,7 @@ export function useVitrineInteractions({
     }
   }, [
     depoimentoNota,
-    depoimentoProfissionalId,
     depoimentoTexto,
-    depoimentoTipo,
     negocioId,
     refreshDepoimentos,
     user,
