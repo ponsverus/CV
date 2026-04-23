@@ -27,7 +27,7 @@ export default function BookingConfirmedModal({
           </p>
           {!assistedBooking && (
             <div className={`rounded-custom border p-4 text-left mb-6 ${styles.box}`}>
-              <p className={`font-normal text-sm uppercase mb-3 ${styles.sub}`}>Crie um lembrete no seu celular para assegurar o compromisso.</p>
+              <p className={`font-normal text-sm mb-3 ${styles.sub}`}>Crie um lembrete no seu celular para assegurar o compromisso.</p>
               <p className={`font-normal text-xs uppercase mb-4 ${styles.hint}`}>{calendarActionConfig.hint}</p>
               <button type="button" onClick={calendarActionConfig.primaryAction} className={`w-full py-4 rounded-button uppercase font-normal transition-colors ${styles.actionBtn}`}>
                 {calendarActionConfig.primaryLabel}
