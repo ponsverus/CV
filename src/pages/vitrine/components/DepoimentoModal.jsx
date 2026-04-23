@@ -24,8 +24,10 @@ export default function DepoimentoModal({
   contextSummary = null,
   submitLabel = 'ENVIAR DEPOIMENTO',
   compactMode = false,
+  showSectionTitles = null,
 }) {
   if (!open) return null;
+  const shouldShowSectionTitles = showSectionTitles ?? !compactMode;
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -82,7 +84,7 @@ export default function DepoimentoModal({
             </div>
           )}
           <div className="mb-4">
-            {!compactMode && <div className={`text-sm font-normal mb-2 ${styles.modalLabel}`}>Nota</div>}
+            {shouldShowSectionTitles && <div className={`text-sm font-normal mb-2 ${styles.modalLabel}`}>Nota</div>}
             <div className="flex items-center gap-1">
               {[1, 2, 3, 4, 5].map((n) => (
                 <button
@@ -99,7 +101,7 @@ export default function DepoimentoModal({
             </div>
           </div>
           <div className="mb-5">
-            {!compactMode && <div className={`text-sm font-normal mb-2 ${styles.modalLabel}`}>Comentário é opcional</div>}
+            {shouldShowSectionTitles && <div className={`text-sm font-normal mb-2 ${styles.modalLabel}`}>Comentário é opcional</div>}
             <textarea
               value={state.texto}
               onChange={(e) => actions.setTexto(e.target.value)}
