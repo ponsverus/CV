@@ -172,11 +172,13 @@ export default function BookingCalendar({
 
       if (error) throw error;
 
-      const resultado = Array.isArray(data) ? data[data.length - 1] : data?.[0];
+      const rows = Array.isArray(data) ? data : (data ? [data] : []);
+      const primeiroResultado = rows[0];
+      const ultimoResultado = rows[rows.length - 1];
 
       onConfirm?.({
-        inicio:  resultado?.inicio ?? selectedSlot.hora,
-        fim:     resultado?.fim ?? null,
+        inicio:  primeiroResultado?.inicio ?? selectedSlot.hora,
+        fim:     ultimoResultado?.fim ?? null,
         label:   selectedSlot.hora,
         dataISO: selectedDay,
       });
