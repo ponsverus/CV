@@ -64,11 +64,11 @@ export default function DepoimentosPaginados({ depoimentos, nomeNegocioLabel, is
           <div key={dep.id} className="bg-vcard border border-vborder rounded-custom p-4 relative self-start">
             <div className="absolute top-3 right-3">
               {dep.profissional_id && dep.profissionais?.nome ? (
-                <span className="inline-block px-1.5 py-0.5 bg-vprimary/10 border border-vprimary/30 rounded-button text-[10px] text-vprimary font-normal uppercase">
+                <span className="inline-flex items-center justify-center min-h-5 px-1.5 py-0.5 bg-vprimary/10 border border-vprimary/30 rounded-button text-[10px] leading-none text-vprimary font-normal uppercase">
                   {dep.profissionais.nome}
                 </span>
               ) : (
-                <span className="inline-block px-1.5 py-0.5 bg-blue-500/20 border border-blue-500/30 rounded-button text-[10px] text-blue-500 font-normal uppercase">
+                <span className="inline-flex items-center justify-center min-h-5 px-1.5 py-0.5 bg-blue-500/20 border border-blue-500/30 rounded-button text-[10px] leading-none text-blue-500 font-normal uppercase">
                   {nomeNegocioLabel}
                 </span>
               )}
