@@ -37,12 +37,7 @@ export default function DepoimentosPaginados({ depoimentos, nomeNegocioLabel, is
   const navBtnCl = isLight ? 'hover:bg-vcard2 text-vmuted hover:text-vtext' : 'hover:bg-vcard2 text-vsub hover:text-vtext';
   const dotInact = isLight ? 'bg-vborder hover:bg-vsub/40' : 'bg-gray-700 hover:bg-gray-500';
   const comentCl = isLight ? 'text-vsub' : 'text-vsub';
-  const serviceTagCl = isLight
-    ? 'bg-vcard2 border-vborder text-vtext'
-    : 'bg-dark-200 border-gray-700 text-gray-200';
-  const dateTagCl = isLight
-    ? 'bg-vprimary/10 border-vprimary/20 text-vsub'
-    : 'bg-primary/10 border-primary/20 text-primary';
+  const metaInfoCl = isLight ? 'text-vmuted' : 'text-gray-500';
   const touchStartRef = useRef(null);
 
   useEffect(() => {
@@ -103,15 +98,12 @@ export default function DepoimentosPaginados({ depoimentos, nomeNegocioLabel, is
               </div>
             </div>
             {(dep.entrega_nome || dep.agendamento_data || dep.created_at) && (
-              <div className="flex flex-wrap gap-2 mb-3">
-                {dep.entrega_nome && (
-                  <span className={`inline-flex px-2 py-1 rounded-button border text-[10px] uppercase font-normal ${serviceTagCl}`}>
-                    {dep.entrega_nome}
-                  </span>
+              <div className={`flex flex-wrap items-center gap-2 mb-3 text-[11px] uppercase font-normal ${metaInfoCl}`}>
+                {dep.entrega_nome && <span>{dep.entrega_nome}</span>}
+                {(dep.entrega_nome && (dep.agendamento_data || dep.created_at)) && (
+                  <span aria-hidden="true" className="text-[10px] leading-none">●</span>
                 )}
-                <span className={`inline-flex px-2 py-1 rounded-button border text-[10px] uppercase font-normal ${dateTagCl}`}>
-                  {formatTagDate(dep.agendamento_data || dep.created_at)}
-                </span>
+                <span>{formatTagDate(dep.agendamento_data || dep.created_at)}</span>
               </div>
             )}
             {dep.comentario && <p className={`text-sm font-normal ${comentCl}`}>{dep.comentario}</p>}
