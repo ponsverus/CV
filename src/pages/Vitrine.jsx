@@ -295,8 +295,6 @@ export default function Vitrine({ user, userType }) {
   const [showDepoimento, setShowDepoimento] = useState(false);
   const [depoimentoNota, setDepoimentoNota] = useState(5);
   const [depoimentoTexto, setDepoimentoTexto] = useState('');
-  const [depoimentoTipo, setDepoimentoTipo] = useState('negocio');
-  const [depoimentoProfissionalId, setDepoimentoProfissionalId] = useState(null);
 
   const closeAlert = () => setNativeAlertOpen(false);
 
@@ -356,10 +354,8 @@ export default function Vitrine({ user, userType }) {
     user,
     userType,
     negocioId: negocio?.id,
-    depoimentoTipo,
     depoimentoNota,
     depoimentoTexto,
-    depoimentoProfissionalId,
     refreshDepoimentos,
   });
 
@@ -410,8 +406,6 @@ export default function Vitrine({ user, userType }) {
     }
     setDepoimentoNota(5);
     setDepoimentoTexto('');
-    setDepoimentoTipo('negocio');
-    setDepoimentoProfissionalId(null);
     setShowDepoimento(true);
   };
 
@@ -617,34 +611,19 @@ export default function Vitrine({ user, userType }) {
           modalTitle: styles.depoModalTitle,
           modalClose: styles.depoModalClose,
           modalLabel: styles.depoModalLabel,
-          negocioBtn: styles.depoNegBtn,
-          profissionalBtn: styles.depoProfBtn,
-          profissionalItem: styles.depoProfItem,
-          notaBtn: styles.depoNotaBtn,
           textarea: styles.depoTextarea,
           sendBtn: styles.depoSendBtn,
-          hintClass: styles.depoHintCl,
         }}
         state={{
-          tipo: depoimentoTipo,
           nota: depoimentoNota,
-          profissionalId: depoimentoProfissionalId,
           texto: depoimentoTexto,
           loading: depoimentoLoading,
         }}
         actions={{
-          setTipo: (tipo) => {
-            setDepoimentoTipo(tipo);
-            if (tipo === 'negocio') setDepoimentoProfissionalId(null);
-          },
-          setProfissionalId: setDepoimentoProfissionalId,
           setNota: setDepoimentoNota,
           setTexto: setDepoimentoTexto,
           onEnviar: enviarDepoimento,
         }}
-        nomeNegocioLabel={nomeNegocioLabel}
-        profissionais={profissionais}
-        showProfessionalOption={false}
       />
     </div>
   );
