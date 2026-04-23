@@ -421,10 +421,16 @@ export function useDashboardMutations({
       return;
     }
     try {
-      const { error } = await supabase.rpc('aprovar_parceiro_profissional', {
-        p_profissional_id: prof.id,
-        p_negocio_id: negocio.id,
-      });
+      const { error } = await supabase
+        .from('profissionais')
+        .update({
+          status: 'ativo',
+          motivo_inativo: null,
+          inativado_em: null,
+          inativado_por: null,
+        })
+        .eq('id', prof.id)
+        .eq('negocio_id', negocio.id);
       if (error) throw error;
       await uiAlert('dashboard.professional_approved', 'success');
       await reloadProfissionais();
