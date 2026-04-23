@@ -3,6 +3,14 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const DEPOIMENTOS_POR_PAGINA = 10;
 
+function formatTagDate(value) {
+  if (!value) return '';
+  const source = String(value).slice(0, 10);
+  const [y, m, d] = source.split('-');
+  if (!y || !m || !d) return source;
+  return `${d}.${m}.${y}`;
+}
+
 function Stars5Char({ value = 0, size = 14 }) {
   const v = Math.max(0, Math.min(5, Number(value || 0)));
   return (
@@ -29,6 +37,12 @@ export default function DepoimentosPaginados({ depoimentos, nomeNegocioLabel, is
   const navBtnCl = isLight ? 'hover:bg-vcard2 text-vmuted hover:text-vtext' : 'hover:bg-vcard2 text-vsub hover:text-vtext';
   const dotInact = isLight ? 'bg-vborder hover:bg-vsub/40' : 'bg-gray-700 hover:bg-gray-500';
   const comentCl = isLight ? 'text-vsub' : 'text-vsub';
+  const serviceTagCl = isLight
+    ? 'bg-vcard2 border-vborder text-vtext'
+    : 'bg-dark-200 border-gray-700 text-gray-200';
+  const dateTagCl = isLight
+    ? 'bg-vprimary/10 border-vprimary/20 text-vsub'
+    : 'bg-primary/10 border-primary/20 text-primary';
   const touchStartRef = useRef(null);
 
   useEffect(() => {
@@ -88,6 +102,18 @@ export default function DepoimentosPaginados({ depoimentos, nomeNegocioLabel, is
                 <Stars5Char value={dep.nota} size={14} />
               </div>
             </div>
+            {(dep.entrega_nome || dep.agendamento_data || dep.created_at) && (
+              <div className="flex flex-wrap gap-2 mb-3">
+                {dep.entrega_nome && (
+                  <span className={`inline-flex px-2 py-1 rounded-button border text-[10px] uppercase font-normal ${serviceTagCl}`}>
+                    {dep.entrega_nome}
+                  </span>
+                )}
+                <span className={`inline-flex px-2 py-1 rounded-button border text-[10px] uppercase font-normal ${dateTagCl}`}>
+                  {formatTagDate(dep.agendamento_data || dep.created_at)}
+                </span>
+              </div>
+            )}
             {dep.comentario && <p className={`text-sm font-normal ${comentCl}`}>{dep.comentario}</p>}
           </div>
         ))}
