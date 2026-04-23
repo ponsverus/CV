@@ -4,7 +4,10 @@ import { Calendar, History, LogOut, X } from 'lucide-react';
 import { AgendamentosIcon } from '../components/icons';
 import { supabase } from '../supabase';
 import { useFeedback } from '../feedback/useFeedback';
+import { ptBR } from '../feedback/messages/ptBR';
 import { convertImageToWebp, isImageFile } from '../utils/media';
+import DepoimentoModal from './vitrine/components/DepoimentoModal';
+import { createBookingReview, fetchReviewedBookings } from './clientArea/api/clientAreaApi';
 
 function formatDateBRFromISO(dateStr) {
   if (!dateStr) return '';
@@ -105,6 +108,12 @@ export default function ClientArea({ user, onLogout }) {
   const [emailVisivel,   setEmailVisivel]   = useState(false);
 
   const [loadError, setLoadError] = useState('');
+  const [avaliacoesPorAgendamento, setAvaliacoesPorAgendamento] = useState({});
+  const [depoimentoModalOpen, setDepoimentoModalOpen] = useState(false);
+  const [depoimentoLoading, setDepoimentoLoading] = useState(false);
+  const [depoimentoAlvo, setDepoimentoAlvo] = useState(null);
+  const [depoimentoNota, setDepoimentoNota] = useState(5);
+  const [depoimentoTexto, setDepoimentoTexto] = useState('');
 
   useEffect(() => { setNovoEmail(user?.email || ''); }, [user?.email]);
 
@@ -156,6 +165,26 @@ export default function ClientArea({ user, onLogout }) {
     }));
   }, [user.id]);
 
+  const syncAvaliacoesConcluidas = useCallback(async (agendamentosRows) => {
+    const concluidosIds = (agendamentosRows || [])
+      .filter((item) => String(item?.status || '') === 'concluido')
+      .map((item) => item?.id)
+      .filter(Boolean);
+
+    if (!concluidosIds.length) {
+      setAvaliacoesPorAgendamento({});
+      return;
+    }
+
+    const reviews = await fetchReviewedBookings(concluidosIds);
+    const nextMap = {};
+    for (const review of reviews) {
+      if (!review?.agendamento_id) continue;
+      nextMap[review.agendamento_id] = review.id;
+    }
+    setAvaliacoesPorAgendamento(nextMap);
+  }, []);
+
   const loadPerfil = useCallback(async () => {
     const { data, error } = await supabase
       .from('users')
@@ -180,6 +209,7 @@ export default function ClientArea({ user, onLogout }) {
       setAvatarPath(perfil.avatarPath);
       setAgendamentos(ags);
       setFavoritos(favs);
+      await syncAvaliacoesConcluidas(ags);
       setAgendamentosPage(0);
       setFavoritosPage(0);
       setAgendamentosHasMore(ags.length === PAGE_SIZE);
@@ -192,11 +222,12 @@ export default function ClientArea({ user, onLogout }) {
       setFavoritosPage(0);
       setAgendamentosHasMore(false);
       setFavoritosHasMore(false);
+      setAvaliacoesPorAgendamento({});
       uiAlert('alerts.action_failed_support', 'warning');
     } finally {
       setLoading(false);
     }
-  }, [user?.id, loadPerfil, fetchAgendamentos, fetchFavoritos, uiAlert]);
+  }, [user?.id, loadPerfil, fetchAgendamentos, fetchFavoritos, syncAvaliacoesConcluidas, uiAlert]);
 
   useEffect(() => {
     if (user?.id) loadData();
@@ -220,13 +251,14 @@ export default function ClientArea({ user, onLogout }) {
             const limit = (agendamentosPageRef.current + 1) * PAGE_SIZE;
             const ags = await fetchAgendamentosRef.current({ limit });
             setAgendamentos(ags);
+            await syncAvaliacoesConcluidas(ags);
             setAgendamentosHasMore(ags.length === limit);
           } catch { }
         }
       )
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [user?.id]);
+  }, [syncAvaliacoesConcluidas, user?.id]);
 
   const openFilePicker = () => fileInputRef.current?.click();
 
@@ -324,6 +356,7 @@ export default function ClientArea({ user, onLogout }) {
       const limit = (agendamentosPage + 1) * PAGE_SIZE;
       const ags = await fetchAgendamentos({ limit });
       setAgendamentos(ags);
+      await syncAvaliacoesConcluidas(ags);
       setAgendamentosHasMore(ags.length === limit);
     } catch {
       uiAlert('clientArea.booking_cancel_error', 'error');
@@ -346,6 +379,45 @@ export default function ClientArea({ user, onLogout }) {
         },
       },
     });
+  };
+
+  const abrirDepoimento = (agendamento) => {
+    setDepoimentoAlvo(agendamento);
+    setDepoimentoNota(5);
+    setDepoimentoTexto('');
+    setDepoimentoModalOpen(true);
+  };
+
+  const enviarDepoimentoAgendamento = async () => {
+    if (!depoimentoAlvo?.id) return;
+    try {
+      setDepoimentoLoading(true);
+      await createBookingReview({
+        agendamentoId: depoimentoAlvo.id,
+        nota: depoimentoNota,
+        comentario: depoimentoTexto,
+      });
+      setAvaliacoesPorAgendamento((prev) => ({
+        ...prev,
+        [depoimentoAlvo.id]: true,
+      }));
+      setDepoimentoModalOpen(false);
+      feedback.showCustom({
+        ...ptBR.depoimento_sent,
+        variant: 'success',
+      });
+    } catch (e) {
+      const title = ptBR.depoimento_send_error_title || 'Erro ao enviar depoimento';
+      const bodyBase = ptBR.depoimento_send_error_body || 'Erro ao enviar seu depoimento:';
+      feedback.showCustom({
+        title,
+        body: `${bodyBase} ${e?.message || ''}`,
+        variant: 'danger',
+        buttonText: 'OK',
+      });
+    } finally {
+      setDepoimentoLoading(false);
+    }
   };
 
   const removerFavorito = async (favoritoId) => {
@@ -374,7 +446,9 @@ export default function ClientArea({ user, onLogout }) {
       setAgendamentosLoadingMore(true);
       const nextPage = agendamentosPage + 1;
       const rows = await fetchAgendamentos({ page: nextPage });
-      setAgendamentos(prev => mergeById(prev, rows));
+      const merged = mergeById(agendamentos, rows);
+      setAgendamentos(merged);
+      await syncAvaliacoesConcluidas(merged);
       setAgendamentosPage(nextPage);
       setAgendamentosHasMore(rows.length === PAGE_SIZE);
     } catch {
@@ -443,6 +517,32 @@ export default function ClientArea({ user, onLogout }) {
   const avatarUrl      = getPublicUrl('avatars', avatarPath);
   const nomeCabecalho  = String(nomePerfil || user?.user_metadata?.nome || '—').trim();
   const avatarFallback = nomeCabecalho?.[0]?.toUpperCase() || '?';
+  const depoimentoModalStyles = {
+    modalBg: 'bg-dark-100 border-gray-800',
+    modalTitle: 'text-white',
+    modalClose: 'text-gray-400 hover:text-white',
+    modalLabel: 'text-gray-400',
+    summaryBox: 'bg-dark-200 border-gray-800',
+    summaryTitle: 'text-white',
+    summaryLabel: 'text-gray-500',
+    summaryValue: 'text-white',
+    negocioBtn: () => 'bg-dark-200 border-gray-800 text-gray-400',
+    profissionalBtn: () => 'bg-primary/20 border-primary/50 text-primary',
+    profissionalItem: () => 'bg-dark-200 border-gray-800 text-gray-400',
+    notaBtn: () => 'bg-dark-200 border-gray-800 text-gray-500',
+    textarea: 'bg-dark-200 border-gray-800 text-white placeholder-gray-500 focus:border-primary',
+    sendBtn: 'bg-gradient-to-r from-primary to-yellow-600 text-black',
+    hintClass: 'text-gray-500',
+  };
+  const depoimentoResumo = depoimentoAlvo ? {
+    title: depoimentoAlvo.profissionais?.negocios?.nome || 'Avaliação',
+    rows: [
+      { label: 'PROFISSIONAL', value: depoimentoAlvo.profissionais?.nome || '—' },
+      { label: 'SERVIÇO', value: depoimentoAlvo.entregas?.nome || '—' },
+      { label: 'DATA', value: formatDateBRFromISO(depoimentoAlvo.data) },
+      { label: 'HORÁRIO', value: depoimentoAlvo.hora_inicio || '—' },
+    ],
+  } : null;
 
   const renderSecaoAgendamentos = (titulo, lista) => {
     if (!lista.length) return null;
@@ -459,6 +559,9 @@ export default function ClientArea({ user, onLogout }) {
               !!ag.negocio_slug &&
               !!ag.profissional_id &&
               !!ag.entrega_id;
+            const podeAvaliar =
+              String(ag.status || '') === 'concluido' &&
+              !avaliacoesPorAgendamento[ag.id];
             return (
             <div key={ag.id} className="bg-dark-200 border border-gray-800 rounded-custom p-4 sm:p-5">
               <div className="flex items-start justify-between gap-4 mb-4">
@@ -500,6 +603,14 @@ export default function ClientArea({ user, onLogout }) {
                     className="w-full py-2 bg-primary/20 hover:bg-primary/30 border border-primary/50 text-primary rounded-button text-sm transition-all uppercase"
                   >
                     AGENDAR NOVAMENTE
+                  </button>
+                )}
+                {podeAvaliar && (
+                  <button
+                    onClick={() => abrirDepoimento(ag)}
+                    className="w-full py-2 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/50 text-blue-400 rounded-button text-sm transition-all uppercase"
+                  >
+                    AVALIAR
                   </button>
                 )}
               </div>
@@ -761,6 +872,31 @@ export default function ClientArea({ user, onLogout }) {
           </div>
         </div>
       </div>
+
+      <DepoimentoModal
+        open={depoimentoModalOpen}
+        onClose={() => setDepoimentoModalOpen(false)}
+        styles={depoimentoModalStyles}
+        state={{
+          tipo: 'profissional',
+          nota: depoimentoNota,
+          profissionalId: depoimentoAlvo?.profissional_id || null,
+          texto: depoimentoTexto,
+          loading: depoimentoLoading,
+        }}
+        actions={{
+          setTipo: () => {},
+          setProfissionalId: () => {},
+          setNota: setDepoimentoNota,
+          setTexto: setDepoimentoTexto,
+          onEnviar: enviarDepoimentoAgendamento,
+        }}
+        nomeNegocioLabel={depoimentoAlvo?.profissionais?.negocios?.nome || 'Depoimento'}
+        profissionais={[]}
+        showProfessionalOption={false}
+        contextSummary={depoimentoResumo}
+        submitLabel="ENVIAR AVALIAÇÃO"
+      />
     </div>
   );
 }
