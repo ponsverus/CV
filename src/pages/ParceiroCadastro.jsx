@@ -107,13 +107,18 @@ export default function ParceiroCadastro({ suppressAuthRef }) {
         throw new Error(msgs.account_create_error.body);
       }
 
-      const { error: profErr } = await supabase.rpc('solicitar_acesso_parceiro', {
-        p_negocio_id: signupStatus.negocio_id,
-        p_nome: nomeClean,
+      const { error: profErr } = await supabase.from('profissionais').insert({
+        negocio_id: signupStatus.negocio_id,
+        user_id: uid,
+        nome: nomeClean,
+        status: 'pendente',
       });
 
       if (profErr) {
         await supabase.auth.signOut();
+        if (profErr.code === '23505') {
+          return setAlerta(msgs.access_unavailable);
+        }
         throw profErr;
       }
 
