@@ -3,14 +3,6 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const DEPOIMENTOS_POR_PAGINA = 10;
 
-function formatTagDate(value) {
-  if (!value) return '';
-  const source = String(value).slice(0, 10);
-  const [y, m, d] = source.split('-');
-  if (!y || !m || !d) return source;
-  return `${d}.${m}.${y}`;
-}
-
 function Stars5Char({ value = 0, size = 14 }) {
   const v = Math.max(0, Math.min(5, Number(value || 0)));
   return (
@@ -37,7 +29,6 @@ export default function DepoimentosPaginados({ depoimentos, nomeNegocioLabel, is
   const navBtnCl = isLight ? 'hover:bg-vcard2 text-vmuted hover:text-vtext' : 'hover:bg-vcard2 text-vsub hover:text-vtext';
   const dotInact = isLight ? 'bg-vborder hover:bg-vsub/40' : 'bg-gray-700 hover:bg-gray-500';
   const comentCl = isLight ? 'text-vsub' : 'text-vsub';
-  const metaInfoCl = isLight ? 'text-vmuted' : 'text-gray-500';
   const touchStartRef = useRef(null);
 
   useEffect(() => {
@@ -97,15 +88,6 @@ export default function DepoimentosPaginados({ depoimentos, nomeNegocioLabel, is
                 <Stars5Char value={dep.nota} size={14} />
               </div>
             </div>
-            {(dep.entrega_nome || dep.agendamento_data || dep.created_at) && (
-              <div className={`flex flex-wrap items-center gap-2 mb-3 text-[11px] uppercase font-normal ${metaInfoCl}`}>
-                {dep.entrega_nome && <span>{dep.entrega_nome}</span>}
-                {(dep.entrega_nome && (dep.agendamento_data || dep.created_at)) && (
-                  <span aria-hidden="true" className="text-[10px] leading-none">●</span>
-                )}
-                <span>{formatTagDate(dep.agendamento_data || dep.created_at)}</span>
-              </div>
-            )}
             {dep.comentario && <p className={`text-sm font-normal ${comentCl}`}>{dep.comentario}</p>}
           </div>
         ))}
