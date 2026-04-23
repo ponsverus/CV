@@ -594,7 +594,7 @@ export default function ClientArea({ user, onLogout }) {
                     onClick={() => abrirDepoimento(ag)}
                     className="w-full py-2 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/50 text-blue-400 rounded-button text-sm transition-all uppercase"
                   >
-                    AVALIAR
+                    DAR DEPOIMENTO
                   </button>
                 )}
               </div>
@@ -879,7 +879,7 @@ export default function ClientArea({ user, onLogout }) {
         profissionais={[]}
         showProfessionalOption={false}
         contextSummary={null}
-        submitLabel="+ DEPOIMENTO"
+        submitLabel="ENVIAR DEPOIMENTO"
         compactMode
         showSectionTitles
       />
