@@ -112,6 +112,8 @@ export async function fetchVitrineDepoimentos(negocioId) {
       ? { nome: d.cliente_nome, avatar_path: d.cliente_avatar_path, type: d.cliente_type }
       : null,
     profissionais: d.profissional_nome ? { nome: d.profissional_nome } : null,
+    entrega_nome: d.entrega_nome || null,
+    agendamento_data: d.agendamento_data || null,
   }));
 }
 
