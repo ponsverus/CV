@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-const DEPOIMENTOS_POR_PAGINA = 10;
+const DEPOIMENTOS_POR_PAGINA = 12;
 
 function Stars5Char({ value = 0, size = 14 }) {
   const v = Math.max(0, Math.min(5, Number(value || 0)));
