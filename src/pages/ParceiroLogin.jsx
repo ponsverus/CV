@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../supabase';
 import { ptBR } from '../feedback/messages/ptBR';
+import { fetchUserAccessProfile } from '../utils/profileAccess';
 
 const msgs = ptBR.parceiroLogin;
 
@@ -101,25 +102,36 @@ export default function ParceiroLogin({ onLogin, suppressAuthRef, inRecovery: in
       const uid = signInData?.user?.id;
       if (!uid) throw new Error(msgs.auth_error.body);
 
-      const { data: partnerContext, error: partnerErr } = await supabase.rpc('get_partner_login_context', {
-        p_slug: slugClean,
-      });
-
-      if (partnerErr) throw partnerErr;
-
-      if (partnerContext?.status === 'not_partner') {
+      const accessProfile = await fetchUserAccessProfile(uid);
+      if (accessProfile?.type !== 'professional') {
         await supabase.auth.signOut();
         return setAlerta(msgs.not_partner);
       }
-      if (partnerContext?.status === 'pending_approval') {
+
+      const { data: partnerRow, error: partnerErr } = await supabase
+        .from('profissionais')
+        .select('status')
+        .eq('user_id', uid)
+        .eq('negocio_id', negocio.id)
+        .maybeSingle();
+
+      if (partnerErr) throw partnerErr;
+
+      const partnerStatus = String(partnerRow?.status || '').trim().toLowerCase();
+
+      if (!partnerStatus) {
+        await supabase.auth.signOut();
+        return setAlerta(msgs.not_partner);
+      }
+      if (partnerStatus === 'pendente') {
         await supabase.auth.signOut();
         return setAlerta(msgs.pending_approval);
       }
-      if (partnerContext?.status === 'access_inactive') {
+      if (partnerStatus === 'inativo') {
         await supabase.auth.signOut();
         return setAlerta(msgs.access_inactive);
       }
-      if (partnerContext?.status !== 'ok') {
+      if (partnerStatus !== 'ativo') {
         await supabase.auth.signOut();
         return setAlerta(msgs.not_partner);
       }
