@@ -18,80 +18,31 @@ export default function DepoimentoModal({
   styles,
   state,
   actions,
-  nomeNegocioLabel,
-  profissionais,
-  showProfessionalOption = true,
-  contextSummary = null,
   submitLabel = 'ENVIAR DEPOIMENTO',
-  compactMode = false,
-  showSectionTitles = null,
+  showSectionTitles = true,
 }) {
   if (!open) return null;
-  const shouldShowSectionTitles = showSectionTitles ?? !compactMode;
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className={`border rounded-custom max-w-md w-full max-h-[90vh] flex flex-col ${styles.modalBg}`}>
-        <div className="flex justify-between items-center p-6 pb-4 shrink-0">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+      <div className={`flex max-h-[90vh] w-full max-w-md flex-col rounded-custom border ${styles.modalBg}`}>
+        <div className="flex shrink-0 items-center justify-between p-6 pb-4">
           <h3 className={`text-2xl font-normal ${styles.modalTitle}`}>DEPOIMENTO</h3>
           <button type="button" onClick={onClose} className={styles.modalClose}>
-            <X className="w-6 h-6" />
+            <X className="h-6 w-6" />
           </button>
         </div>
-        <div className="overflow-y-auto px-6 pb-6 flex-1">
-          {(showProfessionalOption || contextSummary) && (
-            <div className="mb-4">
-              {!compactMode && (
-                <div className={`text-sm font-normal mb-2 ${styles.modalLabel}`}>Você está deixando um depoimento sobre</div>
-              )}
-              {showProfessionalOption ? (
-              <div className="grid grid-cols-2 gap-2">
-                <button type="button" onClick={() => actions.setTipo('negocio')} className={`px-4 py-3 rounded-custom border transition-all font-normal ${styles.negocioBtn(state.tipo)}`}>{nomeNegocioLabel}</button>
-                <button type="button" onClick={() => actions.setTipo('profissional')} className={`px-4 py-3 rounded-custom border transition-all font-normal ${styles.profissionalBtn(state.tipo)}`}>PROFISSIONAL</button>
-              </div>
-              ) : (
-                <div className={`rounded-custom border p-4 ${styles.summaryBox || ''}`}>
-                  <div className={`text-sm font-normal ${styles.summaryTitle || styles.modalTitle}`}>{contextSummary?.title || nomeNegocioLabel}</div>
-                  {contextSummary?.rows?.length ? (
-                    <div className="mt-3 space-y-2">
-                      {contextSummary.rows.map((row) => (
-                        <div key={row.label} className="flex items-center justify-between gap-4 text-sm">
-                          <span className={styles.summaryLabel || styles.modalLabel}>{row.label}</span>
-                          <span className={styles.summaryValue || styles.modalTitle}>{row.value}</span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : null}
-                </div>
-              )}
-            </div>
-          )}
-          {showProfessionalOption && state.tipo === 'profissional' && (
-            <div className="mb-4">
-              <div className={`text-sm font-normal mb-2 ${styles.modalLabel}`}>Qual profissional?</div>
-              <div className="space-y-2 max-h-40 overflow-y-auto">
-                {profissionais.map((prof) => (
-                  <button
-                    type="button"
-                    key={prof.id}
-                    onClick={() => actions.setProfissionalId(prof.id)}
-                    className={`w-full text-left px-4 py-3 rounded-custom border transition-all font-normal ${styles.profissionalItem(state.profissionalId === prof.id)}`}
-                  >
-                    {prof.nome}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+
+        <div className="flex-1 overflow-y-auto px-6 pb-6">
           <div className="mb-4">
-            {shouldShowSectionTitles && <div className={`text-sm font-normal mb-2 ${styles.modalLabel}`}>Nota</div>}
+            {showSectionTitles && <div className={`mb-2 text-sm font-normal ${styles.modalLabel}`}>Nota</div>}
             <div className="flex items-center gap-1">
               {[1, 2, 3, 4, 5].map((n) => (
                 <button
                   type="button"
                   key={n}
                   onClick={() => actions.setNota(n)}
-                  className="inline-flex h-9 w-9 cursor-pointer items-center justify-center bg-transparent border-0 p-0 shadow-none appearance-none transition-transform hover:scale-105 focus:outline-none"
+                  className="inline-flex h-9 w-9 appearance-none items-center justify-center border-0 bg-transparent p-0 shadow-none transition-transform hover:scale-105 focus:outline-none"
                   aria-label={`${n} estrela${n > 1 ? 's' : ''}`}
                   aria-pressed={state.nota === n}
                 >
@@ -100,26 +51,26 @@ export default function DepoimentoModal({
               ))}
             </div>
           </div>
+
           <div className="mb-5">
-            {shouldShowSectionTitles && <div className={`text-sm font-normal mb-2 ${styles.modalLabel}`}>Comentário é opcional</div>}
+            {showSectionTitles && <div className={`mb-2 text-sm font-normal ${styles.modalLabel}`}>Comentário é opcional</div>}
             <textarea
               value={state.texto}
               onChange={(e) => actions.setTexto(e.target.value)}
               rows={4}
-              className={`w-full px-4 py-3 border rounded-custom focus:outline-none resize-none font-normal ${styles.textarea}`}
+              className={`w-full resize-none rounded-custom border px-4 py-3 font-normal focus:outline-none ${styles.textarea}`}
               placeholder="Conte como foi sua experiência..."
             />
           </div>
-          <button type="button" onClick={actions.onEnviar} disabled={state.loading || (state.tipo === 'profissional' && !state.profissionalId)} className={`w-full py-3 rounded-button disabled:opacity-60 uppercase font-normal transition-colors ${styles.sendBtn}`}>
+
+          <button
+            type="button"
+            onClick={actions.onEnviar}
+            disabled={state.loading}
+            className={`w-full rounded-button py-3 font-normal uppercase transition-colors disabled:opacity-60 ${styles.sendBtn}`}
+          >
             {state.loading ? 'ENVIANDO...' : submitLabel}
           </button>
-          {showProfessionalOption && (
-            <p className={`text-xs mt-3 font-normal ${styles.hintClass}`}>
-              {state.tipo === 'profissional' && !state.profissionalId
-                ? 'Selecione um profissional para continuar'
-                : 'Somente clientes logados podem deixar depoimentos.'}
-            </p>
-          )}
         </div>
       </div>
     </div>
