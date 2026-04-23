@@ -644,6 +644,7 @@ export default function Vitrine({ user, userType }) {
         }}
         nomeNegocioLabel={nomeNegocioLabel}
         profissionais={profissionais}
+        showProfessionalOption={false}
       />
     </div>
   );
