@@ -4,7 +4,6 @@ import { Calendar, History, LogOut, X } from 'lucide-react';
 import { AgendamentosIcon } from '../components/icons';
 import { supabase } from '../supabase';
 import { useFeedback } from '../feedback/useFeedback';
-import { ptBR } from '../feedback/messages/ptBR';
 import { convertImageToWebp, isImageFile } from '../utils/media';
 import DepoimentoModal from './vitrine/components/DepoimentoModal';
 import { createBookingReview, fetchReviewedBookings } from './clientArea/api/clientAreaApi';
@@ -402,16 +401,11 @@ export default function ClientArea({ user, onLogout }) {
         [depoimentoAlvo.id]: true,
       }));
       setDepoimentoModalOpen(false);
-      feedback.showCustom({
-        ...ptBR.depoimento_sent,
-        variant: 'success',
-      });
+      feedback.showMessage('vitrine.depoimento_sent', { variant: 'success' });
     } catch (e) {
-      const title = ptBR.depoimento_send_error_title || 'Erro ao enviar depoimento';
-      const bodyBase = ptBR.depoimento_send_error_body || 'Erro ao enviar seu depoimento:';
       feedback.showCustom({
-        title,
-        body: `${bodyBase} ${e?.message || ''}`,
+        title: 'Erro ao enviar depoimento',
+        body: `Erro ao enviar seu depoimento: ${e?.message || ''}`,
         variant: 'danger',
         buttonText: 'OK',
       });
@@ -534,16 +528,6 @@ export default function ClientArea({ user, onLogout }) {
     sendBtn: 'bg-gradient-to-r from-primary to-yellow-600 text-black',
     hintClass: 'text-gray-500',
   };
-  const depoimentoResumo = depoimentoAlvo ? {
-    title: depoimentoAlvo.profissionais?.negocios?.nome || 'Avaliação',
-    rows: [
-      { label: 'PROFISSIONAL', value: depoimentoAlvo.profissionais?.nome || '—' },
-      { label: 'SERVIÇO', value: depoimentoAlvo.entregas?.nome || '—' },
-      { label: 'DATA', value: formatDateBRFromISO(depoimentoAlvo.data) },
-      { label: 'HORÁRIO', value: depoimentoAlvo.hora_inicio || '—' },
-    ],
-  } : null;
-
   const renderSecaoAgendamentos = (titulo, lista) => {
     if (!lista.length) return null;
     return (
@@ -894,8 +878,9 @@ export default function ClientArea({ user, onLogout }) {
         nomeNegocioLabel={depoimentoAlvo?.profissionais?.negocios?.nome || 'Depoimento'}
         profissionais={[]}
         showProfessionalOption={false}
-        contextSummary={depoimentoResumo}
-        submitLabel="ENVIAR AVALIAÇÃO"
+        contextSummary={null}
+        submitLabel="ENVIAR DEPOIMENTO"
+        compactMode
       />
     </div>
   );
