@@ -879,8 +879,9 @@ export default function ClientArea({ user, onLogout }) {
         profissionais={[]}
         showProfessionalOption={false}
         contextSummary={null}
-        submitLabel="ENVIAR DEPOIMENTO"
+        submitLabel="+ DEPOIMENTO"
         compactMode
+        showSectionTitles
       />
     </div>
   );
