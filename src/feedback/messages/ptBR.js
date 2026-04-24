@@ -10,13 +10,6 @@ export const ptBR = {
       screen: 'dark',
       buttonText: 'ENTENDI',
     },
-    session_invalid: {
-      title: 'Falha no acesso',
-      body: 'Por favor, realize o login novamente.',
-      variant: 'danger',
-      screen: 'dark',
-      buttonText: 'OK',
-    },
     business_not_loaded: {
       title: 'Falha ao ler os dados do negócio',
       body: 'Ocorreu um erro técnico durante o carregamento dos dados.\n\nRecarregue a página e tente novamente.',
@@ -212,7 +205,7 @@ export const ptBR = {
         aulas:     'AULA',
       },
       counter_plural: {
-        servicos:  'SERVS',
+        servicos:  'SERV',
         consultas: 'CONSULTAS',
         aulas:     'AULAS',
       },
@@ -566,8 +559,6 @@ export const ptBR = {
     email_already_exists: { body: 'Este email já possui uma conta.\n\nUse a página de login de parceiro.', variant: 'erro' },
     access_unavailable:   { body: 'Erro ao solicitar acesso com este email.\n\nFaça login como parceiro ou fale com o responsável pelo negócio.', variant: 'erro' },
     account_create_error: { body: 'Erro ao criar sua conta agora.\n\nTente novamente.', variant: 'erro' },
-    already_pending:      { body: 'Seu cadastro aguarda aval neste negócio.', variant: 'aviso' },
-    already_active:       { body: 'Você já está cadastrado neste negócio.\n\nUse a página de login.', variant: 'aviso' },
     access_inactive:      { body: 'Seu acesso está inativo.\n\nEntre em contato com o responsável pelo negócio.', variant: 'erro' },
     unexpected_error:     { body: 'Ocorreu um erro inesperado.\n\nTente novamente.', variant: 'erro' },
     success_title:        'Cadastro enviado',
@@ -726,6 +717,13 @@ export const ptBR = {
     favorite_remove_error: {
       title: 'Erro ao remover',
       body: 'Erro ao remover o favorito agora.\n\nTente novamente.',
+      variant: 'danger',
+      screen: 'dark',
+      buttonText: 'OK',
+    },
+    depoimento_send_error: {
+      title: 'Erro ao enviar depoimento',
+      body: 'Erro ao enviar seu depoimento: {msg}',
       variant: 'danger',
       screen: 'dark',
       buttonText: 'OK',
@@ -926,13 +924,6 @@ export const ptBR = {
       screen: 'dark',
       buttonText: 'OK',
     },
-    description_required: {
-      title: 'Escreva algo',
-      body: 'Conte brevemente sobre seus serviços para continuar.',
-      variant: 'danger',
-      screen: 'dark',
-      buttonText: 'OK',
-    },
     experience_invalid: {
       title: 'Experiência inválida',
       body: 'Informe um número válido de anos de experiência.',
@@ -1014,15 +1005,6 @@ export const ptBR = {
       screen: 'dark',
       buttonText: 'ENTENDI',
     },
-    business_id_missing: {
-      title: 'Erro interno',
-      body:
-        'Seu negócio foi criado; contudo, há uma inconsistência no ID de acesso.\n\n' +
-        'Clique em SUPORTE na faixa amarela para resolver.',
-      variant: 'danger',
-      screen: 'dark',
-      buttonText: 'ENTENDI',
-    },
     professional_create_error: {
       title: 'Erro ao criar profissional',
       body:
@@ -1071,6 +1053,11 @@ export const ptBR = {
     schedule_only_client: {
       title: 'Acesso restrito',
       body: 'Você está logado como PROFISSIONAL.\n\nPara agendar, entre com uma conta CLIENTE.',
+      buttonText: 'ENTENDI',
+    },
+    schedule_time_unavailable: {
+      title: 'Horário oficial indisponível',
+      body: 'Ainda estamos sincronizando o horário oficial. Tente novamente em instantes.',
       buttonText: 'ENTENDI',
     },
 
