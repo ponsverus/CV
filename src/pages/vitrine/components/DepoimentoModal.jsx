@@ -27,11 +27,13 @@ export default function DepoimentoModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
       <div className={`flex max-h-[90vh] w-full max-w-md flex-col rounded-custom border ${styles.modalBg}`}>
-        <div className="flex shrink-0 items-center justify-between p-6 pb-4">
-          <h3 className={`text-2xl font-normal ${styles.modalTitle}`}>{title}</h3>
-          <button type="button" onClick={onClose} className={styles.modalClose}>
-            <X className="h-6 w-6" />
-          </button>
+        <div className="shrink-0 p-6 pb-4">
+          <div className="mb-3 flex justify-end">
+            <button type="button" onClick={onClose} className={styles.modalClose}>
+              <X className="h-6 w-6" />
+            </button>
+          </div>
+          <h3 className={`pr-2 text-2xl font-normal leading-tight ${styles.modalTitle}`}>{title}</h3>
         </div>
 
         <div className="flex-1 overflow-y-auto px-6 pb-6">
