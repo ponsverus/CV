@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function TimeLapseIconReverse({ className = '', title, style = {}, ...props }) {
+export default function TimePastIcon({ className = '', title, style = {}, ...props }) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -11,19 +11,24 @@ export default function TimeLapseIconReverse({ className = '', title, style = {}
     >
       {title && <title>{title}</title>}
 
-      <path d="M12 2v2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M5 5l1.5 1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M2 12h2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M5 19l1.5-1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M12 22v-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M19 19l-1.5-1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M22 12h-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M19 5l-1.5 1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-
-      <circle cx="12" cy="12" r="7" stroke="currentColor" strokeWidth="1.5" />
+      <path
+        d="M3 12a9 9 0 1 1 3 6.7"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
 
       <path
-        d="M12 8v4l-2.5 1.5"
+        d="M3 4v5h5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+
+      <path
+        d="M12 7v5l3 2"
         stroke="currentColor"
         strokeWidth="1.5"
         strokeLinecap="round"
