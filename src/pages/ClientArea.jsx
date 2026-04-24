@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { History, LogOut, X } from 'lucide-react';
-import { AgendamentosIcon } from '../components/icons';
+import { AgendamentosIcon, TimePastIcon } from '../components/icons';
 import { supabase } from '../supabase';
 import { useFeedback } from '../feedback/useFeedback';
 import { convertImageToWebp, isImageFile } from '../utils/media';
@@ -651,7 +651,7 @@ export default function ClientArea({ user, onLogout }) {
             <h3 className="text-lg font-normal mb-1">{favoritos.length} FAVORITOS</h3>
           </button>
           <button onClick={() => setActiveTab('agendamentos')} className="bg-dark-100 border border-gray-800 rounded-custom p-6 hover:border-primary/50 transition-all text-left">
-            <History className="w-8 h-8 text-blue-400 mb-3" />
+            <TimePastIcon className="w-8 h-8 text-blue-400 mb-3" />
             <h3 className="text-lg font-normal mb-1">{agendamentos.length} AGENDAMENTOS</h3>
           </button>
         </div>
