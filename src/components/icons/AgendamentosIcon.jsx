@@ -1,31 +1,22 @@
 import React from 'react';
 
-  export default function AgendamentosIcon({
-    className = '',
-    title,
-    style = {},
-    dotFill = 'white',
-    dotOpacity = 0.7,
-    ...props
-  }) {
-    return (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="currentColor"
-        className={className}
-        style={{ display: 'inline-block', ...style }}
-        aria-hidden={title ? undefined : 'true'}
-        role={title ? 'img' : 'presentation'}
-        {...props}
-      >
-        {title && <title>{title}</title>}
-        <rect x="2" y="3.5" width="20" height="5" rx="2.5" />
-        <circle cx="6.5" cy="6" r="1.5" fill={dotFill} opacity={dotOpacity} />
-        <rect x="2" y="9.5" width="20" height="5" rx="2.5" />
-        <circle cx="6.5" cy="12" r="1.5" fill={dotFill} opacity={dotOpacity} />
-        <rect x="2" y="15.5" width="20" height="5" rx="2.5" />
-        <circle cx="6.5" cy="18" r="1.5" fill={dotFill} opacity={dotOpacity} />
-      </svg>
-    );
-  }
+export default function CalendarIcon({ className = '', title, style = {}, ...props }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      className={className}
+      style={{ display: 'inline-block', ...style }}
+      aria-hidden={title ? undefined : 'true'}
+      role={title ? 'img' : 'presentation'}
+      {...props}
+    >
+      {title && <title>{title}</title>}
+      <rect x="3" y="4" width="18" height="17" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
+      <line x1="3" y1="9" x2="21" y2="9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      <line x1="8" y1="2" x2="8" y2="4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      <line x1="16" y1="2" x2="16" y2="4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+  );
+}
