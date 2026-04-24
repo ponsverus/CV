@@ -403,12 +403,7 @@ export default function ClientArea({ user, onLogout }) {
       setDepoimentoModalOpen(false);
       feedback.showMessage('vitrine.depoimento_sent', { variant: 'success' });
     } catch (e) {
-      feedback.showCustom({
-        title: 'Erro ao enviar depoimento',
-        body: `Erro ao enviar seu depoimento: ${e?.message || ''}`,
-        variant: 'danger',
-        buttonText: 'OK',
-      });
+      feedback.showMessage('clientArea.depoimento_send_error', { msg: e?.message || '' });
     } finally {
       setDepoimentoLoading(false);
     }
