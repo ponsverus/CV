@@ -863,7 +863,7 @@ export default function ClientArea({ user, onLogout }) {
           setTexto: setDepoimentoTexto,
           onEnviar: enviarDepoimentoAgendamento,
         }}
-        submitLabel="+ DEPOIMENTO"
+        submitLabel="ENVIAR DEPOIMENTO"
         showSectionTitles
       />
     </div>
