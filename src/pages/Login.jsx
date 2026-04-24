@@ -289,7 +289,7 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
                         placeholder="SEU E-MAIL"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-gray-600 outline-none focus:text-white"
+                        className="w-full bg-transparent px-0 py-2 text-sm uppercase text-white placeholder-gray-600 outline-none focus:text-white"
                         required
                       />
                     </div>
