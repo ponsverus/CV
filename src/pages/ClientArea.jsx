@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Calendar, History, LogOut, X } from 'lucide-react';
+import { History, LogOut, X } from 'lucide-react';
 import { AgendamentosIcon } from '../components/icons';
 import { supabase } from '../supabase';
 import { useFeedback } from '../feedback/useFeedback';
