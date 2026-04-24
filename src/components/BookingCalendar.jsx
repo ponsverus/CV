@@ -398,8 +398,8 @@ export default function BookingCalendar({
 
           {todayISO && selectedSlot && (
             <div ref={resumeRef} className={`border rounded-custom p-4 ${resumeBg}`}>
-              <div className={`text-xs uppercase tracking-wide mb-3 ${resumeLabel}`}>Resumo</div>
-              <div className="space-y-2 text-sm mb-4">
+              <div className={`text-sm uppercase tracking-wide mb-3 ${resumeLabel}`}>Resumo</div>
+              <div className="space-y-2 text-xs mb-4">
                 <div className="flex justify-between">
                   <span className={resumeLabel}>PROFISSIONAL</span>
                   <span className={resumeValue}>{profissional?.nome}</span>
