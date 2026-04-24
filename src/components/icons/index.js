@@ -1,4 +1,5 @@
 export { default as AgendamentosIcon } from './AgendamentosIcon';
+export { default as CheckDoubleIcon } from './CheckDoubleIcon';
 export { default as CheckIcon } from './CheckIcon';
 export { default as CrownIcon } from './CrownIcon';
 export { default as EnderecoIcon } from './EnderecoIcon';
