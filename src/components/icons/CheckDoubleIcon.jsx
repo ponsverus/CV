@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function DoubleCheckIcon({
+export default function CheckDoubleIcon({
   className = '',
   title,
   style = {},
@@ -27,14 +27,14 @@ export default function DoubleCheckIcon({
       {title && <title>{title}</title>}
 
       <path
-        d="M 60 480 L 320 740 L 780 280"
+        d="M 50 510 L 310 770 L 720 360"
         stroke="currentColor"
         strokeWidth="110"
         strokeLinecap="butt"
         strokeLinejoin="miter"
       />
       <path
-        d="M 280 480 L 540 740 L 1000 280"
+        d="M 250 510 L 510 770 L 920 360"
         stroke="currentColor"
         strokeWidth="110"
         strokeLinecap="butt"
