@@ -1,10 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { AgendamentosIcon, UsersIcon } from '../components/icons';
-import {
-  X, Eye,
-  TrendingUp, Award, LogOut, AlertCircle,
-} from 'lucide-react';
+import { AgendamentosIcon, TrendingUpIcon, UsersIcon } from '../components/icons';
+import { X, Eye, Award, LogOut, AlertCircle, } from 'lucide-react';
 import { supabase } from '../supabase';
 import { useFeedback } from '../feedback/useFeedback';
 import { getBusinessGroup } from '../businessTerms';
@@ -555,7 +552,7 @@ export default function Dashboard({ user, onLogout }) {
           </DashboardTopCard>
 
           <DashboardTopCard
-            icon={<TrendingUp className="w-8 h-8 text-primary" />}
+            icon={<TrendingUpIcon className="w-8 h-8 text-primary" />}
             label={tabEntregasLabel}
             value={metricsTopCardsLoading ? '...' : topCardsReady ? Number(topEntregas.total || 0) : '--'}
           >
