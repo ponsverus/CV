@@ -257,7 +257,7 @@ export default function BookingCalendar({
             <div className={`text-xs mt-0.5 ${subtitleColor}`}>
               {profissional?.nome}
               {entrega?.duracao_minutos && <span className={`ml-2 ${subMutedColor}`}>• {entrega.duracao_minutos} MIN</span>}
-              <span className="ml-2 text-vprimary">• R$ {valorExibido}</span>
+              <span className="ml-2" style={{ color: 'var(--vpromo-text)' }}>• R$ {valorExibido}</span>
             </div>
           </div>
           <button
@@ -400,8 +400,8 @@ export default function BookingCalendar({
 
           {todayISO && selectedSlot && (
             <div ref={resumeRef} className={`border rounded-custom p-4 ${resumeBg}`}>
-              <div className={`text-sm uppercase tracking-wide mb-3 ${resumeLabel}`}>Resumo</div>
-              <div className="space-y-2 text-xs mb-4">
+              <div className={`text-xs uppercase tracking-wide mb-3 ${resumeLabel}`}>Resumo</div>
+              <div className="space-y-2 text-sm mb-4">
                 <div className="flex justify-between">
                   <span className={resumeLabel}>PROFISSIONAL</span>
                   <span className={resumeValue}>{profissional?.nome}</span>
@@ -416,7 +416,7 @@ export default function BookingCalendar({
                 </div>
                 <div className="flex justify-between">
                   <span className={resumeLabel}>VALOR</span>
-                  <span className="text-vprimary">R$ {valorExibido}</span>
+                  <span style={{ color: 'var(--vpromo-text)' }}>R$ {valorExibido}</span>
                 </div>
               </div>
 
@@ -474,7 +474,7 @@ function SlotButton({ slot, isSelected, onClick, isLight }) {
       ].join(' ')}
     >
       {slot.isRaio && !isSelected && (
-        <ZapIcon strokeWidth={1.5} className={`w-3 h-3 absolute top-1 right-1 ${isLight ? 'text-gray-700' : 'text-primary'}`} />
+        <Zap strokeWidth={1.5} className={`w-3 h-3 absolute top-1 right-1 ${isLight ? 'text-gray-700' : 'text-primary'}`} />
       )}
       <div className="text-lg normal-case">{slot.hora}</div>
       <div className={`text-[10px] normal-case ${minuteColor}`}>{slot.duracaoMin} MIN</div>
