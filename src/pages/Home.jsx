@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search } from 'lucide-react';
 import { supabase } from '../supabase';
 import { useFeedback } from '../feedback/useFeedback';
-import { ProtectionIcon, UsersIcon, TimeIcon, TrendingUpIcon, CheckDoubleIcon, ZapIcon } from '../components/icons';
+import { ProtectionIcon, UsersIcon, TimeIcon, TrendingUpIcon, CheckDoubleIcon, ZapIcon, SearchIcon } from '../components/icons';
 
 const SUPORTE_PHONE_E164 = '5533999037979';
 const SUPORTE_MSG = 'Ol?, preciso de ajuda. Pode me orientar?';
@@ -62,7 +61,7 @@ function SearchBox({
           className="flex h-11 w-11 shrink-0 items-center justify-center text-gray-300 transition-colors hover:text-primary"
           aria-label="Pesquisar"
         >
-          <Search strokeWidth={1.6} className="h-[18px] w-[18px]" />
+          <SearchIcon strokeWidth={1.6} className="h-[18px] w-[18px]" />
         </button>
 
         <input
