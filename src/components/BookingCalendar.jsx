@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight, X, Loader2, Zap } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, Loader2 } from 'lucide-react';
 import { supabase } from '../supabase';
 import { CheckIcon } from './icons';
+import { ZapIcon } from '../components/icons';
 
 function parseISO(iso) {
   if (!iso) return null;
@@ -473,7 +474,7 @@ function SlotButton({ slot, isSelected, onClick, isLight }) {
       ].join(' ')}
     >
       {slot.isRaio && !isSelected && (
-        <Zap strokeWidth={1.5} className={`w-3 h-3 absolute top-1 right-1 ${isLight ? 'text-gray-700' : 'text-primary'}`} />
+        <ZapIcon strokeWidth={1.5} className={`w-3 h-3 absolute top-1 right-1 ${isLight ? 'text-gray-700' : 'text-primary'}`} />
       )}
       <div className="text-lg normal-case">{slot.hora}</div>
       <div className={`text-[10px] normal-case ${minuteColor}`}>{slot.duracaoMin} MIN</div>
