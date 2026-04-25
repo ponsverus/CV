@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight, Clock } from 'lucide-react';
-import { CheckIcon, SelecionarIcon } from '../../../components/icons';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { CheckIcon, SelecionarIcon, TimeIcon } from '../../../components/icons';
 
 const ENTREGAS_POR_PAGINA = 4;
 
@@ -114,11 +114,10 @@ function EntregaCard({
           </div>
           <div className="flex items-center justify-between gap-3 mt-2">
             <div className="flex items-center gap-1 text-xs text-vmuted font-normal">
-              <Clock className="w-3 h-3 shrink-0" />
+              <TimeIcon className="w-3 h-3 shrink-0" />
               {entrega.duracao_minutos} MIN
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              <span className="text-xs line-through" style={{ color: 'var(--verror-text)' }}>R$ {preco.toFixed(2)}</span>
               <span className="font-normal text-base" style={{ color: 'var(--vpromo-text)' }}>R$ {precoFinal.toFixed(2)}</span>
             </div>
           </div>
@@ -130,7 +129,7 @@ function EntregaCard({
             <div className="text-vprimary font-normal text-base shrink-0">R$ {precoFinal.toFixed(2)}</div>
           </div>
           <div className="flex items-center gap-1 mt-2 text-xs text-vmuted font-normal">
-            <Clock className="w-3 h-3 shrink-0" />
+            <TimeIcon className="w-3 h-3 shrink-0" />
             {entrega.duracao_minutos} MIN
           </div>
         </>
