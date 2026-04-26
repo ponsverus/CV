@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AlertCircle, ChevronRight, X } from 'lucide-react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import BookingCalendar from '../components/BookingCalendar';
-import { SelecionarIcon } from '../components/icons';
+import { CalendarIcon } from '../components/icons';
 import { ptBR } from '../feedback/messages/ptBR';
 import { getBusinessGroup } from '../businessTerms';
 import { getPublicUrl } from './vitrine/api/vitrineApi';
@@ -245,7 +245,7 @@ function SelectionBar({ itens, counterSingular, counterPlural, onConfirm, onClea
           <button type="button" onClick={onClear} className={`shrink-0 ml-1 ${clearBtn}`} title="Limpar"><X className="w-4 h-4" /></button>
         </div>
         <button type="button" onClick={onConfirm} className="shrink-0 flex items-center gap-2 px-5 py-2.5 bg-vprimary text-vprimary-text rounded-full text-sm font-normal uppercase whitespace-nowrap transition-opacity hover:opacity-80">
-          <SelecionarIcon className="w-4 h-4" />
+          <CalendarIcon className="w-4 h-4" />
           Escolher data
           <ChevronRight className="w-4 h-4" />
         </button>
