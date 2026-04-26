@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function LocationArrowIcon({
+export default function LocationIcon({
   className = '',
   title,
   style = {},
