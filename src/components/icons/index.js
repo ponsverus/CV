@@ -2,7 +2,6 @@ export { default as CalendarIcon } from './CalendarIcon';
 export { default as CheckDoubleIcon } from './CheckDoubleIcon';
 export { default as CheckIcon } from './CheckIcon';
 export { default as CrownIcon } from './CrownIcon';
-export { default as EnderecoIcon } from './EnderecoIcon';
 export { default as NegocioVerificadoIcon } from './NegocioVerificadoIcon';
 export { default as ProtectionIcon } from './ProtectionIcon';
 export { default as SearchIcon } from './SearchIcon';
