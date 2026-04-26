@@ -1,13 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Clock } from 'lucide-react';
+import { TimeIcon } from '../components/icons';
 
 export default function PartnerPendingApproval({ onLogout }) {
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
       <div className="w-full max-w-md text-center">
         <div className="w-20 h-20 rounded-full bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center mx-auto mb-6">
-          <Clock className="w-9 h-9 text-yellow-300" />
+          <TimeIcon className="w-9 h-9 text-yellow-300" />
         </div>
 
         <h1 className="text-3xl font-normal mb-4">Aguardando aval</h1>
