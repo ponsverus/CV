@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../supabase';
 import { useFeedback } from '../feedback/useFeedback';
 import { fetchUserAccessProfile } from '../utils/profileAccess';
-import { CrownIcon } from '../components/icons';
+import { CrownIcon, UserIcon } from '../components/icons';
 
 export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
   const [step, setStep] = useState(1);
@@ -243,7 +243,7 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
                   >
                     <div className="absolute inset-0 bg-blue-500/0 group-hover:bg-blue-500/5 transition-all" />
                     <div className="relative">
-                      <User className="mx-auto mb-4 text-blue-400 w-10 h-10 group-hover:scale-110 transition-transform" />
+                      <UserIcon className="mx-auto mb-4 text-blue-400 w-10 h-10 group-hover:scale-110 transition-transform" />
                       <div className="font-normal text-lg tracking-wide mb-1">CLIENTE</div>
                       <div className="text-xs text-gray-500">AGENDAR TRABALHO</div>
                     </div>
