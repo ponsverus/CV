@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, Award, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useFeedback } from '../feedback/useFeedback';
+import { UserIcon, CrownIcon } from '../components/icons';
 
 export default function SignupChoice() {
   const navigate = useNavigate();
@@ -51,7 +52,7 @@ export default function SignupChoice() {
             >
               <div className="absolute inset-0 bg-blue-500/0 group-hover:bg-blue-500/5 transition-all"></div>
               <div className="relative">
-                <User className="mx-auto mb-4 text-blue-400 w-10 h-10 group-hover:scale-110 transition-transform" />
+                <UserIcon className="mx-auto mb-4 text-blue-400 w-10 h-10 group-hover:scale-110 transition-transform" />
                 <div className="font-normal text-lg tracking-wide mb-1">CLIENTE</div>
                 <div className="text-xs text-gray-500">AGENDAR TRABALHO</div>
               </div>
@@ -63,7 +64,7 @@ export default function SignupChoice() {
             >
               <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/5 transition-all"></div>
               <div className="relative">
-                <Award className="mx-auto mb-4 text-primary w-10 h-10 group-hover:scale-110 transition-transform" />
+                <CrownIcon className="mx-auto mb-4 text-primary w-10 h-10 group-hover:scale-110 transition-transform" />
                 <div className="font-normal text-lg tracking-wide mb-1">PROFISSIONAL</div>
                 <div className="text-xs text-gray-500">GERENCIAR NEGÓCIO</div>
               </div>
