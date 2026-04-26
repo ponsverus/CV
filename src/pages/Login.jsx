@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, Award, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { User, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../supabase';
 import { useFeedback } from '../feedback/useFeedback';
 import { fetchUserAccessProfile } from '../utils/profileAccess';
+import { CrownIcon } from '../components/icons';
 
 export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
   const [step, setStep] = useState(1);
@@ -254,7 +255,7 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
                   >
                     <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/5 transition-all" />
                     <div className="relative">
-                      <Award className="mx-auto mb-4 text-primary w-10 h-10 group-hover:scale-110 transition-transform" />
+                      <CrownIcon className="mx-auto mb-4 text-primary w-10 h-10 group-hover:scale-110 transition-transform" />
                       <div className="font-normal text-lg tracking-wide mb-1">PROFISSIONAL</div>
                       <div className="text-xs text-gray-500">GERENCIAR NEGÓCIO</div>
                     </div>
