@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Award, LogOut, Plus } from 'lucide-react';
+import { LogOut, Plus } from 'lucide-react';
 import { supabase } from '../supabase';
+import { CrownIcon } from '../components/icons';
 
 function getPublicUrl(bucket, path) {
   if (!bucket || !path) return null;
@@ -103,7 +104,7 @@ export default function SelecionarNegocio({ user, onLogout }) {
                     <img src={logoUrl} alt={neg.nome} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-primary to-yellow-600 flex items-center justify-center">
-                      <Award className="w-6 h-6 text-black" />
+                      <CrownIcon className="w-6 h-6 text-black" />
                     </div>
                   )}
                 </div>
