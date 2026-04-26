@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { CalendarIcon, TrendingUpIcon, UsersIcon } from '../components/icons';
-import { X, Eye, Award, LogOut, AlertCircle, } from 'lucide-react';
+import { CalendarIcon, CrownIcon, TrendingUpIcon, UsersIcon } from '../components/icons';
+import { X, Eye, LogOut, AlertCircle, } from 'lucide-react';
 import { supabase } from '../supabase';
 import { useFeedback } from '../feedback/useFeedback';
 import { getBusinessGroup } from '../businessTerms';
@@ -486,7 +486,7 @@ export default function Dashboard({ user, onLogout }) {
               <div className="w-12 h-12 rounded-full overflow-hidden border border-gray-800 bg-dark-200 flex items-center justify-center shrink-0">
                 {negocio.logo_path
                   ? <img src={getPublicUrl('logos', negocio.logo_path)} alt="Logo" className="w-full h-full object-cover" />
-                  : <div className="w-12 h-12 bg-gradient-to-br from-primary to-yellow-600 rounded-full flex items-center justify-center"><Award className="w-7 h-7 text-black" /></div>}
+                  : <div className="w-12 h-12 bg-gradient-to-br from-primary to-yellow-600 rounded-full flex items-center justify-center"><CrownIcon className="w-7 h-7 text-black" /></div>}
               </div>
               <div>
                 <h1 className="text-xl font-normal">{negocio.nome}</h1>
