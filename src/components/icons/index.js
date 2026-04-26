@@ -10,5 +10,6 @@ export { default as SelectIcon } from './SelectIcon';
 export { default as TimeIcon } from './TimeIcon';
 export { default as TimePastIcon } from './TimePastIcon';
 export { default as TrendingUpIcon } from './TrendingUpIcon';
+export { default as UserIcon } from './UserIcon';
 export { default as UsersIcon } from './UsersIcon';
 export { default as ZapIcon } from './ZapIcon';
