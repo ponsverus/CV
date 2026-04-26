@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { History, LogOut, X } from 'lucide-react';
-import { TimeIcon, TimePastIcon } from '../components/icons';
+import { CalendarIcon, TimePastIcon } from '../components/icons';
 import { supabase } from '../supabase';
 import { useFeedback } from '../feedback/useFeedback';
 import { convertImageToWebp, isImageFile } from '../utils/media';
@@ -643,7 +643,7 @@ export default function ClientArea({ user, onLogout }) {
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8 items-start">
           <Link to="/" className="bg-gradient-to-r from-primary to-yellow-600 rounded-custom p-6 hover:shadow-lg hover:shadow-primary/50 transition-all">
-            <TimeIcon className="w-8 h-8 text-black mb-3" />
+            <CalendarIcon className="w-8 h-8 text-black mb-3" />
             <h3 className="text-lg font-normal text-black mb-1">NOVO AGENDAMENTO</h3>
           </Link>
           <button onClick={() => setActiveTab('favoritos')} className="bg-dark-100 border border-gray-800 rounded-custom p-6 hover:border-primary/50 transition-all text-left">
