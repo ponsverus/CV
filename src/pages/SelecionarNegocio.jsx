@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Plus } from 'lucide-react';
 import { supabase } from '../supabase';
-import { CrownIcon } from '../components/icons';
+import { CrownIcon, LogoutIcon } from '../components/icons';
 
 function getPublicUrl(bucket, path) {
   if (!bucket || !path) return null;
@@ -140,7 +140,7 @@ export default function SelecionarNegocio({ user, onLogout }) {
             onClick={onLogout}
             className="inline-flex items-center gap-2 text-red-500 hover:text-red-400 text-sm font-normal transition-colors"
           >
-            <LogOut className="w-4 h-4" />
+            <LogoutIcon className="w-4 h-4" />
             SAIR
           </button>
         </div>
