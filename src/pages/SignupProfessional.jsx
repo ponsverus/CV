@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Award, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../supabase';
 import { useFeedback } from '../feedback/useFeedback';
+import { CrownIcon } from '../components/icons';
 
 const PROFILE_TABLE = 'users';
 const isValidType = (t) => t === 'client' || t === 'professional';
@@ -292,7 +293,7 @@ export default function SignupProfessional({ onLogin }) {
         </div>
 
         <div className="text-center mb-10">
-          <Award className="mx-auto mb-4 text-primary w-12 h-12" />
+          <CrownIcon className="mx-auto mb-4 text-primary w-12 h-12" />
           <h1 className="text-4xl font-normal mb-3 tracking-wide">CRIAR VITRINE</h1>
           <p className="text-gray-500 text-base font-normal">CADASTRO DE <span className="text-primary">PROFISSIONAL</span></p>
         </div>
