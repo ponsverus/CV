@@ -140,7 +140,7 @@ export default function SelecionarNegocio({ user, onLogout }) {
             onClick={onLogout}
             className="inline-flex items-center gap-2 text-red-500 hover:text-red-400 text-sm font-normal transition-colors"
           >
-            <Logout className="w-4 h-4" />
+            <LogOut className="w-4 h-4" />
             SAIR
           </button>
         </div>
