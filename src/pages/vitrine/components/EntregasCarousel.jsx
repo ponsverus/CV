@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { CheckIcon, SelecionarIcon, TimeIcon } from '../../../components/icons';
+import { CheckIcon, TimeIcon } from '../../../components/icons';
 
 const ENTREGAS_POR_PAGINA = 4;
 
@@ -70,7 +70,7 @@ function EntregaButtons({
           </>
         ) : (
           <>
-            <SelecionarIcon
+            <TimeIcon
               className={[
                 'w-3.5 h-3.5',
                 selecionarDesabilitado ? 'opacity-40' : 'opacity-80',
