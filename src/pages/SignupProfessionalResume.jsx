@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Award, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { supabase } from '../supabase';
 import { useFeedback } from '../feedback/useFeedback';
+import { CrownIcon } from '../components/icons';
 
 function onlyTrim(v) {
   return String(v || '').trim();
@@ -379,7 +380,7 @@ export default function SignupProfessionalResume({ user, onLogin }) {
         </div>
 
         <div className="text-center mb-10">
-          <Award className="mx-auto mb-4 text-primary w-12 h-12" />
+          <CrownIcon className="mx-auto mb-4 text-primary w-12 h-12" />
           <h1 className="text-4xl font-normal mb-3 tracking-wide">{isWaitingRoom ? 'CRIAR VITRINE' : 'RETOMAR VITRINE'}</h1>
           <p className="text-gray-500 text-base font-normal">
             {isWaitingRoom ? 'FINALIZE OS DADOS DO SEU NEGÓCIO PARA LIBERAR O DASHBOARD.' : 'SEU CADASTRO FICOU INCOMPLETO. FINALIZE OS DADOS PARA LIBERAR O DASHBOARD.'}
