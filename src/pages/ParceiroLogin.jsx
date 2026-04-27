@@ -302,7 +302,7 @@ export default function ParceiroLogin({ onLogin, suppressAuthRef, inRecovery: in
                 type="text"
                 value={slug}
                 onChange={(e) => setSlug(e.target.value.toLowerCase())}
-                placeholder="SLUG DO NEGOCIO"
+                placeholder="SLUG DO NEGÓCIO"
                 className={fieldInputClass}
                 required
               />
