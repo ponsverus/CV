@@ -198,7 +198,7 @@ export default function ParceiroCadastro({ suppressAuthRef }) {
               />
             </FieldRow>
 
-            <FieldRow label="SLUG DO NEGÓCIO" last>
+            <FieldRow label="SLUG" last>
               <input
                 type="text"
                 value={slug}
