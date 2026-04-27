@@ -128,9 +128,9 @@ export default function SelecionarNegocio({ user, onLogout }) {
           <button
             type="button"
             onClick={() => navigate('/criar-negocio')}
-            className="flex-1 rounded-full border border-primary/30 py-3 text-[12px] font-normal uppercase text-primary transition-colors hover:border-primary"
+            className="flex h-11 flex-1 items-center justify-center rounded-full border border-primary/30 text-[12px] font-normal uppercase leading-none text-primary transition-colors hover:border-primary"
           >
-            <span className="inline-flex items-center justify-center gap-2">
+            <span className="inline-flex items-center justify-center gap-2 leading-none">
               <Plus className="w-4 h-4" />
               CRIAR OUTRO
             </span>
@@ -138,9 +138,9 @@ export default function SelecionarNegocio({ user, onLogout }) {
           <button
             type="button"
             onClick={onLogout}
-            className="flex-1 rounded-full border border-red-500/40 py-3 text-[12px] font-normal uppercase text-red-400 transition-colors hover:border-red-500 hover:text-red-300"
+            className="flex h-11 flex-1 items-center justify-center rounded-full border border-red-500/40 text-[12px] font-normal uppercase leading-none text-red-400 transition-colors hover:border-red-500 hover:text-red-300"
           >
-            <span className="inline-flex items-center justify-center gap-2">
+            <span className="inline-flex items-center justify-center gap-2 leading-none">
               <LogOut className="w-4 h-4" />
             SAIR
             </span>
