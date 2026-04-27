@@ -32,7 +32,7 @@ export default function EntregasSection({
             const lista = (entregasPorProf.get(p.id) || []).slice().sort((a, b) => Number(b.preco || 0) - Number(a.preco || 0));
             return (
               <div key={p.id} className="bg-dark-200 border border-gray-800 rounded-custom p-6">
-                <div className="flex items-center justify-between mb-4"><div className="font-normal text-lg">{p.nome}</div><div className="text-xs text-gray-500">{lista.length} {lista.length === 1 ? counterSingular : counterPlural}</div></div>
+                <div className="flex items-center justify-between mb-4"><div className="font-normal text-lg">{p.nome}</div><div className="text-xs uppercase text-gray-500">{lista.length} {lista.length === 1 ? counterSingular : counterPlural}</div></div>
                 {lista.length ? (
                   <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
                     {lista.map(s => {
