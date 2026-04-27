@@ -553,7 +553,7 @@ export const ptBR = {
   parceiroCadastro: {
     nome_required:        { body: 'Informe seu nome para continuar.', variant: 'erro' },
     email_invalid:        { body: 'Informe um email válido para continuar.', variant: 'erro' },
-    senha_too_short:      { body: 'A senha deve ter pelo menos 6 caracteres.', variant: 'erro' },
+    senha_too_short:      { body: 'A senha deve ter pelo menos 7 caracteres.', variant: 'erro' },
     slug_required:        { body: 'Informe o slug do negócio para continuar.', variant: 'erro' },
     negocio_not_found:    { body: 'Negócio ausente. Verifique o slug informado e tente novamente.', variant: 'erro' },
     email_already_exists: { body: 'Este email já possui uma conta.\n\nUse a página de login de parceiro.', variant: 'erro' },
@@ -847,7 +847,7 @@ export const ptBR = {
     },
     password_too_short: {
       title: 'Senha muito curta',
-      body: 'A senha deve ter no mínimo 6 caracteres.',
+      body: 'A senha deve ter no mínimo 7 caracteres.',
       variant: 'danger',
       screen: 'dark',
       buttonText: 'OK',
@@ -898,7 +898,7 @@ export const ptBR = {
     },
     password_too_short: {
       title: 'Senha muito curta',
-      body: 'A senha deve ter no mínimo 6 caracteres.',
+      body: 'A senha deve ter no mínimo 7 caracteres.',
       variant: 'danger',
       screen: 'dark',
       buttonText: 'OK',
