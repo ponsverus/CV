@@ -133,6 +133,16 @@ export async function fetchFavoritoNegocio({ clienteId, negocioId }) {
   return !!data;
 }
 
+export async function fetchCurrentClienteId() {
+  const { data, error } = await withTimeout(
+    supabase.rpc('get_current_cliente_id'),
+    6000,
+    'cliente-atual'
+  );
+  if (error) throw error;
+  return data || null;
+}
+
 export async function addFavoritoNegocio({ clienteId, negocioId }) {
   const { error } = await withTimeout(
     supabase
