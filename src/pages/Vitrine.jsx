@@ -572,7 +572,8 @@ export default function Vitrine({ user, userType }) {
           entrega={entregaVirtual}
           todayISO={serverNow.date}
           negocioId={negocio.id}
-          clienteId={bookingSectionState.isAssistedBooking ? bookingSectionState.assistedClienteId : user?.id}
+          actorUserId={user?.id}
+          assistedClienteId={bookingSectionState.isAssistedBooking ? bookingSectionState.assistedClienteId : null}
           assistedBooking={bookingSectionState.isAssistedBooking}
           onConfirm={handleBookingConfirm}
           onClose={closeBooking}
