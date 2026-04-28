@@ -107,6 +107,7 @@ export default function ClientArea({ user, onLogout }) {
   const [emailVisivel,   setEmailVisivel]   = useState(false);
 
   const [loadError, setLoadError] = useState('');
+  const [clienteId, setClienteId] = useState(null);
   const [avaliacoesPorAgendamento, setAvaliacoesPorAgendamento] = useState({});
   const [depoimentoModalOpen, setDepoimentoModalOpen] = useState(false);
   const [depoimentoLoading, setDepoimentoLoading] = useState(false);
@@ -116,9 +117,15 @@ export default function ClientArea({ user, onLogout }) {
 
   useEffect(() => { setNovoEmail(user?.email || ''); }, [user?.email]);
 
-  const fetchAgendamentos = useCallback(async ({ page = 0, limit = PAGE_SIZE } = {}) => {
+  const fetchClienteId = useCallback(async () => {
+    const { data, error } = await supabase.rpc('get_current_cliente_id');
+    if (error) throw error;
+    return data || null;
+  }, []);
+
+  const fetchAgendamentos = useCallback(async ({ page = 0, limit = PAGE_SIZE, clienteId: clienteIdParam = clienteId } = {}) => {
     const { data, error } = await supabase.rpc('get_agendamentos_cliente', {
-      p_cliente_id: user.id,
+      p_cliente_id: clienteIdParam,
       p_limit: limit,
       p_offset: page * PAGE_SIZE,
     });
@@ -144,11 +151,11 @@ export default function ClientArea({ user, onLogout }) {
         },
       },
     }));
-  }, [user.id]);
+  }, [clienteId]);
 
-  const fetchFavoritos = useCallback(async ({ page = 0, limit = PAGE_SIZE } = {}) => {
+  const fetchFavoritos = useCallback(async ({ page = 0, limit = PAGE_SIZE, clienteId: clienteIdParam = clienteId } = {}) => {
     const { data, error } = await supabase.rpc('get_favoritos_cliente', {
-      p_cliente_id: user.id,
+      p_cliente_id: clienteIdParam,
       p_limit: limit,
       p_offset: page * PAGE_SIZE,
     });
@@ -162,7 +169,7 @@ export default function ClientArea({ user, onLogout }) {
         ? { nome: f.profissional_nome, negocios: f.profissional_negocio_slug ? { slug: f.profissional_negocio_slug } : null }
         : null,
     }));
-  }, [user.id]);
+  }, [clienteId]);
 
   const syncAvaliacoesConcluidas = useCallback(async (agendamentosRows) => {
     const concluidosIds = (agendamentosRows || [])
@@ -199,20 +206,24 @@ export default function ClientArea({ user, onLogout }) {
     setLoadError('');
     setLoading(true);
     try {
-      const [perfil, ags, favs] = await Promise.all([
+      const [perfil, currentClienteId] = await Promise.all([
         loadPerfil(),
-        fetchAgendamentos(),
-        fetchFavoritos(),
+        fetchClienteId(),
+      ]);
+      setClienteId(currentClienteId);
+      const [agendamentosRows, favoritosRows] = await Promise.all([
+        fetchAgendamentos({ clienteId: currentClienteId }),
+        fetchFavoritos({ clienteId: currentClienteId }),
       ]);
       setNomePerfil(perfil.nome);
       setAvatarPath(perfil.avatarPath);
-      setAgendamentos(ags);
-      setFavoritos(favs);
-      await syncAvaliacoesConcluidas(ags);
+      setAgendamentos(agendamentosRows);
+      setFavoritos(favoritosRows);
+      await syncAvaliacoesConcluidas(agendamentosRows);
       setAgendamentosPage(0);
       setFavoritosPage(0);
-      setAgendamentosHasMore(ags.length === PAGE_SIZE);
-      setFavoritosHasMore(favs.length === PAGE_SIZE);
+      setAgendamentosHasMore(agendamentosRows.length === PAGE_SIZE);
+      setFavoritosHasMore(favoritosRows.length === PAGE_SIZE);
     } catch (error) {
       setLoadError(error?.message || 'Erro ao carregar dados.');
       setAgendamentos([]);
@@ -226,7 +237,7 @@ export default function ClientArea({ user, onLogout }) {
     } finally {
       setLoading(false);
     }
-  }, [user?.id, loadPerfil, fetchAgendamentos, fetchFavoritos, syncAvaliacoesConcluidas, uiAlert]);
+  }, [user?.id, loadPerfil, fetchClienteId, fetchAgendamentos, fetchFavoritos, syncAvaliacoesConcluidas, uiAlert]);
 
   useEffect(() => {
     if (user?.id) loadData();
@@ -239,12 +250,12 @@ export default function ClientArea({ user, onLogout }) {
   useEffect(() => { agendamentosPageRef.current = agendamentosPage; }, [agendamentosPage]);
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!clienteId) return;
     const channel = supabase
-      .channel(`agendamentos_cliente:${user.id}`)
+      .channel(`agendamentos_cliente:${clienteId}`)
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'agendamentos', filter: `cliente_id=eq.${user.id}` },
+        { event: '*', schema: 'public', table: 'agendamentos', filter: `cliente_id=eq.${clienteId}` },
         async () => {
           try {
             const limit = (agendamentosPageRef.current + 1) * PAGE_SIZE;
@@ -257,7 +268,7 @@ export default function ClientArea({ user, onLogout }) {
       )
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [syncAvaliacoesConcluidas, user?.id]);
+  }, [clienteId, syncAvaliacoesConcluidas]);
 
   const openFilePicker = () => fileInputRef.current?.click();
 
@@ -410,8 +421,9 @@ export default function ClientArea({ user, onLogout }) {
   };
 
   const removerFavorito = async (favoritoId) => {
+    if (!clienteId) return;
     try {
-      const { error } = await supabase.from('favoritos').delete().eq('id', favoritoId).eq('cliente_id', user.id);
+      const { error } = await supabase.from('favoritos').delete().eq('id', favoritoId).eq('cliente_id', clienteId);
       if (error) throw error;
       setFavoritos(prev => prev.filter(f => f.id !== favoritoId));
       uiAlert('clientArea.favorite_removed', 'success');
@@ -761,7 +773,7 @@ export default function ClientArea({ user, onLogout }) {
                       value={nomePerfil}
                       onChange={(e) => setNomePerfil(e.target.value)}
                       className="w-full bg-transparent px-0 py-2 text-[14px] text-white placeholder-gray-600 outline-none focus:text-white"
-                      placeholder="NOME COMPLETO"
+                      placeholder="Nome do perfil"
                     />
                   </div>
                   <button
@@ -783,7 +795,7 @@ export default function ClientArea({ user, onLogout }) {
                       onChange={(e) => setNovoEmail(e.target.value)}
                       readOnly={!emailVisivel}
                       className="w-full bg-transparent px-0 py-2 text-[14px] text-white placeholder-gray-600 outline-none focus:text-white"
-                      placeholder="E-MAIL DE ACESSO"
+                      placeholder="E-mail de acesso"
                     />
                   </div>
                   {emailVisivel ? (
