@@ -184,8 +184,8 @@ export default function InfoNegocioSection({
         <input
           value={nomePerfil}
           onChange={(e) => setNomePerfil(e.target.value)}
-          className={`${inputClass} truncate pr-10 sm:pr-0`}
-          placeholder="NOME DA CONTA"
+          className={`${inputClass} uppercase truncate pr-10 sm:pr-0`}
+          placeholder="NOME COMPLETO"
         />
       </InfoRow>
 
@@ -237,7 +237,7 @@ export default function InfoNegocioSection({
           onChange={(e) => setFormInfo((prev) => ({ ...prev, instagram: e.target.value }))}
           readOnly={!visiblePrivateFields.instagram}
           className={inputClass}
-          placeholder="@seuinstagram"
+          placeholder="@BARBEARIATORRES"
         />
       </InfoRow>
 
@@ -248,7 +248,7 @@ export default function InfoNegocioSection({
           onChange={(e) => setFormInfo((prev) => ({ ...prev, facebook: e.target.value }))}
           readOnly={!visiblePrivateFields.facebook}
           className={inputClass}
-          placeholder="barbearia-vikings"
+          placeholder="EX: BARBEARIA-TORRES"
         />
       </InfoRow>
 
@@ -345,7 +345,7 @@ export default function InfoNegocioSection({
           value={visiblePrivateFields.email ? novoEmail : maskedPrivateValue}
           onChange={(e) => setNovoEmail(e.target.value)}
           readOnly={!visiblePrivateFields.email}
-          className={inputClass}
+          className={`${inputClass} uppercase`}
         />
       </InfoRow>
 
