@@ -37,7 +37,8 @@ export default function BookingCalendar({
   onConfirm,
   onClose,
   negocioId,
-  clienteId,
+  actorUserId,
+  assistedClienteId = null,
   assistedBooking = false,
   temaAtivo = 'dark',
 }) {
@@ -149,14 +150,17 @@ export default function BookingCalendar({
   };
 
   const handleConfirm = async () => {
-    if (!selectedSlot || !selectedDay || !clienteId || !negocioId) return;
+    const clienteIdAssistido = assistedBooking ? assistedClienteId : null;
+    if (!selectedSlot || !selectedDay || !actorUserId || !negocioId) return;
+    if (assistedBooking && !clienteIdAssistido) return;
+
     setConfirming(true);
     setConfirmError(null);
     try {
       const isMultiplo = entregaIds.length > 1;
       const { data, error } = isMultiplo
         ? await supabase.rpc(assistedBooking ? 'rpc_criar_agendamentos_multiplos_assistido' : 'rpc_criar_agendamentos_multiplos', {
-            ...(assistedBooking ? { p_cliente_id: clienteId } : {}),
+            ...(assistedBooking ? { p_cliente_id: clienteIdAssistido } : {}),
             p_negocio_id:      negocioId,
             p_profissional_id: profissional.id,
             p_entrega_ids:     entregaIds,
@@ -164,7 +168,7 @@ export default function BookingCalendar({
             p_horario_inicio:  selectedSlot.hora,
           })
         : await supabase.rpc(assistedBooking ? 'rpc_criar_agendamento_assistido' : 'rpc_criar_agendamento', {
-            ...(assistedBooking ? { p_cliente_id: clienteId } : {}),
+            ...(assistedBooking ? { p_cliente_id: clienteIdAssistido } : {}),
             p_negocio_id:      negocioId,
             p_profissional_id: profissional.id,
             p_entrega_id:      entregaIds[0],
