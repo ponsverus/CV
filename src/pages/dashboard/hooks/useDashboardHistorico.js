@@ -1,54 +1,26 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AG_PAGE_SIZE, compareAgendamentoDateTimeDesc } from '../utils';
-import { fetchAgendamentosNegocio, fetchHistoricoProfissionalIds } from '../api/dashboardApi';
+import { fetchAgendamentosNegocio } from '../api/dashboardApi';
 
 export function useDashboardHistorico({
   negocioId,
   hoje,
-  agProfIds,
   parceiroProfissionalId,
-  parceiroProfissional,
 }) {
   const [historicoAgendamentos, setHistoricoAgendamentos] = useState([]);
   const [historicoPage, setHistoricoPage] = useState(0);
   const [historicoHasMore, setHistoricoHasMore] = useState(false);
   const [historicoLoadingMore, setHistoricoLoadingMore] = useState(false);
   const [historicoData, setHistoricoData] = useState('');
-  const [historicoProfIds, setHistoricoProfIds] = useState([]);
 
   useEffect(() => {
     setHistoricoData((prev) => (prev ? prev : hoje));
   }, [hoje]);
 
-  useEffect(() => {
-    let active = true;
-    if (!negocioId) {
-      setHistoricoProfIds([]);
-      return () => {
-        active = false;
-      };
-    }
-
-    if (parceiroProfissionalId) {
-      setHistoricoProfIds([parceiroProfissionalId]);
-      return () => {
-        active = false;
-      };
-    }
-
-    (async () => {
-      try {
-        const ids = await fetchHistoricoProfissionalIds(negocioId);
-        if (active) setHistoricoProfIds(ids);
-      } catch {
-        if (active) setHistoricoProfIds([]);
-      }
-    })();
-
-    return () => {
-      active = false;
-    };
-  }, [negocioId, parceiroProfissionalId]);
+  const historicoProfIds = useMemo(
+    () => (parceiroProfissionalId ? [parceiroProfissionalId] : []),
+    [parceiroProfissionalId]
+  );
 
   const fetchHistoricoPage = useCallback(async ({ profIds, date, page, append }) => {
     const rows = await fetchAgendamentosNegocio({
@@ -71,7 +43,7 @@ export function useDashboardHistorico({
   }, [negocioId]);
 
   useEffect(() => {
-    if (!historicoProfIds?.length || !historicoData || !negocioId) return;
+    if (!historicoData || !negocioId) return;
     setHistoricoPage(0);
     setHistoricoHasMore(false);
     setHistoricoAgendamentos([]);
@@ -79,7 +51,7 @@ export function useDashboardHistorico({
   }, [fetchHistoricoPage, historicoData, historicoProfIds, negocioId]);
 
   const loadMoreHistorico = useCallback(async () => {
-    if (historicoLoadingMore || !historicoHasMore || !negocioId || !historicoProfIds?.length) return;
+    if (historicoLoadingMore || !historicoHasMore || !negocioId) return;
     try {
       setHistoricoLoadingMore(true);
       const nextPage = historicoPage + 1;
