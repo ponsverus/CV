@@ -254,7 +254,7 @@ export default function InfoNegocioSection({
 
       <div className="border-b border-gray-800 px-4 py-4 sm:px-6">
         <div className="mb-4 flex items-center justify-between gap-4">
-          <span className="text-[10px] text-gray-400">{galeriaItems.length ? `${galeriaItems.length} IMGS` : 'NENHUMA IMAGEN AINDA'}</span>
+          <span className="text-[14px] text-gray-400">{galeriaItems.length ? `${galeriaItems.length} IMGS` : ':('}</span>
           <label>
             <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => uploadGaleria(e.target.files)} disabled={galleryUploading} />
             <span className={`inline-flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1 text-[12px] uppercase ${galleryUploading ? 'border-gray-800 text-gray-600' : 'border-primary/30 text-primary'}`}>
