@@ -416,7 +416,7 @@ export default function Dashboard({ user, onLogout }) {
         }
         reloadAgendamentosRef.current();
         loadHoje(negocio.id, parceiroProfissionalId);
-        loadTopCards(negocio.id, parceiroProfissionalId);
+        loadTopCards(negocio.id, parceiroProfissionalId, { silent: true });
         loadUtilizacao(negocio.id, hoje, parceiroProfissionalId);
         loadFutureBookings(negocio.id, hoje, parceiroProfissionalId);
       }).subscribe();
