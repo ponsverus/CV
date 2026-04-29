@@ -42,7 +42,7 @@ export function useDashboardMetrics({
 
   const loadTopCards = useCallback(async (id = negocioId, profId = parceiroProfissionalId, options = {}) => {
     if (!id) return;
-    const silent = !!options?.silent || !!metricsTopCards;
+    const silent = !!options?.silent;
     try {
       if (!silent) setMetricsTopCardsLoading(true);
       setMetricsTopCards(await fetchDashboardTopCards(id, profId));
@@ -51,7 +51,7 @@ export function useDashboardMetrics({
     } finally {
       if (!silent) setMetricsTopCardsLoading(false);
     }
-  }, [metricsTopCards, negocioId, parceiroProfissionalId]);
+  }, [negocioId, parceiroProfissionalId]);
 
   const loadDia = useCallback(async (id = negocioId, dateISO = faturamentoData || hoje, profId = parceiroProfissionalId) => {
     if (!id || !dateISO) return;
