@@ -23,7 +23,7 @@ export default function CanceladosSection({ hojeCancelados }) {
             );
           })}
         </div>
-      ) : <p className="text-gray-500 text-center py-12">NENHUM CANCELAMENTO HOJE</p>}
+      ) : <p className="text-green-500 text-center py-12">:)</p>}
     </div>
   );
 }
