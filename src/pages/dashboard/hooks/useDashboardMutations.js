@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '../../../supabase';
 import { isEnderecoPadrao, toNumberOrNull, toUpperClean } from '../utils';
-import { removeNegocioSeguramente, removeProfissionalSeguramente } from '../api/dashboardApi';
+import { aprovarParceiroProfissional, removeNegocioSeguramente, removeProfissionalSeguramente } from '../api/dashboardApi';
 import { convertImageToWebp, isImageFile } from '../../../utils/media';
 
 export function useDashboardMutations({
@@ -421,17 +421,7 @@ export function useDashboardMutations({
       return;
     }
     try {
-      const { error } = await supabase
-        .from('profissionais')
-        .update({
-          status: 'ativo',
-          motivo_inativo: null,
-          inativado_em: null,
-          inativado_por: null,
-        })
-        .eq('id', prof.id)
-        .eq('negocio_id', negocio.id);
-      if (error) throw error;
+      await aprovarParceiroProfissional(prof.id, negocio.id);
       await uiAlert('dashboard.professional_approved', 'success');
       await reloadProfissionais();
     } catch {
