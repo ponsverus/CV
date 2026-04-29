@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import TemaToggle from '../components/TemaToggle';
 
 function InfoRow({ label, children, action, last = false }) {
@@ -47,6 +47,7 @@ export default function InfoNegocioSection({
   navigate,
 }) {
   const [galleryIndex, setGalleryIndex] = useState(0);
+  const [sobreExpanded, setSobreExpanded] = useState(false);
   const [visiblePrivateFields, setVisiblePrivateFields] = useState({
     instagram: false,
     facebook: false,
@@ -219,8 +220,22 @@ export default function InfoNegocioSection({
       <div className="border-b border-gray-800 px-4 py-3 sm:px-6">
         <div className="mb-2 flex items-center justify-between gap-3">
           <span className="text-[14px] leading-5 text-gray-500">SOBRE</span>
-          {businessSaveAction('descricao')}
+          {sobreExpanded ? (
+            <button type="button" onClick={() => saveBusinessField('descricao')} disabled={infoSaving} className={saveButtonClass}>
+              {savingBusinessField === 'descricao' ? 'SALVANDO' : 'SALVAR'}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setSobreExpanded(true)}
+              className="shrink-0 rounded-full border border-primary/30 p-1.5 text-primary hover:border-primary"
+              aria-label="Abrir sobre o negocio"
+            >
+              <ChevronDown className="h-4 w-4" />
+            </button>
+          )}
         </div>
+        {sobreExpanded ? (
         <textarea
           value={formInfo.descricao}
           onChange={(e) => setFormInfo((prev) => ({ ...prev, descricao: e.target.value }))}
@@ -228,6 +243,7 @@ export default function InfoNegocioSection({
           className="max-h-32 w-full resize-none overflow-y-auto bg-transparent py-2 pl-0 pr-6 text-[14px] font-normal leading-5 text-white outline-none [scrollbar-width:none] placeholder-gray-600 focus:text-white sm:pr-0 [&::-webkit-scrollbar]:hidden"
           placeholder="Conte sobre seu negócio, atendimento e diferenciais"
         />
+        ) : null}
       </div>
 
       <InfoRow label="INSTAGRAM" action={privateBusinessAction('instagram')}>
@@ -254,7 +270,7 @@ export default function InfoNegocioSection({
 
       <div className="border-b border-gray-800 px-4 py-4 sm:px-6">
         <div className="mb-4 flex items-center justify-between gap-4">
-          <span className="text-[14px] text-gray-400">{galeriaItems.length ? `${galeriaItems.length} IMGS` : ':('}</span>
+          <span className="text-[14px] text-gray-400">GALERIA</span>
           <label>
             <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => uploadGaleria(e.target.files)} disabled={galleryUploading} />
             <span className={`inline-flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1 text-[12px] uppercase ${galleryUploading ? 'border-gray-800 text-gray-600' : 'border-primary/30 text-primary'}`}>
@@ -345,7 +361,7 @@ export default function InfoNegocioSection({
           value={visiblePrivateFields.email ? novoEmail : maskedPrivateValue}
           onChange={(e) => setNovoEmail(e.target.value)}
           readOnly={!visiblePrivateFields.email}
-          className={`${inputClass} uppercase`}
+          className={`${inputClass} max-w-[calc(100vw-13.75rem)] truncate pr-4 sm:max-w-none sm:pr-0`}
         />
       </InfoRow>
 
