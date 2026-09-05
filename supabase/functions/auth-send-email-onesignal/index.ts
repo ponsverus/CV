@@ -208,8 +208,8 @@ function button(label: string, href: string) {
   return `
     <table role="presentation" cellpadding="0" cellspacing="0" style="margin:28px 0;">
       <tr>
-        <td style="border-radius:6px;background:#111827;">
-          <a href="${escapeHtml(href)}" style="display:inline-block;padding:13px 18px;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;">
+        <td style="border-radius:9999px;background:#111827;">
+          <a href="${escapeHtml(href)}" style="display:inline-block;padding:13px 22px;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;border-radius:9999px;">
             ${escapeHtml(label)}
           </a>
         </td>
@@ -226,7 +226,7 @@ function authEmailHtml(title: string, body: string, actionLabel: string | null, 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;padding:28px 12px;">
       <tr>
         <td align="center">
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border:1px solid #e5e7eb;border-radius:8px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border:1px solid #e5e7eb;border-radius:3px;">
             <tr>
               <td style="padding:28px;">
                 <p style="margin:0 0 18px;font-size:14px;font-weight:700;color:#111827;">${escapeHtml(DEFAULT_FROM_NAME)}</p>
