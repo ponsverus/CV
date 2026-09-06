@@ -188,7 +188,7 @@ export default function InfoNegocioSection({
         />
       </InfoRow>
 
-      <div className="border-b border-gray-800 px-4 py-3 sm:px-6">
+      <div className={`border-b border-gray-800 px-4 pt-3 sm:px-6 ${sobreExpanded ? 'pb-0' : 'pb-3'}`}>
         <div className="flex items-center justify-between gap-3">
           <span className="text-[14px] leading-5 text-gray-500">SOBRE</span>
           {sobreExpanded ? (
@@ -244,7 +244,7 @@ export default function InfoNegocioSection({
                 </div>
               </div>
 
-              <SplitRow>
+              <SplitRow last>
                 <SplitField label="CIDADE" divider>
                   {addressTextInput('endereco_cidade')}
                 </SplitField>
