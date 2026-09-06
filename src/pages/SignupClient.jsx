@@ -83,7 +83,10 @@ export default function SignupClient({ onLogin }) {
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
-        options: { data: { type: 'client', nome } },
+        options: {
+          data: { type: 'client', nome },
+          emailRedirectTo: `${window.location.origin}/login`,
+        },
       });
 
       if (authError) {
@@ -97,6 +100,7 @@ export default function SignupClient({ onLogin }) {
 
       if (!authData.session) {
         showMessage('signupClient.created_confirm_email');
+        navigate('/login');
         return;
       }
 
