@@ -32,7 +32,7 @@ function SplitField({ label, children, divider = false }) {
 const inputClass = 'w-full bg-transparent px-0 py-2 text-[14px] text-white placeholder-gray-600 outline-none focus:text-white';
 const editButtonClass = 'shrink-0 rounded-full bg-primary px-3 py-1 text-[12px] font-normal uppercase text-black transition-colors hover:bg-primary/90 disabled:opacity-50';
 const saveButtonClass = 'shrink-0 rounded-full border border-primary/30 px-3 py-1 text-[12px] font-normal uppercase text-primary transition-colors hover:border-primary disabled:cursor-not-allowed disabled:opacity-40';
-const iconButtonClass = 'inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-800 text-gray-400 transition-colors hover:border-primary/50 hover:text-primary';
+const iconButtonClass = 'inline-flex shrink-0 items-center justify-center p-1 text-gray-400 transition-colors hover:text-primary';
 const maskedPrivateValue = '••••••••';
 const aboutFields = [
   'descricao',
