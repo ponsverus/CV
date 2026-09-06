@@ -6,9 +6,23 @@ import { useFeedback } from '../feedback/useFeedback';
 import { clearPasswordRecoveryState } from '../utils/auth';
 import { getPasswordUpdateAlertKey } from '../utils/friendlyErrors';
 
-export default function ResetPassword() {
+function getRecoveryRedirect(defaultRedirect) {
+  const fallback = defaultRedirect || '/login';
+
+  try {
+    const next = new URLSearchParams(window.location.search).get('next');
+    if (next && next.startsWith('/') && !next.startsWith('//')) return next;
+  } catch {
+    return fallback;
+  }
+
+  return fallback;
+}
+
+export default function ResetPassword({ defaultRedirect = '/login' }) {
   const navigate = useNavigate();
   const { showMessage } = useFeedback();
+  const redirectPath = getRecoveryRedirect(defaultRedirect);
   const [newPassword, setNewPassword] = useState('');
   const [newPassword2, setNewPassword2] = useState('');
   const [loading, setLoading] = useState(false);
@@ -40,7 +54,7 @@ export default function ResetPassword() {
         console.warn('ResetPassword signOut warning:', signOutError);
       }
       clearPasswordRecoveryState();
-      navigate('/login', { replace: true });
+      navigate(redirectPath, { replace: true });
     } catch (error) {
       showMessage(getPasswordUpdateAlertKey(error));
       console.error('ResetPassword update error:', error);
@@ -61,7 +75,7 @@ export default function ResetPassword() {
 
       <div className="w-full max-w-md relative z-10">
         <Link
-          to="/login"
+          to={redirectPath}
           onClick={() => {
             clearPasswordRecoveryState();
             supabase.auth.signOut();
