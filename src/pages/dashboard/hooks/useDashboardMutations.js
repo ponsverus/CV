@@ -133,7 +133,7 @@ export function useDashboardMutations({
 
   const uploadLogoNegocio = async (file) => {
     if (!file || !userId || logoUploading) return;
-    if (!(await ensureOwnerAction())) return;
+    if (!(await ensureOwnerAction())) return false;
     try {
       setLogoUploading(true);
       if (!isImageFile(file)) throw new Error('Formato invalido.');
@@ -161,6 +161,7 @@ export function useDashboardMutations({
       }
       await uiAlert('dashboard.logo_updated', 'success');
       await reloadNegocio();
+      return true;
     } catch {
       await uiAlert('dashboard.logo_update_error', 'error');
     } finally {
@@ -169,19 +170,19 @@ export function useDashboardMutations({
   };
 
   const salvarInfoNegocio = async () => {
-    if (infoSaving) return;
-    if (!(await ensureOwnerAction())) return;
+    if (infoSaving) return false;
+    if (!(await ensureOwnerAction())) return false;
     try {
       setInfoSaving(true);
       const telefone = normalizeBrazilPhone(formInfo.telefone);
       if (telefone === null) {
         await uiAlert('dashboard.business_phone_invalid', 'error');
-        return;
+        return false;
       }
       const descricao = String(formInfo.descricao || '').trim();
       if (descricao.length > 150) {
         await uiAlert('dashboard.business_description_too_long', 'error');
-        return;
+        return false;
       }
       const payload = {
         nome: toUpperClean(formInfo.nome),
@@ -201,8 +202,10 @@ export function useDashboardMutations({
       await updateNegocioInfo(negocio.id, userId, payload);
       await uiAlert('dashboard.business_info_updated', 'success');
       await reloadNegocio();
+      return true;
     } catch {
       await uiAlert('dashboard.business_info_update_error', 'error');
+      return false;
     } finally {
       setInfoSaving(false);
     }
@@ -210,7 +213,7 @@ export function useDashboardMutations({
 
   const salvarTema = async (novoTema) => {
     if (temaSaving) return;
-    if (!(await ensureOwnerAction())) return;
+    if (!(await ensureOwnerAction())) return false;
     setFormInfo((prev) => ({ ...prev, tema: novoTema }));
     try {
       setTemaSaving(true);
@@ -219,6 +222,7 @@ export function useDashboardMutations({
     } catch {
       setFormInfo((prev) => ({ ...prev, tema: negocio?.tema || 'dark' }));
       await uiAlert('dashboard.business_info_update_error', 'error');
+      return false;
     } finally {
       setTemaSaving(false);
     }
@@ -226,7 +230,7 @@ export function useDashboardMutations({
 
   const excluirNegocio = async () => {
     if (deletingBusiness) return;
-    if (!(await ensureOwnerAction())) return;
+    if (!(await ensureOwnerAction())) return false;
     const ok = await uiConfirm('dashboard.business_delete_confirm', 'warning');
     if (!ok) return;
     try {
@@ -267,7 +271,7 @@ export function useDashboardMutations({
 
   const uploadGaleria = async (files) => {
     if (!files?.length || galleryUploading) return;
-    if (!(await ensureOwnerAction())) return;
+    if (!(await ensureOwnerAction())) return false;
     try {
       setGalleryUploading(true);
       const selectedFiles = Array.from(files);

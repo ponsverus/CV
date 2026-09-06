@@ -81,6 +81,8 @@ export default function ClientArea({ user, onLogout, userType = 'client' }) {
   const [savingDados,    setSavingDados]    = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [emailVisivel,   setEmailVisivel]   = useState(false);
+  const [editingDados, setEditingDados] = useState({});
+  const [dadosBaselines, setDadosBaselines] = useState({});
 
   const [loadError, setLoadError] = useState('');
   const [clienteId, setClienteId] = useState(null);
@@ -385,7 +387,7 @@ export default function ClientArea({ user, onLogout, userType = 'client' }) {
 
   const salvarNome = async () => {
     const nome = String(nomePerfil || '').trim();
-    if (!nome) { uiAlert('clientArea.profile_name_required', 'error'); return; }
+    if (!nome) { uiAlert('clientArea.profile_name_required', 'error'); return false; }
     try {
       setSavingPerfil(true);
       const { error: updErr } = await withTimeout(
@@ -403,8 +405,10 @@ export default function ClientArea({ user, onLogout, userType = 'client' }) {
         console.warn('Falha ao atualizar metadados do usuário.', metaErr);
       }
       uiAlert('clientArea.profile_name_updated', 'success');
+      return true;
     } catch {
       uiAlert('clientArea.profile_name_update_error', 'error');
+      return false;
     } finally {
       setSavingPerfil(false);
     }
@@ -412,7 +416,7 @@ export default function ClientArea({ user, onLogout, userType = 'client' }) {
 
   const salvarEmail = async () => {
     const email = String(novoEmail || '').trim();
-    if (!email || !email.includes('@')) { uiAlert('clientArea.account_email_invalid', 'error'); return; }
+    if (!email || !email.includes('@')) { uiAlert('clientArea.account_email_invalid', 'error'); return false; }
     try {
       setSavingDados(true);
       const { error } = await withTimeout(
@@ -422,23 +426,20 @@ export default function ClientArea({ user, onLogout, userType = 'client' }) {
       );
       if (error) throw error;
       uiAlert('clientArea.account_email_update_sent', 'success');
+      return true;
     } catch {
       uiAlert('clientArea.account_email_update_error', 'error');
+      return false;
     } finally {
       setSavingDados(false);
     }
-  };
-
-  const salvarEmailVisivel = async () => {
-    await salvarEmail();
-    setEmailVisivel(false);
   };
 
   const salvarTelefone = async () => {
     const telefone = normalizeBrazilPhone(telefoneCliente);
     if (telefone === null) {
       uiAlert('clientArea.phone_invalid', 'error');
-      return;
+      return false;
     }
 
     try {
@@ -454,8 +455,10 @@ export default function ClientArea({ user, onLogout, userType = 'client' }) {
       );
       if (error) throw error;
       uiAlert('clientArea.phone_updated', 'success');
+      return true;
     } catch {
       uiAlert('clientArea.phone_update_error', 'error');
+      return false;
     } finally {
       setSavingDados(false);
     }
@@ -464,8 +467,8 @@ export default function ClientArea({ user, onLogout, userType = 'client' }) {
   const salvarSenha = async () => {
     const pass = String(novaSenha || '');
     const conf = String(confirmarSenha || '');
-    if (pass.length < 7) { uiAlert('clientArea.account_password_too_short', 'error'); return; }
-    if (pass !== conf)   { uiAlert('clientArea.account_password_mismatch',  'error'); return; }
+    if (pass.length < 7) { uiAlert('clientArea.account_password_too_short', 'error'); return false; }
+    if (pass !== conf)   { uiAlert('clientArea.account_password_mismatch',  'error'); return false; }
     try {
       setSavingDados(true);
       const { error } = await withTimeout(
@@ -477,13 +480,75 @@ export default function ClientArea({ user, onLogout, userType = 'client' }) {
       setNovaSenha('');
       setConfirmarSenha('');
       uiAlert('clientArea.account_password_updated', 'success');
+      return true;
     } catch {
       uiAlert('clientArea.account_password_update_error', 'error');
+      return false;
     } finally {
       setSavingDados(false);
     }
   };
 
+  const dataEditButtonClass = 'shrink-0 rounded-full bg-primary px-3 py-1 text-[12px] font-normal uppercase text-black transition-colors hover:bg-primary/90 disabled:opacity-50';
+  const dataSaveButtonClass = 'shrink-0 rounded-full border border-primary/30 px-3 py-1 text-[12px] font-normal uppercase text-primary transition-colors hover:border-primary disabled:cursor-not-allowed disabled:opacity-40';
+  const dataInputClass = 'w-full bg-transparent px-0 py-2 text-[14px] text-white placeholder-gray-600 outline-none focus:text-white';
+  const dataPillInputClass = 'w-full rounded-full border border-gray-800 bg-transparent px-4 py-2 text-center text-[14px] text-white placeholder-gray-600 outline-none focus:border-primary/50 focus:text-white';
+
+  const getDadosFieldValue = (field) => {
+    if (field === 'nome') return String(nomePerfil ?? '');
+    if (field === 'email') return String(novoEmail ?? '');
+    if (field === 'telefone') return String(telefoneCliente ?? '');
+    if (field === 'senha') return JSON.stringify([novaSenha || '', confirmarSenha || '']);
+    return '';
+  };
+
+  const isDadosEditing = (field) => Boolean(editingDados[field]);
+  const dadosFieldChanged = (field) => isDadosEditing(field) && dadosBaselines[field] !== getDadosFieldValue(field);
+  const dadosInputStateClass = (editing) => editing ? '' : 'cursor-default text-gray-300 focus:text-gray-300';
+
+  const startDadosEditing = (field) => {
+    if (field === 'email') setEmailVisivel(true);
+    setDadosBaselines((current) => ({ ...current, [field]: getDadosFieldValue(field) }));
+    setEditingDados((current) => ({ ...current, [field]: true }));
+  };
+
+  const stopDadosEditing = (field) => {
+    if (field === 'email') setEmailVisivel(false);
+    setEditingDados((current) => ({ ...current, [field]: false }));
+    setDadosBaselines((current) => {
+      const next = { ...current };
+      delete next[field];
+      return next;
+    });
+  };
+
+  const saveDadosField = async (field, saveFn) => {
+    if (!dadosFieldChanged(field)) return;
+    const saved = await Promise.resolve(saveFn());
+    if (saved !== false) stopDadosEditing(field);
+  };
+
+  const renderDadosAction = (field, saveFn, saving) => (
+    isDadosEditing(field) ? (
+      <button
+        type="button"
+        disabled={saving || !dadosFieldChanged(field)}
+        onClick={() => saveDadosField(field, saveFn)}
+        className={dataSaveButtonClass}
+      >
+        {saving ? 'SALVANDO' : 'SALVAR'}
+      </button>
+    ) : (
+      <button
+        type="button"
+        disabled={saving}
+        onClick={() => startDadosEditing(field)}
+        className={dataEditButtonClass}
+      >
+        EDITAR
+      </button>
+    )
+  );
   const cancelarAgendamento = async (agendamentoId) => {
     const ok = await uiConfirm('clientArea.booking_cancel_confirm', 'warning');
     if (!ok) return;
@@ -870,50 +935,27 @@ export default function ClientArea({ user, onLogout, userType = 'client' }) {
                       type="text"
                       value={nomePerfil}
                       onChange={(e) => setNomePerfil(e.target.value)}
-                      className="w-full bg-transparent px-0 py-2 text-[14px] text-white uppercase placeholder-gray-600 outline-none focus:text-white"
+                      readOnly={!isDadosEditing('nome')}
+                      className={`${dataInputClass} uppercase ${dadosInputStateClass(isDadosEditing('nome'))}`}
                       placeholder="NOME DO PERFIL"
                     />
                   </div>
-                  <button
-                    type="button"
-                    onClick={salvarNome}
-                    disabled={savingPerfil}
-                    className="shrink-0 rounded-full border border-primary/30 px-3 py-1 text-[12px] font-normal uppercase text-primary disabled:opacity-50"
-                  >
-                    {savingPerfil ? 'SALVANDO' : 'SALVAR'}
-                  </button>
+                  {renderDadosAction('nome', salvarNome, savingPerfil)}
                 </div>
 
                 <div className="flex items-start gap-3 border-b border-gray-800 px-4 py-3 sm:px-6">
                   <span className="w-[74px] shrink-0 py-2 text-[14px] leading-5 text-gray-500">E-MAIL</span>
                   <div className="min-w-0 flex-1">
                     <input
-                      type={emailVisivel ? 'email' : 'text'}
-                      value={emailVisivel ? novoEmail : maskedPrivateValue}
+                      type={emailVisivel || isDadosEditing('email') ? 'email' : 'text'}
+                      value={isDadosEditing('email') ? novoEmail : maskedPrivateValue}
                       onChange={(e) => setNovoEmail(e.target.value)}
-                      readOnly={!emailVisivel}
-                      className="w-full bg-transparent px-0 py-2 text-[14px] text-white uppercase truncate pr-2 placeholder-gray-600 outline-none focus:text-white"
+                      readOnly={!isDadosEditing('email')}
+                      className={`${dataInputClass} uppercase truncate pr-2 ${dadosInputStateClass(isDadosEditing('email'))}`}
                       placeholder="E-MAIL DE ACESSO"
                     />
                   </div>
-                  {emailVisivel ? (
-                    <button
-                      type="button"
-                      disabled={savingDados}
-                      onClick={salvarEmailVisivel}
-                      className="shrink-0 rounded-full border border-primary/30 px-3 py-1 text-[12px] font-normal uppercase text-primary disabled:opacity-50"
-                    >
-                      {savingDados ? 'SALVANDO' : 'SALVAR'}
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => setEmailVisivel(true)}
-                      className="shrink-0 rounded-full border border-primary/30 px-3 py-1 text-[12px] font-normal uppercase text-primary disabled:opacity-50"
-                    >
-                      VER E-MAIL
-                    </button>
-                  )}
+                  {renderDadosAction('email', salvarEmail, savingDados)}
                 </div>
 
                 <div className="flex items-start gap-3 border-b border-gray-800 px-4 py-3 sm:px-6">
@@ -923,31 +965,18 @@ export default function ClientArea({ user, onLogout, userType = 'client' }) {
                       type="tel"
                       value={telefoneCliente}
                       onChange={(e) => setTelefoneCliente(e.target.value)}
-                      className="w-full bg-transparent px-0 py-2 text-[14px] text-white uppercase placeholder-gray-600 outline-none focus:text-white"
+                      readOnly={!isDadosEditing('telefone')}
+                      className={`${dataInputClass} uppercase ${dadosInputStateClass(isDadosEditing('telefone'))}`}
                       placeholder="WHATSAPP"
                     />
                   </div>
-                  <button
-                    type="button"
-                    onClick={salvarTelefone}
-                    disabled={savingDados}
-                    className="shrink-0 rounded-full border border-primary/30 px-3 py-1 text-[12px] font-normal uppercase text-primary disabled:opacity-50"
-                  >
-                    {savingDados ? 'SALVANDO' : 'SALVAR'}
-                  </button>
+                  {renderDadosAction('telefone', salvarTelefone, savingDados)}
                 </div>
 
                 <div className="px-4 py-3 sm:px-6">
                   <div className="mb-3 flex items-center justify-between gap-3">
                     <span className="text-[14px] leading-5 text-gray-500">SENHA</span>
-                    <button
-                      type="button"
-                      disabled={savingDados}
-                      onClick={salvarSenha}
-                      className="shrink-0 rounded-full border border-green-500/40 px-3 py-1 text-[12px] font-normal uppercase text-green-300 disabled:opacity-50"
-                    >
-                      {savingDados ? 'SALVANDO' : 'SALVAR'}
-                    </button>
+                    {renderDadosAction('senha', salvarSenha, savingDados)}
                   </div>
 
                   <div className="grid grid-cols-2 gap-2">
@@ -955,14 +984,16 @@ export default function ClientArea({ user, onLogout, userType = 'client' }) {
                       type="password"
                       value={novaSenha}
                       onChange={(e) => setNovaSenha(e.target.value)}
-                      className="w-full rounded-full border border-gray-800 bg-transparent px-4 py-2 text-center text-[14px] text-white placeholder-gray-600 outline-none focus:border-primary/50 focus:text-white"
+                      readOnly={!isDadosEditing('senha')}
+                      className={`${dataPillInputClass} ${dadosInputStateClass(isDadosEditing('senha'))}`}
                       placeholder="NOVA SENHA"
                     />
                     <input
                       type="password"
                       value={confirmarSenha}
                       onChange={(e) => setConfirmarSenha(e.target.value)}
-                      className="w-full rounded-full border border-gray-800 bg-transparent px-4 py-2 text-center text-[14px] text-white placeholder-gray-600 outline-none focus:border-primary/50 focus:text-white"
+                      readOnly={!isDadosEditing('senha')}
+                      className={`${dataPillInputClass} ${dadosInputStateClass(isDadosEditing('senha'))}`}
                       placeholder="CONFIRMAR"
                     />
                   </div>
