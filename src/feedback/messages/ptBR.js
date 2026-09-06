@@ -921,6 +921,7 @@ export const ptBR = {
     email_not_confirmed:            { body: 'Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada e spam.', variant: 'aviso' },
     rate_limit_exceeded:            { body: 'Muitas tentativas em pouco tempo. Aguarde um minuto e tente novamente.', variant: 'aviso' },
     auth_error:                     { body: 'Erro ao autenticar agora. Tente novamente.', variant: 'erro' },
+    profile_access_unavailable:     { body: 'Ocorreu um erro ao confirmar seu perfil. Tente novamente em alguns segundos.' },
     not_partner:                    { body: 'Este login pertence a outro tipo de conta para este negócio.', variant: 'erro' },
     unexpected_error:               { body: 'Ocorreu um erro inesperado. Tente novamente.', variant: 'erro' },
     reset_email_required:           { body: 'Digite seu e-mail antes de solicitar o resgate de senha.', variant: 'aviso' },
@@ -1202,6 +1203,16 @@ export const ptBR = {
       body:
         'Confira seu e-mail, sua senha e o tipo selecionado.\n' +
         'Se o problema persistir, acesse SUPORTE no rodapé da página para falar com a gente.',
+      variant: 'warning',
+      screen: 'dark',
+      buttonText: 'ENTENDI',
+    },
+    profile_access_unavailable: {
+      title: 'Houve um erro ao carregar seu acesso',
+      body:
+        'Sua senha foi aceita, mas houve erro confirmar seu perfil agora.\n' +
+        'Tente novamente em alguns segundos.\n' +
+        'Se persistir, acesse SUPORTE no rodapé da página.',
       variant: 'warning',
       screen: 'dark',
       buttonText: 'ENTENDI',
