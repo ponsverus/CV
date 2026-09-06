@@ -302,7 +302,7 @@ export default function App() {
         setUserType(profile.type);
         setOnboardingStatus(profile.onboardingStatus);
         setProfessionalRole(isValidProfessionalRole(profile.professionalRole) ? profile.professionalRole : null);
-        setAccessState(profile.accessState || 'active');
+        setAccessState(profile.accessState);
         setFatalError(null);
       });
       return profile;
@@ -332,7 +332,7 @@ export default function App() {
         setOnboardingStatus(null);
         setProfessionalRole(null);
         setAccessState('active');
-        setFatalError('Falha ao carregar perfil.');
+        setFatalError('Não foi possível carregar seu perfil agora. Tente novamente em alguns segundos.');
       });
       console.error('Profile load error:', e);
       return null;
