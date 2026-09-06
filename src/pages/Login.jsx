@@ -1,18 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../supabase';
 import { useFeedback } from '../feedback/useFeedback';
 import { fetchUserAccessProfile } from '../utils/profileAccess';
-import { clearPasswordRecoveryState } from '../utils/auth';
 import {
   getLoginAuthAlertKey,
   getPasswordResetRequestAlertKey,
-  getPasswordUpdateAlertKey,
 } from '../utils/friendlyErrors';
 import { ProfessionalIcon, UserIcon } from '../components/icons';
 
-export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
+export default function Login({ onLogin }) {
   const [step, setStep] = useState(1);
   const [userType, setUserType] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -20,33 +18,9 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
 
   const [formData, setFormData] = useState({ email: '', password: '' });
   const navigate = useNavigate();
-
-  const [isRecovery, setIsRecovery] = useState(inRecoveryProp);
-  const [recoveryLoading, setRecoveryLoading] = useState(false);
-  const [newPassword, setNewPassword] = useState('');
-  const [newPassword2, setNewPassword2] = useState('');
-
   const [resetLoading, setResetLoading] = useState(false);
 
   const { showMessage } = useFeedback();
-
-  useEffect(() => {
-    setIsRecovery(!!inRecoveryProp);
-    setStep(inRecoveryProp ? 2 : 1);
-  }, [inRecoveryProp]);
-
-  useEffect(() => {
-    const { data } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') {
-        setIsRecovery(true);
-        setStep(2);
-      }
-    });
-
-    return () => {
-      data?.subscription?.unsubscribe?.();
-    };
-  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -121,7 +95,7 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
       }
 
       const { error: resetErr } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: `${window.location.origin}/reset-password?next=${encodeURIComponent('/login')}`,
       });
 
       if (resetErr) throw resetErr;
@@ -134,48 +108,9 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
       setResetLoading(false);
     }
   };
-
-  const handleSetNewPassword = async (e) => {
-    e.preventDefault();
-    if (recoveryLoading) return;
-
-    setRecoveryLoading(true);
-
-    try {
-      if (newPassword.length < 7) {
-        showMessage('login.recovery_password_too_short');
-        return;
-      }
-      if (newPassword !== newPassword2) {
-        showMessage('login.recovery_password_mismatch');
-        return;
-      }
-
-      const { error: upErr } = await supabase.auth.updateUser({ password: newPassword });
-      if (upErr) throw upErr;
-
-      showMessage('login.recovery_password_updated');
-
-      try {
-        await supabase.auth.signOut({ scope: 'local' });
-      } catch (signOutError) {
-        console.warn('Password recovery signOut warning:', signOutError);
-      }
-      clearPasswordRecoveryState();
-      navigate('/login', { replace: true });
-    } catch (e2) {
-      showMessage(getPasswordUpdateAlertKey(e2));
-      console.error('Password update error:', e2);
-    } finally {
-      setRecoveryLoading(false);
-    }
-  };
-
-  const title = isRecovery
-    ? 'Definir nova senha'
-    : step === 1
-      ? 'BEM-VINDO DE VOLTA'
-      : `${userType === 'client' ? 'CLIENTE' : 'PROFISSIONAL'}`;
+  const title = step === 1
+    ? 'BEM-VINDO DE VOLTA'
+    : `${userType === 'client' ? 'CLIENTE' : 'PROFISSIONAL'}`;
 
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center p-4 relative overflow-hidden">
@@ -203,53 +138,12 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
         <div className="relative">
           <div className="text-center mb-10">
             <h1 className="text-4xl font-normal mb-3 tracking-wide">{title}</h1>
-            {step === 1 && !isRecovery && (
+            {step === 1 && (
               <p className="text-gray-500 text-base font-normal">:)</p>
             )}
           </div>
 
-          {isRecovery ? (
-            <form onSubmit={handleSetNewPassword} className="space-y-5">
-              <div className="space-y-4">
-                <div className="relative group">
-                  <input
-                    type="password"
-                    placeholder="NOVA SENHA"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full px-5 py-4 bg-dark-100/50 border border-gray-800 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all backdrop-blur-sm"
-                    required
-                  />
-                </div>
-
-                <div className="relative group">
-                  <input
-                    type="password"
-                    placeholder="CONFIRMAR"
-                    value={newPassword2}
-                    onChange={(e) => setNewPassword2(e.target.value)}
-                    className="w-full px-5 py-4 bg-dark-100/50 border border-gray-800 rounded-custom text-white placeholder-gray-600 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all backdrop-blur-sm"
-                    required
-                  />
-                </div>
-              </div>
-
-              <button
-                disabled={recoveryLoading}
-                className="w-full py-4 bg-gradient-to-r from-primary to-yellow-600 text-black font-normal rounded-button hover:shadow-lg hover:shadow-primary/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {recoveryLoading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                    SALVANDO...
-                  </span>
-                ) : (
-                  'SALVAR NOVA SENHA'
-                )}
-              </button>
-            </form>
-          ) : (
-            <>
+          <>
               {step === 1 ? (
                 <div className="grid grid-cols-2 gap-5">
                   <button
@@ -357,8 +251,7 @@ export default function Login({ onLogin, inRecovery: inRecoveryProp = false }) {
                   </div>
                 </form>
               )}
-            </>
-          )}
+          </>
         </div>
 
         <div className="text-center mt-12">
