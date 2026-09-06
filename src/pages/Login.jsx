@@ -41,7 +41,7 @@ export default function Login({ onLogin }) {
       const authUser = authData?.user;
       if (!authUser?.id) throw new Error('Falha ao autenticar.');
 
-      const profile = await fetchUserAccessProfile(authUser.id);
+      const profile = await fetchUserAccessProfile();
 
       if (!profile) {
         await supabase.auth.signOut();
