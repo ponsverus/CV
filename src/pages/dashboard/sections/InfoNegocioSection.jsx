@@ -191,21 +191,22 @@ export default function InfoNegocioSection({
       <div className="border-b border-gray-800 px-4 py-3 sm:px-6">
         <div className="flex items-center justify-between gap-3">
           <span className="text-[14px] leading-5 text-gray-500">SOBRE</span>
-          <button
-            type="button"
-            onClick={() => setSobreExpanded((current) => !current)}
-            className={iconButtonClass}
-            aria-expanded={sobreExpanded}
-            aria-label={sobreExpanded ? 'Recolher sobre' : 'Expandir sobre'}
-          >
-            <ChevronDown className={`h-4 w-4 transition-transform ${sobreExpanded ? 'rotate-180' : ''}`} />
-          </button>
+          {sobreExpanded ? (
+            businessFieldAction('sobre')
+          ) : (
+            <button
+              type="button"
+              onClick={() => setSobreExpanded(true)}
+              className={iconButtonClass}
+              aria-expanded={sobreExpanded}
+              aria-label="Expandir sobre"
+            >
+              <ChevronDown className="h-4 w-4" />
+            </button>
+          )}
         </div>
         {sobreExpanded ? (
           <>
-            <div className="mt-3 flex justify-end">
-              {businessFieldAction('sobre')}
-            </div>
             <textarea
               value={formInfo.descricao}
               onChange={(e) => setFormInfo((prev) => ({ ...prev, descricao: e.target.value }))}
