@@ -332,7 +332,7 @@ export default function App() {
         setOnboardingStatus(null);
         setProfessionalRole(null);
         setAccessState('active');
-        setFatalError('Não foi possível carregar seu perfil agora. Tente novamente em alguns segundos.');
+        setFatalError('Ocorreu um erro ao confirmar seu perfil. Tente novamente em alguns segundos.');
       });
       console.error('Profile load error:', e);
       return null;
