@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Plus } from 'lucide-react';
+import { ChevronDown, Plus } from 'lucide-react';
 import TemaToggle from '../components/TemaToggle';
 
 function InfoRow({ label, children, action, last = false }) {
@@ -32,6 +32,7 @@ function SplitField({ label, children, divider = false }) {
 const inputClass = 'w-full bg-transparent px-0 py-2 text-[14px] text-white placeholder-gray-600 outline-none focus:text-white';
 const editButtonClass = 'shrink-0 rounded-full bg-primary px-3 py-1 text-[12px] font-normal uppercase text-black transition-colors hover:bg-primary/90 disabled:opacity-50';
 const saveButtonClass = 'shrink-0 rounded-full border border-primary/30 px-3 py-1 text-[12px] font-normal uppercase text-primary transition-colors hover:border-primary disabled:cursor-not-allowed disabled:opacity-40';
+const iconButtonClass = 'inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-800 text-gray-400 transition-colors hover:border-primary/50 hover:text-primary';
 const maskedPrivateValue = '••••••••';
 const aboutFields = [
   'descricao',
@@ -109,7 +110,6 @@ export default function InfoNegocioSection({
   };
 
   const stopEditing = (field) => {
-    if (field === 'sobre') setSobreExpanded(false);
     if (field === 'instagram' || field === 'facebook') {
       setVisiblePrivateFields((current) => ({ ...current, [field]: false }));
     }
@@ -189,12 +189,23 @@ export default function InfoNegocioSection({
       </InfoRow>
 
       <div className="border-b border-gray-800 px-4 py-3 sm:px-6">
-        <div className="mb-2 flex items-center justify-between gap-3">
+        <div className="flex items-center justify-between gap-3">
           <span className="text-[14px] leading-5 text-gray-500">SOBRE</span>
-          {businessFieldAction('sobre')}
+          <button
+            type="button"
+            onClick={() => setSobreExpanded((current) => !current)}
+            className={iconButtonClass}
+            aria-expanded={sobreExpanded}
+            aria-label={sobreExpanded ? 'Recolher sobre' : 'Expandir sobre'}
+          >
+            <ChevronDown className={`h-4 w-4 transition-transform ${sobreExpanded ? 'rotate-180' : ''}`} />
+          </button>
         </div>
         {sobreExpanded ? (
           <>
+            <div className="mt-3 flex justify-end">
+              {businessFieldAction('sobre')}
+            </div>
             <textarea
               value={formInfo.descricao}
               onChange={(e) => setFormInfo((prev) => ({ ...prev, descricao: e.target.value }))}
