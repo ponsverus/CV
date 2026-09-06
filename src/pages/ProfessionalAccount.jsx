@@ -60,7 +60,7 @@ export default function ProfessionalAccount({ user, onLogout, professionalRole =
     const nome = String(nomePerfil || '').trim();
     if (!nome) {
       await uiAlert('clientArea.profile_name_required', 'error');
-      return;
+      return false;
     }
     try {
       setSavingPerfil(true);
@@ -78,8 +78,10 @@ export default function ProfessionalAccount({ user, onLogout, professionalRole =
       if (metaErr) console.warn('Falha ao atualizar metadados do usuario.', metaErr);
       setNomePerfil(nome);
       await uiAlert('clientArea.profile_name_updated', 'success');
+      return true;
     } catch {
       await uiAlert('clientArea.profile_name_update_error', 'error');
+      return false;
     } finally {
       setSavingPerfil(false);
     }
@@ -89,7 +91,7 @@ export default function ProfessionalAccount({ user, onLogout, professionalRole =
     const email = String(novoEmail || '').trim();
     if (!email || !email.includes('@')) {
       await uiAlert('dashboard.account_email_invalid', 'error');
-      return;
+      return false;
     }
     try {
       setSavingDados(true);
@@ -100,8 +102,10 @@ export default function ProfessionalAccount({ user, onLogout, professionalRole =
       );
       if (error) throw error;
       await uiAlert('dashboard.account_email_update_sent', 'success');
+      return true;
     } catch {
       await uiAlert('dashboard.account_email_update_error', 'error');
+      return false;
     } finally {
       setSavingDados(false);
     }
@@ -112,11 +116,11 @@ export default function ProfessionalAccount({ user, onLogout, professionalRole =
     const conf = String(confirmarSenha || '');
     if (pass.length < 7) {
       await uiAlert('dashboard.account_password_too_short', 'error');
-      return;
+      return false;
     }
     if (pass !== conf) {
       await uiAlert('dashboard.account_password_mismatch', 'error');
-      return;
+      return false;
     }
     try {
       setSavingDados(true);
@@ -129,8 +133,10 @@ export default function ProfessionalAccount({ user, onLogout, professionalRole =
       setNovaSenha('');
       setConfirmarSenha('');
       await uiAlert('dashboard.account_password_updated', 'success');
+      return true;
     } catch {
       await uiAlert('dashboard.account_password_update_error', 'error');
+      return false;
     } finally {
       setSavingDados(false);
     }
