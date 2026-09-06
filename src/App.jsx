@@ -516,9 +516,9 @@ export default function App() {
             <Route path="/reset-password" element={<ResetPassword />} />
 
             <Route path="/login" element={
-              inRecovery ? <Login onLogin={handleLogin} inRecovery={true} />
+              inRecovery ? <ResetPassword defaultRedirect="/login" />
               : isLoggedIn && userType ? <Navigate to={getPostLoginPath(userType, accessState, onboardingStatus)} />
-              : <Login onLogin={handleLogin} inRecovery={false} />
+              : <Login onLogin={handleLogin} />
             } />
 
             <Route path="/cadastro/parceiro" element={
@@ -529,7 +529,7 @@ export default function App() {
 
             <Route path="/login/parceiro" element={
               inRecovery
-                ? <LoginParceiro onLogin={handleLogin} suppressAuthRef={suppressAuthRef} inRecovery={true} />
+                ? <ResetPassword defaultRedirect="/login/parceiro" />
                 : isLoggedIn && userType
                   ? <Navigate to={getPostLoginPath(userType, accessState, onboardingStatus)} />
                   : <LoginParceiro onLogin={handleLogin} suppressAuthRef={suppressAuthRef} />
