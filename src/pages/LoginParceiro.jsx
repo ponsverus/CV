@@ -94,7 +94,7 @@ export default function LoginParceiro({ onLogin, suppressAuthRef }) {
         signInData.user,
         'professional',
         accessProfile.onboardingStatus,
-        accessProfile.accessState || 'active',
+        accessProfile.accessState,
         'partner'
       );
       navigate('/selecionar-negocio-parceiro', { replace: true });

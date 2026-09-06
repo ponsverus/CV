@@ -40,12 +40,19 @@ export function isSessionInvalidOrExpiredError(error) {
     || raw.includes('auth session missing');
 }
 
+export function isProfileAccessError(error) {
+  const raw = getErrorText(error);
+  return raw.includes('user_access_profile_unavailable')
+    || raw.includes('invalid_user_access_profile_contract');
+}
+
 export function getLoginAuthAlertKey(error) {
   const raw = getErrorText(error);
 
   if (isRateLimitError(error)) return 'alerts.rate_limit_exceeded';
   if (isEmailNotConfirmedError(error)) return 'login.email_not_confirmed';
   if (isInvalidCredentialsError(error)) return 'login.credentials_invalid';
+  if (isProfileAccessError(error)) return 'login.profile_access_unavailable';
   if (raw.includes('perfil inexistente')) return 'login.profile_not_ready';
   if (raw.includes('selecione o tipo de conta')) return 'login.account_type_required';
   if (raw.includes('esta conta e de') || raw.includes('esta conta é de')) return 'login.account_type_mismatch';
@@ -74,6 +81,7 @@ export function getParceiroLoginAlert(error, msgs) {
   if (isRateLimitError(error)) return msgs.rate_limit_exceeded || msgs.auth_error;
   if (isEmailNotConfirmedError(error)) return msgs.email_not_confirmed || msgs.auth_error;
   if (isInvalidCredentialsError(error)) return msgs.credentials_invalid || msgs.auth_error;
+  if (isProfileAccessError(error)) return msgs.profile_access_unavailable || msgs.auth_error;
   return msgs.auth_error;
 }
 
