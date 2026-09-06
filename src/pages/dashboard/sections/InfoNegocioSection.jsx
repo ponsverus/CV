@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ChevronDown, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import TemaToggle from '../components/TemaToggle';
 
 function InfoRow({ label, children, action, last = false }) {
@@ -30,8 +30,23 @@ function SplitField({ label, children, divider = false }) {
 }
 
 const inputClass = 'w-full bg-transparent px-0 py-2 text-[14px] text-white placeholder-gray-600 outline-none focus:text-white';
-const saveButtonClass = 'shrink-0 rounded-full border border-primary/30 px-3 py-1 text-[12px] font-normal uppercase text-primary disabled:opacity-50';
+const editButtonClass = 'shrink-0 rounded-full bg-primary px-3 py-1 text-[12px] font-normal uppercase text-black transition-colors hover:bg-primary/90 disabled:opacity-50';
+const saveButtonClass = 'shrink-0 rounded-full border border-primary/30 px-3 py-1 text-[12px] font-normal uppercase text-primary transition-colors hover:border-primary disabled:cursor-not-allowed disabled:opacity-40';
 const maskedPrivateValue = '••••••••';
+const aboutFields = [
+  'descricao',
+  'endereco_cep',
+  'endereco_bairro',
+  'endereco_rua',
+  'endereco_numero',
+  'endereco_complemento',
+  'endereco_cidade',
+  'endereco_estado',
+];
+
+function normalizedFieldValue(value) {
+  return String(value ?? '');
+}
 
 export default function InfoNegocioSection({
   salvarInfoNegocio,
@@ -57,6 +72,8 @@ export default function InfoNegocioSection({
     instagram: false,
     facebook: false,
   });
+  const [editingFields, setEditingFields] = useState({});
+  const [fieldBaselines, setFieldBaselines] = useState({});
   const [savingBusinessField, setSavingBusinessField] = useState(null);
   const gallerySentinelRef = useRef(null);
 
@@ -72,47 +89,69 @@ export default function InfoNegocioSection({
     return () => observer.disconnect();
   }, [galeriaHasMore, galeriaLoadingMore, loadMoreGaleria]);
 
-  const revealPrivateField = (field) => {
-    setVisiblePrivateFields((current) => ({ ...current, [field]: true }));
+  const getBusinessFieldValue = (field) => {
+    if (field === 'sobre') {
+      return JSON.stringify(aboutFields.map((key) => normalizedFieldValue(formInfo[key])));
+    }
+    return normalizedFieldValue(formInfo[field]);
   };
 
-  const hidePrivateField = (field) => {
-    setVisiblePrivateFields((current) => ({ ...current, [field]: false }));
+  const isEditing = (field) => Boolean(editingFields[field]);
+  const fieldChanged = (field) => isEditing(field) && fieldBaselines[field] !== getBusinessFieldValue(field);
+
+  const startEditing = (field) => {
+    if (field === 'sobre') setSobreExpanded(true);
+    if (field === 'instagram' || field === 'facebook') {
+      setVisiblePrivateFields((current) => ({ ...current, [field]: true }));
+    }
+    setFieldBaselines((current) => ({ ...current, [field]: getBusinessFieldValue(field) }));
+    setEditingFields((current) => ({ ...current, [field]: true }));
+  };
+
+  const stopEditing = (field) => {
+    if (field === 'sobre') setSobreExpanded(false);
+    if (field === 'instagram' || field === 'facebook') {
+      setVisiblePrivateFields((current) => ({ ...current, [field]: false }));
+    }
+    setEditingFields((current) => ({ ...current, [field]: false }));
+    setFieldBaselines((current) => {
+      const next = { ...current };
+      delete next[field];
+      return next;
+    });
   };
 
   const saveBusinessField = async (field) => {
+    if (!fieldChanged(field)) return;
     try {
       setSavingBusinessField(field);
-      await Promise.resolve(salvarInfoNegocio());
-      if (field === 'instagram' || field === 'facebook') hidePrivateField(field);
+      const saved = await Promise.resolve(salvarInfoNegocio());
+      if (saved !== false) stopEditing(field);
     } finally {
       setSavingBusinessField(null);
     }
   };
 
-  const businessSaveAction = (field) => (
-    <button type="button" onClick={() => saveBusinessField(field)} disabled={infoSaving} className={saveButtonClass}>
-      {savingBusinessField === field ? 'SALVANDO' : 'SALVAR'}
-    </button>
-  );
-
-  const privateBusinessAction = (field) => (
-    visiblePrivateFields[field] ? (
-      <button type="button" onClick={() => saveBusinessField(field)} disabled={infoSaving} className={saveButtonClass}>
+  const businessFieldAction = (field) => (
+    isEditing(field) ? (
+      <button type="button" onClick={() => saveBusinessField(field)} disabled={infoSaving || !fieldChanged(field)} className={saveButtonClass}>
         {savingBusinessField === field ? 'SALVANDO' : 'SALVAR'}
       </button>
     ) : (
-      <button type="button" onClick={() => revealPrivateField(field)} className={saveButtonClass}>
-        VER ID
+      <button type="button" onClick={() => startEditing(field)} disabled={infoSaving} className={editButtonClass}>
+        EDITAR
       </button>
     )
   );
+
+  const inputStateClass = (editing) => editing ? '' : 'cursor-default text-gray-300 focus:text-gray-300';
 
   const addressTextInput = (field, placeholder = '', extraClass = '') => (
     <input
       value={formInfo[field] || ''}
       onChange={(e) => setFormInfo((prev) => ({ ...prev, [field]: e.target.value }))}
-      className={`${inputClass} truncate ${extraClass}`}
+      readOnly={!isEditing('sobre')}
+      className={`${inputClass} truncate ${inputStateClass(isEditing('sobre'))} ${extraClass}`}
       placeholder={placeholder}
     />
   );
@@ -129,20 +168,22 @@ export default function InfoNegocioSection({
         </span>
       </div>
 
-      <InfoRow label="NEGÓCIO" action={businessSaveAction('nome')}>
+      <InfoRow label="NEGOCIO" action={businessFieldAction('nome')}>
         <input
           value={formInfo.nome}
           onChange={(e) => setFormInfo((prev) => ({ ...prev, nome: e.target.value }))}
-          className={`${inputClass} uppercase truncate pr-10 sm:pr-0`}
-          placeholder="NOME DO NEGÓCIO"
+          readOnly={!isEditing('nome')}
+          className={`${inputClass} uppercase truncate pr-10 sm:pr-0 ${inputStateClass(isEditing('nome'))}`}
+          placeholder="NOME DO NEGOCIO"
         />
       </InfoRow>
 
-      <InfoRow label="TELEFONE" action={businessSaveAction('telefone')}>
+      <InfoRow label="TELEFONE" action={businessFieldAction('telefone')}>
         <input
           value={formInfo.telefone}
           onChange={(e) => setFormInfo((prev) => ({ ...prev, telefone: e.target.value }))}
-          className={inputClass}
+          readOnly={!isEditing('telefone')}
+          className={`${inputClass} ${inputStateClass(isEditing('telefone'))}`}
           placeholder="WHATSAPP"
         />
       </InfoRow>
@@ -150,28 +191,17 @@ export default function InfoNegocioSection({
       <div className="border-b border-gray-800 px-4 py-3 sm:px-6">
         <div className="mb-2 flex items-center justify-between gap-3">
           <span className="text-[14px] leading-5 text-gray-500">SOBRE</span>
-          {sobreExpanded ? (
-            <button type="button" onClick={() => saveBusinessField('descricao')} disabled={infoSaving} className={saveButtonClass}>
-              {savingBusinessField === 'descricao' ? 'SALVANDO' : 'SALVAR'}
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setSobreExpanded(true)}
-              aria-label="Abrir sobre o negócio"
-            >
-              <ChevronDown className="h-4 w-4" />
-            </button>
-          )}
+          {businessFieldAction('sobre')}
         </div>
         {sobreExpanded ? (
           <>
             <textarea
               value={formInfo.descricao}
               onChange={(e) => setFormInfo((prev) => ({ ...prev, descricao: e.target.value }))}
+              readOnly={!isEditing('sobre')}
               rows={4}
-              className="max-h-32 w-full resize-none overflow-y-auto bg-transparent py-2 pl-0 pr-6 text-[14px] font-normal leading-5 text-white outline-none [scrollbar-width:none] placeholder-gray-600 focus:text-white sm:pr-0 [&::-webkit-scrollbar]:hidden"
-              placeholder="Conte sobre seu negócio, atendimento e diferenciais; até 150 caracteres."
+              className={`max-h-32 w-full resize-none overflow-y-auto bg-transparent py-2 pl-0 pr-6 text-[14px] font-normal leading-5 text-white outline-none [scrollbar-width:none] placeholder-gray-600 focus:text-white sm:pr-0 [&::-webkit-scrollbar]:hidden ${inputStateClass(isEditing('sobre'))}`}
+              placeholder="Conte sobre seu negocio, atendimento e diferenciais; ate 150 caracteres."
             />
 
             <div className="-mx-4 mt-3 border-t border-gray-800 sm:-mx-6">
@@ -188,7 +218,7 @@ export default function InfoNegocioSection({
                 <SplitField label="RUA" divider>
                   {addressTextInput('endereco_rua')}
                 </SplitField>
-                <SplitField label="NÚMERO">
+                <SplitField label="NUMERO">
                   {addressTextInput('endereco_numero')}
                 </SplitField>
               </SplitRow>
@@ -210,7 +240,8 @@ export default function InfoNegocioSection({
                   <input
                     value={formInfo.endereco_estado || ''}
                     onChange={(e) => setFormInfo((prev) => ({ ...prev, endereco_estado: e.target.value.toUpperCase() }))}
-                    className={`${inputClass} truncate uppercase`}
+                    readOnly={!isEditing('sobre')}
+                    className={`${inputClass} truncate uppercase ${inputStateClass(isEditing('sobre'))}`}
                     maxLength={2}
                     placeholder="EX: MG"
                   />
@@ -221,24 +252,24 @@ export default function InfoNegocioSection({
         ) : null}
       </div>
 
-      <InfoRow label="INSTAGRAM" action={privateBusinessAction('instagram')}>
+      <InfoRow label="INSTAGRAM" action={businessFieldAction('instagram')}>
         <input
           type="text"
-          value={visiblePrivateFields.instagram ? formInfo.instagram : maskedPrivateValue}
+          value={visiblePrivateFields.instagram ? (formInfo.instagram || '') : maskedPrivateValue}
           onChange={(e) => setFormInfo((prev) => ({ ...prev, instagram: e.target.value }))}
-          readOnly={!visiblePrivateFields.instagram}
-          className={`${inputClass} uppercase`}
+          readOnly={!isEditing('instagram')}
+          className={`${inputClass} uppercase ${inputStateClass(isEditing('instagram'))}`}
           placeholder="@BARBEARIATORRES"
         />
       </InfoRow>
 
-      <InfoRow label="FACEBOOK" action={privateBusinessAction('facebook')}>
+      <InfoRow label="FACEBOOK" action={businessFieldAction('facebook')}>
         <input
           type="text"
-          value={visiblePrivateFields.facebook ? formInfo.facebook : maskedPrivateValue}
+          value={visiblePrivateFields.facebook ? (formInfo.facebook || '') : maskedPrivateValue}
           onChange={(e) => setFormInfo((prev) => ({ ...prev, facebook: e.target.value }))}
-          readOnly={!visiblePrivateFields.facebook}
-          className={`${inputClass} uppercase`}
+          readOnly={!isEditing('facebook')}
+          className={`${inputClass} uppercase ${inputStateClass(isEditing('facebook'))}`}
           placeholder="BARBEARIA-TORRES"
         />
       </InfoRow>
