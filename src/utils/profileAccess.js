@@ -1,90 +1,39 @@
 import { supabase } from '../supabase';
 
-const PROFILE_TABLE = 'users';
-
 export const isValidType = (t) => t === 'client' || t === 'professional';
 export const isValidOnboardingStatus = (s) => s === 'pending' || s === 'completed';
 export const isValidProfessionalRole = (s) => s === 'owner' || s === 'partner';
+export const isValidAccessState = (s) => s === 'active' || s === 'owner_resume' || s === 'partner_pending';
 
 export function normalizeOnboardingStatus(type, onboardingStatus) {
   if (type !== 'professional') return 'completed';
   return isValidOnboardingStatus(onboardingStatus) ? onboardingStatus : 'pending';
 }
 
-function getProfessionalAccessState(statuses, onboardingStatus, professionalRole) {
-  const hasPending = statuses.includes('pendente');
-  const hasActive = statuses.includes('ativo');
-
-  if (professionalRole === 'partner') {
-    if (hasPending && !hasActive) return 'partner_pending';
-    return 'active';
-  }
-  if (hasPending && !hasActive) return 'partner_pending';
-  if (normalizeOnboardingStatus('professional', onboardingStatus) === 'pending' && !hasActive && !hasPending) {
-    return 'owner_resume';
-  }
-  return 'active';
-}
-
 function normalizeProfessionalRole(value) {
   return isValidProfessionalRole(value) ? value : null;
 }
 
-export async function fetchUserAccessProfile(userId) {
-  try {
-    const { data, error } = await supabase.rpc('get_user_access_profile');
-    if (!error && data && isValidType(data.type)) {
-      const onboardingStatus = data.onboardingStatus ?? data.onboarding_status;
-      const professionalRole = data.professionalRole ?? data.professional_role;
-      return {
-        type: data.type,
-        professionalRole: normalizeProfessionalRole(professionalRole),
-        onboardingStatus: normalizeOnboardingStatus(data.type, onboardingStatus),
-        accessState: data.accessState || 'active',
-      };
-    }
-  } catch {
-    // Fallback para a leitura direta atual enquanto o novo contrato estabiliza.
-  }
+export async function fetchUserAccessProfile() {
+  const { data, error } = await supabase.rpc('get_user_access_profile');
+  if (error) throw error;
+  if (!data) return null;
 
-  const { data: userData, error: userError } = await supabase
-    .from(PROFILE_TABLE)
-    .select('type, onboarding_status, professional_role')
-    .eq('id', userId)
-    .maybeSingle();
-
-  if (userError) throw userError;
-
-  const type = userData?.type;
+  const type = data.type;
   if (!isValidType(type)) return null;
 
-  if (type !== 'professional') {
-    return {
-      type,
-      professionalRole: null,
-      onboardingStatus: 'completed',
-      accessState: 'active',
-    };
+  const onboardingStatus = data.onboardingStatus ?? data.onboarding_status;
+  const professionalRole = data.professionalRole ?? data.professional_role;
+  const accessState = data.accessState ?? data.access_state;
+
+  if (!isValidAccessState(accessState)) {
+    throw new Error('invalid_user_access_profile_contract');
   }
-
-  const { data: professionalRows, error: professionalError } = await supabase
-    .from('profissionais')
-    .select('status')
-    .eq('user_id', userId);
-
-  if (professionalError) throw professionalError;
-
-  const statuses = (professionalRows || []).map((row) => String(row.status || '').trim().toLowerCase());
-  const onboardingStatus = normalizeOnboardingStatus(type, userData?.onboarding_status);
 
   return {
     type,
-    professionalRole: normalizeProfessionalRole(userData?.professional_role),
-    onboardingStatus,
-    accessState: getProfessionalAccessState(
-      statuses,
-      onboardingStatus,
-      normalizeProfessionalRole(userData?.professional_role)
-    ),
+    professionalRole: normalizeProfessionalRole(professionalRole),
+    onboardingStatus: normalizeOnboardingStatus(type, onboardingStatus),
+    accessState,
   };
 }
