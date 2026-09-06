@@ -16,7 +16,11 @@ function normalizeProfessionalRole(value) {
 
 export async function fetchUserAccessProfile() {
   const { data, error } = await supabase.rpc('get_user_access_profile');
-  if (error) throw error;
+  if (error) {
+    const profileError = new Error('user_access_profile_unavailable');
+    profileError.cause = error;
+    throw profileError;
+  }
   if (!data) return null;
 
   const type = data.type;
