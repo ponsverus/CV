@@ -151,7 +151,7 @@ async function getUserProfileRobust(authUser) {
 
   for (let i = 0; i < delays.length; i++) {
     try {
-      const profile = await fetchUserAccessProfile(authUser.id);
+      const profile = await fetchUserAccessProfile();
       if (profile) return profile;
       if (i < delays.length - 1) await sleep(delays[i]);
     } catch (e) {
