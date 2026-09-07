@@ -205,12 +205,13 @@ function buildVerifyUrl(emailData: NonNullable<AuthHookPayload['email_data']>, a
 }
 
 function button(label: string, href: string) {
+  const ctaLabel = label.toUpperCase();
   return `
     <table role="presentation" cellpadding="0" cellspacing="0" style="margin:28px 0;">
       <tr>
-        <td style="border-radius:9999px;background:#111827;">
-          <a href="${escapeHtml(href)}" style="display:inline-block;padding:13px 22px;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;border-radius:9999px;">
-            ${escapeHtml(label)}
+        <td style="border-radius:9999px;background:#FFD700;">
+          <a href="${escapeHtml(href)}" style="display:inline-block;padding:13px 22px;color:#000000;text-decoration:none;font-weight:700;font-size:15px;border-radius:9999px;text-transform:uppercase;font-family:'Roboto Condensed',Arial,Helvetica,sans-serif;">
+            ${escapeHtml(ctaLabel)}
           </a>
         </td>
       </tr>
@@ -222,7 +223,7 @@ function authEmailHtml(title: string, body: string, actionLabel: string | null, 
   const safeUrl = actionUrl ? escapeHtml(actionUrl) : '';
   return `<!doctype html>
 <html>
-  <body style="margin:0;padding:0;background:#f3f4f6;font-family:Arial,Helvetica,sans-serif;color:#111827;">
+  <body style="margin:0;padding:0;background:#f3f4f6;font-family:'Roboto Condensed',Arial,Helvetica,sans-serif;color:#111827;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;padding:28px 12px;">
       <tr>
         <td align="center">
