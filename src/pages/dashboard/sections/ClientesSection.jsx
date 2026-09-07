@@ -160,7 +160,7 @@ export default function ClientesSection({
                   type="button"
                   onClick={() => setPage(index)}
                   className={['rounded-full transition-all duration-300', index === currentPage ? 'w-4 h-2 bg-primary' : 'w-2 h-2 bg-gray-600 hover:bg-gray-400'].join(' ')}
-                  aria-label={`Ir para pagina ${index + 1}`}
+                  aria-label={`Ir para página ${index + 1}`}
                 />
               ))}
               {clientesHasMore ? (
