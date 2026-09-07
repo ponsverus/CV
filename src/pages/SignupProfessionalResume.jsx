@@ -7,6 +7,7 @@ import { ProfessionalIcon } from '../components/icons';
 import { DEFAULT_PLAN_CODE, clearSelectedPlanIntent, getSelectedPlanIntent, normalizePlanCode } from '../utils/plans';
 import { formatPhoneForDisplay, normalizeBrazilPhone } from '../utils/phone';
 import { withTimeout } from '../utils/withTimeout';
+import { fetchUserAccessProfile } from '../utils/profileAccess';
 
 function onlyTrim(v) {
   return String(v || '').trim();
@@ -284,7 +285,13 @@ export default function SignupProfessionalResume({ user, onLogin }) {
         clearSelectedPlanIntent();
       }
 
-      onLogin(user, 'professional', 'completed', 'active', 'owner');
+      const profile = await fetchUserAccessProfile(user?.id);
+      if (!profile) {
+        showMessage('signupProfessional.profile_not_created');
+        return;
+      }
+
+      onLogin(user, profile.type, profile.onboardingStatus, profile.accessState, profile.professionalRole);
       navigate('/dashboard', { state: { negocioId: data.negocio_id } });
     } catch (err) {
       console.error('SignupProfessionalResume error:', err);
