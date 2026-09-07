@@ -210,7 +210,7 @@ export function useVitrineBooking({
       window.OneSignalDeferred.push(async function (OneSignal) {
         await OneSignal.sendTags({
           ultima_acao: 'agendamento_realizado',
-          servico_nome: primeiroServico?.nome || 'Servico',
+          servico_nome: primeiroServico?.nome || 'Serv.',
           data_agendamento: slot.dataISO,
           horario_agendamento: slot.label,
         });

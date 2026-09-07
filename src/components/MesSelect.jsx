@@ -133,7 +133,7 @@ export default function MesSelect({ value, onChange, todayISO }) {
           onClick={() => canGoNextYear && setViewYear((year) => year + 1)}
           disabled={!canGoNextYear}
           className="rounded p-1.5 text-gray-400 transition-colors hover:bg-dark-200 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
-          aria-label="Proximo ano"
+          aria-label="Próximo ano"
         >
           <ChevronRight className="h-4 w-4" />
         </button>

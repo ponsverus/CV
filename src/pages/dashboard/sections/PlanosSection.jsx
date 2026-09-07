@@ -345,11 +345,11 @@ export default function PlanosSection({
             <span>RENOVA: <span className="text-primary">{renewalDate}</span></span>
           )}
           {accessEndDate && canceledOrCancellationScheduled && (
-            <span>ACESSO ATE: <span className="text-primary">{accessEndDate}</span></span>
+            <span>ACESSO ATÉ: <span className="text-primary">{accessEndDate}</span></span>
           )}
           {planChangeScheduled && (
             <span>
-              MUDANCA AGENDADA: <span className="text-primary">{pendingPlanLabel}</span>
+              TROCA AGENDADA: <span className="text-primary">{pendingPlanLabel}</span>
               {pendingPlanDate ? <span> EM {pendingPlanDate}</span> : null}
             </span>
           )}
@@ -445,7 +445,7 @@ export default function PlanosSection({
 
                   {pendingForPlan && (
                     <p className="mt-3 rounded-custom border border-yellow-400/25 bg-yellow-400/10 px-3 py-2 text-xs font-normal uppercase tracking-wide text-yellow-100">
-                      Mudanca agendada{pendingPlanDate ? ` para ${pendingPlanDate}` : ''}
+                      Troca agendada{pendingPlanDate ? ` para ${pendingPlanDate}` : ''}
                     </p>
                   )}
                 </div>
