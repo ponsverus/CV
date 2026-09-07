@@ -279,8 +279,7 @@ export default function SelecionarNegocioParceiro({ user, onLogout }) {
 
   const renderBusinessRow = (row, { searchResult = false } = {}) => {
     const canOpen = !searchResult && row?.can_open_dashboard;
-    const planSupported = row?.business_supports_partner ?? row?.plan_supported ?? false;
-    const canRequest = searchResult && (row?.can_request ?? (planSupported && !row?.profissional_id && row?.negocio_id));
+    const canRequest = searchResult && row?.can_request === true;
     const unavailable = searchResult && !canRequest && !row.profissional_id;
     const showAction = canOpen || canRequest;
     const pillLabel = unavailable ? 'INDISPONÍVEL' : normalizeTag(row);
