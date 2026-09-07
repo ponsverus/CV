@@ -56,7 +56,7 @@ export default function Login({ onLogin }) {
       if (profile.type !== userType) {
         await supabase.auth.signOut();
         throw new Error(
-          `Esta conta e de ${profile.type === 'client' ? 'CLIENTE' : 'PROFISSIONAL'}. Selecione o tipo correto.`
+          `Esta conta é de ${profile.type === 'client' ? 'CLIENTE' : 'PROFISSIONAL'}. Selecione o tipo correto.`
         );
       }
 
