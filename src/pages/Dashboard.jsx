@@ -6,6 +6,7 @@ import { Eye, LogOut, AlertCircle } from 'lucide-react';
 import { supabase } from '../supabase';
 import { formatPhoneForDisplay } from '../utils/phone';
 import { useFeedback } from '../feedback/useFeedback';
+import { ptBR } from '../feedback/messages/ptBR.js';
 import { useBusinessGroup } from '../businessTerms';
 import EntregaModal from './dashboard/components/EntregaModal';
 import ProfissionalModal from './dashboard/components/ProfissionalModal';
@@ -97,18 +98,46 @@ function InfoPill({ label, value, tone = 'text-gray-300', border = 'border-gray-
   );
 }
 
+function interpolateMessage(value, params) {
+  return String(value || '').replace(/\{(\w+)\}/g, (_, key) => {
+    const next = params?.[key];
+    return next === undefined || next === null ? '' : String(next);
+  });
+}
+
+function dashboardBillingMessage(key, params) {
+  const entry = ptBR.dashboard?.[key];
+  return interpolateMessage(entry?.body || '', params);
+}
+
+function billingDayLabel(value) {
+  return dashboardBillingMessage(Number(value) === 1 ? 'billing_day_singular_header' : 'billing_day_plural_header');
+}
+
+function joinBillingMessages(...messages) {
+  return messages.filter(Boolean).join(' ');
+}
+
 function getPendingPlanChangeSuffix(status) {
   const planChangeScheduled = Boolean(status?.plan_change_scheduled);
   const pendingPlanLabel = status?.pending_plan_name || status?.pending_plan_code || '';
   if (!planChangeScheduled || !pendingPlanLabel) return '';
 
   const pendingPlanDate = status?.pending_plan_effective_label || '';
-  return ` A TROCA PARA ${pendingPlanLabel}${pendingPlanDate ? ` ESTÁ AGENDADA PARA ${pendingPlanDate}` : ' CONTINUA AGENDADA'}.`;
+  const messageKey = pendingPlanDate
+    ? 'billing_pending_plan_change_scheduled_header'
+    : 'billing_pending_plan_change_continues_header';
+
+  return dashboardBillingMessage(messageKey, {
+    plan: pendingPlanLabel,
+    date: pendingPlanDate,
+  });
 }
 
 function getBillingAnnouncement(status) {
   if (!status) return null;
   const current = String(status.status || '').toLowerCase();
+  const paymentStatus = String(status.payment_method_status || '').toLowerCase();
   const daysUntilTrialEnd = Number(status.days_until_trial_end);
   const daysUntilBlock = Number(status.days_until_block);
   const trialDays = Number(status.trial_days);
@@ -118,41 +147,84 @@ function getBillingAnnouncement(status) {
     const accessEndLabel = status?.access_ends_label || '';
     return {
       tone: 'warning',
-      text: `PLANO CANCELADO. ACESSO LIBERADO${accessEndLabel ? ` ATÉ ${accessEndLabel}` : ''}.${pendingPlanChangeSuffix}`,
+      text: joinBillingMessages(
+        dashboardBillingMessage(accessEndLabel ? 'billing_canceled_access_until_header' : 'billing_canceled_header', {
+          date: accessEndLabel,
+        }),
+        pendingPlanChangeSuffix
+      ),
     };
   }
 
   if (current === 'blocked' || current === 'canceled') {
     return {
       tone: 'danger',
-      text: `AGENDA BLOQUEADA. REGULARIZE SEU PLANO.${pendingPlanChangeSuffix}`,
+      text: joinBillingMessages(
+        dashboardBillingMessage('billing_blocked_header'),
+        pendingPlanChangeSuffix
+      ),
     };
   }
 
-  if (current === 'payment_grace' || current === 'past_due') {
+  if (current === 'past_due') {
     const suffix = Number.isFinite(daysUntilBlock) && daysUntilBlock > 0
-      ? ` BLOQUEIO EM ${daysUntilBlock} DIA${daysUntilBlock === 1 ? '' : 'S'}.`
+      ? dashboardBillingMessage('billing_block_countdown_header', {
+        days: daysUntilBlock,
+        dayLabel: billingDayLabel(daysUntilBlock),
+      })
       : '';
     return {
       tone: 'warning',
-      text: `TESTE ENCERRADO. ADD UM PAGAMENTO.${suffix}${pendingPlanChangeSuffix}`,
+      text: joinBillingMessages(
+        dashboardBillingMessage('billing_past_due_header'),
+        suffix,
+        pendingPlanChangeSuffix
+      ),
+    };
+  }
+
+  if (current === 'payment_grace') {
+    const suffix = Number.isFinite(daysUntilBlock) && daysUntilBlock > 0
+      ? dashboardBillingMessage('billing_block_countdown_header', {
+        days: daysUntilBlock,
+        dayLabel: billingDayLabel(daysUntilBlock),
+      })
+      : '';
+    const paymentFailed = ['failed', 'expired'].includes(paymentStatus);
+    return {
+      tone: 'warning',
+      text: joinBillingMessages(
+        dashboardBillingMessage(paymentFailed ? 'billing_payment_failed_header' : 'billing_trial_ended_header'),
+        suffix,
+        pendingPlanChangeSuffix
+      ),
     };
   }
 
   if (current === 'trialing' && Number.isFinite(daysUntilTrialEnd) && daysUntilTrialEnd > 0) {
     const total = Number.isFinite(trialDays) && trialDays > 0
-      ? ` DE ${trialDays} DIA${trialDays === 1 ? '' : 'S'}`
+      ? dashboardBillingMessage('billing_trial_total_header', {
+        days: trialDays,
+        dayLabel: billingDayLabel(trialDays),
+      })
       : '';
     return {
       tone: 'warning',
-      text: `TESTE GRÁTIS ATIVO. FALTAM ${daysUntilTrialEnd} DIA${daysUntilTrialEnd === 1 ? '' : 'S'}${total}.${pendingPlanChangeSuffix}`,
+      text: joinBillingMessages(
+        dashboardBillingMessage('billing_trial_active_header', {
+          days: daysUntilTrialEnd,
+          dayLabel: billingDayLabel(daysUntilTrialEnd),
+          total,
+        }),
+        pendingPlanChangeSuffix
+      ),
     };
   }
 
   if (pendingPlanChangeSuffix) {
     return {
       tone: 'warning',
-      text: pendingPlanChangeSuffix.trim(),
+      text: pendingPlanChangeSuffix,
     };
   }
 
