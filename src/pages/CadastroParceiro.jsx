@@ -4,6 +4,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../supabase';
 import { ptBR } from '../feedback/messages/ptBR';
 import { getParceiroCadastroAlert } from '../utils/friendlyErrors';
+import { fetchUserAccessProfile } from '../utils/profileAccess';
 
 const msgs = ptBR.parceiroCadastro;
 
@@ -105,8 +106,11 @@ export default function CadastroParceiro({ onLogin, suppressAuthRef }) {
         return;
       }
 
+      const profile = await fetchUserAccessProfile(uid);
+      if (!profile) throw new Error(msgs.account_create_error.body);
+
       if (suppressAuthRef) suppressAuthRef.current = false;
-      onLogin?.(signUpData.user, 'professional', 'completed', 'active', 'partner');
+      onLogin?.(signUpData.user, profile.type, profile.onboardingStatus, profile.accessState, profile.professionalRole);
       navigate('/selecionar-negocio-parceiro', { replace: true });
     } catch (e) {
       setAlerta(getParceiroCadastroAlert(e, msgs));
