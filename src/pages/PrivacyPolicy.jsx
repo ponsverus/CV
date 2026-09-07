@@ -26,10 +26,10 @@ const sections = [
     body: [
       'Criar e proteger contas de clientes, profissionais e negócios.',
       'Permitir agendamentos, cancelamentos, lembretes, e-mails transacionais e histórico operacional.',
-      'Publicar vitrines, logos, galerias, trabalhos, valoress, horários e depoimentos conforme configurado pelos usuários responsáveis.',
+      'Publicar vitrines, logos, galerias, trabalhos, valores, horários e depoimentos conforme configurado pelos usuários responsáveis.',
       'Gerenciar vínculos entre negócios e profissionais parceiros, incluindo pedidos pendentes, aceites, pausas e desligamentos.',
       'Processar planos, assinaturas, checkouts, cancelamentos, testes grátis, limites de plano e eventos de pagamento.',
-      'Prevenir fraude, abuso, spam, uso automatizado indevido, tentativas excessivas e acessos ilegitimos.',
+      'Prevenir fraude, abuso, spam, uso automatizado indevido, tentativas excessivas e acessos ilegítimos.',
       'Melhorar a plataforma, corrigir erros, medir desempenho, desenvolver recursos e prestar suporte.',
       'Cumprir regras legais, regulatórias, fiscais, consumeristas e exercer direitos em processos administrativos, judiciais ou arbitrais.',
     ],
@@ -48,37 +48,37 @@ const sections = [
       'Atualmente, a plataforma usa sistemas como Supabase para infraestrutura, OneSignal para e-mails transacionais e Asaas para pagamentos e assinaturas.',
       'Também podemos compartilhar dados com negócios e profissionais envolvidos no atendimento solicitado pelo cliente, por exemplo dados necessários para confirmar, executar, cancelar ou remarcar um agendamento.',
       'Nunca vendemos listas de clientes. Se forem ativadas ferramentas de analytics, pixels de publicidade, métricas, remarketing ou plataformas como Google e Meta, isso será tratado de forma transparente nesta política e, quando exigido, por mecanismos de consentimento ou controle de cookies.',
-      'Dados podem ser compartilhados com autoridades publicas, reguladores, tribunais ou terceiros quando necessario para cumprir lei, ordem valida, prevenir fraude, proteger direitos ou responder a demandas.',
+      'Dados podem ser compartilhados com autoridades públicas, reguladores, tribunais ou terceiros quando necessário para cumprir lei, ordem válida, prevenir fraude, proteger direitos ou responder a demandas.',
     ],
   },
   {
     title: '6. Cookies, analytics e publicidade',
     body: [
-      'Podemos usar cookies e tecnologias semelhantes para manter o login ativo, lembrar preferencias, proteger a conta, medir desempenho e entender o uso da plataforma.',
+      'Podemos usar cookies e tecnologias semelhantes para manter o login ativo, lembrar preferências, proteger a conta, medir desempenho e entender o uso da plataforma.',
       'Cookies essenciais podem ser necessários para login, blindagem e funcionamento da ferramenta.',
-      'Cookies analiticos, pixels de publicidade, tags de metas e remarketing podem ser usados para medir campanhas, melhorar o produto e divulgar a Comvaga. Quando esses recursos forem ativados, informaremos sua finalidade e adotaremos os controles exigidos pela lei aplicavel.',
+      'Cookies analíticos, pixels de publicidade, tags de metas e remarketing podem ser usados para medir campanhas, melhorar o produto e divulgar a Comvaga. Quando esses recursos forem ativados, informaremos sua finalidade e adotaremos os controles exigidos pela lei aplicável.',
       'Os ajustes do navegador podem permitir bloqueio ou limpeza de cookies, mas isso pode afetar recursos essenciais da plataforma.',
     ],
   },
   {
     title: '7. E-mails e lembretes',
     body: [
-      'Hoje enviamos e-mails e lembretes operacionais, como abertura de conta, confirma de agendamento, novo agendamento, cancelamento, lembrete, troca de senha, suporte e avisos do sistema.',
+      'Hoje enviamos e-mails e lembretes operacionais, como abertura de conta, novo agendamento, cancelamento, lembrete, troca de senha, suporte e avisos do sistema.',
       'E-mails e lembretes servem para o uso da plataforma e ficam fora do escopo de e-mail marketing.',
-      'Se futuramente enviarmos e-mails de ofertas ou novidades, adotaremos identificador claro do remetente, assunto direto e meio simples de saida.',
+      'Se futuramente enviarmos e-mails de ofertas ou novidades, adotaremos identificador claro do remetente, assunto direto e meio simples de saída.',
     ],
   },
   {
     title: '8. Conteúdo público e dados visíveis',
     body: [
-      'Alguns dados podem ser exibidos publicamente na vitrine do negocio, como nome do negocio, logo, fotos, trabalhos, valores, horarios, profissionais, depoimentos e dados de contato configurados pelo responsavel.',
-      'O usuario responsavel deve garantir que possui aval para publicar fotos, marcas, textos, nomes, imagens de pessoas e demais conteudos enviados para a plataforma.',
+      'Alguns dados podem ser exibidos publicamente na vitrine do negócio, como nome do negócio, logo, fotos, trabalhos, valores, horários, profissionais, depoimentos e dados de contato configurados pelo responsável.',
+      'O usuário responsável deve garantir que possui aval para publicar fotos, marcas, textos, nomes, imagens de pessoas e demais conteúdos enviados para a plataforma.',
     ],
   },
   {
     title: '9. Guarda e desligamento',
     body: [
-      'Mantemos dados pelo tempo necessario para operar a conta, prestar o trabalho, cumprir deveres legais, resolver disputas, prevenir fraude, preservar historico operacional e exercer direitos.',
+      'Mantemos dados pelo tempo necessário para operar a conta, prestar o trabalho, cumprir deveres legais, resolver disputas, prevenir fraude, preservar historico operacional e exercer direitos.',
       'Pedidos de parceria pendentes podem ser removidos sem guarda histórica quando recusados ou excluídos antes do aceite.',
       'Registros ligados a agendamentos, pagamentos, histórico do negócio, blindagem e auditoria podem ser mantidos mesmo após desligamento ou pausa de determinados itens, quando necessário para finalidade legítima, dever legal ou exercício de direitos.',
     ],
@@ -101,7 +101,6 @@ const sections = [
     title: '12. Contato',
     body: [
       'Para exercer direitos, tirar dúvidas ou pedir detalhes sobre privacidade, use o link de suporte disponível no rodapé desta página.',
-      'Antes de ser publicado, os dados jurídicos do controlador, como nome legal, e e-mail do encarregado ou canal de privacidade, devem ser preenchidos conforme a estrutura formal da empresa. Para falar com a Comvaga sobre privacidade, acesse o link de suporte disponível no rodapé.',
     ],
   },
 ];
