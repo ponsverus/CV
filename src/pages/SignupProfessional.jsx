@@ -5,6 +5,7 @@ import { supabase } from '../supabase';
 import { useFeedback } from '../feedback/useFeedback';
 import { ProfessionalIcon } from '../components/icons';
 import { DEFAULT_PLAN_CODE, getPlanFromSearch, getSelectedPlanIntent, saveSelectedPlanIntent } from '../utils/plans';
+import { fetchUserAccessProfile } from '../utils/profileAccess';
 
 const PROFILE_TABLE = 'users';
 const isValidType = (t) => t === 'client' || t === 'professional';
@@ -139,7 +140,10 @@ export default function SignupProfessional({ onLogin }) {
       if (!dbType) { showMessage('signupProfessional.profile_not_created'); return; }
       if (dbType !== 'professional') { showMessage('signupProfessional.profile_wrong_type'); return; }
 
-      onLogin(sessionUser, 'professional', 'pending', 'owner_resume', 'owner');
+      const profile = await fetchUserAccessProfile(sessionUser.id);
+      if (!profile) { showMessage('signupProfessional.profile_not_created'); return; }
+
+      onLogin(sessionUser, profile.type, profile.onboardingStatus, profile.accessState, profile.professionalRole);
       navigate('/cadastro/profissional/retomada');
     } catch (err) {
       console.error('SignupProfessional error:', err);
