@@ -107,12 +107,53 @@ export const ptBR = {
     },
     billing_cancel_confirm: {
       title: 'Cancelar plano?',
-      body: 'A vitrine será bloqueada para novos agendamentos até que um plano ativo seja selecionado.',
+      body:
+        'Se houver período pago vigente, o acesso permanece liberado até o fim do ciclo.\n' +
+        'Depois disso, o sistema bloqueará novos agendamentos até que um novo plano seja contratado e ativado.',
       variant: 'warning',
       screen: 'dark',
       confirmText: 'CANCELAR PLANO',
       cancelText: 'VOLTAR',
       buttonText: 'CANCELAR PLANO',
+    },
+    billing_pending_plan_change_scheduled_header: {
+      body: 'A TROCA PARA {plan} ESTÁ AGENDADA PARA {date}.',
+    },
+    billing_pending_plan_change_continues_header: {
+      body: 'A TROCA PARA {plan} CONTINUA AGENDADA.',
+    },
+    billing_canceled_access_until_header: {
+      body: 'PLANO CANCELADO. ACESSO LIBERADO ATÉ {date}.',
+    },
+    billing_canceled_header: {
+      body: 'PLANO CANCELADO. ACESSO LIBERADO.',
+    },
+    billing_blocked_header: {
+      body: 'AGENDA BLOQUEADA. REGULARIZE SEU PLANO.',
+    },
+    billing_past_due_header: {
+      body: 'PAGAMENTO PENDENTE. REGULARIZE SEU PLANO.',
+    },
+    billing_payment_failed_header: {
+      body: 'FALHA NO PAGAMENTO. TENTE NOVAMENTE.',
+    },
+    billing_trial_ended_header: {
+      body: 'TESTE ENCERRADO. ADICIONE UMA FORMA DE PAGAMENTO.',
+    },
+    billing_block_countdown_header: {
+      body: 'BLOQUEIO EM {days} {dayLabel}.',
+    },
+    billing_day_singular_header: {
+      body: 'DIA',
+    },
+    billing_day_plural_header: {
+      body: 'DIAS',
+    },
+    billing_trial_total_header: {
+      body: ' DE {days} {dayLabel}',
+    },
+    billing_trial_active_header: {
+      body: 'TESTE GRÁTIS ATIVO. FALTAM {days} {dayLabel}{total}.',
     },
     billing_plans_load_error: {
       title: 'Erro ao carregar planos',
@@ -921,7 +962,7 @@ export const ptBR = {
     email_not_confirmed:            { body: 'Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada e spam.', variant: 'aviso' },
     rate_limit_exceeded:            { body: 'Muitas tentativas em pouco tempo. Aguarde um minuto e tente novamente.', variant: 'aviso' },
     auth_error:                     { body: 'Erro ao autenticar agora. Tente novamente.', variant: 'erro' },
-    profile_access_unavailable:     { body: 'Ocorreu um erro ao confirmar seu perfil. Tente novamente em alguns segundos.' },
+    profile_access_unavailable:     { body: 'Ocorreu um erro ao confirmar seu perfil. Tente novamente em alguns segundos.', variant: 'erro' },
     not_partner:                    { body: 'Este login pertence a outro tipo de conta para este negócio.', variant: 'erro' },
     unexpected_error:               { body: 'Ocorreu um erro inesperado. Tente novamente.', variant: 'erro' },
     reset_email_required:           { body: 'Digite seu e-mail antes de solicitar o resgate de senha.', variant: 'aviso' },
