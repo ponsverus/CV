@@ -93,15 +93,15 @@ const sections = [
   {
     title: '11. Direitos dos titulares',
     body: [
-      'Nos termos da LGPD, o titular pode solicitar confirmação de tratamento, acesso, correção, anonimização, bloqueio, eliminação, portabilidade, informações sobre compartilhamento, revisão de decisões automatizadas quando aplicável e revogação do consentimento.',
-      'Algumas solicitações podem depender de verificação de identidade e podem ser limitadas por obrigações legais, segurança, prevenção a fraude, preservação de contratos ou exercício regular de direitos.',
+      'Nos termos da LGPD, o titular pode pedir prova de tratamento, acesso, ajuste, sigilo, bloqueio, retirada, portabilidade, detalhes sobre compartilhamento, reanálise de atos automatizados quando aplicável e retirada do consentimento.',
+      'Alguns pedidos podem depender de prova de identidade e podem ser limitados por deveres legais, defesa, combate a fraude, guarda de contratos ou exercício regular de direitos.',
     ],
   },
   {
     title: '12. Contato',
     body: [
-      'Para exercer direitos, tirar dúvidas ou solicitar informações sobre privacidade, use o link de suporte disponível no rodapé desta página.',
-      'Antes da publicação definitiva, os dados jurídicos do controlador, como razão social, CNPJ, endereço e e-mail do encarregado ou canal de privacidade, devem ser preenchidos conforme a estrutura formal da empresa. Para falar com a Comvaga sobre privacidade, acesse o link de suporte disponível no rodapé.',
+      'Para exercer direitos, tirar dúvidas ou pedir detalhes sobre privacidade, use o link de suporte disponível no rodapé desta página.',
+      'Antes de ser publicado, os dados jurídicos do controlador, como nome legal, e e-mail do encarregado ou canal de privacidade, devem ser preenchidos conforme a estrutura formal da empresa. Para falar com a Comvaga sobre privacidade, acesse o link de suporte disponível no rodapé.',
     ],
   },
 ];
