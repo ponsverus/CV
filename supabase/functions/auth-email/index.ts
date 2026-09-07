@@ -537,7 +537,7 @@ Deno.serve(async (req) => {
     try {
       payload = webhook.verify(payloadText, headers) as AuthHookPayload;
     } catch {
-      console.error('auth-send-email-onesignal invalid signature');
+      console.error('auth-email invalid signature');
       await writeAuthEmailLog({
         requestId,
         actionType: 'auth',
@@ -602,7 +602,7 @@ Deno.serve(async (req) => {
     return jsonResponse({}, 200, req);
   } catch (error) {
     const message = providerErrorMessage(error, 'auth_email_failed');
-    console.error('auth-send-email-onesignal failed:', message);
+    console.error('auth-email failed:', message);
 
     if (!message.startsWith('onesignal_email_failed_') && message !== 'onesignal_email_timeout' && message !== 'onesignal_fetch_failed') {
       await writeAuthEmailLog({
