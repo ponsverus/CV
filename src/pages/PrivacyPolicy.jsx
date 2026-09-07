@@ -78,7 +78,7 @@ const sections = [
   {
     title: '9. Guarda e desligamento',
     body: [
-      'Mantemos dados pelo tempo necessário para operar a conta, prestar o trabalho, cumprir deveres legais, resolver disputas, prevenir fraude, preservar historico operacional e exercer direitos.',
+      'Mantemos dados pelo tempo necessário para operar a conta, prestar o trabalho, cumprir deveres legais, resolver disputas, prevenir fraude, preservar histórico operacional e exercer direitos.',
       'Pedidos de parceria pendentes podem ser removidos sem guarda histórica quando recusados ou excluídos antes do aceite.',
       'Registros ligados a agendamentos, pagamentos, histórico do negócio, blindagem e auditoria podem ser mantidos mesmo após desligamento ou pausa de determinados itens, quando necessário para finalidade legítima, dever legal ou exercício de direitos.',
     ],
@@ -100,7 +100,7 @@ const sections = [
   {
     title: '12. Contato',
     body: [
-      'Para exercer direitos, tirar dúvidas ou pedir detalhes sobre privacidade, use o link de suporte disponível no rodapé desta página.',
+      'Para exercer direitos, tirar dúvidas ou pedir detalhes sobre o tratamento de seus dados pessoais, você pode entrar em contato com o nosso Encarregado pelo Tratamento de Dados Pessoais através do canal de suporte disponível no rodapé desta página.',
     ],
   },
 ];
