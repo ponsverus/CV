@@ -168,13 +168,13 @@ export default function InfoNegocioSection({
         </span>
       </div>
 
-      <InfoRow label="NEGOCIO" action={businessFieldAction('nome')}>
+      <InfoRow label="NEGÓCIO" action={businessFieldAction('nome')}>
         <input
           value={formInfo.nome}
           onChange={(e) => setFormInfo((prev) => ({ ...prev, nome: e.target.value }))}
           readOnly={!isEditing('nome')}
           className={`${inputClass} uppercase truncate pr-10 sm:pr-0 ${inputStateClass(isEditing('nome'))}`}
-          placeholder="NOME DO NEGOCIO"
+          placeholder="NOME DO NEGÓCIO"
         />
       </InfoRow>
 
@@ -213,7 +213,7 @@ export default function InfoNegocioSection({
               readOnly={!isEditing('sobre')}
               rows={4}
               className={`max-h-32 w-full resize-none overflow-y-auto bg-transparent py-2 pl-0 pr-6 text-[14px] font-normal leading-5 text-white outline-none [scrollbar-width:none] placeholder-gray-600 focus:text-white sm:pr-0 [&::-webkit-scrollbar]:hidden ${inputStateClass(isEditing('sobre'))}`}
-              placeholder="Conte sobre seu negocio, atendimento e diferenciais; ate 150 caracteres."
+              placeholder="Conte sobre seu negócio, atendimento e diferenciais; ate 150 caracteres."
             />
 
             <div className="-mx-4 mt-3 border-t border-gray-800 sm:-mx-6">
@@ -230,7 +230,7 @@ export default function InfoNegocioSection({
                 <SplitField label="RUA" divider>
                   {addressTextInput('endereco_rua')}
                 </SplitField>
-                <SplitField label="NUMERO">
+                <SplitField label="NÚMERO">
                   {addressTextInput('endereco_numero')}
                 </SplitField>
               </SplitRow>
