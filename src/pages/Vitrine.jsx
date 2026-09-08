@@ -300,10 +300,10 @@ export default function Vitrine({ user, userType, professionalRole = null, onLog
 
   const businessGroup = useBusinessGroup(negocio?.tipo_negocio);
   const bizV = vitrineMsgs?.business || {};
-  const sectionTitle = bizV?.section_title?.[businessGroup] ?? 'Serviços';
-  const counterSingular = ptBR?.vitrine?.business?.counter_singular?.[businessGroup] ?? 'serviço';
-  const counterPlural = ptBR?.vitrine?.business?.counter_plural?.[businessGroup] ?? 'serviços';
-  const emptyListMsg = ptBR?.vitrine?.business?.empty_list?.[businessGroup] ?? 'Sem serviços para este profissional.';
+  const sectionTitle = bizV?.section_title?.[businessGroup] ?? 'Servs';
+  const counterSingular = ptBR?.vitrine?.business?.counter_singular?.[businessGroup] ?? 'Serv.';
+  const counterPlural = ptBR?.vitrine?.business?.counter_plural?.[businessGroup] ?? 'Servs';
+  const emptyListMsg = ptBR?.vitrine?.business?.empty_list?.[businessGroup] ?? ':(';
 
   const [nativeAlertOpen, setNativeAlertOpen] = useState(false);
   const [nativeAlertData, setNativeAlertData] = useState({ title: '', body: '', buttonText: 'OK' });
