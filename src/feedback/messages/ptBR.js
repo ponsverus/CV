@@ -123,7 +123,7 @@ export const ptBR = {
       body: 'A TROCA PARA {plan} CONTINUA AGENDADA.',
     },
     billing_canceled_access_until_header: {
-      body: 'PLANO CANCELADO. ACESSO LIBERADO ATÉ {date}.',
+      body: 'PLANO CANCELADO. ACESSO LIBERADO ATÉ {date}',
     },
     billing_canceled_header: {
       body: 'PLANO CANCELADO. ACESSO LIBERADO.',
