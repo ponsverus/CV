@@ -16,7 +16,10 @@ export default function ScrollableCardsRow({
 
     const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
     const pageCount = isDesktop ? desktopPageCount : items.length;
-    const nextPage = Math.round(node.scrollLeft / Math.max(1, node.clientWidth));
+    const maxScrollLeft = node.scrollWidth - node.clientWidth;
+    const nextPage = maxScrollLeft > 1
+      ? Math.round((node.scrollLeft / maxScrollLeft) * (pageCount - 1))
+      : 0;
     setActivePage(Math.max(0, Math.min(pageCount - 1, nextPage)));
   }
   function goToDesktopPage(index) {
