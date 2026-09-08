@@ -156,7 +156,17 @@ function getBillingAnnouncement(status) {
     };
   }
 
-  if (current === 'blocked' || current === 'canceled') {
+  if (current === 'canceled') {
+    return {
+      tone: 'danger',
+      text: joinBillingMessages(
+        dashboardBillingMessage('billing_canceled_expired_header'),
+        pendingPlanChangeSuffix
+      ),
+    };
+  }
+
+  if (current === 'blocked') {
     return {
       tone: 'danger',
       text: joinBillingMessages(
