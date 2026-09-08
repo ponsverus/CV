@@ -473,7 +473,7 @@ export default function Vitrine({ user, userType, professionalRole = null, onLog
   const {
     flow,
     hasSelecao,
-    servicosSelecionados,
+    entregasSelecionadas,
     entregaVirtual,
     calendarActionConfig,
     handleConfirmarSelecao,
@@ -641,7 +641,7 @@ export default function Vitrine({ user, userType, professionalRole = null, onLog
         }}
       />
 
-      <SelectionBar itens={servicosSelecionados} counterSingular={counterSingular} counterPlural={counterPlural} onConfirm={handleConfirmarSelecao} onClear={handleLimparSelecao} isLight={isLight} />
+      <SelectionBar itens={entregasSelecionadas} counterSingular={counterSingular} counterPlural={counterPlural} onConfirm={handleConfirmarSelecao} onClear={handleLimparSelecao} isLight={isLight} />
 
       {flow.step === 'booking' && entregaVirtual && (
         <BookingCalendar

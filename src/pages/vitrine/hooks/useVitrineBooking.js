@@ -23,9 +23,9 @@ export function useVitrineBooking({
   billingStatus,
 }) {
   const [calendarExport, setCalendarExport] = useState({ googleUrl: '', icsUrl: '', icsFilename: '' });
-  const [flow, setFlow] = useState({ step: 'idle', profissional: null, servicosSelecionados: [], lastSlot: null });
+  const [flow, setFlow] = useState({ step: 'idle', profissional: null, entregasSelecionadas: [], lastSlot: null });
   const [selecaoProfId, setSelecaoProfId] = useState(null);
-  const [servicosSelecionados, setServicosSelecionados] = useState([]);
+  const [entregasSelecionadas, setEntregasSelecionadas] = useState([]);
   const rebookAppliedRef = useRef('');
   const assistedBooking = location.state?.assistedBooking || null;
   const isAssistedBooking = !!(user && userType === 'professional' && assistedBooking?.clienteId);
@@ -52,23 +52,23 @@ export function useVitrineBooking({
     let cancelled = false;
     (async () => {
       const profissional = profissionais.find((item) => item.id === rebook.profissionalId);
-      let servico = entregas.find((item) =>
+      let entrega = entregas.find((item) =>
         item.id === rebook.entregaId &&
         item.profissional_id === rebook.profissionalId &&
         item.ativo !== false
       );
-      if (!servico) {
-        servico = await fetchVitrineEntregaById({
+      if (!entrega) {
+        entrega = await fetchVitrineEntregaById({
           entregaId: rebook.entregaId,
           profissionalId: rebook.profissionalId,
         }).catch(() => null);
       }
-      if (cancelled || !profissional || !servico) return;
+      if (cancelled || !profissional || !entrega) return;
       rebookAppliedRef.current = rebookKey;
       setSelecaoProfId(null);
-      setServicosSelecionados([]);
+      setEntregasSelecionadas([]);
       revokeCurrentIcs();
-      setFlow({ step: 'booking', profissional, servicosSelecionados: [servico], lastSlot: null });
+      setFlow({ step: 'booking', profissional, entregasSelecionadas: [entrega], lastSlot: null });
       navigate(location.pathname, { replace: true, state: {} });
     })();
     return () => {
@@ -122,21 +122,21 @@ export function useVitrineBooking({
     return true;
   }, [alertKey, bookingAllowed, confirmKey, fetchNowFromDb, isAssistedBooking, navigate, todayISO, user, userType]);
 
-  const handleAgendarAgora = useCallback(async (profissional, servicos) => {
+  const handleAgendarAgora = useCallback(async (profissional, entregas) => {
     if (!(await requireLogin())) return;
     setSelecaoProfId(null);
-    setServicosSelecionados([]);
+    setEntregasSelecionadas([]);
     revokeCurrentIcs();
-    setFlow({ step: 'booking', profissional, servicosSelecionados: servicos, lastSlot: null });
+    setFlow({ step: 'booking', profissional, entregasSelecionadas: entregas, lastSlot: null });
   }, [requireLogin, revokeCurrentIcs]);
 
-  const handleToggleSelecao = useCallback(async (profissional, servico) => {
+  const handleToggleSelecao = useCallback(async (profissional, entrega) => {
     if (!(await requireLogin())) return;
-    setServicosSelecionados((prev) => {
+    setEntregasSelecionadas((prev) => {
       const jaTemEsseProf = selecaoProfId && selecaoProfId !== profissional.id;
       if (jaTemEsseProf) return prev;
-      const existe = prev.some((item) => item.id === servico.id);
-      const proximo = existe ? prev.filter((item) => item.id !== servico.id) : [...prev, servico];
+      const existe = prev.some((item) => item.id === entrega.id);
+      const proximo = existe ? prev.filter((item) => item.id !== entrega.id) : [...prev, entrega];
       if (proximo.length === 0) setSelecaoProfId(null);
       else setSelecaoProfId(profissional.id);
       return proximo;
@@ -144,44 +144,44 @@ export function useVitrineBooking({
   }, [requireLogin, selecaoProfId]);
 
   const handleConfirmarSelecao = useCallback(() => {
-    if (!servicosSelecionados.length) return;
+    if (!entregasSelecionadas.length) return;
     const profissional = profissionais.find((item) => item.id === selecaoProfId);
     if (!profissional) return;
     revokeCurrentIcs();
-    setFlow({ step: 'booking', profissional, servicosSelecionados, lastSlot: null });
+    setFlow({ step: 'booking', profissional, entregasSelecionadas, lastSlot: null });
     setSelecaoProfId(null);
-    setServicosSelecionados([]);
-  }, [profissionais, revokeCurrentIcs, selecaoProfId, servicosSelecionados]);
+    setEntregasSelecionadas([]);
+  }, [profissionais, revokeCurrentIcs, selecaoProfId, entregasSelecionadas]);
 
   const handleLimparSelecao = useCallback(() => {
     setSelecaoProfId(null);
-    setServicosSelecionados([]);
+    setEntregasSelecionadas([]);
   }, []);
 
   const entregaVirtual = useMemo(() => {
-    if (!flow.servicosSelecionados?.length) return null;
-    const primeiroServico = flow.servicosSelecionados[0];
-    const durTotal = flow.servicosSelecionados.reduce((sum, item) => sum + Number(item?.duracao_minutos || 0), 0);
-    const valTotal = flow.servicosSelecionados.reduce((sum, item) => sum + getPrecoFinalEntrega(item), 0);
+    if (!flow.entregasSelecionadas?.length) return null;
+    const primeiraEntrega = flow.entregasSelecionadas[0];
+    const durTotal = flow.entregasSelecionadas.reduce((sum, item) => sum + Number(item?.duracao_minutos || 0), 0);
+    const valTotal = flow.entregasSelecionadas.reduce((sum, item) => sum + getPrecoFinalEntrega(item), 0);
     return {
-      id: primeiroServico.id,
-      nome: flow.servicosSelecionados.length === 1 ? primeiroServico.nome : `${flow.servicosSelecionados.length} ${counterPlural}`,
+      id: primeiraEntrega.id,
+      nome: flow.entregasSelecionadas.length === 1 ? primeiraEntrega.nome : `${flow.entregasSelecionadas.length} ${counterPlural}`,
       duracao_minutos: durTotal,
       preco: valTotal,
       preco_promocional: null,
-      entrega_ids: flow.servicosSelecionados.map((item) => item.id).filter(Boolean),
+      entrega_ids: flow.entregasSelecionadas.map((item) => item.id).filter(Boolean),
     };
-  }, [counterPlural, flow.servicosSelecionados, getPrecoFinalEntrega]);
+  }, [counterPlural, flow.entregasSelecionadas, getPrecoFinalEntrega]);
 
   const handleBookingConfirm = useCallback((slot) => {
-    const primeiroServico = flow.servicosSelecionados?.[0];
-    const durTotal = (flow.servicosSelecionados || []).reduce((sum, item) => sum + Number(item?.duracao_minutos || 0), 0);
-    const serviceNames = (flow.servicosSelecionados || []).map((item) => item?.nome).filter(Boolean);
-    const titulo = primeiroServico?.nome || 'Agendamento';
+    const primeiraEntrega = flow.entregasSelecionadas?.[0];
+    const durTotal = (flow.entregasSelecionadas || []).reduce((sum, item) => sum + Number(item?.duracao_minutos || 0), 0);
+    const entregaNames = (flow.entregasSelecionadas || []).map((item) => item?.nome).filter(Boolean);
+    const titulo = primeiraEntrega?.nome || 'Agendamento';
     const detalhes = [
       'Agendamento confirmado pelo Comvaga.',
       flow.profissional?.nome ? `Profissional: ${flow.profissional.nome}` : '',
-      serviceNames.length ? `Serviços: ${serviceNames.join(', ')}` : '',
+      entregaNames.length ? `Serviços: ${entregaNames.join(', ')}` : '',
     ].filter(Boolean).join('\n');
     const local = negocio?.endereco || nomeNegocioLabel || '';
     const googleUrl = gerarLinkGoogle({
@@ -210,7 +210,7 @@ export function useVitrineBooking({
       window.OneSignalDeferred.push(async function (OneSignal) {
         await OneSignal.sendTags({
           ultima_acao: 'agendamento_realizado',
-          servico_nome: primeiroServico?.nome || 'Serv.',
+          servico_nome: primeiraEntrega?.nome || 'Serv.',
           data_agendamento: slot.dataISO,
           horario_agendamento: slot.label,
         });
@@ -218,7 +218,7 @@ export function useVitrineBooking({
     }
     setCalendarExport({ googleUrl, icsUrl, icsFilename: icsFile.filename });
     setFlow((prev) => ({ ...prev, step: 'confirmado', lastSlot: slot }));
-  }, [calendarExport.icsUrl, flow.profissional?.id, flow.profissional?.nome, flow.servicosSelecionados, gerarArquivoICS, gerarLinkGoogle, negocio?.endereco, negocio?.id, nomeNegocioLabel]);
+  }, [calendarExport.icsUrl, flow.profissional?.id, flow.profissional?.nome, flow.entregasSelecionadas, gerarArquivoICS, gerarLinkGoogle, negocio?.endereco, negocio?.id, nomeNegocioLabel]);
 
   const abrirGoogleAgenda = useCallback(() => {
     if (!calendarExport.googleUrl) return;
@@ -262,8 +262,8 @@ export function useVitrineBooking({
 
   return {
     flow,
-    hasSelecao: servicosSelecionados.length > 0,
-    servicosSelecionados,
+    hasSelecao: entregasSelecionadas.length > 0,
+    entregasSelecionadas,
     entregaVirtual,
     calendarActionConfig,
     handleAgendarAgora,
@@ -274,7 +274,7 @@ export function useVitrineBooking({
     closeBooking: () => setFlow((prev) => ({ ...prev, step: 'idle' })),
     bookingSectionState: {
       selecaoProfId,
-      servicosSelecionados,
+      entregasSelecionadas,
       onAgendarAgora: handleAgendarAgora,
       onToggleSelecao: handleToggleSelecao,
       isAssistedBooking,

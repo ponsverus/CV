@@ -33,7 +33,7 @@ export default function VitrineEntregasSection({
                     onLoadPage={onLoadPage}
                     profissional={card.profissional}
                     selecaoProfId={booking.selecaoProfId}
-                    servicosSelecionados={booking.servicosSelecionados}
+                    entregasSelecionadas={booking.entregasSelecionadas}
                     isProfessional={booking.isProfessional}
                     onAgendarAgora={booking.onAgendarAgora}
                     onToggleSelecao={booking.onToggleSelecao}
