@@ -128,6 +128,9 @@ export const ptBR = {
     billing_canceled_header: {
       body: 'CANCELAMENTO SOLICITADO. O ACESSO CONTINUA LIBERADO.',
     },
+    billing_canceled_expired_header: {
+      body: 'PLANO CANCELADO. ESCOLHA UM NOVO PLANO PARA CONTINUAR.',
+    },
     billing_blocked_header: {
       body: 'AGENDA BLOQUEADA. REGULARIZE SEU PLANO.',
     },
