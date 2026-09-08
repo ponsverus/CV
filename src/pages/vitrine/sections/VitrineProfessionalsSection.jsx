@@ -6,7 +6,7 @@ import {
   normalizeProfissionalHorarios,
 } from '../../dashboard/utils';
 
-const PROFISSIONAIS_POR_PAGINA = 4;
+const PROFISSIONAIS_POR_PAGINA = 3;
 
 function StarChar({ size = 16, className = 'text-primary' }) {
   return <span className={className} style={{ fontSize: size, lineHeight: 1 }} aria-hidden="true">★</span>;

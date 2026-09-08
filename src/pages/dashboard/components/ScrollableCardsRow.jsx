@@ -19,6 +19,11 @@ export default function ScrollableCardsRow({
     const nextPage = Math.round(node.scrollLeft / Math.max(1, node.clientWidth));
     setActivePage(Math.max(0, Math.min(pageCount - 1, nextPage)));
   }
+  function goToDesktopPage(index) {
+    const node = scrollerRef.current;
+    if (!node) return;
+    node.scrollTo({ left: index * node.clientWidth, behavior: 'smooth' });
+  }
 
   if (!Array.isArray(items) || items.length === 0) return null;
 
@@ -54,11 +59,15 @@ export default function ScrollableCardsRow({
       )}
 
       {items.length > 3 && (
-        <div className="mt-3 hidden justify-center gap-1.5 lg:flex" aria-hidden="true">
+        <div className="mt-3 hidden justify-center gap-1.5 lg:flex">
           {Array.from({ length: desktopPageCount }).map((_, index) => (
-            <span
-              key={`dot-desktop-${index}`}
-              className={`h-1.5 rounded-full transition-all ${index === desktopActivePage ? 'w-4 bg-primary' : 'w-1.5 bg-gray-600'}`}
+            <button
+              type="button"
+              key={"dot-desktop-" + index}
+              onClick={() => goToDesktopPage(index)}
+              aria-label={"Ir para a pagina " + (index + 1)}
+              title={"Ir para a pagina " + (index + 1)}
+              className={index === desktopActivePage ? 'h-1.5 w-4 rounded-full bg-primary' : 'h-1.5 w-1.5 rounded-full bg-gray-600'}
             />
           ))}
         </div>
