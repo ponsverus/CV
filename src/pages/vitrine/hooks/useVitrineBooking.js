@@ -16,7 +16,7 @@ export function useVitrineBooking({
   profissionais,
   entregas,
   counterPlural,
-  getPrecoFinalServico,
+  getPrecoFinalEntrega,
   gerarLinkGoogle,
   gerarArquivoICS,
   calendarPlatformMode,
@@ -162,7 +162,7 @@ export function useVitrineBooking({
     if (!flow.servicosSelecionados?.length) return null;
     const primeiroServico = flow.servicosSelecionados[0];
     const durTotal = flow.servicosSelecionados.reduce((sum, item) => sum + Number(item?.duracao_minutos || 0), 0);
-    const valTotal = flow.servicosSelecionados.reduce((sum, item) => sum + getPrecoFinalServico(item), 0);
+    const valTotal = flow.servicosSelecionados.reduce((sum, item) => sum + getPrecoFinalEntrega(item), 0);
     return {
       id: primeiroServico.id,
       nome: flow.servicosSelecionados.length === 1 ? primeiroServico.nome : `${flow.servicosSelecionados.length} ${counterPlural}`,
@@ -171,7 +171,7 @@ export function useVitrineBooking({
       preco_promocional: null,
       entrega_ids: flow.servicosSelecionados.map((item) => item.id).filter(Boolean),
     };
-  }, [counterPlural, flow.servicosSelecionados, getPrecoFinalServico]);
+  }, [counterPlural, flow.servicosSelecionados, getPrecoFinalEntrega]);
 
   const handleBookingConfirm = useCallback((slot) => {
     const primeiroServico = flow.servicosSelecionados?.[0];
