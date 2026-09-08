@@ -17,9 +17,19 @@ export default function ScrollableCardsRow({
     const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
     const pageCount = isDesktop ? desktopPageCount : items.length;
     const maxScrollLeft = node.scrollWidth - node.clientWidth;
-    const nextPage = maxScrollLeft > 1
-      ? Math.round((node.scrollLeft / maxScrollLeft) * (pageCount - 1))
-      : 0;
+    const nextPage = maxScrollLeft <= 1
+      ? 0
+      : node.scrollLeft >= maxScrollLeft - 1
+        ? pageCount - 1
+        : (() => {
+          const firstCard = node.firstElementChild;
+          const secondCard = firstCard?.nextElementSibling;
+          const cardStep = secondCard
+            ? secondCard.offsetLeft - firstCard.offsetLeft
+            : node.clientWidth;
+          const cardIndex = Math.round(node.scrollLeft / Math.max(1, cardStep));
+          return Math.max(0, Math.min(pageCount - 1, Math.floor(cardIndex / 3)));
+        })();
     setActivePage(Math.max(0, Math.min(pageCount - 1, nextPage)));
   }
   function goToDesktopPage(index) {
