@@ -117,7 +117,7 @@ export const ptBR = {
       buttonText: 'CANCELAR PLANO',
     },
     billing_pending_plan_change_scheduled_header: {
-      body: 'A TROCA PARA {plan} ESTÁ AGENDADA PARA {date}.',
+      body: 'A TROCA PARA {plan} ESTÁ AGENDADA PARA {date}',
     },
     billing_pending_plan_change_continues_header: {
       body: 'A TROCA PARA {plan} CONTINUA AGENDADA.',
@@ -126,7 +126,7 @@ export const ptBR = {
       body: 'PLANO CANCELADO. ACESSO LIBERADO ATÉ {date}',
     },
     billing_canceled_header: {
-      body: 'PLANO CANCELADO. ACESSO LIBERADO.',
+      body: 'CANCELAMENTO SOLICITADO. O ACESSO CONTINUA LIBERADO.',
     },
     billing_blocked_header: {
       body: 'AGENDA BLOQUEADA. REGULARIZE SEU PLANO.',
