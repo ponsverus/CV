@@ -144,7 +144,7 @@ function resolveFacebook(fbRaw) {
   return handle ? `https://facebook.com/${handle}` : null;
 }
 
-function getPrecoFinalServico(s) {
+function getPrecoFinalEntrega(s) {
   const preco = Number(s?.preco ?? 0);
   const promo = Number(s?.preco_promocional ?? 0);
   const temPromo = Number.isFinite(promo) && promo > 0 && promo < preco;
@@ -160,7 +160,7 @@ function sanitizeTel(raw) {
 function buildMetaDescription(negocio) {
   const nome = String(negocio?.nome || '').trim() || 'este negócio';
   const descricao = String(negocio?.descricao || '').replace(/\s+/g, ' ').trim();
-  const base = descricao || `Agende horários, veja serviços, profissionais e depoimentos de ${nome}.`;
+  const base = descricao || `Agende horários, veja trabalhos, profissionais e depoimentos de ${nome}.`;
   return base.length > 160 ? `${base.slice(0, 157).trim()}...` : base;
 }
 
@@ -234,7 +234,7 @@ function SelectionBar({ itens, counterSingular, counterPlural, onConfirm, onClea
   const qtd = itens.length;
   if (qtd === 0) return null;
   const durTotal = itens.reduce((sum, x) => sum + Number(x.duracao_minutos || 0), 0);
-  const valTotal = itens.reduce((sum, x) => sum + getPrecoFinalServico(x), 0);
+  const valTotal = itens.reduce((sum, x) => sum + getPrecoFinalEntrega(x), 0);
   const label = qtd === 1 ? counterSingular : counterPlural;
   const bg = isLight ? 'rgba(255,255,255,0.96)' : 'rgba(10,10,10,0.97)';
   const border = isLight ? 'rgba(214,203,182,0.9)' : 'rgba(212,160,23,0.25)';
@@ -496,7 +496,7 @@ export default function Vitrine({ user, userType, professionalRole = null, onLog
     profissionais,
     entregas,
     counterPlural,
-    getPrecoFinalServico,
+    getPrecoFinalEntrega,
     gerarLinkGoogle,
     gerarArquivoICS,
     calendarPlatformMode,
@@ -527,7 +527,7 @@ export default function Vitrine({ user, userType, professionalRole = null, onLog
     depoimentoNota,
     serverNow,
     getPublicUrl,
-    getPrecoFinalServico,
+    getPrecoFinalEntrega,
     getDowFromDateSP,
     resolveInstagram,
     resolveFacebook,
