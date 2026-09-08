@@ -8,14 +8,14 @@ function EntregaButtons({
   entrega,
   profissional,
   selecaoProfId,
-  servicosSelecionados,
+  entregasSelecionadas,
   isProfessional,
   onAgendarAgora,
   onToggleSelecao,
   isLight,
 }) {
-  const isSelecionado = servicosSelecionados.some((item) => item.id === entrega.id);
-  const modoSelecaoOn = servicosSelecionados.length > 0;
+  const isSelecionado = entregasSelecionadas.some((item) => item.id === entrega.id);
+  const modoSelecaoOn = entregasSelecionadas.length > 0;
   const outroProfSel = modoSelecaoOn && selecaoProfId !== null && selecaoProfId !== profissional.id;
   const agendarDesabilitado = !!isProfessional || modoSelecaoOn;
   const selecionarDesabilitado = !!isProfessional || outroProfSel;
@@ -88,7 +88,7 @@ function EntregaCard({
   entrega,
   profissional,
   selecaoProfId,
-  servicosSelecionados,
+  entregasSelecionadas,
   isProfessional,
   onAgendarAgora,
   onToggleSelecao,
@@ -138,7 +138,7 @@ function EntregaCard({
         entrega={entrega}
         profissional={profissional}
         selecaoProfId={selecaoProfId}
-        servicosSelecionados={servicosSelecionados}
+        entregasSelecionadas={entregasSelecionadas}
         isProfessional={isProfessional}
         onAgendarAgora={onAgendarAgora}
         onToggleSelecao={onToggleSelecao}
@@ -157,7 +157,7 @@ export default function EntregasCarousel({
   onLoadPage,
   profissional,
   selecaoProfId,
-  servicosSelecionados,
+  entregasSelecionadas,
   isProfessional,
   onAgendarAgora,
   onToggleSelecao,
@@ -285,7 +285,7 @@ export default function EntregasCarousel({
                 entrega={item}
                 profissional={profissional}
                 selecaoProfId={selecaoProfId}
-                servicosSelecionados={servicosSelecionados}
+                entregasSelecionadas={entregasSelecionadas}
                 isProfessional={isProfessional}
                 onAgendarAgora={onAgendarAgora}
                 onToggleSelecao={onToggleSelecao}
@@ -307,7 +307,7 @@ export default function EntregasCarousel({
               entrega={item}
               profissional={profissional}
               selecaoProfId={selecaoProfId}
-              servicosSelecionados={servicosSelecionados}
+              entregasSelecionadas={entregasSelecionadas}
               isProfessional={isProfessional}
               onAgendarAgora={onAgendarAgora}
               onToggleSelecao={onToggleSelecao}
