@@ -181,7 +181,7 @@ export function useVitrineBooking({
     const detalhes = [
       'Agendamento confirmado pelo Comvaga.',
       flow.profissional?.nome ? `Profissional: ${flow.profissional.nome}` : '',
-      entregaNames.length ? `Serviços: ${entregaNames.join(', ')}` : '',
+      entregaNames.length ? `Trabalhos: ${entregaNames.join(', ')}` : '',
     ].filter(Boolean).join('\n');
     const local = negocio?.endereco || nomeNegocioLabel || '';
     const googleUrl = gerarLinkGoogle({
@@ -206,16 +206,6 @@ export function useVitrineBooking({
     const icsBlob = new Blob([icsFile.content], { type: 'text/calendar;charset=utf-8' });
     if (calendarExport.icsUrl) URL.revokeObjectURL(calendarExport.icsUrl);
     const icsUrl = URL.createObjectURL(icsBlob);
-    if (window.OneSignalDeferred) {
-      window.OneSignalDeferred.push(async function (OneSignal) {
-        await OneSignal.sendTags({
-          ultima_acao: 'agendamento_realizado',
-          servico_nome: primeiraEntrega?.nome || 'Serv.',
-          data_agendamento: slot.dataISO,
-          horario_agendamento: slot.label,
-        });
-      });
-    }
     setCalendarExport({ googleUrl, icsUrl, icsFilename: icsFile.filename });
     setFlow((prev) => ({ ...prev, step: 'confirmado', lastSlot: slot }));
   }, [calendarExport.icsUrl, flow.profissional?.id, flow.profissional?.nome, flow.entregasSelecionadas, gerarArquivoICS, gerarLinkGoogle, negocio?.endereco, negocio?.id, nomeNegocioLabel]);
