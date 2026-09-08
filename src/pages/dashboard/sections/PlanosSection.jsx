@@ -182,7 +182,7 @@ const PLAN_CONTENT = {
     buttonClass: 'bg-gradient-to-r from-primary to-yellow-600 text-black hover:shadow-lg hover:shadow-primary/30',
   },
   premium: {
-    label: 'Premium Real',
+    label: 'Premium',
     oldPriceLabel: null,
     priceClass: 'text-white',
     buttonText: 'Selecionar Premium',
