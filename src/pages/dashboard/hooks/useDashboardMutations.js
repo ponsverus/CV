@@ -91,6 +91,7 @@ export function useDashboardMutations({
 
   const getBillingErrorKey = (error) => {
     const raw = `${error?.code || ''} ${error?.message || ''} ${error?.details || ''}`.toLowerCase();
+    if (raw.includes('future_plan_professional_limit_reached')) return 'dashboard.future_plan_professional_limit_reached';
     if (raw.includes('plan_professional_limit_reached')) return 'dashboard.plan_professional_limit_reached';
     if (raw.includes('partner_plan_unavailable')) return 'dashboard.partner_plan_unavailable';
     return null;
