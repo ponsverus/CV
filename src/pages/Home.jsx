@@ -540,7 +540,7 @@ export default function Home({ user, userType, professionalRole = null, onLogout
                   },
                   {
                     title: 'Alertas por e-mail em tempo real',
-                    text: 'Sem precisar checar manualmente, o sistema avisa você e seu cliente instantaneamente sobre qualquer novo agendamento ou cancelamento.',
+                    text: 'A cada novo agendamento, você é avisado na hora. E se algo for cancelado, o sistema avisa automaticamente quem precisa saber: você, se o cliente cancelar; o cliente, se você cancelar.',
                   },
                   {
                     title: 'Lembrete automático + WhatsApp',
