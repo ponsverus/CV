@@ -891,6 +891,13 @@ export const ptBR = {
       screen: 'dark',
       buttonText: 'OK',
     },
+    future_plan_professional_limit_reached: {
+      title: 'Limite do plano agendado',
+      body: 'Este negócio tem um downgrade agendado e já atingiu o limite de profissionais do plano futuro. Reduza os profissionais ativos ou pendentes antes de continuar.',
+      variant: 'warning',
+      screen: 'dark',
+      buttonText: 'OK',
+    },
     plan_professional_limit_current: {
       title: 'Limite do plano',
       body: 'Este plano permite até {limit} {professionalsLabel}. Você tem {count}.',
@@ -986,6 +993,8 @@ export const ptBR = {
     request_active: 'Parceria ativa. Você já pode acessar o dashboard deste negócio.',
     access_inactive: 'Este vínculo está inativo ou excluído neste negócio.',
     owner_cannot_request_partner_access: 'Parcerias indisponíveis para contas administradoras.',
+    plan_professional_limit_reached: 'Este negócio já atingiu o limite de profissionais do plano atual.',
+    future_plan_professional_limit_reached: 'Este negócio tem um downgrade agendado e já atingiu o limite de profissionais do plano futuro.',
     request_error: 'Erro ao solicitar parceria.',
   },
 
