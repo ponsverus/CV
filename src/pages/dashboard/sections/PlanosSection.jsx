@@ -126,6 +126,9 @@ function getPlanCancelErrorMessage(error) {
 
 function getPlanChangeErrorMessage(error) {
   const raw = `${error?.code || ''} ${error?.message || ''} ${error?.details || ''}`.toLowerCase();
+  if (raw.includes('future_plan_professional_limit_reached')) {
+    return messageBody('dashboard.future_plan_professional_limit_reached');
+  }
   if (raw.includes('plan_professional_limit_reached')) {
     return messageBody('dashboard.plan_professional_limit_reached');
   }
