@@ -259,6 +259,10 @@ export default function SelecionarNegocioParceiro({ user, onLogout }) {
       const raw = String(error?.message || '').toLowerCase();
       if (raw.includes('access_inactive')) {
         setAlert({ type: 'warning', message: msgs.access_inactive });
+      } else if (raw.includes('future_plan_professional_limit_reached')) {
+        setAlert({ type: 'warning', message: msgs.future_plan_professional_limit_reached });
+      } else if (raw.includes('plan_professional_limit_reached')) {
+        setAlert({ type: 'warning', message: msgs.plan_professional_limit_reached });
       } else if (raw.includes('partner_plan_unavailable')) {
         setAlert({ type: 'warning', message: ptBR.dashboard.partner_plan_unavailable.body });
       } else if (raw.includes('owner_cannot_request_partner_access')) {
